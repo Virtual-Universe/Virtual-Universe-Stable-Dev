@@ -27,11 +27,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using Nini.Config;
-using Nini.Ini;
 using System;
 using System.IO;
 using System.Reflection;
+using Nini.Config;
+using Nini.Ini;
 
 namespace Universe.Simulation.Base
 {
@@ -111,7 +111,6 @@ namespace Universe.Simulation.Base
         {
             if (File.Exists(fileName + ".example")) //Update the .example files too if people haven't
                 UpdateIniFile(fileName + ".example", handler, names, values, actions);
-
             if (File.Exists(fileName))
             {
                 IniConfigSource doc = new IniConfigSource(fileName, IniFileType.AuroraStyle);
@@ -126,7 +125,6 @@ namespace Universe.Simulation.Base
                     else
                         section.Remove(name);
                 }
-
                 doc.Save();
             }
         }
