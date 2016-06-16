@@ -1,6 +1,8 @@
 ﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,7 +27,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 using System.IO;
 using OpenMetaverse.StructuredData;
 using Universe.Framework.ConsoleFramework;
@@ -43,8 +44,7 @@ namespace Universe.Services
         {
             m_service = service;
             
-            service.AddStreamHandler ("GroupExperiences",
-                new GenericStreamHandler ("GET", service.CreateCAPS ("GroupExperiences", ""), GroupExperiences));
+            service.AddStreamHandler ("GroupExperiences", new GenericStreamHandler ("GET", service.CreateCAPS ("GroupExperiences", ""), GroupExperiences));
         }
 
         public void EnteringRegion ()
@@ -56,8 +56,7 @@ namespace Universe.Services
             m_service.RemoveStreamHandler ("GroupExperiences", "GET");
         }
         
-        public byte[] GroupExperiences (string path, Stream request, OSHttpRequest httpRequest,
-                                      OSHttpResponse httpResponse)
+        public byte[] GroupExperiences (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
             MainConsole.Instance.DebugFormat("[GroupExperiences] Call = {0}", httpRequest);
             var groupExp = new OSDMap();

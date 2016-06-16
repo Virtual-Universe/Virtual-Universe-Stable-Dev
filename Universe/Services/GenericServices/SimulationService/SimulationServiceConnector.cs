@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org, http://opensimulator.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -24,7 +26,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 
 using System.Collections.Generic;
 using System.Threading;
@@ -92,7 +93,7 @@ namespace Universe.Services
 
             AutoResetEvent resetEvent = new AutoResetEvent (false);
             OSDMap result = null;
-            MainConsole.Instance.DebugFormat ("[SimulationServiceConnector]: Sending Create Agent to " + destination.ServerURI);
+            MainConsole.Instance.DebugFormat ("[Simulation Service Connector]: Sending Create Agent to " + destination.ServerURI);
             m_syncMessagePoster.Get (destination.ServerURI, request.ToOSD (), osdresp => {
                 result = osdresp;
                 resetEvent.Set ();
@@ -117,7 +118,7 @@ namespace Universe.Services
                 //Check against time
                 if (m_blackListedRegions [destination.ServerURI] > 3 &&
                     Util.EnvironmentTickCountSubtract (m_blackListedRegions [destination.ServerURI]) > 0) {
-                    MainConsole.Instance.Warn ("[SimServiceConnector]: Blacklisted region " + destination.RegionName + " requested");
+                    MainConsole.Instance.Warn ("[Simulation Service Connector]: Blacklisted region " + destination.RegionName + " requested");
                     //Still blacklisted
                     return false;
                 }
@@ -158,7 +159,7 @@ namespace Universe.Services
                 //Check against time
                 if (m_blackListedRegions [destination.ServerURI] > 3 &&
                     Util.EnvironmentTickCountSubtract (m_blackListedRegions [destination.ServerURI]) > 0) {
-                    MainConsole.Instance.Warn ("[SimServiceConnector]: Blacklisted region " + destination.RegionName + " requested");
+                    MainConsole.Instance.Warn ("[Simulation Service Connector]: Blacklisted region " + destination.RegionName + " requested");
                     //Still blacklisted
                     return false;
                 }
@@ -216,8 +217,7 @@ namespace Universe.Services
             return true;
         }
 
-        public bool FailedToTeleportAgent (GridRegion destination, UUID failedRegionID, UUID agentID, string reason,
-                                          bool isCrossing)
+        public bool FailedToTeleportAgent (GridRegion destination, UUID failedRegionID, UUID agentID, string reason, bool isCrossing)
         {
             FailedToTeleportAgentRequest request = new FailedToTeleportAgentRequest ();
             request.AgentID = agentID;
@@ -230,8 +230,7 @@ namespace Universe.Services
             return true;
         }
 
-        public bool RetrieveAgent (GridRegion destination, UUID agentID, bool agentIsLeaving, out AgentData agentData,
-                                  out AgentCircuitData circuitData)
+        public bool RetrieveAgent (GridRegion destination, UUID agentID, bool agentIsLeaving, out AgentData agentData, out AgentCircuitData circuitData)
         {
             agentData = null;
             circuitData = null;
@@ -247,6 +246,7 @@ namespace Universe.Services
                 result = osdresp;
                 resetEvent.Set ();
             });
+
             bool success = resetEvent.WaitOne (10000) && result != null;
             if (!success) return false;
 

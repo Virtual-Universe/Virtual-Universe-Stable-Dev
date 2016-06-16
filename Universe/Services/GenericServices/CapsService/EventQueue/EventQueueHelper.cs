@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,7 +36,6 @@ using OpenMetaverse.Packets;
 using OpenMetaverse.StructuredData;
 using Universe.Framework.SceneInfo;
 using Universe.Framework.Utilities;
-
 
 namespace Universe.Services
 {
@@ -106,6 +107,7 @@ namespace Universe.Services
                     PhysicsShapeType = (PhysicsShapeType)entity.PhysicsType,
                     Restitution = entity.Restitution
                 };
+
                 i++;
             }
 
@@ -122,11 +124,9 @@ namespace Universe.Services
         }
 
         public static OSD CrossRegion (ulong handle, Vector3 pos, Vector3 lookAt,
-                                       IPAddress address, int port,
-                                       string capsURL, UUID agentID, UUID sessionID, int RegionSizeX, int RegionSizeY)
+                                       IPAddress address, int port, string capsURL, UUID agentID, UUID sessionID, int RegionSizeX, int RegionSizeY)
         {
-            OSDArray lookAtArr = new OSDArray (3)
-                                     { OSD.FromReal (lookAt.X), OSD.FromReal (lookAt.Y), OSD.FromReal (lookAt.Z) };
+            OSDArray lookAtArr = new OSDArray (3) { OSD.FromReal (lookAt.X), OSD.FromReal (lookAt.Y), OSD.FromReal (lookAt.Z) };
 
             OSDArray positionArr = new OSDArray (3) {
                 OSD.FromReal (pos.X),
@@ -205,8 +205,7 @@ namespace Universe.Services
             return buildEvent ("ScriptRunningReply", body);
         }
 
-        public static OSD EstablishAgentCommunication (UUID agentID, ulong regionhandle, string simIpAndPort,
-                                                       string seedcap, int RegionSizeX, int RegionSizeY)
+        public static OSD EstablishAgentCommunication (UUID agentID, ulong regionhandle, string simIpAndPort, string seedcap, int RegionSizeX, int RegionSizeY)
         {
             OSDMap body = new OSDMap (3) {
                 { "agent-id", new OSDUUID (agentID) },
@@ -334,9 +333,7 @@ namespace Universe.Services
             return chatterboxInvitation;
         }
 
-        public static OSD ChatterBoxSessionAgentListUpdates (UUID sessionID,
-                                                            UUID agentID, bool canVoiceChat, bool isModerator,
-                                                            bool textMute)
+        public static OSD ChatterBoxSessionAgentListUpdates (UUID sessionID, UUID agentID, bool canVoiceChat, bool isModerator, bool textMute)
         {
             OSDMap body = new OSDMap ();
             OSDMap agentUpdates = new OSDMap ();
@@ -360,9 +357,7 @@ namespace Universe.Services
             return chatterBoxSessionAgentListUpdates;
         }
 
-        internal static OSD ChatterBoxSessionAgentListUpdates (UUID sessionID,
-                                                              ChatterBoxSessionAgentListUpdatesMessage.AgentUpdatesBlock
-                                                                  [] agentUpdatesBlock, string Transition)
+        internal static OSD ChatterBoxSessionAgentListUpdates (UUID sessionID, ChatterBoxSessionAgentListUpdatesMessage.AgentUpdatesBlock [] agentUpdatesBlock, string Transition)
         {
             OSDMap body = new OSDMap ();
             OSDMap agentUpdates = new OSDMap ();
@@ -382,6 +377,7 @@ namespace Universe.Services
                     info.Add ("transition", OSD.FromString (Transition));
                 agentUpdates.Add (block.AgentID.ToString (), info);
             }
+
             body.Add ("agent_updates", agentUpdates);
             body.Add ("session_id", OSD.FromUUID (sessionID));
             body.Add ("updates", new OSD ());
@@ -480,11 +476,11 @@ namespace Universe.Services
                 int num = 0;
                 foreach (OSDMap innerMap in m.Cast<OSDMap>())
                 {
-                    innerMap ["TimeStamp"] =
-                        OSD.FromUInteger ((uint)Util.ToUnixTime (parcelPropertiesMessage.PrimOwnersBlock [num].TimeStamp));
+                    innerMap ["TimeStamp"] = OSD.FromUInteger ((uint)Util.ToUnixTime (parcelPropertiesMessage.PrimOwnersBlock [num].TimeStamp));
                     num++;
                 }
             }
+
             message.Add ("body", message_body);
             return message;
         }
@@ -497,10 +493,10 @@ namespace Universe.Services
             int num = 0;
             foreach (OSDMap innerMap in m.Cast<OSDMap>())
             {
-                innerMap ["TimeStamp"] =
-                    OSD.FromUInteger ((uint)Util.ToUnixTime (statReplyMessage.ReportDataBlocks [num].TimeStamp));
+                innerMap ["TimeStamp"] = OSD.FromUInteger ((uint)Util.ToUnixTime (statReplyMessage.ReportDataBlocks [num].TimeStamp));
                 num++;
             }
+
             message.Add ("body", message_body);
             return message;
         }

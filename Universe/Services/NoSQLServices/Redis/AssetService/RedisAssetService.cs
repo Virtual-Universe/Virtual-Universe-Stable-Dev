@@ -1,6 +1,8 @@
 ﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -51,7 +53,6 @@ namespace Universe.RedisServices.AssetService
         protected Pool<RedisClient<byte[]>> m_connectionPool;
         protected int m_connectionPort = 6379;
         protected bool m_enabled;
-
         protected bool m_migrateSQL;
         protected IAssetDataPlugin m_assetService;
 
@@ -98,7 +99,6 @@ namespace Universe.RedisServices.AssetService
 
                 // try and migrate sql assets if they are missing?
                 m_migrateSQL = redisConnection.GetBoolean("MigrateSQLAssets", true);
-
             }
 
             m_connectionPool =
@@ -122,7 +122,8 @@ namespace Universe.RedisServices.AssetService
                     "Gets info about asset from database", 
                     HandleGetAsset, false, true);
             }
-            MainConsole.Instance.Info("[Redis asset service]: Redis asset service enabled");
+
+            MainConsole.Instance.Info("[Redis Asset Service]: Redis asset service enabled");
         }
 
         public virtual void Start(IConfigSource config, IRegistryCore registry)
@@ -173,6 +174,7 @@ namespace Universe.RedisServices.AssetService
                         cache.Cache (id, (AssetBase)remoteValue);
                     return (AssetBase)remoteValue;
                 }
+
                 return null;
             }
 
@@ -215,6 +217,7 @@ namespace Universe.RedisServices.AssetService
                         cache.CacheData (id, data);
                     return data;
                 }
+
                 return null;
             }
 
@@ -229,7 +232,6 @@ namespace Universe.RedisServices.AssetService
             asset.Data.CopyTo (assetData, 0);
             asset.Dispose ();
             return assetData;
-
         }
 
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
@@ -248,7 +250,6 @@ namespace Universe.RedisServices.AssetService
             var asset = Get (id);
             if (asset != null) {
                 Util.FireAndForget ((o) => { handler (id, sender, asset); });
-                // asset.Dispose ();
             }
         }
 
@@ -332,14 +333,17 @@ namespace Universe.RedisServices.AssetService
                 catch
                 {
                 }
+
                 m_connectionPool.DestroyItem(client);
                 client = null;
             }
+
             finally
             {
                 if (client != null)
                     m_connectionPool.FlagFreeItem(client);
             }
+
             return null;
         }
 
@@ -370,6 +374,7 @@ namespace Universe.RedisServices.AssetService
                 if (client != null)
                     m_connectionPool.FlagFreeItem(client);
             }
+
             return false;
         }
 
@@ -408,10 +413,10 @@ namespace Universe.RedisServices.AssetService
 #if DEBUG
                 long endTime = System.Diagnostics.Stopwatch.GetTimestamp();
                 if (MainConsole.Instance != null && asset != null)
-                    MainConsole.Instance.Warn("[Redis asset service]: Took " + (endTime - startTime)/10000 +
-                                              " to get asset " + id + " sized " + asset.Data.Length/(1024) + "kbs");
+                    MainConsole.Instance.Warn("[Redis Asset Service]: Took " + (endTime - startTime)/10000 + " to get asset " + id + " sized " + asset.Data.Length/(1024) + "kbs");
 #endif
             }
+
             return asset;
         }
 
@@ -425,11 +430,6 @@ namespace Universe.RedisServices.AssetService
 
             if (asset == null)
                 return null;
-
-            //Delete first, then restore it with the new local flag attached, so that we know we've converted it
-            //m_assetService.Delete(asset.ID, true);
-            //asset.Flags = AssetFlags.Local;
-            //m_assetService.StoreAsset(asset);
 
             //Now store in Redis
             RedisSetAsset(asset);
@@ -462,8 +462,7 @@ namespace Universe.RedisServices.AssetService
                 if (duplicate)
                 {
                     if (MainConsole.Instance != null)
-                        MainConsole.Instance.Debug("[Redis asset service]: Found duplicate asset " + asset.IDString +
-                                                   " for " + asset.IDString);
+                        MainConsole.Instance.Debug("[Redis Asset Service]: Found duplicate asset " + asset.IDString + " for " + asset.IDString);
 
                     //Only set id --> asset, and not the hashcode --> data to de-duplicate
                     RedisEnsureConnection((conn) => conn.Set(asset.IDString, memStream.ToArray()));
@@ -478,8 +477,10 @@ namespace Universe.RedisServices.AssetService
                                 c.Set(asset.IDString, memStream.ToArray());
                                 c.Set(DATA_PREFIX + hash, data);
                             });
+
                         return true;
                     });
+
                 return true;
             }
             catch
@@ -499,8 +500,6 @@ namespace Universe.RedisServices.AssetService
                 return;
             
             RedisEnsureConnection((conn) => conn.Del(id) == 1);
-            //DON'T DO THIS, there might be other references to this hash
-            //RedisEnsureConnection((conn) => conn.Del(DATA_PREFIX + asset.HashCode) == 1);
         }
 
         #region Console Commands

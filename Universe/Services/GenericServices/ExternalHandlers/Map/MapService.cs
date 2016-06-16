@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -72,6 +74,7 @@ namespace Universe.Services
                 m_cacheEnabled = mapConfig.GetBoolean("CacheEnabled", m_cacheEnabled);
                 m_cacheExpires = mapConfig.GetFloat("CacheExpires", m_cacheExpires);
             }
+
             if (!m_enabled)
                 return;
 
@@ -83,6 +86,7 @@ namespace Universe.Services
                     var defpath = registry.RequestModuleInterface<ISimulationBase> ().DefaultDataPath;
                     m_assetCacheDir = Path.Combine (defpath, Constants.DEFAULT_ASSETCACHE_DIR);
                 }
+
                 CreateCacheDirectories (m_assetCacheDir);
             }
 
@@ -99,14 +103,8 @@ namespace Universe.Services
                 SolidBrush sea = new SolidBrush(Color.FromArgb(29, 71, 95));
                 g.FillRectangle(sea, 0, 0, 256, 256);
             }
+
             m_blankRegionTileData = CacheMapTexture(1, 0, 0, m_blankRegionTile, true);
-            /*string path = Path.Combine(m_assetCacheDir, Path.Combine("mapzoomlevels", "blankMap.index"));
-            if(File.Exists(path))
-            {
-                FileStream stream = File.OpenRead(path);
-                m_blankTiles = ProtoBuf.Serializer.Deserialize<MapTileIndex>(stream);
-                stream.Close();
-            }*/
         }
 
         void CreateCacheDirectories(string cacheDir)
@@ -131,9 +129,11 @@ namespace Universe.Services
         {
             if (!m_enabled) return;
             IGridServerInfoService serverInfo = m_registry.RequestModuleInterface<IGridServerInfoService>();
+
             if (serverInfo != null)
                 serverInfo.AddURI("MapAPIService", MapServiceAPIURL);
             IGridInfo gridInfo = m_registry.RequestModuleInterface<IGridInfo>();
+
             if (gridInfo != null)
                 gridInfo.GridMapTileURI = MapServiceURL;
         }
@@ -171,9 +171,7 @@ namespace Universe.Services
                 string resp = "var {0} = \"{1}\";";
                 int grid_x = int.Parse(httpRequest.Query["grid_x"].ToString());
                 int grid_y = int.Parse(httpRequest.Query["grid_y"].ToString());
-                var region = m_gridService.GetRegionByPosition(null,
-                                                               grid_x * Constants.RegionSize,
-                                                               grid_y * Constants.RegionSize);
+                var region = m_gridService.GetRegionByPosition(null, grid_x * Constants.RegionSize, grid_y * Constants.RegionSize);
                 if (region == null)
                 {
                     List<GridRegion> regions = m_gridService.GetRegionRange(null,
@@ -193,6 +191,7 @@ namespace Universe.Services
                             break;
                         }
                     }
+
                     if (!found)
                         resp = "var " + var + " = {error: true};";
                 }
@@ -270,8 +269,10 @@ namespace Universe.Services
 
                     }
                 }
+
                 return new byte[0];
             }
+
             string[] splitUri = uri.Split('-');
             byte[] jpeg = FindCachedImage(uri);
             if (jpeg.Length != 0)
@@ -395,6 +396,7 @@ namespace Universe.Services
                 temp.DrawImage(b, 0, 0, nWidth, nHeight);
                 temp.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             }
+
             DisposeTexture(b);
             return newsize;
         }
@@ -481,7 +483,6 @@ namespace Universe.Services
                 bmp.Dispose();
 
             CacheMapTexture(1, regionX, regionY, mapTexture);
-            //mapTexture = ResizeBitmap(mapTexture, 128, 128);
             return mapTexture;
         }
 
@@ -510,6 +511,7 @@ namespace Universe.Services
                 if (DateTime.Now < File.GetLastWriteTime(fullPath).AddHours(m_cacheExpires))
                     return File.ReadAllBytes(fullPath);
             }
+
             return new byte[0];
         }
 
@@ -544,6 +546,7 @@ namespace Universe.Services
                     }
                 }
             }
+
             return null;
         }
 
@@ -580,7 +583,6 @@ namespace Universe.Services
                 return;
 
             string name = string.Format("map-{0}-{1}-{2}-objects.jpg", maplayer, regionX, regionY);
-            //string fullPath = Path.Combine(m_assetCacheDir, Path.Combine("mapzoomlevels", name));
             string fullPath = Path.Combine(m_assetMapCacheDir, name);
             File.WriteAllBytes(fullPath, data);
         }

@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -46,8 +48,7 @@ namespace Universe.Services.DataService
 
         #region IAgentInfoConnector Members
 
-        public void Initialize(IGenericData GenericData, IConfigSource source, IRegistryCore simBase,
-                               string defaultConnectionString)
+        public void Initialize(IGenericData GenericData, IConfigSource source, IRegistryCore simBase, string defaultConnectionString)
         {
             if (source.Configs["UniverseConnectors"].GetString("UserInfoConnector", "LocalConnector") == "LocalConnector")
             {
@@ -58,14 +59,12 @@ namespace Universe.Services.DataService
                 {
                     connectionString = source.Configs[Name].GetString("ConnectionString", defaultConnectionString);
 
-                    m_allowDuplicatePresences =
-                        source.Configs[Name].GetBoolean("AllowDuplicatePresences", m_allowDuplicatePresences);
-                    m_checkLastSeen =
-                        source.Configs[Name].GetBoolean("CheckLastSeen", m_checkLastSeen);
+                    m_allowDuplicatePresences = source.Configs[Name].GetBoolean("AllowDuplicatePresences", m_allowDuplicatePresences);
+                    m_checkLastSeen = source.Configs[Name].GetBoolean("CheckLastSeen", m_checkLastSeen);
                 }
+
                 if (GD != null)
-                    GD.ConnectToDatabase(connectionString, "UserInfo",
-                                         source.Configs["UniverseConnectors"].GetBoolean("ValidateTables", true));
+                    GD.ConnectToDatabase(connectionString, "UserInfo", source.Configs["UniverseConnectors"].GetBoolean("ValidateTables", true));
 
                 Framework.Utilities.DataManager.RegisterPlugin(this);
             }
@@ -109,8 +108,7 @@ namespace Universe.Services.DataService
             GD.Update(m_userInfoTable, values, null, filter, null, null);
         }
 
-        public void SetLastPosition(string userID, UUID regionID, string regionURI, Vector3 lastPosition,
-                                    Vector3 lastLookAt)
+        public void SetLastPosition(string userID, UUID regionID, string regionURI, Vector3 lastPosition, Vector3 lastLookAt)
         {
             Dictionary<string, object> values = new Dictionary<string, object>(5);
             values["CurrentRegionID"] = regionID;
@@ -155,11 +153,14 @@ namespace Universe.Services.DataService
                         user.CurrentRegionID = UUID.Parse(query[i + 7]);
                         if (query[i + 8] != "")
                             user.CurrentPosition = Vector3.Parse(query[i + 8]);
+
                         if (query[i + 9] != "")
                             user.CurrentLookAt = Vector3.Parse(query[i + 9]);
                         user.HomeRegionID = UUID.Parse(query[i + 10]);
+
                         if (query[i + 11] != "")
                             user.HomePosition = Vector3.Parse(query[i + 11]);
+
                         if (query[i + 12] != "")
                             user.HomeLookAt = Vector3.Parse(query[i + 12]);
                         user.CurrentRegionURI = query[i + 13];
@@ -200,6 +201,7 @@ namespace Universe.Services.DataService
             {
                 return null;
             }
+
             UserInfo user = ParseQuery(query)[0];
 
             //Check LastSeen
@@ -216,6 +218,7 @@ namespace Universe.Services.DataService
                 Set(user);
                 onlineStatusChanged = true;
             }
+
             return user;
         }
 
@@ -229,7 +232,6 @@ namespace Universe.Services.DataService
             filter.orGreaterThanEqFilters["LastSeen"] = now;
             if (stillOnline)
             {
-//                filter.andGreaterThanFilters["LastLogout"] = now;
                 filter.andFilters["IsOnline"] = "1";
             }
 
@@ -247,11 +249,9 @@ namespace Universe.Services.DataService
 
                 filter.orGreaterThanEqFilters ["LastLogin"] = now;
                 filter.orGreaterThanEqFilters ["LastSeen"] = now;
-                //                filter.andGreaterThanFilters["LastLogout"] = now;
             }
 
             filter.andFilters["IsOnline"] = "1";
-
 
             List<string> userCount = GD.Query(new string[1] { "COUNT(UserID)" }, m_userInfoTable, filter, null, null, null);
             return uint.Parse (userCount[0]);
@@ -267,7 +267,6 @@ namespace Universe.Services.DataService
             filter.orGreaterThanEqFilters["LastSeen"] = now;
             if (stillOnline)
             {
-//                filter.andGreaterThanFilters["LastLogout"] = now;
                 filter.andFilters["IsOnline"] = "1";
             }
 

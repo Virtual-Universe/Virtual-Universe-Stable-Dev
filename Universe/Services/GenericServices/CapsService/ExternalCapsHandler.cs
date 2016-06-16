@@ -1,6 +1,8 @@
 ﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -42,8 +44,7 @@ namespace Universe.Services.GenericServices.CapsService
     public class ExternalCapsHandler : ConnectorBase, IExternalCapsHandler, IService
     {
         List<string> m_allowedCapsModules = new List<string> ();
-        Dictionary<UUID, List<IExternalCapsRequestHandler>> m_caps =
-            new Dictionary<UUID, List<IExternalCapsRequestHandler>> ();
+        Dictionary<UUID, List<IExternalCapsRequestHandler>> m_caps = new Dictionary<UUID, List<IExternalCapsRequestHandler>> ();
         ISyncMessagePosterService m_syncPoster;
         List<string> m_servers = new List<string> ();
 
@@ -95,11 +96,14 @@ namespace Universe.Services.GenericServices.CapsService
                             resp.Add (kvp.Key, kvp.Value);
                         even.Set ();
                     });
+
                     events.Add (even);
                 }
+
                 if (events.Count > 0)
                     ManualResetEvent.WaitAll (events.ToArray ());
             }
+
             foreach (var h in GetHandlers(agentID, region.RegionID))
             {
                 if (m_allowedCapsModules.Contains (h.Name))
@@ -143,6 +147,7 @@ namespace Universe.Services.GenericServices.CapsService
                     if (m_allowedCapsModules.Contains (h.Name))
                         h.IncomingCapsRequest (AgentID, region, m_registry.RequestModuleInterface<ISimulationBase> (), ref map);
                 }
+
                 return map;
             case "RemoveCaps":
                 foreach (var h in GetHandlers(AgentID, region.RegionID))
@@ -150,8 +155,10 @@ namespace Universe.Services.GenericServices.CapsService
                     if (m_allowedCapsModules.Contains (h.Name))
                         h.IncomingCapsDestruction ();
                 }
+
                 return map;
             }
+
             return null;
         }
 
@@ -165,6 +172,7 @@ namespace Universe.Services.GenericServices.CapsService
                     caps = Universe.Framework.ModuleLoader.UniverseModuleLoader.PickupModules<IExternalCapsRequestHandler> ();
                     m_caps.Add (agentID ^ regionID, caps);
                 }
+
                 return caps;
             }
         }

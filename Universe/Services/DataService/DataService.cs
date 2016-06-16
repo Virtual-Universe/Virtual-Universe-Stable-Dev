@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -59,18 +61,7 @@ namespace Universe.Services.DataService
 
                 DataConnector = GenericData;
             }
-                /*else if (StorageProvider == "MSSQL2008")
-            {
-                MSSQLDataLoader GenericData = new MSSQLDataLoader();
-
-                DataConnector = GenericData;
-            }
-            else if (StorageProvider == "MSSQL7")
-            {
-                MSSQLDataLoader GenericData = new MSSQLDataLoader();
-
-                DataConnector = GenericData;
-            }*/
+               
             else if (StorageProvider == "SQLite")
                 //Allow for fallback when UniverseData isn't set
             {
@@ -88,14 +79,12 @@ namespace Universe.Services.DataService
             {
                 try
                 {
-                    plugin.Initialize(DataConnector == null ? null : DataConnector.Copy(), config, registry,
-                                      ConnectionString);
+                    plugin.Initialize(DataConnector == null ? null : DataConnector.Copy(), config, registry, ConnectionString);
                 }
                 catch (Exception ex)
                 {
                     if (MainConsole.Instance != null)
-                        MainConsole.Instance.Warn("[DataService]: Exception occurred starting data plugin " +
-                                                  plugin.Name + ", " + ex);
+                        MainConsole.Instance.Warn("[Data Service]: Exception occurred starting data plugin " + plugin.Name + ", " + ex);
                 }
             }
         }
@@ -117,18 +106,7 @@ namespace Universe.Services.DataService
 
                 DataConnector = GenericData;
             }
-                /*else if (StorageProvider == "MSSQL2008")
-            {
-                MSSQLDataLoader GenericData = new MSSQLDataLoader();
-
-                DataConnector = GenericData;
-            }
-            else if (StorageProvider == "MSSQL7")
-            {
-                MSSQLDataLoader GenericData = new MSSQLDataLoader();
-
-                DataConnector = GenericData;
-            }*/
+                
             else if (StorageProvider == "SQLite")
                 //Allow for fallback when UniverseData isn't set
             {
@@ -154,8 +132,7 @@ namespace Universe.Services.DataService
                         } catch (Exception ex)
                         {
                             if (MainConsole.Instance != null)
-                                MainConsole.Instance.Warn ("[DataService]: Exception occurred starting data plugin " +
-                                plugin.Name + ", " + ex);
+                                MainConsole.Instance.Warn ("[Data Service]: Exception occurred starting data plugin " + plugin.Name + ", " + ex);
                         }
                     }
                 }

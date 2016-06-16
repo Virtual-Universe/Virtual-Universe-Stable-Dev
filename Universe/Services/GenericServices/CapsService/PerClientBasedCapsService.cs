@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,16 +36,12 @@ using Universe.Framework.PresenceInfo;
 using Universe.Framework.Servers.HttpServer.Interfaces;
 using Universe.Framework.Services;
 
-
 namespace Universe.Services
 {
     public class PerClientBasedCapsService : IClientCapsService
     {
         protected ICapsService m_CapsService;
-
-        protected Dictionary<UUID, IRegionClientCapsService> m_RegionCapsServices =
-            new Dictionary<UUID, IRegionClientCapsService> ();
-
+        protected Dictionary<UUID, IRegionClientCapsService> m_RegionCapsServices = new Dictionary<UUID, IRegionClientCapsService> ();
         protected UserAccount m_account;
         protected UUID m_agentID;
         protected bool m_callbackHasCome;
@@ -112,6 +110,7 @@ namespace Universe.Services
             {
                 RemoveCAPS (regionID);
             }
+
             m_RegionCapsServices.Clear ();
         }
 
@@ -149,8 +148,7 @@ namespace Universe.Services
         /// <param name="circuitData"></param>
         /// <param name="port"></param>
         /// <returns></returns>
-        public IRegionClientCapsService GetOrCreateCapsService (UUID regionID, string capsBase,
-                                                               AgentCircuitData circuitData, uint port)
+        public IRegionClientCapsService GetOrCreateCapsService (UUID regionID, string capsBase, AgentCircuitData circuitData, uint port)
         {
             //If one already exists, don't add a new one
             if (m_RegionCapsServices.ContainsKey (regionID))

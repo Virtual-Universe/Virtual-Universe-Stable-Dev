@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org, http://opensimulator.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -24,7 +26,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 
 using System;
 using GlynnTucker.Cache;
@@ -63,13 +64,13 @@ namespace Universe.Services
             if (moduleConfig != null)
             {
                 string name = moduleConfig.GetString("AssetCaching");
-                //MainConsole.Instance.DebugFormat("[ASSET CACHE] name = {0} (this module's name: {1}). Sync? ", name, Name, m_Cache.IsSynchronized);
+                //MainConsole.Instance.DebugFormat("[Asset Cache] name = {0} (this module's name: {1}). Sync? ", name, Name, m_Cache.IsSynchronized);
 
                 if (name == Name)
                 {
                     m_Cache = new SimpleMemoryCache();
 
-                    MainConsole.Instance.Info("[ASSET CACHE]: GlynnTucker asset cache enabled");
+                    MainConsole.Instance.Info("[Asset Cache]: GlynnTucker asset cache enabled");
 
                     // Instrumentation
                     IConfig cacheConfig = config.Configs["AssetCache"];
@@ -92,10 +93,7 @@ namespace Universe.Services
 
         #region IImprovedAssetCache
 
-        ////////////////////////////////////////////////////////////
         // IImprovedAssetCache
-        //
-
         public void Cache(string assetID, AssetBase asset)
         {
             if (asset != null)
@@ -155,8 +153,7 @@ namespace Universe.Services
                     ++m_Hits;
 
                 if ((m_Requests%m_DebugRate) == 0)
-                    MainConsole.Instance.DebugFormat("[ASSET CACHE]: Hit Rate {0} / {1} == {2}%", m_Hits, m_Requests,
-                                                     (m_Hits/(float) m_Requests)*100.0f);
+                    MainConsole.Instance.DebugFormat("[Asset Cache]: Hit Rate {0} / {1} == {2}%", m_Hits, m_Requests, (m_Hits/(float) m_Requests)*100.0f);
             }
             // End instrumentation
         }

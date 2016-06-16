@@ -1,6 +1,8 @@
 ﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org, http://opensimulator.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -66,17 +68,16 @@ namespace Universe.Services.DataService.Connectors.Database.Scheduler
         /// <param name="source">Config if more parameters are needed</param>
         /// <param name="simBase"></param>
         /// <param name="defaultConnectionString">The connection string to use</param>
-        public void Initialize(IGenericData genericData, IConfigSource source, IRegistryCore simBase,
-                               string defaultConnectionString)
+        public void Initialize(IGenericData genericData, IConfigSource source, IRegistryCore simBase, string defaultConnectionString)
         {
             if (source.Configs["UniverseConnectors"].GetString("SchedulerConnector", "LocalConnector") != "LocalConnector")
                 return;
 
             if (source.Configs[Name] != null)
                 defaultConnectionString = source.Configs[Name].GetString("ConnectionString", defaultConnectionString);
+
             if (genericData != null)
-                genericData.ConnectToDatabase(defaultConnectionString, "Scheduler",
-                                              source.Configs["UniverseConnectors"].GetBoolean("ValidateTables", true));
+                genericData.ConnectToDatabase(defaultConnectionString, "Scheduler", source.Configs["UniverseConnectors"].GetBoolean("ValidateTables", true));
 
             GD = genericData;
             Framework.Utilities.DataManager.RegisterPlugin(this);
@@ -94,6 +95,7 @@ namespace Universe.Services.DataService.Connectors.Database.Scheduler
             foreach (object value in dbv) {
                 values[theFields[i++]] = value;
             }
+
             if (SchedulerExist(itm.id)) {
                 QueryFilter filter = new QueryFilter();
                 filter.andFilters["id"] = itm.id;
@@ -156,7 +158,7 @@ namespace Universe.Services.DataService.Connectors.Database.Scheduler
             DataReaderConnection dr = null;
             try {
                 dr = GD.QueryData( 
-                        // "WHERE enabled = 1 AND runs_next < '" + DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm") +   // use local time for scheduling
+                        // use local time for scheduling
                         "WHERE enabled = 1 AND runs_next <='" + timeToRun.ToString("yyyy-MM-dd HH:mm") +
                         "' ORDER BY runs_next desc", "scheduler", string.Join(", ", theFields));
                 

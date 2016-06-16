@@ -1,6 +1,8 @@
 ﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -47,8 +49,7 @@ namespace Universe.Services.DataService.Connectors.Database.Asset
             get { return "IAssetDataPlugin"; }
         }
 
-        public void Initialize (IGenericData genericData, IConfigSource source, IRegistryCore simBase,
-                               string defaultConnectionString)
+        public void Initialize (IGenericData genericData, IConfigSource source, IRegistryCore simBase, string defaultConnectionString)
         {
             if (source.Configs ["UniverseConnectors"].GetString ("AssetConnector", "LocalConnector") != "LocalConnector")
                 return;
@@ -59,8 +60,7 @@ namespace Universe.Services.DataService.Connectors.Database.Asset
                 defaultConnectionString = source.Configs [Name].GetString ("ConnectionString", defaultConnectionString);
 
             if (genericData != null)
-                genericData.ConnectToDatabase (defaultConnectionString, "Asset",
-                                              source.Configs ["UniverseConnectors"].GetBoolean ("ValidateTables", true));
+                genericData.ConnectToDatabase (defaultConnectionString, "Asset", source.Configs ["UniverseConnectors"].GetBoolean ("ValidateTables", true));
             Framework.Utilities.DataManager.RegisterPlugin (this);
         }
 
@@ -82,16 +82,16 @@ namespace Universe.Services.DataService.Connectors.Database.Asset
         {
             DataReaderConnection dr = null;
             try {
-                dr = m_Gd.QueryData ("where id = '" + uuid + "' LIMIT 1", "assets",
-                                    "id, name, description, assetType, local, temporary, asset_flags, creatorID");
+                dr = m_Gd.QueryData ("where id = '" + uuid + "' LIMIT 1", "assets", "id, name, description, assetType, local, temporary, asset_flags, creatorID");
                 while (dr.DataReader.Read ()) {
                     return LoadAssetFromDataRead (dr.DataReader);
                 }
+
                 if (MainConsole.Instance != null)
-                    MainConsole.Instance.WarnFormat ("[LocalAssetDatabase] GetMeta({0}) - Asset UUID was not found.", uuid);
+                    MainConsole.Instance.WarnFormat ("[Local Asset Database] GetMeta({0}) - Asset UUID was not found.", uuid);
             } catch (Exception e) {
                 if (MainConsole.Instance != null)
-                    MainConsole.Instance.Error ("[LocalAssetDatabase]: Failed to fetch asset " + uuid + ", " + e);
+                    MainConsole.Instance.Error ("[Local Asset Database]: Failed to fetch asset " + uuid + ", " + e);
             } finally {
                 if (dr != null)
                     m_Gd.CloseDatabase (dr);
@@ -112,22 +112,26 @@ namespace Universe.Services.DataService.Connectors.Database.Asset
             try {
                 if (asset.Name.Length > 64)
                     asset.Name = asset.Name.Substring (0, 64);
+
                 if (asset.Description.Length > 128)
                     asset.Description = asset.Description.Substring (0, 128);
+
                 if (ExistsAsset (asset.ID)) {
                     AssetBase oldAsset = GetAsset (asset.ID);
+
                     if (oldAsset == null || (oldAsset.Flags & AssetFlags.Rewritable) == AssetFlags.Rewritable) {
                         if (MainConsole.Instance != null)
                             MainConsole.Instance.Debug (
-                                "[LocalAssetDatabase]: Asset already exists in the db, overwriting - " + asset.ID);
+                                "[Local Asset Database]: Asset already exists in the db, overwriting - " + asset.ID);
                         Delete (asset.ID, true);
                         InsertAsset (asset, asset.ID);
                     } else {
                         if (MainConsole.Instance != null)
                             MainConsole.Instance.Debug (
-                                "[LocalAssetDatabase]: Asset already exists in the db, fixing ID... - " + asset.ID);
+                                "[Local Asset Database]: Asset already exists in the db, fixing ID... - " + asset.ID);
                         InsertAsset (asset, UUID.Random ());
                     }
+
                     if (oldAsset != null)
                         oldAsset.Dispose ();
                 } else {
@@ -136,8 +140,7 @@ namespace Universe.Services.DataService.Connectors.Database.Asset
             } catch (Exception e) {
                 if (MainConsole.Instance != null)
                     MainConsole.Instance.ErrorFormat (
-                        "[LocalAssetDatabase]: Failure creating asset {0} with name \"{1}\". Error: {2}",
-                        asset.ID, asset.Name, e);
+                        "[Local Asset Database]: Failure creating asset {0} with name \"{1}\". Error: {2}", asset.ID, asset.Name, e);
             }
 
             return true;
@@ -162,14 +165,16 @@ namespace Universe.Services.DataService.Connectors.Database.Asset
                     m_Gd.Update ("assets", values, null, filter, null, null);
                 } catch (Exception e) {
                     if (MainConsole.Instance != null)
-                        MainConsole.Instance.Error ("[LocalAssetDatabase] UpdateContent(" + id + ") - Errored, " + e);
+                        MainConsole.Instance.Error ("[Local Asset Database] UpdateContent(" + id + ") - Errored, " + e);
                 }
+
                 newID = id;
             } else {
                 newID = UUID.Random ();
                 oldAsset.Data = assetData;
                 InsertAsset (oldAsset, newID);
             }
+
             oldAsset.Dispose ();
         }
 
@@ -201,7 +206,7 @@ namespace Universe.Services.DataService.Connectors.Database.Asset
             } catch (Exception e) {
                 if (MainConsole.Instance != null)
                     MainConsole.Instance.ErrorFormat (
-                        "[LocalAssetDatabase]: Failure fetching asset {0}" + Environment.NewLine + e, uuid);
+                        "[Local Asset Database]: Failure fetching asset {0}" + Environment.NewLine + e, uuid);
             }
 
             return false;
@@ -221,11 +226,12 @@ namespace Universe.Services.DataService.Connectors.Database.Asset
                 while (dr != null && dr.DataReader.Read ()) {
                     return LoadAssetFromDataRead (dr.DataReader);
                 }
+
                 if (showWarnings && MainConsole.Instance != null)
-                    MainConsole.Instance.WarnFormat ("[LocalAssetDatabase] GetAsset({0}) - Asset UUID was not found.", uuid);
+                    MainConsole.Instance.WarnFormat ("[Local Asset Database] GetAsset({0}) - Asset UUID was not found.", uuid);
             } catch (Exception e) {
                 if (MainConsole.Instance != null)
-                    MainConsole.Instance.Error ("[LocalAssetDatabase]: Failed to fetch asset " + uuid + ", " + e);
+                    MainConsole.Instance.Error ("[Local Asset Database]: Failed to fetch asset " + uuid + ", " + e);
             } finally {
                 if (dr != null)
                     m_Gd.CloseDatabase (dr);
@@ -241,11 +247,12 @@ namespace Universe.Services.DataService.Connectors.Database.Asset
                 dr = m_Gd.QueryData ("where id = '" + uuid + "' LIMIT 1", "assets", "data");
                 if (dr != null)
                     return (byte [])dr.DataReader ["data"];
+
                 if (MainConsole.Instance != null)
-                    MainConsole.Instance.WarnFormat ("[LocalAssetDatabase] GetData({0}) - Asset (UUID data) was not found.", uuid);
+                    MainConsole.Instance.WarnFormat ("[Local Asset Database] GetData({0}) - Asset (UUID data) was not found.", uuid);
             } catch (Exception e) {
                 if (MainConsole.Instance != null)
-                    MainConsole.Instance.Error ("[LocalAssetDatabase]: Failed to fetch asset " + uuid + ", " + e);
+                    MainConsole.Instance.Error ("[Local Asset Database]: Failed to fetch asset " + uuid + ", " + e);
             } finally {
                 if (dr != null)
                     m_Gd.CloseDatabase (dr);
@@ -262,7 +269,7 @@ namespace Universe.Services.DataService.Connectors.Database.Asset
                     if (asset == null)
                         return false;
 
-                    if ((asset.Flags & AssetFlags.Maptile) != 0 || //Deprecated, use Deletable instead
+                    if ((asset.Flags & AssetFlags.Maptile) != 0 || //Depreciated, use Deletable instead
                         (asset.Flags & AssetFlags.Deletable) != 0)
                         ignoreFlags = true;
 
@@ -276,7 +283,7 @@ namespace Universe.Services.DataService.Connectors.Database.Asset
                 }
             } catch (Exception e) {
                 if (MainConsole.Instance != null)
-                    MainConsole.Instance.Error ("[LocalAssetDatabase] Error while deleting asset " + e);
+                    MainConsole.Instance.Error ("[Local Asset Database] Error while deleting asset " + e);
             }
 
             return true;
@@ -312,7 +319,7 @@ namespace Universe.Services.DataService.Connectors.Database.Asset
                 asset.MetaOnly = true;
                 asset.Data = new byte [0];
                 if (MainConsole.Instance != null)
-                    MainConsole.Instance.Error ("[LocalAssetDatabase]: Failed to cast data for " + asset.ID + ", " + ex);
+                    MainConsole.Instance.Error ("[Local Asset Database]: Failed to cast data for " + asset.ID + ", " + ex);
             }
 
             if (dr ["local"].ToString ().Equals ("1") ||

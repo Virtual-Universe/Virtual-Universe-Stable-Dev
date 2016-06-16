@@ -1,6 +1,8 @@
 ﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,7 +27,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 using System.IO;
 using OpenMetaverse.StructuredData;
 using Universe.Framework.ConsoleFramework;
@@ -42,33 +43,15 @@ namespace Universe.Services
         public void RegisterCaps (IRegionClientCapsService service)
         {
             m_service = service;
-            
-            service.AddStreamHandler ("ExperiencePreferences",
-                                      new GenericStreamHandler ("POST", service.CreateCAPS ("ExperiencePreferences", ""), ExperiencePreferences));
-            
-            service.AddStreamHandler ("FindExperienceByName",
-                                      new GenericStreamHandler ("POST", service.CreateCAPS("FindExperienceByName", ""), FindExperienceByName));
-            
-            service.AddStreamHandler ("GetExperiences",
-                                      new GenericStreamHandler ("POST", service.CreateCAPS("GetExperiences", ""), GetExperiences));
-
-            service.AddStreamHandler ("GetExperienceInfo",
-                                      new GenericStreamHandler ("POST", service.CreateCAPS("GetExperienceInfo", ""), GetExperienceInfo));
-            
-            service.AddStreamHandler ("GetAdminExperiences",
-                                      new GenericStreamHandler ("POST", service.CreateCAPS("GetAdminExperiences", ""), GetAdminExperiences));
-            
-            service.AddStreamHandler ("GetCreatorExperiences",
-                                      new GenericStreamHandler ("POST", service.CreateCAPS("GetCreatorExperiences", ""), GetCreatorExperiences));
-            
-            service.AddStreamHandler ("UpdateExperience",
-                                      new GenericStreamHandler ("POST", service.CreateCAPS("UpdateExperience", ""), UpdateExperience));
-            
-            service.AddStreamHandler ("IsExperienceAdmin",
-                                      new GenericStreamHandler ("POST", service.CreateCAPS("IsExperienceAdmin", ""), IsExperienceAdmin));
-
-            service.AddStreamHandler ("IsExperienceContributor",
-                                      new GenericStreamHandler ("POST", service.CreateCAPS("IsExperienceContributor", ""), IsExperienceContributor));
+            service.AddStreamHandler ("ExperiencePreferences", new GenericStreamHandler ("POST", service.CreateCAPS ("ExperiencePreferences", ""), ExperiencePreferences));
+            service.AddStreamHandler ("FindExperienceByName", new GenericStreamHandler ("POST", service.CreateCAPS("FindExperienceByName", ""), FindExperienceByName));
+            service.AddStreamHandler ("GetExperiences", new GenericStreamHandler ("POST", service.CreateCAPS("GetExperiences", ""), GetExperiences));
+            service.AddStreamHandler ("GetExperienceInfo", new GenericStreamHandler ("POST", service.CreateCAPS("GetExperienceInfo", ""), GetExperienceInfo));
+            service.AddStreamHandler ("GetAdminExperiences", new GenericStreamHandler ("POST", service.CreateCAPS("GetAdminExperiences", ""), GetAdminExperiences));
+            service.AddStreamHandler ("GetCreatorExperiences", new GenericStreamHandler ("POST", service.CreateCAPS("GetCreatorExperiences", ""), GetCreatorExperiences));
+            service.AddStreamHandler ("UpdateExperience", new GenericStreamHandler ("POST", service.CreateCAPS("UpdateExperience", ""), UpdateExperience));
+            service.AddStreamHandler ("IsExperienceAdmin", new GenericStreamHandler ("POST", service.CreateCAPS("IsExperienceAdmin", ""), IsExperienceAdmin));
+            service.AddStreamHandler ("IsExperienceContributor", new GenericStreamHandler ("POST", service.CreateCAPS("IsExperienceContributor", ""), IsExperienceContributor));
         }
 
         public void EnteringRegion ()
@@ -82,8 +65,7 @@ namespace Universe.Services
             m_service.RemoveStreamHandler ("GetExperiences", "POST");
         }
         
-        public byte[] ExperiencePreferences (string path, Stream request, OSHttpRequest httpRequest,
-                                      OSHttpResponse httpResponse)
+        public byte[] ExperiencePreferences (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
         	MainConsole.Instance.DebugFormat("[ExperiencePreferences] Call = {0}", httpRequest);
             var expPref = new OSDMap();
@@ -91,8 +73,7 @@ namespace Universe.Services
             return OSDParser.SerializeLLSDXmlBytes (expPref);
         }
         
-        public byte[] FindExperienceByName (string path, Stream request, OSHttpRequest httpRequest,
-                                      OSHttpResponse httpResponse)
+        public byte[] FindExperienceByName (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
         	MainConsole.Instance.DebugFormat("[ExperiencePreferences] Call = {0}", httpRequest);
             var experience = new OSDMap();
@@ -100,8 +81,7 @@ namespace Universe.Services
             return OSDParser.SerializeLLSDXmlBytes (experience);
         }
         
-        public byte[] GetExperiences (string path, Stream request, OSHttpRequest httpRequest,
-                                      OSHttpResponse httpResponse)
+        public byte[] GetExperiences (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
         	MainConsole.Instance.DebugFormat("[ExperiencePreferences] Call = {0}", httpRequest);
             var experiences = new OSDMap();
@@ -109,8 +89,7 @@ namespace Universe.Services
             return OSDParser.SerializeLLSDXmlBytes (experiences);
         }
         
-        public byte[] GetExperienceInfo (string path, Stream request, OSHttpRequest httpRequest,
-                                      OSHttpResponse httpResponse)
+        public byte[] GetExperienceInfo (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
         	MainConsole.Instance.DebugFormat("[GetExperienceInfo] Call = {0}", httpRequest);
             var expInfo = new OSDMap();
@@ -118,8 +97,7 @@ namespace Universe.Services
             return OSDParser.SerializeLLSDXmlBytes (expInfo);
         }
         
-        public byte[] GetAdminExperiences (string path, Stream request, OSHttpRequest httpRequest,
-                                      OSHttpResponse httpResponse)
+        public byte[] GetAdminExperiences (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
         	MainConsole.Instance.DebugFormat("[GetAdminExperiences] Call = {0}", httpRequest);
             var adminExp = new OSDMap();
@@ -127,8 +105,7 @@ namespace Universe.Services
             return OSDParser.SerializeLLSDXmlBytes (adminExp);
         }
         
-        public byte[] GetCreatorExperiences (string path, Stream request, OSHttpRequest httpRequest,
-                                      OSHttpResponse httpResponse)
+        public byte[] GetCreatorExperiences (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
         	MainConsole.Instance.DebugFormat("[GetCreatorExperiences] Call = {0}", httpRequest);
             var creatorExp = new OSDMap();
@@ -136,8 +113,7 @@ namespace Universe.Services
             return OSDParser.SerializeLLSDXmlBytes (creatorExp);
         }
         
-        public byte[] UpdateExperience (string path, Stream request, OSHttpRequest httpRequest,
-                                      OSHttpResponse httpResponse)
+        public byte[] UpdateExperience (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
         	MainConsole.Instance.DebugFormat("[UpdateExperience] Call = {0}", httpRequest);
             var updateExp = new OSDMap();
@@ -145,8 +121,7 @@ namespace Universe.Services
             return OSDParser.SerializeLLSDXmlBytes (updateExp);
         }
         
-        public byte[] IsExperienceAdmin (string path, Stream request, OSHttpRequest httpRequest,
-                                      OSHttpResponse httpResponse)
+        public byte[] IsExperienceAdmin (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
         	MainConsole.Instance.DebugFormat("[IsExperienceAdmin] Call = {0}", httpRequest);
             var adminExp = new OSDMap();
@@ -154,8 +129,7 @@ namespace Universe.Services
             return OSDParser.SerializeLLSDXmlBytes (adminExp);
         }
         
-        public byte[] IsExperienceContributor (string path, Stream request, OSHttpRequest httpRequest,
-                                      OSHttpResponse httpResponse)
+        public byte[] IsExperienceContributor (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
         	MainConsole.Instance.DebugFormat("[IsExperienceContributor] Call = {0}", httpRequest);
             var contribExp = new OSDMap();

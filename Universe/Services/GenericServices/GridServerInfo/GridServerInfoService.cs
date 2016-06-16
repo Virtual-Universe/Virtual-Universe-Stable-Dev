@@ -1,6 +1,8 @@
 ﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -75,9 +77,9 @@ namespace Universe.Services.GenericServices
             var uris = new Dictionary<string, string>();
             foreach (ConnectorBase connector in ConnectorRegistry.ServerHandlerConnectors)
             {
-                uris.Add(connector.ServerHandlerName, MainServer.Instance.FullHostName + ":" +
-                    connector.ServerHandlerPort + connector.ServerHandlerPath);
+                uris.Add(connector.ServerHandlerName, MainServer.Instance.FullHostName + ":" + connector.ServerHandlerPort + connector.ServerHandlerPath);
             }
+
             gridTimer = new Timer(SendGridURIsAsync, uris, 3000, Timeout.Infinite);
         }
 
@@ -138,7 +140,8 @@ namespace Universe.Services.GenericServices
             {
                 if (!m_gridURIs.ContainsKey(kvp.Key))
                     m_gridURIs.Add(kvp.Key, new List<string>());
-                if(!m_gridURIs[kvp.Key].Contains(kvp.Value))
+
+                if (!m_gridURIs[kvp.Key].Contains(kvp.Value))
                     m_gridURIs[kvp.Key].Add(kvp.Value);
             }
 

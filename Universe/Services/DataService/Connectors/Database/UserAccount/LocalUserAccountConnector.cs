@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,7 +27,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 using System;
 using System.Collections.Generic;
 using Nini.Config;
@@ -47,8 +48,7 @@ namespace Universe.Services.DataService
 
         #region IUserAccountData Members
 
-        public void Initialize (IGenericData GenericData, IConfigSource source, IRegistryCore simBase,
-                               string defaultConnectionString)
+        public void Initialize (IGenericData GenericData, IConfigSource source, IRegistryCore simBase, string defaultConnectionString)
         {
             if (source.Configs ["UniverseConnectors"].GetString ("AbuseReportsConnector", "LocalConnector") != "LocalConnector")
                 return;
@@ -61,11 +61,9 @@ namespace Universe.Services.DataService
                 connectionString = source.Configs [Name].GetString ("ConnectionString", defaultConnectionString);
 
             if (GD != null)
-                GD.ConnectToDatabase (connectionString, "UserAccounts",
-                                         source.Configs ["UniverseConnectors"].GetBoolean ("ValidateTables", true));
+                GD.ConnectToDatabase (connectionString, "UserAccounts", source.Configs ["UniverseConnectors"].GetBoolean ("ValidateTables", true));
 
             Framework.Utilities.DataManager.RegisterPlugin (this);
-
         }
 
         public string Name {
@@ -122,6 +120,7 @@ namespace Universe.Services.DataService
                                   new QueryFilter { andFilters = new Dictionary<string, object> { { "PrincipalID", userID } } },
                                   null, null);
             }
+
             QueryFilter filter = new QueryFilter ();
             filter.andFilters.Add ("PrincipalID", userID);
 
@@ -144,12 +143,15 @@ namespace Universe.Services.DataService
                     if (i != words.Length - 1) {
                         Array.Copy (words, i + 1, words, i, words.Length - i - 1);
                     }
+
                     Array.Resize (ref words, words.Length - 1);
                 }
             }
+
             if (words.Length > 0) {
                 filter.orLikeFilters ["Name"] = "%" + query + "%";
                 filter.orLikeFilters ["FirstName"] = "%" + words [0] + "%";
+
                 if (words.Length == 2) {
                     filter.orLikeMultiFilters ["LastName"] = new List<string> (2) { "%" + words [0], "%" + words [1] + "%" };
                 } else {
@@ -242,11 +244,13 @@ namespace Universe.Services.DataService
                 data.UserLevel = int.Parse (query [i + 6]);
                 data.UserFlags = int.Parse (query [i + 7]);
                 data.Name = query [i + 8];
+
                 if (string.IsNullOrEmpty (data.Name)) {
                     data.Name = FirstName + " " + LastName;
                     //Save the change!
                     Store (data);
                 }
+
                 list.Add (data);
             }
 

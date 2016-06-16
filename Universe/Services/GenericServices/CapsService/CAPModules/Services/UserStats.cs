@@ -1,6 +1,8 @@
 ﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org, http://opensimulator.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -24,7 +26,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 
 using System.Collections.Generic;
 using System.IO;
@@ -54,14 +55,10 @@ namespace Universe.Services
         /// <param name="httpRequest"></param>
         /// <param name="httpResponse"></param>
         /// <returns></returns>
-        public byte[] ViewerStatsReport (string path, Stream request, OSHttpRequest httpRequest,
-                                        OSHttpResponse httpResponse)
+        public byte[] ViewerStatsReport (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
-            IUserStatsDataConnector dataConnector =
-                Framework.Utilities.DataManager.RequestPlugin<IUserStatsDataConnector> ();
-
-            OpenMetaverse.Messages.Linden.ViewerStatsMessage vsm =
-                new OpenMetaverse.Messages.Linden.ViewerStatsMessage ();
+            IUserStatsDataConnector dataConnector = Framework.Utilities.DataManager.RequestPlugin<IUserStatsDataConnector> ();
+            OpenMetaverse.Messages.Linden.ViewerStatsMessage vsm = new OpenMetaverse.Messages.Linden.ViewerStatsMessage ();
             vsm.Deserialize ((OSDMap)OSDParser.DeserializeLLSDXml (HttpServerHandlerHelpers.ReadFully (request)));
             dataConnector.UpdateUserStats (vsm, m_service.AgentID, m_service.Region.RegionID);
 
@@ -71,8 +68,7 @@ namespace Universe.Services
         public void RegisterCaps (IRegionClientCapsService service)
         {
             m_service = service;
-            service.AddStreamHandler ("ViewerStats",
-                new GenericStreamHandler ("POST", service.CreateCAPS ("ViewerStats", ""), ViewerStatsReport));
+            service.AddStreamHandler ("ViewerStats", new GenericStreamHandler ("POST", service.CreateCAPS ("ViewerStats", ""), ViewerStatsReport));
         }
 
         public void DeregisterCaps ()
@@ -170,7 +166,6 @@ namespace Universe.Services
                     MainConsole.Instance.CleanInfo (string.Format ("Average agents in view: {0}", agents_in_view.Average ()));
 
                 MainConsole.Instance.CleanInfo ("");
-
             }
         }
     }

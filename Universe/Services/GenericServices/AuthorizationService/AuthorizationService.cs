@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org, http://opensimulator.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,13 +27,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
+using Nini.Config;
 using Universe.Framework.ConsoleFramework;
 using Universe.Framework.Modules;
 using Universe.Framework.PresenceInfo;
 using Universe.Framework.SceneInfo;
 using Universe.Framework.Services;
-using Nini.Config;
 
 namespace Universe.Services
 {
@@ -50,6 +51,7 @@ namespace Universe.Services
                 //Found the region, check permissions
                 return scene.Permissions.AllowedIncomingAgent(agent, isRootAgent, out reason);
             }
+
             reason = "Not Authorized as region does not exist.";
             return false;
         }
@@ -63,7 +65,7 @@ namespace Universe.Services
             registry.RegisterModuleInterface<IAuthorizationService>(this);
             m_registry = registry;
 
-            MainConsole.Instance.Debug("[AuthorizationService]: Local Authorization service enabled");
+            MainConsole.Instance.Debug("[Authorization Service]: Local Authorization service enabled");
         }
 
         public void Start(IConfigSource config, IRegistryCore registry)

@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org, http://opensimulator.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,7 +27,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 using System;
 using OpenMetaverse;
 using Universe.Framework.ConsoleFramework;
@@ -39,7 +40,6 @@ namespace Universe.Services
     // Principals may be clients acting on users' behalf,
     // or any other components that need 
     // verifiable identification.
-    //
     public class AuthenticationServiceBase
     {
         protected IAuthenticationData m_Database;
@@ -70,6 +70,7 @@ namespace Universe.Services
             {
                 auth = new AuthData {PrincipalID = principalID, AccountType = authType};
             }
+
             auth.PasswordHash = md5PasswdHash;
             auth.PasswordSalt = passwordSalt;
             return SaveAuth (auth, principalID);
@@ -100,6 +101,7 @@ namespace Universe.Services
             {
                 auth = new AuthData {PrincipalID = principalID, AccountType = authType};
             }
+
             auth.PasswordHash = md5PasswdHash;
             auth.PasswordSalt = passwordSalt;
             return SaveAuth (auth, principalID);
@@ -112,6 +114,7 @@ namespace Universe.Services
             {
                 auth = new AuthData {PrincipalID = principalID, AccountType = authType};
             }
+
             auth.PasswordHash = pass;
             auth.PasswordSalt = "";
             return SaveAuth (auth, principalID);
@@ -123,6 +126,7 @@ namespace Universe.Services
             if (auth == null) {
                 auth = new AuthData { PrincipalID = principalID, AccountType = authType };
             }
+
             auth.PasswordHash = pass;
             auth.PasswordSalt = salt;
             return SaveAuth (auth, principalID);
@@ -137,8 +141,6 @@ namespace Universe.Services
 
             MainConsole.Instance.InfoFormat ("[Authentication DB]: Set password for principalID {0}", principalID);
             return true;
-
         }
-
     }
 }

@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org, http://opensimulator.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -24,7 +26,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 
 using System.Collections.Generic;
 using Nini.Config;
@@ -101,8 +102,7 @@ namespace Universe.Services
             case "FailedToTeleportAgentRequest":
                 FailedToTeleportAgentRequest failedToTeleportAgentRequest = new FailedToTeleportAgentRequest ();
                 failedToTeleportAgentRequest.FromOSD (message);
-                FailedToTeleportAgent (failedToTeleportAgentRequest.Destination, failedToTeleportAgentRequest.FailedRegionID,
-                    failedToTeleportAgentRequest.AgentID, failedToTeleportAgentRequest.Reason, failedToTeleportAgentRequest.IsCrossing);
+                FailedToTeleportAgent (failedToTeleportAgentRequest.Destination, failedToTeleportAgentRequest.FailedRegionID, failedToTeleportAgentRequest.AgentID, failedToTeleportAgentRequest.Reason, failedToTeleportAgentRequest.IsCrossing);
                 break;
             case "RetrieveAgentRequest":
                 RetrieveAgentRequest retrieveAgentRequest = new RetrieveAgentRequest ();
@@ -118,6 +118,7 @@ namespace Universe.Services
                 createObjectRequest.DeserializeObject ();
                 return new OSDMap () { new KeyValuePair<string, OSD> ("Success", CreateObject (createObjectRequest.Destination, createObjectRequest.Object)) };
             }
+
             return null;
         }
 
@@ -137,10 +138,7 @@ namespace Universe.Services
             return null;
         }
 
-        /**
-         * Agent-related communications
-         */
-
+        //Agent-related communications
         public bool CreateAgent (GridRegion destination, AgentCircuitData aCircuit, uint teleportFlags, out CreateAgentResponse response)
         {
             response = new CreateAgentResponse ();
@@ -156,6 +154,7 @@ namespace Universe.Services
                 response.Success = false;
                 return false;
             }
+
             IEntityTransferModule transferModule = Scene.RequestModuleInterface<IEntityTransferModule> ();
             if (transferModule != null)
                 return transferModule.NewUserConnection (Scene, aCircuit, teleportFlags, out response);
@@ -176,7 +175,7 @@ namespace Universe.Services
             if (transferModule != null)
                 retVal = transferModule.IncomingChildAgentDataUpdate (Scene, agentData);
 
-            //            MainConsole.Instance.DebugFormat("[LOCAL COMMS]: Did not find region {0} for ChildAgentUpdate", regionHandle);
+            //MainConsole.Instance.DebugFormat("[Local Comms]: Did not find region {0} for ChildAgentUpdate", regionHandle);
             return retVal;
         }
 
@@ -186,7 +185,7 @@ namespace Universe.Services
             if (Scene == null || destination == null)
                 return false;
 
-            //MainConsole.Instance.Debug("[LOCAL COMMS]: Found region to send ChildAgentUpdate");
+            //MainConsole.Instance.Debug("[Local Comms]: Found region to send ChildAgentUpdate");
             IEntityTransferModule transferModule = Scene.RequestModuleInterface<IEntityTransferModule> ();
             if (transferModule != null)
                 return transferModule.IncomingChildAgentDataUpdate (Scene, agentData);
@@ -218,8 +217,7 @@ namespace Universe.Services
             return true;
         }
 
-        public bool FailedToTeleportAgent (GridRegion destination, UUID failedRegionID, UUID agentID, string reason,
-                                          bool isCrossing)
+        public bool FailedToTeleportAgent (GridRegion destination, UUID failedRegionID, UUID agentID, string reason, bool isCrossing)
         {
             IScene Scene = destination == null ? null : GetScene (destination.RegionID);
             if (Scene == null)
@@ -231,8 +229,7 @@ namespace Universe.Services
             return true;
         }
 
-        public bool RetrieveAgent (GridRegion destination, UUID agentID, bool agentIsLeaving, out AgentData agentData,
-                                  out AgentCircuitData circuitData)
+        public bool RetrieveAgent (GridRegion destination, UUID agentID, bool agentIsLeaving, out AgentData agentData, out AgentCircuitData circuitData)
         {
             agentData = null;
             circuitData = null;
@@ -241,12 +238,12 @@ namespace Universe.Services
             if (Scene == null || destination == null)
                 return false;
 
-            //MainConsole.Instance.Debug("[LOCAL COMMS]: Found region to send ChildAgentUpdate");
+            //MainConsole.Instance.Debug("[Local Comms]: Found region to send ChildAgentUpdate");
             IEntityTransferModule transferModule = Scene.RequestModuleInterface<IEntityTransferModule> ();
             if (transferModule != null)
                 return transferModule.IncomingRetrieveRootAgent (Scene, agentID, agentIsLeaving, out agentData, out circuitData);
             return false;
-            //MainConsole.Instance.Debug("[LOCAL COMMS]: region not found for ChildAgentUpdate");
+            //MainConsole.Instance.Debug("[Local Comms]: region not found for ChildAgentUpdate");
         }
 
         public bool CloseAgent (GridRegion destination, UUID agentID)
@@ -261,17 +258,14 @@ namespace Universe.Services
             return false;
         }
 
-        /**
-         * Object-related communications
-         */
-
+        // Object-related communications
         public bool CreateObject (GridRegion destination, ISceneEntity sog)
         {
             IScene Scene = destination == null ? null : GetScene (destination.RegionID);
             if (Scene == null || destination == null)
                 return false;
 
-            //MainConsole.Instance.Debug("[LOCAL COMMS]: Found region to SendCreateObject");
+            //MainConsole.Instance.Debug("[Local Comms]: Found region to SendCreateObject");
             IEntityTransferModule AgentTransferModule = Scene.RequestModuleInterface<IEntityTransferModule> ();
             if (AgentTransferModule != null)
                 return AgentTransferModule.IncomingCreateObject (Scene.RegionInfo.RegionID, sog);

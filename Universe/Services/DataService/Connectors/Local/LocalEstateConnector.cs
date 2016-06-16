@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -49,8 +51,7 @@ namespace Universe.Services.DataService
             return m_doRemoteCalls; 
         }
 
-        public void Initialize(IGenericData GenericData, IConfigSource source, IRegistryCore registry,
-                               string defaultConnectionString)
+        public void Initialize(IGenericData GenericData, IConfigSource source, IRegistryCore registry, string defaultConnectionString)
         {
             GD = GenericData;
             m_registry = registry;
@@ -59,8 +60,7 @@ namespace Universe.Services.DataService
                 defaultConnectionString = source.Configs[Name].GetString("ConnectionString", defaultConnectionString);
 
             if (GD != null)
-                GD.ConnectToDatabase(defaultConnectionString, "Estate",
-                                     source.Configs["UniverseConnectors"].GetBoolean("ValidateTables", true));
+                GD.ConnectToDatabase(defaultConnectionString, "Estate", source.Configs["UniverseConnectors"].GetBoolean("ValidateTables", true));
 
             Framework.Utilities.DataManager.RegisterPlugin(Name + "Local", this);
 
@@ -68,6 +68,7 @@ namespace Universe.Services.DataService
             {
                 Framework.Utilities.DataManager.RegisterPlugin(this);
             }
+
             Init(registry, Name);
         }
 
@@ -87,6 +88,7 @@ namespace Universe.Services.DataService
             }
 
             int estateID = GetEstateID(regionID);
+
             if (estateID == 0)
                 return settings;
             settings = GetEstate(estateID);
@@ -107,7 +109,7 @@ namespace Universe.Services.DataService
         {
             QueryFilter filter = new QueryFilter();
             filter.andFilters["EstateName"] = name;
-            //            var EstateID = int.Parse (GD.Query (new string[1] { "EstateID" }, "estatesettings", filter, null, null, null) [0]);
+
             List<string> estate = GD.Query(new string[1] { "EstateID" }, m_estateSettingsTable, filter, null, null, null);
 
             if (estate.Count == 0)              // not found!!
@@ -127,7 +129,6 @@ namespace Universe.Services.DataService
                 object remoteValue = DoRemote (es.ToOSD ());
                 return remoteValue != null ? (int)remoteValue : 0;      // TODO: 0 may be incorrect??
             }
-
 
             int estateID = GetEstate(es.EstateOwner, es.EstateName);
             if (estateID > 0)
@@ -157,7 +158,6 @@ namespace Universe.Services.DataService
                 return remoteValue != null ? (int)remoteValue : 0;
             }
 
-
             int estateID = GetEstate(es.EstateOwner, es.EstateName);
             if (estateID > 0)
             {
@@ -165,12 +165,12 @@ namespace Universe.Services.DataService
                     return estateID;
                 return 0;
             }
+
             es.EstateID = GetNewEstateID();
             SaveEstateSettings(es, true);
             LinkRegion(RegionID, (int) es.EstateID);
             return (int) es.EstateID;
         }
-
 
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
         public void SaveEstateSettings(EstateSettings es)
@@ -365,6 +365,7 @@ namespace Universe.Services.DataService
                 if (Add)
                     settings.Add(es);
             }
+
             return settings;
         }
 

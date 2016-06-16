@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -24,7 +26,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 
 using System.Collections.Generic;
 using System.Linq;
@@ -62,8 +63,7 @@ namespace Universe.Services
                     m_messagePost.Get (regionClient.Region.ServerURI,
                                       BuildRequest ("KickUserMessage", message, regionClient.AgentID.ToString ()),
                                       (resp) => {
-                                          IAgentProcessing agentProcessor =
-                                              m_registry.RequestModuleInterface<IAgentProcessing> ();
+                                          IAgentProcessing agentProcessor = m_registry.RequestModuleInterface<IAgentProcessing> ();
                                           if (agentProcessor != null)
                                               agentProcessor.LogoutAgent (regionClient, true);
                                           MainConsole.Instance.Info ("User has been kicked.");
@@ -83,12 +83,12 @@ namespace Universe.Services
                 IRegionClientCapsService regionClient = client.GetRootCapsService ();
                 if (regionClient != null) {
                     //Send the message to the client
-                    m_messagePost.Post (regionClient.Region.ServerURI,
-                                       BuildRequest ("GridWideMessage", message, regionClient.AgentID.ToString ()));
+                    m_messagePost.Post (regionClient.Region.ServerURI, BuildRequest ("GridWideMessage", message, regionClient.AgentID.ToString ()));
                     MainConsole.Instance.Info ("Message sent to the user.");
                     return;
                 }
             }
+
             MainConsole.Instance.Info ("Could not find user to send message to.");
         }
 
@@ -105,12 +105,12 @@ namespace Universe.Services
                     where regionClient.RootAgent
                     select regionClient)
             {
-                MainConsole.Instance.Debug ("[GridWideMessageModule]: Informed " + regionClient.ClientCaps.AccountInfo.Name);
+                MainConsole.Instance.Debug ("[Grid Wide Message Module]: Informed " + regionClient.ClientCaps.AccountInfo.Name);
                 //Send the message to the client
-                m_messagePost.Post (regionClient.Region.ServerURI,
-                                   BuildRequest ("GridWideMessage", message, regionClient.AgentID.ToString ()));
+                m_messagePost.Post (regionClient.Region.ServerURI, BuildRequest ("GridWideMessage", message, regionClient.AgentID.ToString ()));
             }
-            MainConsole.Instance.Info ("[GridWideMessageModule]: Sent alert, will be delivered across the grid shortly.");
+
+            MainConsole.Instance.Info ("[Grid Wide Message Module]: Sent alert, will be delivered across the grid shortly.");
         }
 
         #endregion
@@ -204,6 +204,7 @@ namespace Universe.Services
                 MainConsole.Instance.Info ("User does not exist.");
                 return;
             }
+
             MessageUser (account.PrincipalID, message);
         }
 
@@ -291,7 +292,7 @@ namespace Universe.Services
                     foreach (IScene scene in manager.Scenes) {
                         IScenePresence sp = null;
                         if (scene.TryGetScenePresence (UUID.Parse (user), out sp)) {
-                            sp.ControllingClient.Kick (value == "" ? "The Universe Grid Manager kicked you out." : value);
+                            sp.ControllingClient.Kick (value == "" ? "The Virtual Universe Grid Manager kicked you out." : value);
                             IEntityTransferModule transferModule = scene.RequestModuleInterface<IEntityTransferModule> ();
                             if (transferModule != null)
                                 transferModule.IncomingCloseAgent (scene, sp.UUID);
@@ -299,6 +300,7 @@ namespace Universe.Services
                     }
                 }
             }
+
             return null;
         }
 

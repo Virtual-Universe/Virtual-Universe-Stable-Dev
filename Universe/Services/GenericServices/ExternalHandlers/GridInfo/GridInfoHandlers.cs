@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org, http://opensimulator.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,18 +27,18 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using Universe.Framework.ConsoleFramework;
-using Universe.Framework.Modules;
-using Universe.Framework.Servers;
-using Universe.Framework.Servers.HttpServer.Implementation;
-using Universe.Framework.Services;
-using Nini.Config;
-using Nwc.XmlRpc;
 using System;
 using System.Collections;
 using System.IO;
 using System.Net;
 using System.Text;
+using Nini.Config;
+using Nwc.XmlRpc;
+using Universe.Framework.ConsoleFramework;
+using Universe.Framework.Modules;
+using Universe.Framework.Servers;
+using Universe.Framework.Servers.HttpServer.Implementation;
+using Universe.Framework.Services;
 
 namespace Universe.Services
 {
@@ -113,6 +115,7 @@ namespace Universe.Services
                         GridLoginURI = MainServer.Instance.FullHostName + ":" + port + "/";
                     }
                 }
+
                 _info["login"] = GridLoginURI;
 
                 // welcome
@@ -161,7 +164,6 @@ namespace Universe.Services
                 GridEconomyURI = GetConfig(m_config, "economy");
                 if (GridEconomyURI == "")
                 {
-
                     GridEconomyURI = MainServer.Instance.ServerURI + "/";           // assume default... 
 
                     if (moneyModule != null)
@@ -173,6 +175,7 @@ namespace Universe.Services
                         GridEconomyURI = MainServer.Instance.FullHostName + ":" + port + "/";
                     }
                 }
+
                 _info["economy"] = _info["helperuri"] = CheckServerHost(GridEconomyURI);
 
 
@@ -191,16 +194,13 @@ namespace Universe.Services
 
                 GridSnapshotConfigURI = GetConfig(m_config, "snapshotconfig");
                 _info["snapshotconfig"] = CheckServerHost(GridSnapshotConfigURI);
-
             }
             catch (Exception)
             {
-                MainConsole.Instance.Warn(
-                    "[GRID INFO SERVICE]: Cannot get grid info from config source, using minimal defaults");
+                MainConsole.Instance.Warn("[Grid Info Service]: Cannot get grid info from config source, using minimal defaults");
             }
 
-            MainConsole.Instance.DebugFormat("[GRID INFO SERVICE]: Grid info service initialized with {0} keys",
-                                             _info.Count);
+            MainConsole.Instance.DebugFormat("[Grid Info Service]: Grid info service initialized with {0} keys", _info.Count);
         }
 
         string CheckServerHost(string uri)
@@ -217,13 +217,12 @@ namespace Universe.Services
 
         private void IssueWarning()
         {
-            MainConsole.Instance.Warn("[GRID INFO SERVICE]: found no [GridInfo] section in your configuration files");
-            MainConsole.Instance.Warn(
-                "[GRID INFO SERVICE]: trying to guess sensible defaults, you might want to provide better ones:");
+            MainConsole.Instance.Warn("[Grid Info Service]: found no [GridInfo] section in your configuration files");
+            MainConsole.Instance.Warn("[Grid Info Service]: trying to guess sensible defaults, you might want to provide better ones:");
 
             foreach (string k in _info.Keys)
             {
-                MainConsole.Instance.WarnFormat("[GRID INFO SERVICE]: {0}: {1}", k, _info[k]);
+                MainConsole.Instance.WarnFormat("[Grid Info Service]: {0}: {1}", k, _info[k]);
             }
         }
         
@@ -232,20 +231,20 @@ namespace Universe.Services
             XmlRpcResponse response = new XmlRpcResponse();
             Hashtable responseData = new Hashtable();
 
-            MainConsole.Instance.Debug("[GRID INFO SERVICE]: Request for grid info");
+            MainConsole.Instance.Debug("[Grid Info Service]: Request for grid info");
             UpdateGridInfo();
 
             foreach (string k in _info.Keys)
             {
                 responseData[k] = _info[k];
             }
+
             response.Value = responseData;
 
             return response;
         }
 
-        public byte[] RestGetGridInfoMethod(string path, Stream request, OSHttpRequest httpRequest,
-                                            OSHttpResponse httpResponse)
+        public byte[] RestGetGridInfoMethod(string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
             StringBuilder sb = new StringBuilder();
             UpdateGridInfo();
@@ -255,6 +254,7 @@ namespace Universe.Services
             {
                 sb.AppendFormat("<{0}>{1}</{0}>\n", k, _info[k]);
             }
+
             sb.Append("</gridinfo>\n");
 
             return Encoding.UTF8.GetBytes(sb.ToString());

@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org, http://opensimulator.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,7 +27,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -49,12 +50,10 @@ namespace Universe.Services.SQLServices.InventoryService
     public class LibraryService : ILibraryService, IService
     {
         // moved to Constants to allow for easier comparison from the WebUI
-        // readonly UUID libOwner = new UUID("11111111-1111-0000-0000-000100bba000");
         readonly UUID libOwner = new UUID (Constants.LibraryOwner);
 
         public UUID LibraryRootFolderID {
             // similarly placed in Constants
-            //get { return new UUID("00000112-000f-0000-0000-000100bba000"); }
             get { return new UUID (Constants.LibraryRootFolderID); }
         }
 
@@ -93,7 +92,7 @@ namespace Universe.Services.SQLServices.InventoryService
                 libOwnerName = libConfig.GetString ("LibraryOwnerName", pLibOwnerName);
             }
 
-            //MainConsole.Instance.Debug("[LIBRARY]: Starting library service...");
+            //MainConsole.Instance.Debug("[Library]: Starting library service...");
 
             registry.RegisterModuleInterface<ILibraryService> (this);
             m_registry = registry;
@@ -137,8 +136,8 @@ namespace Universe.Services.SQLServices.InventoryService
                 if (!File.Exists ("DefaultInventory/Inventory.ini")) {
                     File.Copy ("DefaultInventory/Inventory.ini.example", "DefaultInventory/Inventory.ini");
                 }
-                IniConfigSource iniSource = new IniConfigSource ("DefaultInventory/Inventory.ini",
-                                                                IniFileType.AuroraStyle);
+
+                IniConfigSource iniSource = new IniConfigSource ("DefaultInventory/Inventory.ini", IniFileType.AuroraStyle);
                 if (iniSource != null) {
                     foreach (IDefaultLibraryLoader loader in Loaders) {
                         loader.LoadLibrary (this, iniSource, m_registry);

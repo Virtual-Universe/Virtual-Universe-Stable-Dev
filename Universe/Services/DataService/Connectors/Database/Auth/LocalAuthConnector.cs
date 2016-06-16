@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -43,8 +45,7 @@ namespace Universe.Services.DataService
 
         #region IAuthenticationData Members
 
-        public void Initialize (IGenericData genericData, IConfigSource source, IRegistryCore simBase,
-                               string defaultConnectionString)
+        public void Initialize (IGenericData genericData, IConfigSource source, IRegistryCore simBase, string defaultConnectionString)
         {
             if (source.Configs ["UniverseConnectors"].GetString ("AuthConnector", "LocalConnector") != "LocalConnector")
                 return;
@@ -100,7 +101,6 @@ namespace Universe.Services.DataService
             return GD.Insert (m_realm, row);
         }
 
-        // I don't think this is used anywhere (don't know who wrote this comment ~ SignpostMarv)
         public bool SetDataItem (UUID principalID, string item, string value)
         {
             Dictionary<string, object> values = new Dictionary<string, object> (1);

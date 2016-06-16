@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org, http://opensimulator.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -24,7 +26,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 
 using System.Collections.Generic;
 using Nini.Config;
@@ -56,13 +57,8 @@ namespace Universe.Services
                 conn.AddAbuseReport (abuse_report);
         }
 
-        //[CanBeReflected(ThreatLevel = ThreatLevel.Full)]
         public AbuseReport GetAbuseReport (int Number, string Password)
         {
-            /*object remoteValue = DoRemote(Number, Password);
-            if (remoteValue != null || m_doRemoteOnly)
-                return (AbuseReport)remoteValue;*/
-
             IAbuseReportsConnector conn = Framework.Utilities.DataManager.RequestPlugin<IAbuseReportsConnector> ();
             return (conn != null) ? conn.GetAbuseReport (Number, Password) : null;
         }
@@ -79,13 +75,8 @@ namespace Universe.Services
             return (conn != null) ? conn.GetAbuseReport (Number) : null;
         }
 
-        //[CanBeReflected(ThreatLevel = ThreatLevel.Full)]
         public void UpdateAbuseReport (AbuseReport report, string Password)
         {
-            /*object remoteValue = DoRemote(report, Password);
-            if (remoteValue != null || m_doRemoteOnly)
-                return;*/
-
             IAbuseReportsConnector conn = Framework.Utilities.DataManager.RequestPlugin<IAbuseReportsConnector> ();
             if (conn != null)
                 conn.UpdateAbuseReport (report, Password);

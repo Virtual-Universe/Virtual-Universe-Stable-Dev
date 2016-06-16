@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,7 +27,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 using System.IO;
 using OpenMetaverse;
 using OpenMetaverse.StructuredData;
@@ -48,8 +49,7 @@ namespace Universe.Services
         {
             m_service = service;
             m_profileConnector = Framework.Utilities.DataManager.RequestPlugin<IProfileConnector> ();
-            m_service.AddStreamHandler ("MeshUploadFlag",
-                new GenericStreamHandler ("GET", m_service.CreateCAPS ("MeshUploadFlag", ""), MeshUploadFlagCAP));
+            m_service.AddStreamHandler ("MeshUploadFlag", new GenericStreamHandler ("GET", m_service.CreateCAPS ("MeshUploadFlag", ""), MeshUploadFlagCAP));
         }
 
         public void DeregisterCaps ()
@@ -76,9 +76,7 @@ namespace Universe.Services
             data ["legacy_last_name"] = m_service.ClientCaps.AccountInfo.LastName;
             data ["mesh_upload_status"] = "valid"; // add if account has ability to upload mesh?
             bool isDisplayNameNDefault = (info.DisplayName == m_service.ClientCaps.AccountInfo.Name) ||
-                                         (info.DisplayName ==
-                                         m_service.ClientCaps.AccountInfo.FirstName + "." +
-                                         m_service.ClientCaps.AccountInfo.LastName);
+                                         (info.DisplayName == m_service.ClientCaps.AccountInfo.FirstName + "." + m_service.ClientCaps.AccountInfo.LastName);
             data ["is_display_name_default"] = isDisplayNameNDefault;
 
             //Send back data

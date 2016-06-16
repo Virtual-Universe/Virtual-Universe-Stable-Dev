@@ -1,6 +1,8 @@
 ﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -76,6 +78,7 @@ namespace Universe.FileBasedServices.AssetService
                     var defpath = registry.RequestModuleInterface<ISimulationBase> ().DefaultDataPath;
                     assetFolderPath = Path.Combine (defpath, Constants.DEFAULT_FILEASSETS_DIR);
                 }
+
                 SetUpFileBase (assetFolderPath);
 
                 // try and migrate sql assets if they are missing?
@@ -114,10 +117,9 @@ namespace Universe.FileBasedServices.AssetService
                     "get asset <ID>",
                     "Gets info about asset from database", 
                     HandleGetAsset, false, true);
-
             }
-            MainConsole.Instance.Info ("[Filebased asset service]: File based asset service enabled");
 
+            MainConsole.Instance.Info ("[File based asset service]: File based asset service enabled");
         }
 
         public virtual void Start (IConfigSource config, IRegistryCore registry)
@@ -167,6 +169,7 @@ namespace Universe.FileBasedServices.AssetService
                         cache.Cache (id, (AssetBase)remoteValue);
                     return (AssetBase)remoteValue;
                 }
+
                 return null;
             }
 
@@ -209,6 +212,7 @@ namespace Universe.FileBasedServices.AssetService
                         cache.CacheData (id, data);
                     return data;
                 }
+
                 return null;
             }
 
@@ -218,7 +222,6 @@ namespace Universe.FileBasedServices.AssetService
             if (asset == null)
                 return null;
 
-            // see assetservice.GetData  byte[0] != null            return new byte[0];
             var assetData = new byte [asset.Data.Length];
             asset.Data.CopyTo (assetData, 0);
             asset.Dispose ();
@@ -241,7 +244,6 @@ namespace Universe.FileBasedServices.AssetService
             var asset = Get (id);
             if (asset != null) {
                 Util.FireAndForget ((o) => {handler (id, sender, asset);});
-                //asset.Dispose ();
             }
         }
 
@@ -314,7 +316,7 @@ namespace Universe.FileBasedServices.AssetService
             if (!Directory.Exists (Path.Combine (m_assetsDirectory, "data")))
                 Directory.CreateDirectory (Path.Combine (m_assetsDirectory, "data"));
 
-            MainConsole.Instance.InfoFormat ("[Filebased asset service]: Set up Filebased Assets in {0}.",
+            MainConsole.Instance.InfoFormat ("[File based asset service]: Set up Filebased Assets in {0}.",
                 m_assetsDirectory);
         }
 
@@ -328,6 +330,7 @@ namespace Universe.FileBasedServices.AssetService
                 if (!Directory.Exists (baseStr))
                     Directory.CreateDirectory (baseStr);
             }
+
             return Path.Combine (baseStr, fileName + ".asset");
         }
 
@@ -341,6 +344,7 @@ namespace Universe.FileBasedServices.AssetService
                 if (!Directory.Exists (baseStr))
                     Directory.CreateDirectory (baseStr);
             }
+
             return Path.Combine (baseStr, fileName + ".data");
         }
 
@@ -376,7 +380,7 @@ namespace Universe.FileBasedServices.AssetService
                 }
             } catch (Exception ex)
             {
-                MainConsole.Instance.WarnFormat ("[Filebased asset service]: Failed to retrieve asset {0}: {1} ", id, ex);
+                MainConsole.Instance.WarnFormat ("[File Based asset service]: Failed to retrieve asset {0}: {1} ", id, ex);
                 return null;
             }
 #if ASSET_DEBUG
@@ -384,9 +388,7 @@ namespace Universe.FileBasedServices.AssetService
             {
                 long endTime = System.Diagnostics.Stopwatch.GetTimestamp();
                 if (MainConsole.Instance != null && asset != null)
-                    MainConsole.Instance.Warn("[FILE BASED ASSET SERVICE]: Took " + (endTime - startTime)/10000 +
-                                              " to get asset " + id + " sized " + asset.Data.Length/(1024) + "kbs");
-
+                    MainConsole.Instance.Warn("[File Based Asset Service]: Took " + (endTime - startTime)/10000 + " to get asset " + id + " sized " + asset.Data.Length/(1024) + "kbs");
             }
 #endif
             return asset;
@@ -402,11 +404,6 @@ namespace Universe.FileBasedServices.AssetService
 
             if (asset == null)
                 return null;
-
-            //Delete first, then restore it with the new local flag attached, so that we know we've converted it
-            //m_assetService.Delete(asset.ID, true);
-            //asset.Flags = AssetFlags.Local;
-            //m_assetService.StoreAsset(asset);
 
             //Now store in Redis
             FileSetAsset (asset);
@@ -450,6 +447,7 @@ namespace Universe.FileBasedServices.AssetService
 
                     File.WriteAllBytes (GetDataPathForID (hash), data);
                 }
+
                 return true;
             } catch
             {
@@ -463,8 +461,6 @@ namespace Universe.FileBasedServices.AssetService
             if (asset == null)
                 return;
             File.Delete (GetPathForID (id));
-            //DON'T DO THIS, there might be other references to this hash
-            //File.Delete(GetDataPathForID(asset.HashCode));
         }
 
         #region Console Commands

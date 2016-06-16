@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -24,7 +26,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 
 using System;
 using Nini.Config;
@@ -88,8 +89,7 @@ namespace Universe.Services
                 else
                     m_registry.RequestModuleInterface<ISyncMessageRecievedService> ().FireMessageReceived (request);
             } catch (Exception ex) {
-                MainConsole.Instance.WarnFormat ("[SyncMessagePoster]: Caught exception when attempting to post to {0}: {1}",
-                                                 url, ex.ToString ()); 
+                MainConsole.Instance.WarnFormat ("[Sync Message Poster]: Caught exception when attempting to post to {0}: {1}", url, ex.ToString ()); 
             }
         }
 
@@ -111,8 +111,7 @@ namespace Universe.Services
                 else
                     m_registry.RequestModuleInterface<ISyncMessageRecievedService> ().FireMessageReceived (request);
             } catch (Exception ex) { 
-                MainConsole.Instance.WarnFormat ("[SyncMessagePoster]: Caught exception when attempting to post to grid server: {0}", 
-                                                 ex.ToString ()); 
+                MainConsole.Instance.WarnFormat ("[Sync Message Poster]: Caught exception when attempting to post to grid server: {0}", ex.ToString ()); 
             }
         }
 
@@ -136,17 +135,18 @@ namespace Universe.Services
                     } else
                         return DoRemoteCallGet (true, "SyncMessageServerURI", false, url, request) as OSDMap;
                 }
+
                 return m_registry.RequestModuleInterface<ISyncMessageRecievedService> ().FireMessageReceived (request);
             } catch (Exception ex) {
-                MainConsole.Instance.WarnFormat ("[SyncMessagePoster]: Caught exception when attempting to post to {0}: {1}",
-                                                                      url, ex.ToString ()); 
+                MainConsole.Instance.WarnFormat ("[Sync Message Poster]: Caught exception when attempting to post to {0}: {1}", url, ex.ToString ()); 
             }
+
             return null;
         }
 
         void LogMessage (bool remote, string url, OSDMap request)
         {
-            MainConsole.Instance.DebugFormat ("[SyncMessagePosterService]: Sending message ({0}) to {1}, method {2}",
+            MainConsole.Instance.DebugFormat ("[Sync Message Poster Service]: Sending message ({0}) to {1}, method {2}",
                 remote ? "remotely" : "locally",
                 url == "" ? "grid server" : url,
                 (request != null && request.ContainsKey ("Method")) ? request ["Method"].AsString () : "no method set");

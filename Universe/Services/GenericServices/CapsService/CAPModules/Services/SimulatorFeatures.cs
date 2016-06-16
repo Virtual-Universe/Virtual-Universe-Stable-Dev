@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -24,7 +26,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 
 using System.Collections.Generic;
 using System.IO;
@@ -54,8 +55,7 @@ namespace Universe.Services
             // retrieve our god's if needed
             InitGodNames ();
 
-            m_service.AddStreamHandler ("SimulatorFeatures",
-                new GenericStreamHandler ("GET", m_service.CreateCAPS ("SimulatorFeatures", ""), SimulatorFeaturesCAP));
+            m_service.AddStreamHandler ("SimulatorFeatures", new GenericStreamHandler ("GET", m_service.CreateCAPS ("SimulatorFeatures", ""), SimulatorFeaturesCAP));
         }
 
         public void DeregisterCaps ()
@@ -72,10 +72,10 @@ namespace Universe.Services
         byte [] SimulatorFeaturesCAP (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
             OSDMap data = new OSDMap ();
-            // 17-06-2015 Fly-Man- AvatarHoverHeight enabled
+            // AvatarHoverHeight enabled
             data ["AvatarHoverHeightEnabled"] = true;
 
-            // 17-06-2015 Fly-Man- MaxMaterialsPerTransaction enabled
+            // MaxMaterialsPerTransaction enabled
             data ["MaxMaterialsPerTransaction"] = 50;
 
             data ["MeshRezEnabled"] = true;
@@ -118,8 +118,6 @@ namespace Universe.Services
 
         OSDMap GodNames (OSHttpRequest httpRequest)
         {
-
-
             OSDMap namesmap = new OSDMap ();
             if (httpRequest.Query.ContainsKey ("god_names")) {
                 OSD nmap = httpRequest.Query ["god_names"].ToString ();
@@ -136,6 +134,7 @@ namespace Universe.Services
             foreach (string name in m_lastNames) {
                 lnames.Add (name);
             }
+
             namesmap ["last_names"] = lnames;
 
             return namesmap;
@@ -143,8 +142,6 @@ namespace Universe.Services
 
         void CameraOnllyModeRequest (OSHttpRequest httpRequest)
         {
-            //if (ShouldSend(m_service.AgentID,m_service.RegionID) && UserLevel(m_service.AgentID) <= m_UserLevel)
-            //{
             OSDMap extrasMap = new OSDMap ();
             if (httpRequest.Query.ContainsKey ("OpenSimExtras")) {
                 OSD nmap = httpRequest.Query ["OpenSimExtras"].ToString ();
@@ -152,38 +149,7 @@ namespace Universe.Services
             }
 
             extrasMap ["camera-only-mode"] = OSDMap.FromString ("true");
-
-            // TODO: Need to find out how this is determined  i.e. sent from viewer??
-            // Detach agent attachments
-            //Util.FireAndForget(delegate { DetachAttachments(agentID); });
-
-            //}
         }
-
-        /*        void DetachAttachments(UUID agentID)
-        {
-            ScenePresence sp = m_scene.GetScenePresence(agentID);
-            if ((sp.TeleportFlags & TeleportFlags.ViaLogin) != 0)
-                // Wait a little, cos there's weird stuff going on at  login related to
-                // the Current Outfit Folder
-                Thread.Sleep(8000);
-
-            if (sp != null && m_scene.AttachmentsModule != null)
-            {
-                List<SceneObjectGroup> attachs = sp.GetAttachments();
-                if (attachs != null && attachs.Count > 0)
-                {
-                    foreach (SceneObjectGroup sog in attachs)
-                    {
-                        MainConsole.Instance.DebugFormat("[CAMERA-ONLY MODE]: Forcibly detaching attach {0} from {1} in {2}", 
-                            sog.Name, sp.Name, m_service.Region);
-
-                        m_scene.AttachmentsModule.DetachSingleAttachmentToInv(sp, sog);
-                    }
-                }
-            }
-        }
-*/
 
         #endregion
     }

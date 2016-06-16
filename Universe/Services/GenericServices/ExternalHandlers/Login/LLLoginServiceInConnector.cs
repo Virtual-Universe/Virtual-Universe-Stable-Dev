@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org, http://opensimulator.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,18 +27,17 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
+using System;
+using System.Collections;
+using System.Net;
+using Nini.Config;
+using Nwc.XmlRpc;
+using OpenMetaverse;
 using Universe.Framework.ConsoleFramework;
 using Universe.Framework.Modules;
 using Universe.Framework.Servers.HttpServer.Interfaces;
 using Universe.Framework.Services;
 using Universe.Framework.Utilities;
-using Nini.Config;
-using Nwc.XmlRpc;
-using OpenMetaverse;
-using System;
-using System.Collections;
-using System.Net;
 
 namespace Universe.Services
 {
@@ -63,9 +64,8 @@ namespace Universe.Services
                 return;
 
             IHttpServer server =
-                registry.RequestModuleInterface<ISimulationBase>().GetHttpServer(
-                    (uint) handlerConfig.GetInt("LLLoginHandlerPort"));
-            MainConsole.Instance.Debug("[LLLOGIN IN CONNECTOR]: Starting...");
+                registry.RequestModuleInterface<ISimulationBase>().GetHttpServer((uint) handlerConfig.GetInt("LLLoginHandlerPort"));
+            MainConsole.Instance.Debug("[LLLogin In Connector]: Starting...");
             ReadLocalServiceFromConfig(config);
             m_loginService = registry.RequestModuleInterface<ILoginService>();
 
@@ -148,11 +148,8 @@ namespace Universe.Services
 
                     LoginResponse reply = null;
 
-
                     string loginName = (name == "" || name == null) ? first + " " + last : name;
-                    reply = m_loginService.Login(UUID.Zero, loginName, "UserAccount", passwd, startLocation,
-                                                 clientVersion, channel,
-                                                 mac, id0, remoteClient, requestData);
+                    reply = m_loginService.Login(UUID.Zero, loginName, "UserAccount", passwd, startLocation, clientVersion, channel, mac, id0, remoteClient, requestData);
                     XmlRpcResponse response = new XmlRpcResponse {Value = reply.ToHashtable()};
                     return response;
                 }
@@ -177,8 +174,7 @@ namespace Universe.Services
                     string passwd = requestData["passwd"].ToString();
                     int level = Int32.Parse(requestData["level"].ToString());
 
-                    MainConsole.Instance.InfoFormat("[LOGIN]: XMLRPC Set Level to {2} Requested by {0} {1}", first, last,
-                                                    level);
+                    MainConsole.Instance.InfoFormat("[Login]: XMLRPC Set Level to {2} Requested by {0} {1}", first, last, level);
 
                     Hashtable reply = m_loginService.SetLevel(first, last, passwd, level, remoteClient);
 

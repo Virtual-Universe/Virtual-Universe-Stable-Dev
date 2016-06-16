@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -24,7 +26,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 
 using System;
 using System.IO;
@@ -74,8 +75,7 @@ namespace Universe.Services
 
         #region Server Side Baked Textures
 
-        byte[] UpdateAvatarAppearance (string path, Stream request, OSHttpRequest httpRequest,
-                                      OSHttpResponse httpResponse)
+        byte[] UpdateAvatarAppearance (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
             try
             {
@@ -105,12 +105,6 @@ namespace Universe.Services
                 map ["success"] = success;
                 map ["error"] = error;
                 map ["agent_id"] = m_agentID;
-                /*map["avatar_scale"] = appearance.AvatarHeight;
-                map["textures"] = newBakeIDs.ToOSDArray();
-                OSDArray visualParams = new OSDArray();
-                foreach(byte b in appearance.VisualParams)
-                    visualParams.Add((int)b);
-                map["visual_params"] = visualParams;*/
                 return OSDParser.SerializeLLSDXmlBytes (map);
 
             } catch (Exception e)

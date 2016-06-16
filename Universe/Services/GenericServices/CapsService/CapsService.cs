@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -24,7 +26,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 
 using System.Collections.Generic;
 using System.Linq;
@@ -111,8 +112,7 @@ namespace Universe.Services
         {
             //Check for all or full to show child agents
             bool showChildAgents = cmd.Length == 3 && (cmd [2] == "all" || (cmd [2] == "full"));
-            int count =
-                m_RegionCapsServices.Values.SelectMany (regionCaps => regionCaps.GetClients ())
+            int count = m_RegionCapsServices.Values.SelectMany (regionCaps => regionCaps.GetClients ())
                                     .Count (clientCaps => (clientCaps.RootAgent || showChildAgents));
 
             MainConsole.Instance.WarnFormat ("{0} agents found: ", count);
@@ -144,8 +144,7 @@ namespace Universe.Services
                 IClientCapsService perClient = m_ClientCapsServices [agentID];
                 perClient.Close ();
                 m_ClientCapsServices.Remove (agentID);
-                m_registry.RequestModuleInterface<ISimulationBase> ()
-                          .EventManager.FireGenericEventHandler ("UserLogout", agentID);
+                m_registry.RequestModuleInterface<ISimulationBase> ().EventManager.FireGenericEventHandler ("UserLogout", agentID);
             }
         }
 
@@ -159,27 +158,24 @@ namespace Universe.Services
         /// <param name="circuitData"></param>
         /// <param name="port">The port to use for the CAPS service</param>
         /// <returns></returns>
-        public string CreateCAPS (UUID agentID, string capsBase, UUID regionID, bool isRootAgent,
-                                 AgentCircuitData circuitData, uint port)
+        public string CreateCAPS (UUID agentID, string capsBase, UUID regionID, bool isRootAgent, AgentCircuitData circuitData, uint port)
         {
             //Now make sure we didn't use an old one or something
             IClientCapsService service = GetOrCreateClientCapsService (agentID);
             if (service != null) {
-                IRegionClientCapsService clientService = service.GetOrCreateCapsService (regionID, capsBase, circuitData,
-                                                             port);
+                IRegionClientCapsService clientService = service.GetOrCreateCapsService (regionID, capsBase, circuitData, port);
 
                 if (clientService != null) {
                     //Fix the root agent status
                     clientService.RootAgent = isRootAgent;
 
-                    MainConsole.Instance.Debug ("[CapsService]: Adding Caps URL " + clientService.CapsUrl + " for agent " + agentID);
+                    MainConsole.Instance.Debug ("[Caps Service]: Adding Caps URL " + clientService.CapsUrl + " for agent " + agentID);
                     return clientService.CapsUrl;
                 }
 
             }
 
-            MainConsole.Instance.ErrorFormat ("[CapsService]: Unable to create caps for agent {0} on {1}",
-                                             agentID, regionID);
+            MainConsole.Instance.ErrorFormat ("[Caps Service]: Unable to create caps for agent {0} on {1}", agentID, regionID);
             return string.Empty;
         }
 
@@ -196,6 +192,7 @@ namespace Universe.Services
                 client.Initialize (this, agentID);
                 m_ClientCapsServices.Add (agentID, client);
             }
+
             return m_ClientCapsServices [agentID];
         }
 
@@ -215,10 +212,12 @@ namespace Universe.Services
                     break;
                 }
             }
+
             if (disabled) {
                 RemoveCAPS (agentID);
                 return null;
             }
+
             return m_ClientCapsServices [agentID];
         }
 

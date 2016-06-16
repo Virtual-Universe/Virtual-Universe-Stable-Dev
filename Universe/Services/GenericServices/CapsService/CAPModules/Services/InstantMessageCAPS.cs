@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,7 +27,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 using System;
 using System.IO;
 using System.Text;
@@ -48,8 +49,7 @@ namespace Universe.Services
             m_imService = service.Registry.RequestModuleInterface<IInstantMessagingService>();
             if (m_imService != null)
             {
-                service.AddStreamHandler("ChatSessionRequest",
-                                         new GenericStreamHandler("POST", service.CreateCAPS("ChatSessionRequest", ""), ChatSessionRequest));
+                service.AddStreamHandler("ChatSessionRequest", new GenericStreamHandler("POST", service.CreateCAPS("ChatSessionRequest", ""), ChatSessionRequest));
             }
         }
 
@@ -64,8 +64,7 @@ namespace Universe.Services
 
         #region Baked Textures
 
-        public byte[] ChatSessionRequest(string path, Stream request, OSHttpRequest httpRequest,
-                                         OSHttpResponse httpResponse)
+        public byte[] ChatSessionRequest(string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
             try
             {

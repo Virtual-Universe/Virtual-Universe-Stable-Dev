@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -41,11 +43,9 @@ namespace Universe.Services.DataService
         IGenericData GD;
         const string m_realm = "statsdata";
 
-        public void Initialize(IGenericData GenericData, IConfigSource source, IRegistryCore simBase,
-                               string defaultConnectionString)
+        public void Initialize(IGenericData GenericData, IConfigSource source, IRegistryCore simBase, string defaultConnectionString)
         {
-            if (source.Configs["UniverseConnectors"].GetString("WebStatsDataConnector", "LocalConnector") ==
-                "LocalConnector")
+            if (source.Configs["UniverseConnectors"].GetString("WebStatsDataConnector", "LocalConnector") == "LocalConnector")
             {
                 GD = GenericData;
 
@@ -54,8 +54,7 @@ namespace Universe.Services.DataService
 
                 if (GD != null)
                 {
-                    GD.ConnectToDatabase (defaultConnectionString, "Stats",
-                        source.Configs ["UniverseConnectors"].GetBoolean ("ValidateTables", true));
+                    GD.ConnectToDatabase (defaultConnectionString, "Stats", source.Configs ["UniverseConnectors"].GetBoolean ("ValidateTables", true));
 
                     Framework.Utilities.DataManager.RegisterPlugin (Name, this);
                 }
@@ -151,7 +150,6 @@ namespace Universe.Services.DataService
             List<string> client_viewers = GD.Query(new string[1] {"client_version"}, m_realm, filter, null, null, null);
             client_viewers.Sort ();
 
-            //List<string> client_viewers = Get ("client_version");
             Dictionary<string, int> viewers = new Dictionary<string, int>();
             foreach( var cli in client_viewers)
                 if (viewers.ContainsKey(cli))

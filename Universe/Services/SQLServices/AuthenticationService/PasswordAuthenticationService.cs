@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org, http://opensimulator.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,7 +27,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 using Nini.Config;
 using OpenMetaverse;
 using Universe.Framework.ConsoleFramework;
@@ -40,7 +41,6 @@ namespace Universe.Services
     // Principals may be clients acting on users' behalf,
     // or any other components that need 
     // verifiable identification.
-    //
     public class PasswordAuthenticationService :
         AuthenticationServiceBase, IAuthenticationService, IService
     {
@@ -61,9 +61,9 @@ namespace Universe.Services
 
             if (data == null) {
                 if (!CheckExists (principalID, authType)) {
-                    MainConsole.Instance.DebugFormat ("[Auth service]: PrincipalID {0} not found", principalID);
+                    MainConsole.Instance.DebugFormat ("[Auth Service]: PrincipalID {0} not found", principalID);
                 } else {
-                    MainConsole.Instance.DebugFormat ("[Auth service]: PrincipalID {0} data not found", principalID);
+                    MainConsole.Instance.DebugFormat ("[Auth Service]: PrincipalID {0} data not found", principalID);
                 }
             } else {
                 if (authType != "UserAccount") {
@@ -72,13 +72,13 @@ namespace Universe.Services
                         if (authType == "WebLoginKey") {
                             Remove (principalID, authType); //Only allow it to be used once
                         }
+
                         return GetToken (principalID, lifetime);
                     }
                 } else {
                     string hashed = Util.Md5Hash (password + ":" + data.PasswordSalt);
 
-                    MainConsole.Instance.TraceFormat ("[Password auth]: got {0}; hashed = {1}; stored = {2}", password,
-                                                     hashed, data.PasswordHash);
+                    MainConsole.Instance.TraceFormat ("[Password Auth]: got {0}; hashed = {1}; stored = {2}", password, hashed, data.PasswordHash);
 
                     if (data.PasswordHash == hashed) {
                         return GetToken (principalID, lifetime);
@@ -99,9 +99,7 @@ namespace Universe.Services
             if (handlerConfig.GetString ("AuthenticationHandler", "") != Name)
                 return;
 
-            //
             // Try reading the [AuthenticationService] section first, if it exists
-            //
             IConfig authConfig = config.Configs ["AuthenticationService"];
             if (authConfig != null) {
                 m_authenticateUsers = authConfig.GetBoolean ("AuthenticateUsers", m_authenticateUsers);

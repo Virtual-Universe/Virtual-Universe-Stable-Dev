@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -24,7 +26,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 
 using System;
 using System.Collections.Generic;
@@ -163,6 +164,7 @@ namespace Universe.Services
                     return m_overrideCapsURL;
                 return HostUri + m_capsUrlBase;
             }
+
             set { m_overrideCapsURL = value; }
         }
 
@@ -170,8 +172,7 @@ namespace Universe.Services
 
         #region Initialize
 
-        public void Initialize(IClientCapsService clientCapsService, IRegionCapsService regionCapsService,
-                               string capsBase, AgentCircuitData circuitData, uint port)
+        public void Initialize(IClientCapsService clientCapsService, IRegionCapsService regionCapsService, string capsBase, AgentCircuitData circuitData, uint port)
         {
             m_clientCapsService = clientCapsService;
             m_regionCapsService = regionCapsService;
@@ -181,6 +182,7 @@ namespace Universe.Services
                 ISimulationBase simBase = Registry.RequestModuleInterface<ISimulationBase>();
                 Server = simBase.GetHttpServer(port);
             }
+
             AddSEEDCap(capsBase);
 
             AddCAPS();
@@ -251,6 +253,7 @@ namespace Universe.Services
                     path = path.Remove(0, HostUri.Length);
                     Server.RemoveStreamHandler(httpMethod, path);
                 }
+
                 RemoveCaps(method);
             }
         }
@@ -275,10 +278,9 @@ namespace Universe.Services
             RemoveCAPS();
         }
 
-        public virtual byte[] CapsRequest(string path, Stream request, OSHttpRequest httpRequest,
-                                          OSHttpResponse httpResponse)
+        public virtual byte[] CapsRequest(string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
-            MainConsole.Instance.Debug("[CapsHandlers]: Handling Seed Cap request at " + CapsUrl);
+            MainConsole.Instance.Debug("[Caps Handlers]: Handling Seed Cap request at " + CapsUrl);
             return OSDParser.SerializeLLSDXmlBytes(RegisteredCAPS);
         }
 

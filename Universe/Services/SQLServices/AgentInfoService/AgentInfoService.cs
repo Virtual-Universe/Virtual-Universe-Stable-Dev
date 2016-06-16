@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org, http://opensimulator.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -24,7 +26,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 
 using System;
 using System.Collections.Generic;
@@ -104,6 +105,7 @@ namespace Universe.Services
                 if (userInfo != null)
                     infos.Add (userInfo);
             }
+
             return infos;
         }
 
@@ -141,6 +143,7 @@ namespace Universe.Services
                 else
                     infos [i] = "NotOnline";
             }
+
             return new List<string> (infos);
         }
 
@@ -157,8 +160,7 @@ namespace Universe.Services
         }
 
         [CanBeReflected (ThreatLevel = ThreatLevel.Low)]
-        public virtual void SetLastPosition (string userID, UUID regionID, Vector3 lastPosition, Vector3 lastLookAt,
-                                            string regionURI)
+        public virtual void SetLastPosition (string userID, UUID regionID, Vector3 lastPosition, Vector3 lastLookAt, string regionURI)
         {
             if (m_doRemoteOnly) {
                 DoRemote (userID, regionID, lastPosition, lastLookAt);
@@ -220,8 +222,7 @@ namespace Universe.Services
             bool changed = false;
             UserInfo info = m_agentInfoConnector.Get (userID, checkForOfflineStatus, out changed);
             if (changed)
-                m_registry.RequestModuleInterface<ISimulationBase> ().EventManager.FireGenericEventHandler (
-                    "UserStatusChange", new object [] { userID, false, UUID.Zero });
+                m_registry.RequestModuleInterface<ISimulationBase> ().EventManager.FireGenericEventHandler ("UserStatusChange", new object [] { userID, false, UUID.Zero });
             return info;
         }
 
