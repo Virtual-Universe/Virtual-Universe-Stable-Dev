@@ -1,8 +1,6 @@
-﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
+/*
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -58,7 +56,7 @@ namespace Universe.DataManager.Migration
                 IMigrator m in
                     allMigrators.Where(m => m.MigrationName != null).Where(m => m.MigrationName == migratorName))
             {
-                migrators.Add((Migrator)m);
+                migrators.Add((Migrator) m);
             }
         }
 
@@ -79,11 +77,11 @@ namespace Universe.DataManager.Migration
             executed = false;
             Version currentVersion = genericData.GetUniverseVersion(migratorName);
 
-            //if there is no Virtual Universe version, this is likely an entirely new installation
+            //if there is no Universe version, this is likely an entirely new installation
             if (currentVersion == null)
             {
-                MainConsole.Instance.InfoFormat("[Migrator]: Clean installation for {0} found", migratorName);
-                Migrator defaultMigrator = GetHighestVersionMigratorThatCanProvideDefaultSetup();
+            	MainConsole.Instance.InfoFormat("[Migrator]: Clean installation for {0} found", migratorName);
+            	Migrator defaultMigrator = GetHighestVersionMigratorThatCanProvideDefaultSetup();
                 currentVersion = defaultMigrator.Version;
                 Migrator startMigrator = GetMigratorAfterVersion(defaultMigrator.Version);
                 var latestMigrator = GetLatestVersionMigrator();
@@ -101,9 +99,9 @@ namespace Universe.DataManager.Migration
                 {
                     Migrator targetMigrator = GetLatestVersionMigrator();
                     MainConsole.Instance.InfoFormat("[Migrator]: New migration script for {0} found", migratorName);
-                    MainConsole.Instance.CleanInfoFormat("            Depending upon the amount of {0} data, this process may take quite a while", migratorName);
-                    MainConsole.Instance.CleanInfo("             You may also see warnings and possible timeout errors until this proccess is completed");
-                    MainConsole.Instance.CleanInfo("");
+                    MainConsole.Instance.CleanInfoFormat ("            Depending upon the amount of {0} data, this process may take quite a while", migratorName);
+                    MainConsole.Instance.CleanInfo ("             You may also see warnings and possible timeout errors until this proccess is completed");
+                    MainConsole.Instance.CleanInfo ("");
 
                     operationDescription = new MigrationOperationDescription(MigrationOperationTypes.UpgradeToTarget,
                                                                              currentVersion, startMigrator.Version,
@@ -197,6 +195,9 @@ namespace Universe.DataManager.Migration
                         }
                     }
                 }
+                //else
+                //    MainConsole.Instance.Fatal (string.Format ("Failed to validate migration {0}-{1}, continueing...", currentMigrator.MigrationName, currentMigrator.Version));
+
 
                 bool restoreTaken = false;
                 //Loop through versions from start to end, migrating then validating
@@ -212,6 +213,7 @@ namespace Universe.DataManager.Migration
                         restoreTaken = true;
                     }
                 }
+
 
                 while (executingMigrator != null)
                 {

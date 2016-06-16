@@ -1,8 +1,6 @@
-﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
+/*
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -40,7 +38,7 @@ namespace Universe.DataManager
 {
     public abstract class DataManagerBase : IDataConnector
     {
-        const string VERSION_TABLE_NAME = "migrator_version";
+		const string VERSION_TABLE_NAME = "migrator_version";
         const string COLUMN_NAME = "name";
         const string COLUMN_VERSION = "version";
 
@@ -52,9 +50,9 @@ namespace Universe.DataManager
 
         public Version GetUniverseVersion(string migratorName)
         {
-            if (!TableExists(VERSION_TABLE_NAME))
+            if (!TableExists (VERSION_TABLE_NAME))
             {
-                CreateTable(
+                CreateTable (
                     VERSION_TABLE_NAME,
                     new[] {
                         new ColumnDefinition {
@@ -71,15 +69,15 @@ namespace Universe.DataManager
 
             Dictionary<string, object> where = new Dictionary<string, object>(1);
             where[COLUMN_NAME] = migratorName;
-            List<string> results = Query(
+            List<string> results = Query (
                                        new string[] { COLUMN_VERSION },
                                        VERSION_TABLE_NAME,
                                        new QueryFilter { andFilters = where },
                                        null, null, null);
-
+            
             if (results.Count > 0)
             {
-                Version[] highestVersion = { null };
+                Version[] highestVersion = {null};
                 foreach (
                     var version in
                         results.Where(result => result.Trim() != string.Empty)
@@ -88,7 +86,6 @@ namespace Universe.DataManager
                 {
                     highestVersion[0] = version;
                 }
-
                 return highestVersion[0];
             }
 
@@ -99,7 +96,7 @@ namespace Universe.DataManager
         {
             if (!TableExists(VERSION_TABLE_NAME))
             {
-                CreateTable(
+                CreateTable (
                     VERSION_TABLE_NAME,
                     new[] {
                         new ColumnDefinition {
@@ -118,7 +115,7 @@ namespace Universe.DataManager
             Delete(VERSION_TABLE_NAME, filter);
 
             //Add the new version
-            Insert(VERSION_TABLE_NAME, new[] { version.ToString(), migrationName });
+            Insert(VERSION_TABLE_NAME, new[] {version.ToString(), migrationName});
         }
 
         public void CopyTableToTable(string sourceTableName, string destinationTableName,
@@ -141,18 +138,21 @@ namespace Universe.DataManager
             if (!VerifyTableExists(sourceTableName, columnDefinitions, indexDefinitions))
             {
                 throw new MigrationOperationException(
-                    "Cannot copy table to new name, source table does not match columnDefinitions: " + destinationTableName);
+                    "Cannot copy table to new name, source table does not match columnDefinitions: " +
+                    destinationTableName);
             }
 
             EnsureTableExists(destinationTableName, columnDefinitions, indexDefinitions, null);
             CopyAllDataBetweenMatchingTables(sourceTableName, destinationTableName, columnDefinitions, indexDefinitions);
         }
 
-        public bool VerifyTableExists(string tableName, ColumnDefinition[] columnDefinitions, IndexDefinition[] indexDefinitions)
+        public bool VerifyTableExists(string tableName, ColumnDefinition[] columnDefinitions,
+                                      IndexDefinition[] indexDefinitions)
         {
             if (!TableExists(tableName))
             {
-                MainConsole.Instance.Warn("[Data Migrator]: Issue finding table " + tableName + " when verifying tables exist!");
+                MainConsole.Instance.Warn("[DataMigrator]: Issue finding table " + tableName +
+                    " when verifying tables exist!"); 
                 return false;
             }
 
@@ -179,18 +179,17 @@ namespace Universe.DataManager
                             continue; //They are the same type, let them go on through
                         }
 
-                        MainConsole.Instance.Warn("[Data Migrator]: Mismatched Column Type on " + tableName + "." + thisDef.Name +
+                        MainConsole.Instance.Warn("Mismatched Column Type on " + tableName + "." + thisDef.Name +
                                                   ": " + GetColumnTypeStringSymbol(thisDef.Type) + ", " +
                                                   GetColumnTypeStringSymbol(columnDefinition.Type));
-
+                        
                     }
-                    MainConsole.Instance.Warn("[Data Migrator]: Issue verifying table " + tableName + " column " +
+                    MainConsole.Instance.Warn("[DataMigrator]: Issue verifying table " + tableName + " column " +
                                               columnDefinition.Name +
                                               " when verifying tables exist, problem with new column definitions");
                     return false;
                 }
             }
-
             foreach (ColumnDefinition columnDefinition in extractedColumns)
             {
                 if (!newColumns.Contains(columnDefinition))
@@ -207,7 +206,7 @@ namespace Universe.DataManager
                             continue; //They are the same type, let them go on through
                         }
                     }
-                    MainConsole.Instance.Warn("[Data Migrator]: Issue verifying table " + tableName + " column " +
+                    MainConsole.Instance.Warn("[DataMigrator]: Issue verifying table " + tableName + " column " +
                                               columnDefinition.Name +
                                               " when verifying tables exist, problem with old column definitions");
                     return false;
@@ -220,7 +219,6 @@ namespace Universe.DataManager
             {
                 extractedIndices.Add(kvp.Value);
             }
-
             List<IndexDefinition> newIndices = new List<IndexDefinition>(indexDefinitions);
 
             foreach (IndexDefinition indexDefinition in indexDefinitions)
@@ -236,10 +234,9 @@ namespace Universe.DataManager
                             break;
                         }
                     }
-
                     if (thisDef == null)
                     {
-                        MainConsole.Instance.Warn("[Data Migrator]: Issue verifying table " + tableName + " index " +
+                        MainConsole.Instance.Warn("[DataMigrator]: Issue verifying table " + tableName + " index " +
                                                   indexDefinition.Type + " (" +
                                                   string.Join(", ", indexDefinition.Fields) +
                                                   ") when verifying tables exist");
@@ -247,7 +244,6 @@ namespace Universe.DataManager
                     }
                 }
             }
-
             foreach (IndexDefinition indexDefinition in extractedIndices)
             {
                 if (!newIndices.Contains(indexDefinition))
@@ -261,12 +257,12 @@ namespace Universe.DataManager
                             break;
                         }
                     }
-
                     if (thisDef == null)
                     {
-                        MainConsole.Instance.Warn("[Data Migrator]: Issue verifying table " + tableName + " index " +
+                        MainConsole.Instance.Warn("[DataMigrator]: Issue verifying table " + tableName + " index " +
                                                   indexDefinition.Type + " (" +
-                                                  string.Join(", ", indexDefinition.Fields) + ") when verifying tables exist");
+                                                  string.Join(", ", indexDefinition.Fields) +
+                                                  ") when verifying tables exist");
                         return false;
                     }
                 }
@@ -282,9 +278,9 @@ namespace Universe.DataManager
             {
                 if (!VerifyTableExists(tableName, columnDefinitions, indexDefinitions))
                 {
+                    //throw new MigrationOperationException("Cannot create, table with same name and different columns already exists. This should be fixed in a migration: " + tableName);
                     UpdateTable(tableName, columnDefinitions, indexDefinitions, renameColumns);
                 }
-
                 return;
             }
 
@@ -333,6 +329,7 @@ namespace Universe.DataManager
                                                                     QueryTables tables, string wantedValue);
 
         public abstract DataReaderConnection QueryData(string whereClause, QueryTables tables, string wantedValue);
+
         public abstract List<string> QueryFullData(string whereClause, QueryTables tables, string wantedValue);
 
         #endregion
@@ -361,7 +358,9 @@ namespace Universe.DataManager
         #endregion
 
         public abstract void ConnectToDatabase(string connectionString, string migratorName, bool validateTables);
+
         public abstract void CloseDatabase(DataReaderConnection connection);
+
         public abstract IGenericData Copy();
         public abstract string ConCat(string[] toConcat);
 
@@ -428,7 +427,7 @@ namespace Universe.DataManager
                     Dictionary<string, ColumnType> regexChecks = new Dictionary<string, ColumnType>(5);
                     regexChecks[regexInt] = ColumnType.Integer;
                     regexChecks[regexTinyint] = ColumnType.TinyInt;
-                    regexChecks[regexChar] = ColumnType.Char;
+                    regexChecks[regexChar] = ColumnType.Char;                    
                     regexChecks[regexString] = ColumnType.String;
                     regexChecks[regexBinary] = ColumnType.Binary;
 

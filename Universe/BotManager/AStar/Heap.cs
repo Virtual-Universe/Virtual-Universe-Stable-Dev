@@ -1,8 +1,6 @@
-﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
+/*
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -134,7 +132,7 @@ namespace Universe.BotManager.AStar
         public object Clone()
         {
             Heap newClone = new Heap(FComparer, FList.Capacity)
-            { FList = (ArrayList)FList.Clone(), FAddDuplicates = FAddDuplicates };
+                             {FList = (ArrayList) FList.Clone(), FAddDuplicates = FAddDuplicates};
             return newClone;
         }
 
@@ -157,7 +155,6 @@ namespace Universe.BotManager.AStar
                     throw new ArgumentOutOfRangeException("Index is less than zero or Index is greater than Count.");
                 return FList[index];
             }
-
             set { throw new InvalidOperationException("[] operator cannot be used to set a value in a Heap."); }
         }
 
@@ -179,7 +176,6 @@ namespace Universe.BotManager.AStar
                 else FList.Insert(NewIndex, obj);
                 Return = NewIndex;
             }
-
             return Return;
         }
 
@@ -211,10 +207,8 @@ namespace Universe.BotManager.AStar
         {
             int Result = -1;
             Result = FList.BinarySearch(obj, FComparer);
-
             while (Result > 0 && FList[Result - 1].Equals(obj))
                 Result--;
-
             return Result;
         }
 
@@ -335,10 +329,8 @@ namespace Universe.BotManager.AStar
         public override string ToString()
         {
             string OutString = "{";
-
             for (int i = 0; i < FList.Count; i++)
                 OutString += FList[i] + (i != FList.Count - 1 ? "; " : "}");
-
             return OutString;
         }
 
@@ -348,14 +340,12 @@ namespace Universe.BotManager.AStar
         /// <returns>true if object is equal to this, otherwise false.</returns>
         public override bool Equals(object obj)
         {
-            Heap SL = (Heap)obj;
+            Heap SL = (Heap) obj;
             if (SL.Count != Count)
                 return false;
-
             for (int i = 0; i < Count; i++)
                 if (!SL[i].Equals(this[i]))
                     return false;
-
             return true;
         }
 
@@ -378,10 +368,8 @@ namespace Universe.BotManager.AStar
         {
             int Result = -1;
             Result = FList.BinarySearch(start, FList.Count - start, obj, FComparer);
-
             while (Result > start && FList[Result - 1].Equals(obj))
                 Result--;
-
             return Result;
         }
 
@@ -395,7 +383,6 @@ namespace Universe.BotManager.AStar
         {
             for (int i = 0; i < FList.Count; i++)
                 if (areEqual(FList[i], obj)) return i;
-
             return -1;
         }
 
@@ -410,10 +397,8 @@ namespace Universe.BotManager.AStar
         {
             if (start < 0 || start >= FList.Count)
                 throw new ArgumentException("Start index must belong to [0; Count-1].");
-
             for (int i = start; i < FList.Count; i++)
                 if (areEqual(FList[i], obj)) return i;
-
             return -1;
         }
 
@@ -451,9 +436,7 @@ namespace Universe.BotManager.AStar
         {
             if (value == null)
                 throw new ArgumentNullException("Value is null");
-
             int Pos = 0;
-
             while ((Pos = IndexOf(value, Pos)) >= 0)
             {
                 if (numberToKeep <= 0)
@@ -463,7 +446,6 @@ namespace Universe.BotManager.AStar
                     Pos++;
                     numberToKeep--;
                 }
-
                 if (FComparer.Compare(FList[Pos], value) > 0)
                     break;
             }
@@ -493,10 +475,8 @@ namespace Universe.BotManager.AStar
         public int IndexOfMin()
         {
             int RetInt = -1;
-
             if (FList.Count > 0)
                 RetInt = 0;
-
             return RetInt;
         }
 
@@ -511,7 +491,6 @@ namespace Universe.BotManager.AStar
             {
                 RetInt = FList.Count - 1;
             }
-
             return RetInt;
         }
 
@@ -543,10 +522,8 @@ namespace Universe.BotManager.AStar
             if (FUseObjectsComparison && !(obj is IComparable))
                 throw new ArgumentException(
                     "The Heap is set to use the IComparable interface of objects, and the object to add does not implement the IComparable interface.");
-
             if (!FAddDuplicates && Contains(obj))
                 return false;
-
             return true;
         }
 
@@ -562,7 +539,6 @@ namespace Universe.BotManager.AStar
                 FComparer = new Comparison();
                 FUseObjectsComparison = true;
             }
-
             FList = capacity > 0 ? new ArrayList(capacity) : new ArrayList();
             FAddDuplicates = true;
         }

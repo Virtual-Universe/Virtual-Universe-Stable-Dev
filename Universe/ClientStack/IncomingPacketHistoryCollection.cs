@@ -1,8 +1,6 @@
-﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
+/*
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org, http://opensimulator.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -57,12 +55,11 @@ namespace Universe.ClientStack
                 if (m_hashSet.Add(ack))
                 {
                     m_items[m_next] = ack;
-                    m_next = (m_next + 1) % m_capacity;
-
+                    m_next = (m_next + 1)%m_capacity;
                     if (m_next == m_first)
                     {
                         m_hashSet.Remove(m_items[m_first]);
-                        m_first = (m_first + 1) % m_capacity;
+                        m_first = (m_first + 1)%m_capacity;
                     }
 
                     return true;

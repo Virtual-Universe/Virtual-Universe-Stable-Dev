@@ -1,8 +1,6 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -69,6 +67,7 @@ namespace Universe.Modules.Web
             {
                 response = "Sorry... Statistics information is not available";
                 return null;
+
             }
 
             // Clear statistics
@@ -110,6 +109,8 @@ namespace Universe.Modules.Web
             var pingTime = dc.Get ("ping").ConvertAll<float> ((s) => float.Parse (s));
             var agentsInView = dc.Get ("agents_in_view").ConvertAll<int> ((s) => int.Parse (s));
 
+
+
             // data
             vars.Add("ViewersList",viewerList);
             vars.Add("GPUList",gpuList);
@@ -133,7 +134,8 @@ namespace Universe.Modules.Web
             vars.Add("AgentsInViewText", translator.GetTranslatedString("AgentsInViewText"));
 
             vars.Add("ClearStatsText", translator.GetTranslatedString("ClearStatsText"));
-                  
+
+                    
             return vars;
         }
 

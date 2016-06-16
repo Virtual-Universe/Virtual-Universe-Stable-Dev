@@ -1,8 +1,6 @@
-﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
+/*
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -42,8 +40,10 @@ namespace Universe.DataManager.Migration
     public class Migrator : IMigrator, IRestorePoint
     {
         readonly Dictionary<string, string> renameSchema = new Dictionary<string, string>();
+
         public Dictionary<string, string> RenameColumns = new Dictionary<string, string>();
         public List<SchemaDefinition> Schema;
+
         public Version Version { get; protected set; }
 
         #region IMigrator Members
@@ -63,7 +63,7 @@ namespace Universe.DataManager.Migration
 
         public bool Validate(IDataConnector genericData)
         {
-            if (genericData.GetUniverseVersion(MigrationName) != Version)
+            if (genericData.GetUniverseVersion (MigrationName) != Version)
                 return false;
             return DoValidate(genericData);
         }
@@ -255,8 +255,7 @@ namespace Universe.DataManager.Migration
                     type = ColumnTypeDef.Unknown;
                     break;
             }
-
-            return new ColumnDefinition { Name = name, Type = type };
+            return new ColumnDefinition {Name = name, Type = type};
         }
 
         protected IndexDefinition[] IndexDefs(params IndexDefinition[] defs)
@@ -266,12 +265,12 @@ namespace Universe.DataManager.Migration
 
         protected IndexDefinition IndexDef(string[] fields, IndexType indexType)
         {
-            return new IndexDefinition { Fields = fields, Type = indexType };
+            return new IndexDefinition {Fields = fields, Type = indexType};
         }
 
         protected IndexDefinition IndexDef(string[] fields, IndexType indexType, int indexSize)
         {
-            return new IndexDefinition { Fields = fields, Type = indexType, IndexSize = indexSize };
+            return new IndexDefinition {Fields = fields, Type = indexType, IndexSize = indexSize};
         }
 
         protected void AddSchema(string table, ColumnDefinition[] definitions)
@@ -292,10 +291,10 @@ namespace Universe.DataManager.Migration
         protected void RemoveSchema(string table)
         {
             //Remove all of the tables that have this name
-            Schema.RemoveAll(delegate (SchemaDefinition r)
-            {
-                return r.Name == table;
-            });
+            Schema.RemoveAll(delegate(SchemaDefinition r)
+                                 {
+                                     return r.Name == table;
+                                 });
         }
 
         protected void EnsureAllTablesInSchemaExist(IDataConnector genericData)
@@ -324,7 +323,6 @@ namespace Universe.DataManager.Migration
                 reason = s;
                 return false;
             }
-
             return true;
         }
 

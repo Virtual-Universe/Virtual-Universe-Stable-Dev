@@ -1,8 +1,6 @@
-﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
+/*
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org, http://opensimulator.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,6 +28,7 @@
 using System;
 using Nini.Config;
 using Universe.Framework.ClientInterfaces;
+
 
 namespace Universe.ClientStack
 {
@@ -200,6 +199,7 @@ namespace Universe.ClientStack
                     return State;
                 case ThrottleOutPacketType.AvatarInfo:
                     return AvatarInfo;
+//                case ThrottleOutPacketType.Unknown:
                 default:
                     return 0;
             }
@@ -227,6 +227,7 @@ namespace Universe.ClientStack
                     return StateLimit;
                 case ThrottleOutPacketType.AvatarInfo:
                     return AvatarInfoLimit;
+//                case ThrottleOutPacketType.Unknown:
                 default:
                     return 0;
             }

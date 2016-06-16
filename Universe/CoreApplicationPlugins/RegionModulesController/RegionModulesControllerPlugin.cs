@@ -1,8 +1,6 @@
-﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
+/*
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,15 +25,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using Nini.Config;
 using Universe.Framework.ConsoleFramework;
 using Universe.Framework.ModuleLoader;
 using Universe.Framework.Modules;
 using Universe.Framework.SceneInfo;
 using Universe.Framework.Services;
+using Nini.Config;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace Universe.CoreApplicationPlugins.RegionModulesController
 {
@@ -64,6 +62,8 @@ namespace Universe.CoreApplicationPlugins.RegionModulesController
         // This is where we handle adding the modules to scenes when they
         // load. This means that here we deal with replaceable interfaces,
         // non-shared modules, etc.
+        //
+
         protected Dictionary<IScene, Dictionary<string, IRegionModuleBase>> RegionModules =
             new Dictionary<IScene, Dictionary<string, IRegionModuleBase>>();
 
@@ -90,17 +90,17 @@ namespace Universe.CoreApplicationPlugins.RegionModulesController
 
                     if (mii.Invoke(scene, new object[0]) != null)
                     {
-                        MainConsole.Instance.DebugFormat("[Region Module]: Not loading {0} because another module has registered {1}",
+                        MainConsole.Instance.DebugFormat("[REGIONMODULE]: Not loading {0} because another module has registered {1}",
                                           module.Name, replaceableInterface);
                         continue;
                     }
 
                     deferredNonSharedModules[replaceableInterface] = module;
-                    MainConsole.Instance.DebugFormat("[Region Module]: Deferred load of {0}", module.Name);
+                    MainConsole.Instance.DebugFormat("[REGIONMODULE]: Deferred load of {0}", module.Name);
                     continue;
                 }
 
-                //MainConsole.Instance.DebugFormat("[Region Module]: Adding scene {0} to non-shared module {1}",
+                //MainConsole.Instance.DebugFormat("[REGIONMODULE]: Adding scene {0} to non-shared module {1}",
                 //                  scene.RegionInfo.RegionName, module.Name);
 
                 // Initialize the module
@@ -122,14 +122,14 @@ namespace Universe.CoreApplicationPlugins.RegionModulesController
                 }
                 catch (Exception ex)
                 {
-                    MainConsole.Instance.ErrorFormat("[Region Modules Controller Plugin]: Failed to load module {0}: {1}", module.Name, ex.ToString());
+                    MainConsole.Instance.ErrorFormat("[RegionModulesControllerPlugin]: Failed to load module {0}: {1}", module.Name, ex.ToString());
                 }
-
                 AddRegionModule(scene, module.Name, module);
             }
 
             // Same thing for non-shared modules, load them unless overridden
-            List<INonSharedRegionModule> deferredlist = new List<INonSharedRegionModule>();
+            List<INonSharedRegionModule> deferredlist =
+                new List<INonSharedRegionModule>();
 
             foreach (INonSharedRegionModule module in deferredNonSharedModules.Values)
             {
@@ -141,13 +141,13 @@ namespace Universe.CoreApplicationPlugins.RegionModulesController
 
                     if (mii.Invoke(scene, new object[0]) != null)
                     {
-                        MainConsole.Instance.DebugFormat("[Region Module]: Not loading {0} because another module has registered {1}",
+                        MainConsole.Instance.DebugFormat("[REGIONMODULE]: Not loading {0} because another module has registered {1}",
                                           module.Name, replaceableInterface);
                         continue;
                     }
                 }
 
-                MainConsole.Instance.DebugFormat("[Region Module]: Adding scene {0} to non-shared module {1} (deferred)",
+                MainConsole.Instance.DebugFormat("[REGIONMODULE]: Adding scene {0} to non-shared module {1} (deferred)",
                                   scene.RegionInfo.RegionName, module.Name);
 
                 try
@@ -156,7 +156,7 @@ namespace Universe.CoreApplicationPlugins.RegionModulesController
                 }
                 catch (Exception ex)
                 {
-                    MainConsole.Instance.ErrorFormat("[Region Modules Controller Plugin]: Failed to load module {0}: {1}", module.Name, ex.ToString());
+                    MainConsole.Instance.ErrorFormat("[RegionModulesControllerPlugin]: Failed to load module {0}: {1}", module.Name, ex.ToString());
                 }
 
                 IRegionModuleBaseModules.Add(module);
@@ -173,9 +173,8 @@ namespace Universe.CoreApplicationPlugins.RegionModulesController
                 }
                 catch (Exception ex)
                 {
-                    MainConsole.Instance.ErrorFormat("[Region Modules Controller Plugin]: Failed to load module {0}: {1}", module.Name, ex.ToString());
+                    MainConsole.Instance.ErrorFormat("[RegionModulesControllerPlugin]: Failed to load module {0}: {1}", module.Name, ex.ToString());
                 }
-
                 AddRegionModule(scene, module.Name, module);
             }
 
@@ -185,9 +184,10 @@ namespace Universe.CoreApplicationPlugins.RegionModulesController
             // this extra method, a module attempting to use another modules's
             // interface would be successful only depending on load order,
             // which can't be depended upon, or modules would need to resort
-            // to ugly things in to attempt to request interfaces when needed
+            // to ugly kludges to attempt to request interfaces when needed
             // and unnecessary caching logic repeated in all modules.
             // The extra function stub is just that much cleaner
+            //
             foreach (INonSharedRegionModule module in list)
             {
                 try
@@ -196,7 +196,7 @@ namespace Universe.CoreApplicationPlugins.RegionModulesController
                 }
                 catch (Exception ex)
                 {
-                    MainConsole.Instance.ErrorFormat("[Region Modules Controller Plugin]: Failed to load module {0}: {1}", module.Name, ex.ToString());
+                    MainConsole.Instance.ErrorFormat("[RegionModulesControllerPlugin]: Failed to load module {0}: {1}", module.Name, ex.ToString());
                 }
             }
         }
@@ -205,7 +205,7 @@ namespace Universe.CoreApplicationPlugins.RegionModulesController
         {
             foreach (IRegionModuleBase module in RegionModules[scene].Values)
             {
-                MainConsole.Instance.DebugFormat("[Region Module]: Removing scene {0} from module {1}",
+                MainConsole.Instance.DebugFormat("[REGIONMODULE]: Removing scene {0} from module {1}",
                                   scene.RegionInfo.RegionName, module.Name);
                 module.RemoveRegion(scene);
                 if (module is INonSharedRegionModule)
@@ -214,7 +214,6 @@ namespace Universe.CoreApplicationPlugins.RegionModulesController
                     module.Close();
                 }
             }
-
             RegionModules[scene].Clear();
         }
 
@@ -264,7 +263,7 @@ namespace Universe.CoreApplicationPlugins.RegionModulesController
                 }
                 catch (Exception ex)
                 {
-                    MainConsole.Instance.ErrorFormat("[Region Modules Controller Plugin]: Failed to load module {0}: {1}", module.Name, ex.ToString());
+                    MainConsole.Instance.ErrorFormat("[RegionModulesControllerPlugin]: Failed to load module {0}: {1}", module.Name, ex.ToString());
                 }
             }
         }

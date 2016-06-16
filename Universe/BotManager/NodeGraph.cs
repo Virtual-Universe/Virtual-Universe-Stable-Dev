@@ -1,8 +1,6 @@
-﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
+/*
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -49,19 +47,15 @@ namespace Universe.BotManager
         List<TravelMode> m_listOfStates = new List<TravelMode>();
         DateTime m_waitingSince = DateTime.MinValue;
 
-        public int CurrentPos
-        {
-            get
-            {
-                lock (m_lock)
-                {
+
+        public int CurrentPos {
+            get {
+                lock (m_lock) {
                     return m_currentpos;
                 }
             }
-            set
-            {
-                lock (m_lock)
-                {
+            set {
+                lock (m_lock) {
                     m_currentpos = value;
                 }
             }
@@ -109,25 +103,24 @@ namespace Universe.BotManager
 
             lock (m_lock)
             {
-            findNewTarget:
+                findNewTarget:
                 position = Vector3.Zero;
                 state = TravelMode.None;
                 needsToTeleportToPosition = false;
-
                 if ((m_listOfPositions.Count - m_currentpos) > 0)
                 {
                     position = m_listOfPositions[m_currentpos];
                     state = m_listOfStates[m_currentpos];
-
                     if (state != TravelMode.Wait && state != TravelMode.TriggerHereEvent &&
                         position.ApproxEquals(currentPosition, closeToRange))
                     {
                         //Its close to a position, go look for the next pos
+                        //m_listOfPositions.RemoveAt (0);
+                        //m_listOfStates.RemoveAt (0);
                         m_currentpos++;
                         m_lastChangedPosition = DateTime.MinValue;
                         goto findNewTarget;
                     }
-
                     if (state == TravelMode.TriggerHereEvent)
                     {
                         m_currentpos++; //Clear for next time, as we only fire this one time
@@ -154,12 +147,12 @@ namespace Universe.BotManager
                         if ((DateTime.Now - m_lastChangedPosition).Seconds > secondsBeforeForcedTeleport)
                             needsToTeleportToPosition = true;
                     }
-
                     return true;
                 }
 
-                if (m_listOfPositions.Count == 0)
+                if (m_listOfPositions.Count == 0)          
                     return false;
+
 
                 if (FollowIndefinitely)
                 {
@@ -167,7 +160,6 @@ namespace Universe.BotManager
                     goto findNewTarget;
                 }
             }
-
             return found;
         }
 
@@ -181,5 +173,7 @@ namespace Universe.BotManager
         {
             return m_listOfPositions.Count;
         }
+
+
     }
 }

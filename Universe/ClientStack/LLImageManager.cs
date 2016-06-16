@@ -1,8 +1,6 @@
-﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
+/*
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org, http://opensimulator.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,6 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 
 using System;
 using System.Collections.Generic;
@@ -59,7 +58,7 @@ namespace Universe.ClientStack
 
             if (m_missingImage == null)
                 MainConsole.Instance.Error(
-                    "[Client View] - Couldn't set missing image asset, falling back to missing image packet. This is known to crash the client");
+                    "[ClientView] - Couldn't set missing image asset, falling back to missing image packet. This is known to crash the client");
 
             m_j2kDecodeModule = pJ2kDecodeModule;
         }
@@ -90,7 +89,7 @@ namespace Universe.ClientStack
                 {
                     if (newRequest.DiscardLevel == -1 && newRequest.Priority == 0f)
                     {
-                        //MainConsole.Instance.Debug("[Tex]: (CAN) ID=" + newRequest.RequestedAssetID);
+                        //MainConsole.Instance.Debug("[TEX]: (CAN) ID=" + newRequest.RequestedAssetID);
 
                         try
                         {
@@ -103,7 +102,7 @@ namespace Universe.ClientStack
                     }
                     else
                     {
-                        //MainConsole.Instance.DebugFormat("[Tex]: (UPD) ID={0}: D={1}, S={2}, P={3}",
+                        //MainConsole.Instance.DebugFormat("[TEX]: (UPD) ID={0}: D={1}, S={2}, P={3}",
                         //    newRequest.RequestedAssetID, newRequest.DiscardLevel, newRequest.PacketNumber, newRequest.Priority);
 
                         //Check the packet sequence to make sure this isn't older than 
@@ -134,17 +133,16 @@ namespace Universe.ClientStack
                 {
                     if (newRequest.DiscardLevel == -1 && newRequest.Priority == 0f)
                     {
-                        //MainConsole.Instance.Debug("[Tex]: (CAN) ID=" + newRequest.RequestedAssetID);
-                        //MainConsole.Instance.DebugFormat("[Tex]: (IGN) ID={0}: D={1}, S={2}, P={3}",
+                        //MainConsole.Instance.Debug("[TEX]: (CAN) ID=" + newRequest.RequestedAssetID);
+                        //MainConsole.Instance.DebugFormat("[TEX]: (IGN) ID={0}: D={1}, S={2}, P={3}",
                         //    newRequest.RequestedAssetID, newRequest.DiscardLevel, newRequest.PacketNumber, newRequest.Priority);
                     }
                     else
                     {
-                        //MainConsole.Instance.DebugFormat("[Tex]: (NEW) ID={0}: D={1}, S={2}, P={3}",
+                        //MainConsole.Instance.DebugFormat("[TEX]: (NEW) ID={0}: D={1}, S={2}, P={3}",
                         //    newRequest.RequestedAssetID, newRequest.DiscardLevel, newRequest.PacketNumber, newRequest.Priority);
 
-                        imgrequest = new J2KImage()
-                        {
+                        imgrequest = new J2KImage() {
                             J2KDecoder = m_j2kDecodeModule,
                             AssetService = m_assetCache,
                             AgentID = m_client.AgentId,
@@ -154,7 +152,6 @@ namespace Universe.ClientStack
                             Priority = newRequest.Priority,
                             TextureID = newRequest.RequestedAssetID
                         };
-
                         imgrequest.Priority = newRequest.Priority;
 
                         //Add this download to the priority queue
@@ -173,7 +170,7 @@ namespace Universe.ClientStack
                 return null;
 
             lock (m_syncRoot)
-                return m_queue.Find(new J2KImage() { TextureID = newRequest.RequestedAssetID }, new Comparer());
+                return m_queue.Find(new J2KImage() {TextureID = newRequest.RequestedAssetID}, new Comparer());
         }
 
         public bool ProcessImageQueue(int packetsToSend)
@@ -196,7 +193,7 @@ namespace Universe.ClientStack
                     if (image.Layers == null)
                     {
                         //We don't have it, tell the client that it doesn't exist
-                        m_client.SendAssetUploadCompleteMessage((sbyte)AssetType.Texture, false, image.TextureID);
+                        m_client.SendAssetUploadCompleteMessage((sbyte) AssetType.Texture, false, image.TextureID);
                         packetsSent++;
                     }
                     else
@@ -273,7 +270,6 @@ namespace Universe.ClientStack
                     }
                 }
             }
-
             return image;
         }
 
@@ -308,6 +304,24 @@ namespace Universe.ClientStack
 
             #endregion
         }
+
+        #endregion
+
+        #region Nested type: J2KImageComparer
+
+/*
+        sealed class J2KImageComparer : IComparer<J2KImage>
+        {
+            #region IComparer<J2KImage> Members
+
+            public int Compare(J2KImage x, J2KImage y)
+            {
+                return x.Priority.CompareTo(y.Priority);
+            }
+
+            #endregion
+        }
+*/
 
         #endregion
     }

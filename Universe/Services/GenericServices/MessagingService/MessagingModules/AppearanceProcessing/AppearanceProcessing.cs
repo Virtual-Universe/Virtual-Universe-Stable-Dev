@@ -1,8 +1,6 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,6 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+
 using Nini.Config;
 using OpenMetaverse.StructuredData;
 using Universe.Framework.ClientInterfaces;
@@ -34,7 +33,6 @@ using Universe.Framework.Modules;
 using Universe.Framework.PresenceInfo;
 using Universe.Framework.SceneInfo;
 using Universe.Framework.Services;
-using GridRegion = Universe.Framework.Services.GridRegion;
 
 namespace Universe.Services
 {
@@ -48,19 +46,19 @@ namespace Universe.Services
 
         #region IService Members
 
-        public void Initialize(IConfigSource config, IRegistryCore registry)
+        public void Initialize (IConfigSource config, IRegistryCore registry)
         {
             m_registry = registry;
         }
 
-        public void Start(IConfigSource config, IRegistryCore registry)
+        public void Start (IConfigSource config, IRegistryCore registry)
         {
         }
 
-        public void FinishedStartup()
+        public void FinishedStartup ()
         {
             //Also look for incoming messages to display
-            m_registry.RequestModuleInterface<ISyncMessageRecievedService>().OnMessageReceived += OnMessageReceived;
+            m_registry.RequestModuleInterface<ISyncMessageRecievedService> ().OnMessageReceived += OnMessageReceived;
         }
 
         #endregion
@@ -70,33 +68,26 @@ namespace Universe.Services
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        protected OSDMap OnMessageReceived(OSDMap message)
+        protected OSDMap OnMessageReceived (OSDMap message)
         {
             //We need to check and see if this is an AgentStatusChange
-            if (message.ContainsKey("Method") && message["Method"] == "UpdateAvatarAppearance")
-            {
-                var appearance = new AvatarAppearance(message["AgentID"], (OSDMap)message["Appearance"]);
-                ISceneManager manager = m_registry.RequestModuleInterface<ISceneManager>();
-
-                if (manager != null)
-                {
-                    foreach (IScene scene in manager.Scenes)
-                    {
-                        IScenePresence sp = scene.GetScenePresence(appearance.Owner);
-                        if (sp != null && !sp.IsChildAgent)
-                        {
-                            var avappmodule = sp.RequestModuleInterface<IAvatarAppearanceModule>();
-                            if (avappmodule != null)
-                            {
+            if (message.ContainsKey ("Method") && message ["Method"] == "UpdateAvatarAppearance") {
+                var appearance = new AvatarAppearance (message ["AgentID"], (OSDMap)message ["Appearance"]);
+                ISceneManager manager = m_registry.RequestModuleInterface<ISceneManager> ();
+                if (manager != null) {
+                    foreach (IScene scene in manager.Scenes) {
+                        IScenePresence sp = scene.GetScenePresence (appearance.Owner);
+                        if (sp != null && !sp.IsChildAgent) {
+                            var avappmodule = sp.RequestModuleInterface<IAvatarAppearanceModule> ();
+                            if (avappmodule != null) {
                                 avappmodule.Appearance = appearance;
-                                avappmodule.SendAppearanceToAgent(sp);
-                                avappmodule.SendAppearanceToAllOtherAgents();
+                                avappmodule.SendAppearanceToAgent (sp);
+                                avappmodule.SendAppearanceToAllOtherAgents ();
                             }
                         }
                     }
                 }
             }
-
             return null;
         }
     }

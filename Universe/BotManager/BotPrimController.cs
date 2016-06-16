@@ -1,8 +1,6 @@
 ﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -90,9 +88,8 @@ namespace Universe.BotManager
         public void SendChatMessage(int sayType, string message, int channel)
         {
             IChatModule chatModule = m_object.Scene.RequestModuleInterface<IChatModule>();
-
             if (chatModule != null)
-                chatModule.SimChat(message, (ChatTypeEnum)sayType, channel,
+                chatModule.SimChat(message, (ChatTypeEnum) sayType, channel,
                                    m_object.RootChild.AbsolutePosition, m_object.Name, m_object.UUID, false,
                                    m_object.Scene);
         }
@@ -101,7 +98,6 @@ namespace Universe.BotManager
         {
             IMessageTransferModule m_TransferModule =
                 m_object.Scene.RequestModuleInterface<IMessageTransferModule>();
-
             if (m_TransferModule != null)
                 m_TransferModule.SendInstantMessage(im);
         }
@@ -120,7 +116,7 @@ namespace Universe.BotManager
             if (isMoving)
                 m_hasStoppedMoving = false;
 
-            m_object.AbsolutePosition += toward * (m_speed * (1f / 45f));
+            m_object.AbsolutePosition += toward * (m_speed * (1f/45f));
             m_object.ScheduleGroupTerseUpdate();
         }
 
@@ -144,7 +140,6 @@ namespace Universe.BotManager
         {
             if (m_hasStoppedMoving)
                 return;
-
             m_hasStoppedMoving = true;
             m_bot.State = BotState.Idle;
 
@@ -153,10 +148,9 @@ namespace Universe.BotManager
                 m_bot.m_nodeGraph.Clear();
 
             //Send the stop message
-            m_bot.m_movementFlag = (uint)AgentManager.ControlFlags.NONE;
-
+            m_bot.m_movementFlag = (uint) AgentManager.ControlFlags.NONE;
             if (fly)
-                m_bot.m_movementFlag |= (uint)AgentManager.ControlFlags.AGENT_CONTROL_FLY;
+                m_bot.m_movementFlag |= (uint) AgentManager.ControlFlags.AGENT_CONTROL_FLY;
 
             OnBotAgentUpdate(Vector3.Zero, m_bot.m_movementFlag, m_bot.m_bodyDirection, false);
 
@@ -168,7 +162,6 @@ namespace Universe.BotManager
         {
             if (speed > 4)
                 speed = 4;
-
             m_speed = speed;
         }
 

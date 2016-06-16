@@ -1,8 +1,6 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org, http://opensimulator.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -47,14 +45,13 @@ namespace Universe.Framework.Utilities
 
         #endregion
 
-        public const string VERSION_NUMBER = "1.0.3";
-        public const Flavour VERSION_FLAVOUR = Flavour.Development;
+        public const string VERSION_NUMBER = "1.0.2";
+        public const Flavour VERSION_FLAVOUR = Flavour.Release;
         public const string VERSION_NAME = "Universe";
-        public const string CODE_NAME = "Earth";
 
         public static string Version
         {
-            get { return GetVersionString(VERSION_NUMBER, VERSION_FLAVOUR, CODE_NAME); }
+            get { return GetVersionString(VERSION_NUMBER, VERSION_FLAVOUR); }
         }
 
         public static string GitVersion
@@ -64,7 +61,7 @@ namespace Universe.Framework.Utilities
 
         static string GetVersionString(string versionNumber, Flavour flavour)
         {
-            string versionString = VERSION_NAME + " " + versionNumber + " " + flavour + CODE_NAME + " ";
+            string versionString = VERSION_NAME + " " + versionNumber + " " + flavour;
             return versionString;
         }
 

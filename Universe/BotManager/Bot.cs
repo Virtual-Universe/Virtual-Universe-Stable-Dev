@@ -1,8 +1,6 @@
-﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
+/*
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -48,6 +46,7 @@ using Universe.Framework.Utilities;
 
 namespace Universe.BotManager
 {
+    
     #region Enums
     public enum BotState
     {
@@ -77,7 +76,6 @@ namespace Universe.BotManager
         {
             m_scenePresence = presence;
             m_bot = bot;
-
             if (presence.ControllingClient is BotClientAPI)
                 (presence.ControllingClient as BotClientAPI).Initialize(this);
         }
@@ -91,7 +89,6 @@ namespace Universe.BotManager
         {
             if (speed > 4)
                 speed = 4;
-
             m_scenePresence.SpeedModifier = speed;
         }
 
@@ -105,7 +102,6 @@ namespace Universe.BotManager
         {
             if (m_hasStoppedMoving)
                 return;
-
             m_hasStoppedMoving = true;
             m_bot.State = BotState.Idle;
 
@@ -114,10 +110,10 @@ namespace Universe.BotManager
                 m_bot.m_nodeGraph.Clear();
 
             //Send the stop message
-            m_bot.m_movementFlag = (uint)AgentManager.ControlFlags.NONE;
+            m_bot.m_movementFlag = (uint) AgentManager.ControlFlags.NONE;
 
             if (fly)
-                m_bot.m_movementFlag |= (uint)AgentManager.ControlFlags.AGENT_CONTROL_FLY;
+                m_bot.m_movementFlag |= (uint) AgentManager.ControlFlags.AGENT_CONTROL_FLY;
 
             OnBotAgentUpdate(Vector3.Zero, m_bot.m_movementFlag, m_bot.m_bodyDirection, false);
             m_scenePresence.CollisionPlane = Vector4.UnitW;
@@ -178,7 +174,7 @@ namespace Universe.BotManager
             if (isMoving)
                 m_hasStoppedMoving = false;
 
-            AgentUpdateArgs pack = new AgentUpdateArgs { ControlFlags = controlFlag, BodyRotation = bodyRotation };
+            AgentUpdateArgs pack = new AgentUpdateArgs {ControlFlags = controlFlag, BodyRotation = bodyRotation};
             m_scenePresence.ControllingClient.ForceSendOnAgentUpdate(m_scenePresence.ControllingClient, pack);
         }
 
@@ -193,18 +189,17 @@ namespace Universe.BotManager
         {
             if (m_scenePresence == null || m_scenePresence.Scene == null)
                 return;
-
             OSChatMessage args = new OSChatMessage
-            {
-                Message = message,
-                Channel = channel,
-                From = m_scenePresence.Name,
-                SenderUUID = m_scenePresence.UUID,
-                Position = m_scenePresence.AbsolutePosition,
-                Sender = m_scenePresence.ControllingClient,
-                Type = (ChatTypeEnum)sayType,
-                Scene = m_scenePresence.Scene
-            };
+                                     {
+                                         Message = message,
+                                         Channel = channel,
+                                         From = m_scenePresence.Name,
+                                         SenderUUID = m_scenePresence.UUID,
+                                         Position = m_scenePresence.AbsolutePosition,
+                                         Sender = m_scenePresence.ControllingClient,
+                                         Type = (ChatTypeEnum) sayType,
+                                         Scene = m_scenePresence.Scene
+                                     };
 
             m_scenePresence.ControllingClient.OnForceChatFromViewer(m_scenePresence.ControllingClient, args);
         }
@@ -241,6 +236,7 @@ namespace Universe.BotManager
             get { return m_scenePresence.Name; }
         }
 
+
         public void Jump()
         {
             m_bot.WalkTo(m_scenePresence.AbsolutePosition + new Vector3(0, 0, 2));
@@ -253,7 +249,7 @@ namespace Universe.BotManager
     {
         #region Declares
         static readonly object _lock = new object();
-        readonly float EPSILON = (float)Constants.FloatDifference;
+        readonly float EPSILON = (float) Constants.FloatDifference;
 
         IBotController m_controller;
 
@@ -263,6 +259,7 @@ namespace Universe.BotManager
         public bool m_paused;
         public uint m_movementFlag;
         public Quaternion m_bodyDirection = Quaternion.Identity;
+
 
         public IBotController Controller
         {
@@ -426,35 +423,33 @@ namespace Universe.BotManager
             }
             else
             {
-                m_movementFlag = (uint)AgentManager.ControlFlags.AGENT_CONTROL_AT_POS;
+                m_movementFlag = (uint) AgentManager.ControlFlags.AGENT_CONTROL_AT_POS;
 
                 m_controller.OnBotAgentUpdate(Vector3.Zero, m_movementFlag, m_bodyDirection);
-                m_movementFlag = (uint)AgentManager.ControlFlags.NONE;
+                m_movementFlag = (uint) AgentManager.ControlFlags.NONE;
             }
         }
 
         void RotateTo(Vector3 destination)
         {
             Vector3 bot_forward = new Vector3(1, 0, 0);
-
             if (destination - m_controller.AbsolutePosition != Vector3.Zero)
             {
                 Vector3 bot_toward = Util.GetNormalizedVector(destination - m_controller.AbsolutePosition);
                 Quaternion rot_result = llRotBetween(bot_forward, bot_toward);
                 m_bodyDirection = rot_result;
             }
-
-            m_movementFlag = (uint)AgentManager.ControlFlags.AGENT_CONTROL_AT_POS;
+            m_movementFlag = (uint) AgentManager.ControlFlags.AGENT_CONTROL_AT_POS;
 
             m_controller.OnBotAgentUpdate(Vector3.Zero, m_movementFlag, m_bodyDirection);
-            m_movementFlag = (uint)AgentManager.ControlFlags.NONE;
+            m_movementFlag = (uint) AgentManager.ControlFlags.NONE;
         }
 
         #region rotation helper functions
 
         Vector3 llRot2Fwd(Quaternion r)
         {
-            return (new Vector3(1, 0, 0) * r);
+            return (new Vector3(1, 0, 0)*r);
         }
 
         Quaternion llRotBetween(Vector3 a, Vector3 b)
@@ -462,12 +457,12 @@ namespace Universe.BotManager
             //A and B should both be normalized
             double dotProduct = Vector3.Dot(a, b);
             Vector3 crossProduct = Vector3.Cross(a, b);
-            double magProduct = Vector3.Distance(Vector3.Zero, a) * Vector3.Distance(Vector3.Zero, b);
-            double angle = Math.Acos(dotProduct / magProduct);
+            double magProduct = Vector3.Distance(Vector3.Zero, a)*Vector3.Distance(Vector3.Zero, b);
+            double angle = Math.Acos(dotProduct/magProduct);
             Vector3 axis = Vector3.Normalize(crossProduct);
-            float s = (float)Math.Sin(angle / 2);
+            float s = (float) Math.Sin(angle/2);
 
-            return new Quaternion(axis.X * s, axis.Y * s, axis.Z * s, (float)Math.Cos(angle / 2));
+            return new Quaternion(axis.X*s, axis.Y*s, axis.Z*s, (float) Math.Cos(angle/2));
         }
 
         #endregion
@@ -482,7 +477,6 @@ namespace Universe.BotManager
         {
             Vector3 bot_forward = new Vector3(2, 0, 0);
             Vector3 bot_toward = Vector3.Zero;
-
             if (pos - m_controller.AbsolutePosition != Vector3.Zero)
             {
                 try
@@ -495,16 +489,15 @@ namespace Universe.BotManager
                 {
                 }
             }
-
-            m_movementFlag = (uint)AgentManager.ControlFlags.AGENT_CONTROL_AT_POS;
+            m_movementFlag = (uint) AgentManager.ControlFlags.AGENT_CONTROL_AT_POS;
 
             if (m_controller.CanMove)
                 m_controller.OnBotAgentUpdate(bot_toward, m_movementFlag, m_bodyDirection);
             else
-                m_controller.OnBotAgentUpdate(Vector3.Zero, (uint)AgentManager.ControlFlags.AGENT_CONTROL_STOP,
+                m_controller.OnBotAgentUpdate(Vector3.Zero, (uint) AgentManager.ControlFlags.AGENT_CONTROL_STOP,
                                               Quaternion.Identity);
 
-            m_movementFlag = (uint)AgentManager.ControlFlags.NONE;
+            m_movementFlag = (uint) AgentManager.ControlFlags.NONE;
         }
 
         /// <summary>
@@ -527,22 +520,21 @@ namespace Universe.BotManager
                 }
             }
 
-            m_movementFlag = (uint)AgentManager.ControlFlags.AGENT_CONTROL_FLY;
+            m_movementFlag = (uint) AgentManager.ControlFlags.AGENT_CONTROL_FLY;
 
             Vector3 diffPos = pos - m_controller.AbsolutePosition;
-
             if (Math.Abs(diffPos.X) > 1.5 || Math.Abs(diffPos.Y) > 1.5)
             {
-                m_movementFlag |= (uint)AgentManager.ControlFlags.AGENT_CONTROL_AT_POS;
+                m_movementFlag |= (uint) AgentManager.ControlFlags.AGENT_CONTROL_AT_POS;
             }
 
             if (m_controller.AbsolutePosition.Z < pos.Z - 1)
             {
-                m_movementFlag |= (uint)AgentManager.ControlFlags.AGENT_CONTROL_UP_POS;
+                m_movementFlag |= (uint) AgentManager.ControlFlags.AGENT_CONTROL_UP_POS;
             }
             else if (m_controller.AbsolutePosition.Z > pos.Z + 1)
             {
-                m_movementFlag |= (uint)AgentManager.ControlFlags.AGENT_CONTROL_UP_NEG;
+                m_movementFlag |= (uint) AgentManager.ControlFlags.AGENT_CONTROL_UP_NEG;
             }
 
             if (bot_forward.X > 0)
@@ -550,7 +542,6 @@ namespace Universe.BotManager
                 m_movementFlag |= (uint)AgentManager.ControlFlags.AGENT_CONTROL_TURN_LEFT;
                 m_movementFlag |= (uint)AgentManager.ControlFlags.AGENT_CONTROL_YAW_POS;
             }
-
             if (bot_forward.X < 0)
             {
                 m_movementFlag |= (uint)AgentManager.ControlFlags.AGENT_CONTROL_TURN_RIGHT;
@@ -559,8 +550,7 @@ namespace Universe.BotManager
 
             if (m_controller.CanMove)
                 m_controller.OnBotAgentUpdate(bot_toward, m_movementFlag, m_bodyDirection);
-
-            m_movementFlag = (uint)AgentManager.ControlFlags.AGENT_CONTROL_FLY;
+            m_movementFlag = (uint) AgentManager.ControlFlags.AGENT_CONTROL_FLY;
         }
 
         #region Jump Decision Tree
@@ -575,7 +565,6 @@ namespace Universe.BotManager
         {
             //Cast a ray in the direction that we are going
             List<ISceneChildEntity> entities = llCastRay(start, end);
-
             foreach (ISceneChildEntity entity in entities)
             {
                 if (!entity.IsAttachment)
@@ -583,7 +572,6 @@ namespace Universe.BotManager
                     if (entity.Scale.Z > m_controller.PhysicsActor.Size.Z) return true;
                 }
             }
-
             return false;
         }
 
@@ -599,20 +587,16 @@ namespace Universe.BotManager
                                                                                  5);
 
             double distance = Util.GetDistanceTo(startvector, endvector);
-
             if (distance < 0.001)
                 distance = 0.001;
-
             foreach (ContactResult result in results)
             {
                 ISceneChildEntity child = m_controller.GetScene().GetSceneObjectPart(result.ConsumerID);
-
                 if (!entities.Contains(child))
                 {
                     entities.Add(child);
                 }
             }
-
             return entities;
         }
 
@@ -657,12 +641,11 @@ namespace Universe.BotManager
             m_frame++;
             GetNextDestination();
 
-            if (m_frame % 10 == 0) //Only every 10 frames
+            if (m_frame%10 == 0) //Only every 10 frames
             {
                 m_frame = 0;
                 Update();
             }
-
             m_frames.Start();
         }
 
@@ -684,7 +667,7 @@ namespace Universe.BotManager
                 m_controller.StopMoving(lastFlying, false);
                 return;
             }
-
+                
             Vector3 pos;
             TravelMode state;
             bool teleport;
@@ -750,8 +733,8 @@ namespace Universe.BotManager
         public List<Vector3> InnerFindPath(int[,] map, int startX, int startY, int finishX, int finishY)
         {
             StartPath.Map = map;
-            StartPath.XLimit = (int)Math.Sqrt(map.Length);
-            StartPath.YLimit = (int)Math.Sqrt(map.Length);
+            StartPath.XLimit = (int) Math.Sqrt(map.Length);
+            StartPath.YLimit = (int) Math.Sqrt(map.Length);
             //ShowMap ("", null);
             List<string> points = StartPath.Path(startX, startY, finishX, finishY, 0, 0, 0);
 
@@ -764,11 +747,9 @@ namespace Universe.BotManager
 
             waypoints.AddRange(from s in points
                                select s.Split(',')
-                               into Vector
-                               where Vector.Length == 3
+                               into Vector where Vector.Length == 3
                                select
                                    new Vector3(float.Parse(Vector[0]), float.Parse(Vector[1]), float.Parse(Vector[2])));
-
             return waypoints;
         }
 
@@ -827,14 +808,12 @@ namespace Universe.BotManager
                 {
                 }
             }
-
             if (FollowSP == null || FollowSP.IsChildAgent)
             {
                 MainConsole.Instance.Warn("Could not find avatar " + avatarName + " for bot " + m_controller.Name +
                                           " to follow");
                 return;
             }
-
             FollowRequiresLOS = requireLOS;
             FollowSP.PhysicsActor.OnRequestTerseUpdate += EventManager_OnClientMovement;
             FollowUUID = FollowSP.UUID;
@@ -849,10 +828,8 @@ namespace Universe.BotManager
         public void StopFollowAvatar()
         {
             EventManager.UnregisterEventHandler("Update", FollowingUpdate);
-
             if (FollowSP != null)
                 FollowSP.PhysicsActor.OnRequestTerseUpdate -= EventManager_OnClientMovement;
-
             FollowSP = null; //null out everything
             FollowUUID = UUID.Zero;
         }
@@ -888,13 +865,11 @@ namespace Universe.BotManager
                     //Fix the animation
                     m_controller.UpdateMovementAnimations(false);
                 }
-
                 m_toAvatar = true;
                 bool fly = FollowSP.PhysicsActor == null ? ShouldFly : FollowSP.PhysicsActor.Flying;
                 m_controller.StopMoving(fly, true);
                 return null;
             }
-
             if (distance > m_followLoseAvatarDistance)
             {
                 //Lost the avatar, fire the event
@@ -904,7 +879,6 @@ namespace Universe.BotManager
                     //We stopped, fix the animation
                     m_controller.UpdateMovementAnimations(false);
                 }
-
                 m_lostAvatar = true;
                 m_paused = true;
             }
@@ -913,7 +887,6 @@ namespace Universe.BotManager
                 m_lostAvatar = false;
                 m_paused = false; //Fixed pause status, avatar entered our range again
             }
-
             m_toAvatar = false;
             return null;
         }
@@ -948,19 +921,17 @@ namespace Universe.BotManager
                     //We stopped, fix the animation
                     m_controller.UpdateMovementAnimations(false);
                 }
-
                 m_lostAvatar = true;
                 m_paused = true;
                 return;
             }
-
             if (distance > 10) //Greater than 10 meters, give up
             {
                 //Try direct then, since it is way out of range
                 DirectFollowing();
             }
             else if (distance < closeToPoint && raycastEntities.Count == 0)
-            //If the raycastEntities isn't zero, there is something between us and the avatar, don't stop on the other side of walls, etc
+                //If the raycastEntities isn't zero, there is something between us and the avatar, don't stop on the other side of walls, etc
             {
                 //We're here!
                 //If we were having to fly to here, stop flying
@@ -968,7 +939,6 @@ namespace Universe.BotManager
                 {
                     m_controller.PhysicsActor.Flying = false;
                     walkTo(m_controller.AbsolutePosition);
-
                     //Fix the animation from flying > walking
                     m_controller.UpdateMovementAnimations(false);
                 }
@@ -980,9 +950,9 @@ namespace Universe.BotManager
                     //Nothing between us and the target, go for it!
                     DirectFollowing();
                 else
+                    //if (!BestFitPathFollowing (raycastEntities))//If this doesn't work, try significant positions
                     SignificantPositionFollowing();
             }
-
             ClearOutInSignificantPositions(false);
         }
 
@@ -994,12 +964,10 @@ namespace Universe.BotManager
         {
             if (m_controller == null)
                 return;
-
             Vector3 diffAbsPos = (FollowSP.AbsolutePosition + FollowOffset) - m_controller.AbsolutePosition;
             Vector3 targetPos = FollowSP.AbsolutePosition + FollowOffset;
             Vector3 ourPos = m_controller.AbsolutePosition;
             bool fly = FollowSP.PhysicsActor == null ? ShouldFly : FollowSP.PhysicsActor.Flying;
-
             if (!fly && (diffAbsPos.Z > 0.25 || jumpTry > 5))
             {
                 if (jumpTry > 5 || diffAbsPos.Z > 3)
@@ -1043,10 +1011,8 @@ namespace Universe.BotManager
                     //so we can assume that it is safe to fly
                     fly = true;
                 }
-
                 jumpTry--;
             }
-
             m_nodeGraph.Clear();
             m_nodeGraph.Add(targetPos, fly ? TravelMode.Fly : TravelMode.Walk);
         }
@@ -1057,13 +1023,13 @@ namespace Universe.BotManager
 
         void ShowMap(string mod, string[] cmd)
         {
-            int sqrt = (int)Math.Sqrt(map.Length);
+            int sqrt = (int) Math.Sqrt(map.Length);
             for (int x = sqrt - 1; x > -1; x--)
             {
                 string line = "";
                 for (int y = sqrt - 1; y > -1; y--)
                 {
-                    if (x == 11 * resolution && y == 11 * resolution)
+                    if (x == 11*resolution && y == 11*resolution)
                     {
                         line += "XX" + ",";
                     }
@@ -1078,7 +1044,6 @@ namespace Universe.BotManager
 
                 MainConsole.Instance.Warn(line.Remove(line.Length - 1));
             }
-
             MainConsole.Instance.Warn("\n");
         }
 
@@ -1102,60 +1067,63 @@ namespace Universe.BotManager
                 ii++;
             }
 
-            map = new int[22 * resolution, 22 * resolution]; //10 * resolution squares in each direction from our pos
-
+            map = new int[22*resolution,22*resolution]; //10 * resolution squares in each direction from our pos
             //We are in the center (11, 11) and our target is somewhere else
-            int targetX = 11 * resolution, targetY = 11 * resolution;
-
+            int targetX = 11*resolution, targetY = 11*resolution;
             //Find where our target is on the map
             FindTargets(currentPos2, targetPos, ref targetX, ref targetY);
+            //ISceneEntity[] entities = m_scenePresence.Scene.Entities.GetEntities (currentPos, 30);
 
             //Add all the entities to the map
             foreach (ISceneEntity entity in entities)
             {
-                int entitybaseX = (11 * resolution);
-                int entitybaseY = (11 * resolution);
-                //Find the bottom left corner, and then build outwards from it
-                FindTargets(currentPos2, entity.AbsolutePosition - (entity.OOBsize / 2), ref entitybaseX,
-                            ref entitybaseY);
-                for (int x = (int)-(0.5 * resolution);
-                     x < entity.OOBsize.X * 2 * resolution + ((int)(0.5 * resolution));
-                     x++)
+                //if (entity.AbsolutePosition.Z < m_scenePresence.AbsolutePosition.Z + m_scenePresence.PhysicsActor.Size.Z / 2 + m_scenePresence.Velocity.Z / 2 &&
+                //    entity.AbsolutePosition.Z > m_scenePresence.AbsolutePosition.Z - m_scenePresence.PhysicsActor.Size.Z / 2 + m_scenePresence.Velocity.Z / 2)
                 {
-                    for (int y = (int)-(0.5 * resolution);
-                         y < entity.OOBsize.Y * 2 * resolution + ((int)(0.5 * resolution));
-                         y++)
+                    int entitybaseX = (11*resolution);
+                    int entitybaseY = (11*resolution);
+                    //Find the bottom left corner, and then build outwards from it
+                    FindTargets(currentPos2, entity.AbsolutePosition - (entity.OOBsize/2), ref entitybaseX,
+                                ref entitybaseY);
+                    for (int x = (int) -(0.5*resolution);
+                         x < entity.OOBsize.X*2*resolution + ((int) (0.5*resolution));
+                         x++)
                     {
-                        if (entitybaseX + x > 0 && entitybaseY + y > 0 &&
-                            entitybaseX + x < (22 * resolution) && entitybaseY + y < (22 * resolution))
-                            if (x < 0 || y < 0 || x > (entity.OOBsize.X * 2) * resolution ||
-                                y > (entity.OOBsize.Y * 2) * resolution)
-                                map[entitybaseX + x, entitybaseY + y] = 3; //Its a side hit, lock it down a bit
-                            else
-                                map[entitybaseX + x, entitybaseY + y] = -1; //Its a hit, lock it down
+                        for (int y = (int) -(0.5*resolution);
+                             y < entity.OOBsize.Y*2*resolution + ((int) (0.5*resolution));
+                             y++)
+                        {
+                            if (entitybaseX + x > 0 && entitybaseY + y > 0 &&
+                                entitybaseX + x < (22*resolution) && entitybaseY + y < (22*resolution))
+                                if (x < 0 || y < 0 || x > (entity.OOBsize.X*2)*resolution ||
+                                    y > (entity.OOBsize.Y*2)*resolution)
+                                    map[entitybaseX + x, entitybaseY + y] = 3; //Its a side hit, lock it down a bit
+                                else
+                                    map[entitybaseX + x, entitybaseY + y] = -1; //Its a hit, lock it down
+                        }
                     }
                 }
             }
 
-            for (int x = 0; x < (22 * resolution); x++)
+            for (int x = 0; x < (22*resolution); x++)
             {
-                for (int y = 0; y < (22 * resolution); y++)
+                for (int y = 0; y < (22*resolution); y++)
                 {
                     if (x == targetX && y == targetY)
                         map[x, y] = 1;
-                    else if (x == 11 * resolution && y == 11 * resolution)
+                    else if (x == 11*resolution && y == 11*resolution)
                         map[x, y] = 1;
                     else if (map[x, y] == 0)
                         map[x, y] = 1;
                 }
             }
 
-            List<Vector3> path = InnerFindPath(map, (11 * resolution), (11 * resolution), targetX, targetY);
+            //ShowMap ("", null);
+            List<Vector3> path = InnerFindPath(map, (11*resolution), (11*resolution), targetX, targetY);
 
             int i = 0;
             Vector3 nextPos = ConvertPathToPos(raycastEntities.ToArray(), entities, currentPos2, path, ref i);
             Vector3 diffAbsPos = nextPos - targetPos;
-
             if (nextPos != Vector3.Zero)
             {
                 m_nodeGraph.Clear();
@@ -1165,7 +1133,6 @@ namespace Universe.BotManager
                 //Try another way
                 return false;
             }
-
             bool fly = FollowSP.PhysicsActor == null ? ShouldFly : FollowSP.PhysicsActor.Flying;
             while (nextPos != Vector3.Zero)
             {
@@ -1209,36 +1176,31 @@ namespace Universe.BotManager
                         //We should fly down to the avatar, rather than fall
                         fly = true;
                     }
-
                     jumpTry--;
                 }
-
                 nextPos.Z = targetPos.Z; //Fix the Z coordinate
 
                 m_nodeGraph.Add(nextPos, fly ? TravelMode.Fly : TravelMode.Walk);
                 i++;
                 nextPos = ConvertPathToPos(raycastEntities.ToArray(), entities, currentPos2, path, ref i);
             }
-
             return true;
         }
 
         Vector3 ConvertPathToPos(ISceneChildEntity[] raycastEntities, ISceneEntity[] entites,
                                          Vector3 originalPos, List<Vector3> path, ref int i)
         {
-        start:
+            start:
             if (i == path.Count)
                 return Vector3.Zero;
-
-            if (Math.Abs(path[i].X - (11 * resolution)) < EPSILON && Math.Abs(path[i].Y - (11 * resolution)) < EPSILON)
+            if (Math.Abs (path [i].X - (11 * resolution)) < EPSILON && Math.Abs (path [i].Y - (11 * resolution)) < EPSILON)
             {
                 i++;
                 goto start;
             }
-
             Vector3 pos = path[i];
             Vector3 newPos = originalPos -
-                             new Vector3(((11 * resolution) - pos.X) / resolution, ((11 * resolution) - pos.Y) / resolution, 0);
+                             new Vector3(((11*resolution) - pos.X)/resolution, ((11*resolution) - pos.Y)/resolution, 0);
 
             if (i < 2)
             {
@@ -1260,12 +1222,11 @@ namespace Universe.BotManager
                         sincefailedToMove++;
                 }
             }
-
             if (failedToMove > 1)
             {
                 return Vector3.Zero;
+                //CleanUpPos (raycastEntities, entities, ref newPos);
             }
-
             return newPos;
         }
 
@@ -1274,7 +1235,7 @@ namespace Universe.BotManager
             List<ISceneChildEntity> childEntities = llCastRay(m_controller.AbsolutePosition, pos);
             childEntities.AddRange(raycastEntities); //Add all of the ones that are in between us and the avatar as well
             int restartNum = 0;
-        restart:
+            restart:
             bool needsRestart = false;
             foreach (ISceneChildEntity entity in childEntities)
             {
@@ -1282,38 +1243,33 @@ namespace Universe.BotManager
                     entity.AbsolutePosition.Z > m_controller.AbsolutePosition.Z - 2)
                 {
                     //If this position is inside an entity + its size + avatar size, move it out!
-                    float sizeXPlus = (entity.AbsolutePosition.X + (entity.Scale.X / 2) +
-                                       (m_controller.PhysicsActor.Size.X / 2));
-
-                    float sizeXNeg = (entity.AbsolutePosition.X - (entity.Scale.X / 2) -
-                                      (m_controller.PhysicsActor.Size.X / 2));
-
-                    float sizeYPlus = (entity.AbsolutePosition.Y + (entity.Scale.Y / 2) +
-                                       (m_controller.PhysicsActor.Size.Y / 2));
-
-                    float sizeYNeg = (entity.AbsolutePosition.Y - (entity.Scale.Y / 2) -
-                                      (m_controller.PhysicsActor.Size.Y / 2));
+                    float sizeXPlus = (entity.AbsolutePosition.X + (entity.Scale.X/2) +
+                                       (m_controller.PhysicsActor.Size.X/2));
+                    float sizeXNeg = (entity.AbsolutePosition.X - (entity.Scale.X/2) -
+                                      (m_controller.PhysicsActor.Size.X/2));
+                    float sizeYPlus = (entity.AbsolutePosition.Y + (entity.Scale.Y/2) +
+                                       (m_controller.PhysicsActor.Size.Y/2));
+                    float sizeYNeg = (entity.AbsolutePosition.Y - (entity.Scale.Y/2) -
+                                      (m_controller.PhysicsActor.Size.Y/2));
 
                     if (pos.X < sizeXPlus && pos.X > sizeXNeg)
                     {
                         if (pos.X < entity.AbsolutePosition.X)
-                            pos.X = sizeXNeg - (m_controller.PhysicsActor.Size.X / 2);
+                            pos.X = sizeXNeg - (m_controller.PhysicsActor.Size.X/2);
                         else
-                            pos.X = sizeXPlus + (m_controller.PhysicsActor.Size.X / 2);
+                            pos.X = sizeXPlus + (m_controller.PhysicsActor.Size.X/2);
                         needsRestart = true;
                     }
-
                     if (pos.Y < sizeYPlus && pos.Y > sizeYNeg)
                     {
                         if (pos.Y < entity.AbsolutePosition.Y)
-                            pos.Y = sizeYNeg - (m_controller.PhysicsActor.Size.Y / 2);
+                            pos.Y = sizeYNeg - (m_controller.PhysicsActor.Size.Y/2);
                         else
-                            pos.Y = sizeYPlus + (m_controller.PhysicsActor.Size.Y / 2);
+                            pos.Y = sizeYPlus + (m_controller.PhysicsActor.Size.Y/2);
                         needsRestart = true;
                     }
                 }
             }
-
             //If we changed something, we need to recheck the pos...
             if (needsRestart && restartNum < 3)
             {
@@ -1328,8 +1284,8 @@ namespace Universe.BotManager
             float xDiff = (targetPos.X - currentPosition.X);
             float yDiff = (targetPos.Y - currentPosition.Y);
 
-            targetX += (int)(xDiff * resolution);
-            targetY += (int)(yDiff * resolution);
+            targetX += (int) (xDiff*resolution);
+            targetY += (int) (yDiff*resolution);
         }
 
         #endregion
@@ -1361,13 +1317,12 @@ namespace Universe.BotManager
             for (int i = 0; i < sigPos.Length; i++)
             {
                 double val = Util.GetDistanceTo(m_controller.AbsolutePosition, sigPos[i]);
-                if (Math.Abs(closestDistance) < EPSILON || closestDistance > val)
+                if (Math.Abs (closestDistance) < EPSILON || closestDistance > val)
                 {
                     closestDistance = val;
                     closestPosition = i;
                 }
             }
-
             if (currentPos > closestPosition)
             {
                 currentPos = closestPosition + 2;
@@ -1384,7 +1339,6 @@ namespace Universe.BotManager
                     continue;
                 vectors.Add(sigPos[i]);
             }
-
             m_significantAvatarPositions = vectors;
         }
 
@@ -1394,14 +1348,12 @@ namespace Universe.BotManager
             ClearOutInSignificantPositions(true);
 
             bool fly = FollowSP.PhysicsActor == null ? ShouldFly : FollowSP.PhysicsActor.Flying;
-
             if (m_significantAvatarPositions.Count > 0 && currentPos + 1 < m_significantAvatarPositions.Count)
             {
                 m_nodeGraph.Clear();
 
                 Vector3 targetPos = m_significantAvatarPositions[currentPos + 1];
                 Vector3 diffAbsPos = targetPos - m_controller.AbsolutePosition;
-
                 if (!fly && (diffAbsPos.Z < -0.25 || jumpTry > 5))
                 {
                     if (jumpTry > 5 || diffAbsPos.Z < -3)
@@ -1442,10 +1394,8 @@ namespace Universe.BotManager
                         //We should fly down to the avatar, rather than fall
                         fly = true;
                     }
-
                     jumpTry--;
                 }
-
                 m_nodeGraph.Add(targetPos, fly ? TravelMode.Fly : TravelMode.Walk);
             }
         }
@@ -1465,7 +1415,6 @@ namespace Universe.BotManager
         {
             m_followDistanceEvents[avatarID] = ev;
             m_followDistance[avatarID] = distance;
-
             if (m_followDistanceEvents.Count == 1) //Only the first time
                 EventManager.RegisterEventHandler("Update", DistanceFollowUpdate);
         }
@@ -1474,7 +1423,6 @@ namespace Universe.BotManager
         {
             m_followDistanceEvents.Remove(avatarID);
             m_followDistance.Remove(avatarID);
-
             if (m_followDistanceEvents.Count == 0) //Only the first time
                 EventManager.UnregisterEventHandler("Update", DistanceFollowUpdate);
         }
@@ -1495,19 +1443,18 @@ namespace Universe.BotManager
                                                      Util.DistanceLessThan(sp.AbsolutePosition,
                                                                            m_controller.AbsolutePosition, kvp.Value)
                                                  select new FollowingEventHolder
-                                                 {
-                                                     Event = m_followDistanceEvents[kvp.Key],
-                                                     AvID = kvp.Key,
-                                                     BotID = m_controller.UUID
-                                                 }).ToList();
-
+                                                            {
+                                                                Event = m_followDistanceEvents[kvp.Key],
+                                                                AvID = kvp.Key,
+                                                                BotID = m_controller.UUID
+                                                            }).ToList();
             foreach (FollowingEventHolder h in events)
             {
                 h.Event(h.AvID, h.BotID);
             }
-
             return null;
         }
+
 
         readonly Dictionary<UUID, FollowingEvent> m_LineOfSightEvents = new Dictionary<UUID, FollowingEvent>();
         readonly Dictionary<UUID, float> m_LineOfSight = new Dictionary<UUID, float>();
@@ -1516,7 +1463,6 @@ namespace Universe.BotManager
         {
             m_LineOfSightEvents[avatarID] = ev;
             m_LineOfSight[avatarID] = distance;
-
             if (m_followDistanceEvents.Count == 1) //Only the first time
                 EventManager.RegisterEventHandler("Update", LineOfSightUpdate);
         }
@@ -1525,7 +1471,6 @@ namespace Universe.BotManager
         {
             m_LineOfSightEvents.Remove(avatarID);
             m_LineOfSight.Remove(avatarID);
-
             if (m_followDistanceEvents.Count == 0) //Only the first time
                 EventManager.UnregisterEventHandler("Update", LineOfSightUpdate);
         }
@@ -1542,17 +1487,15 @@ namespace Universe.BotManager
                                                      m_controller.AbsolutePosition.ApproxEquals(sp.AbsolutePosition,
                                                                                                 m_LineOfSight[kvp.Key])
                                                  select new FollowingEventHolder
-                                                 {
-                                                     Event = m_LineOfSightEvents[kvp.Key],
-                                                     AvID = kvp.Key,
-                                                     BotID = m_controller.UUID
-                                                 }).ToList();
-
+                                                            {
+                                                                Event = m_LineOfSightEvents[kvp.Key],
+                                                                AvID = kvp.Key,
+                                                                BotID = m_controller.UUID
+                                                            }).ToList();
             foreach (FollowingEventHolder h in events)
             {
                 h.Event(h.AvID, h.BotID);
             }
-
             return null;
         }
 
@@ -1652,17 +1595,16 @@ namespace Universe.BotManager
 
         public T Get<T>()
         {
-            return (T)m_clientInterfaces[typeof(T)];
+            return (T) m_clientInterfaces[typeof (T)];
         }
 
         public bool TryGet<T>(out T iface)
         {
-            if (m_clientInterfaces.ContainsKey(typeof(T)))
+            if (m_clientInterfaces.ContainsKey(typeof (T)))
             {
-                iface = (T)m_clientInterfaces[typeof(T)];
+                iface = (T) m_clientInterfaces[typeof (T)];
                 return true;
             }
-
             iface = default(T);
             return false;
         }
@@ -1675,9 +1617,9 @@ namespace Universe.BotManager
         {
             lock (_lock)
             {
-                if (!m_clientInterfaces.ContainsKey(typeof(T)))
+                if (!m_clientInterfaces.ContainsKey(typeof (T)))
                 {
-                    m_clientInterfaces.Add(typeof(T), iface);
+                    m_clientInterfaces.Add(typeof (T), iface);
                 }
             }
         }
@@ -2009,7 +1951,7 @@ namespace Universe.BotManager
 
         public IPEndPoint RemoteEndPoint
         {
-            get { return new IPEndPoint(IPAddress.Loopback, (ushort)m_circuitCode); }
+            get { return new IPEndPoint(IPAddress.Loopback, (ushort) m_circuitCode); }
         }
 
         public void SetDebugPacketLevel(int newDebug)
@@ -2034,7 +1976,6 @@ namespace Universe.BotManager
             //raise event on the packet server to Shutdown the circuit
             if (OnLogout != null)
                 OnLogout(this);
-
             if (OnConnectionClosed != null)
                 OnConnectionClosed(this);
         }
@@ -2052,7 +1993,6 @@ namespace Universe.BotManager
         public void IncomingInstantMessage(GridInstantMessage im)
         {
             PreSendImprovedInstantMessage handlerPreSendInstantMessage = OnPreSendInstantMessage;
-
             if (handlerPreSendInstantMessage != null)
             {
                 if (handlerPreSendInstantMessage.GetInvocationList().Cast<PreSendImprovedInstantMessage>().Any(
@@ -2061,16 +2001,14 @@ namespace Universe.BotManager
                     return; //handled
                 }
             }
-
             ImprovedInstantMessage handlerInstantMessage = OnInstantMessage;
-
             if (handlerInstantMessage != null)
                 handlerInstantMessage(this, im);
         }
 
         public void SendInstantMessage(GridInstantMessage im)
         {
-            // TODO:  Sort this out
+            // TODO:  Sort this out - greythane- 20160406
             //This will cause a stack overflow, as it will loop back to trying to send the IM out again
             //m_controller.SendInstantMessage(im);
         }

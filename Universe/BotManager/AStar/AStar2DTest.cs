@@ -1,8 +1,6 @@
-﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
+/*
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -102,13 +100,11 @@ namespace Universe.BotManager.AStar
             {
                 return;
             }
-
             AStarNode2D NewNode = new AStarNode2D(this, GoalNode, Cost + CurrentCost, aX, aY);
             if (NewNode.IsSameState(Parent))
             {
                 return;
             }
-
             aSuccessors.Add(NewNode);
         }
 
@@ -127,9 +123,8 @@ namespace Universe.BotManager.AStar
             {
                 return false;
             }
-
-            return ((((AStarNode2D)aNode).X == FX) &&
-                    (((AStarNode2D)aNode).Y == FY));
+            return ((((AStarNode2D) aNode).X == FX) &&
+                    (((AStarNode2D) aNode).Y == FY));
         }
 
         /// <summary>
@@ -139,12 +134,18 @@ namespace Universe.BotManager.AStar
         {
             if (GoalNode != null)
             {
-                double xd = Math.Abs(FX - ((AStarNode2D)GoalNode).X);
-                double yd = Math.Abs(FY - ((AStarNode2D)GoalNode).Y);
+                double xd = Math.Abs(FX - ((AStarNode2D) GoalNode).X);
+                double yd = Math.Abs(FY - ((AStarNode2D) GoalNode).Y);
+
+                // "Euclidean distance" - Used when search can move at any angle.
+                //GoalEstimate = Math.Sqrt((xd * xd) + (yd * yd));//was using this one
 
                 // "Manhattan Distance" - Used when search can only move vertically and 
                 // horizontally.
                 GoalEstimate = Math.Abs(xd) + Math.Abs(yd);
+
+                // "Diagonal Distance" - Used when the search can move in 8 directions.
+                //GoalEstimate = Math.Max(Math.Abs(xd), Math.Abs(yd));
             }
             else
             {
@@ -233,15 +234,12 @@ namespace Universe.BotManager.AStar
         {
             if ((x < 0) || (x > XL))
                 return (-1);
-
             if ((y < 0) || (y > YL))
                 return (-1);
-
             if (Map[x, y] > 5) //5 is a wall 6789 are needs but they need to be a 1 for him to path through them
             {
                 return 1;
             }
-
             return (Map[x, y]);
         }
 
@@ -262,7 +260,7 @@ namespace Universe.BotManager.AStar
             // This works because each character is internally represented by a number. 
             // The characters '0' to '9' are represented by consecutive numbers, so finding 
             // the difference between the characters '0' and '2' results in the number 2.if char = 2 or whatever.
-            int[,] mapArray = new int[mapx, mapy];
+            int[,] mapArray = new int[mapx,mapy];
             XLimit = mapx;
             YLimit = mapy;
 
@@ -280,11 +278,9 @@ namespace Universe.BotManager.AStar
                         {
                             fooBar = -1;
                         }
-
                         mapArray[i, lineNum] = fooBar;
                     }
                 }
-
                 CurrentMap = mapArray;
                 return mapArray;
             }
@@ -301,10 +297,11 @@ namespace Universe.BotManager.AStar
             AStar astar = new AStar();
 
             AStarNode2D GoalNode = new AStarNode2D(null, null, 0, endx, endy);
-            AStarNode2D StartNode = new AStarNode2D(null, GoalNode, 0, startx, starty) { GoalNode = GoalNode };
+            AStarNode2D StartNode = new AStarNode2D(null, GoalNode, 0, startx, starty) {GoalNode = GoalNode};
 
             // Prepare the final List that will become the waypoints for him to leaf through
             List<string> botPoint = new List<string>();
+
 
             // Go get the solution
             astar.FindPath(StartNode, GoalNode);
@@ -329,12 +326,12 @@ namespace Universe.BotManager.AStar
             int xtemp = 0;
             int ytemp = 0;
 
+
             // This gets the solution from Astar.cs and runs it through PrintInfo which has the xyz of each path node - our Node solution
             ArrayList Nodes = new ArrayList(astar.Solution);
             foreach (AStarNode nn in Nodes)
             {
-                AStarNode2D n = (AStarNode2D)nn;
-                
+                AStarNode2D n = (AStarNode2D) nn;
                 // Return x and y from printinfo
                 int[] XYreturn = new int[2];
                 XYreturn = n.PrintNodeInfo();
@@ -356,21 +353,17 @@ namespace Universe.BotManager.AStar
                     string temp = xtemp + "," + ytemp + "," + Z;
                     botPoint.Add(temp);
                 }
-
                 X1 = X2;
                 Y1 = Y2;
                 lastSlope = slope;
             }
-            
             // This adds the last point to the step
             xtemp = X1 + csx;
             ytemp = Y1 + csy;
             string temp2 = xtemp + "," + ytemp + "," + Z;
             botPoint.Add(temp2);
-            
             // This removes the first point of the steps so they turn and go right to the first bend point(slope)
             botPoint.RemoveRange(0, 1);
-            
             // Let em have it - return to Botme path with slopes only no start point but with end point always   
             return botPoint;
         }
@@ -384,8 +377,7 @@ namespace Universe.BotManager.AStar
             {
                 return 88;
             }
-
-            return (y2 - y1) / (x2 - x1);
+            return (y2 - y1)/(x2 - x1);
         }
 
         #endregion

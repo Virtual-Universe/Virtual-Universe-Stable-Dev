@@ -1,8 +1,6 @@
 ﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -81,6 +79,7 @@ namespace Universe.Modules.Web
                 ? int.Parse (httpRequest.Query ["cardid"].ToString ())
                 : int.Parse (requestParameters ["cardid"].ToString ());
             
+
             rpt = abuseModule.GetAbuseReport (cardID);
             if (rpt == null)
             {
@@ -109,6 +108,7 @@ namespace Universe.Modules.Web
 
                     infoMessage = translator.GetTranslatedString ("ChangesSavedSuccessfully");
                 }
+
             }
 
             // get admin users
@@ -116,15 +116,14 @@ namespace Universe.Modules.Web
             var adminUsersList = new List<Dictionary<string, object>> ();
             if (adminUsers != null)
             {
+
                 foreach (var user in adminUsers)
                 {
                     if (!Utilities.IsSystemUser (user.PrincipalID))
                         adminUsersList.Add (new Dictionary<string, object> { { "Value", user.Name } });
                 }
-
                 adminUsersList.Add (new Dictionary<string, object> { { "Value", "No One" } });
             }
-
             vars.Add ("AdminUsersList", adminUsersList);
                 
             // details
@@ -186,3 +185,4 @@ namespace Universe.Modules.Web
         }
     }
 }
+

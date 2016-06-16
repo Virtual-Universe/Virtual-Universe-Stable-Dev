@@ -1,8 +1,6 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org, http://opensimulator.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -35,9 +33,9 @@ namespace Universe.Framework.Utilities
         public const string MISSING_TEXTURE_ID = "41fcdbb9-0896-495d-8889-1eb6fad88da3";       // texture to use when all else fails...
 
         // some predefined folders
-        public const string DEFAULT_CONFIG_DIR = "../Config";                                  // Default configuration file directory
-        public const string DEFAULT_DATA_DIR = "../Data";                                      // Default data storage directory
-        public const string DEFAULT_CRASH_DIR = "../Data/Crashes";                             // Default Crash log storage directory
+        public const string DEFAULT_CONFIG_DIR = "../Config";
+        public const string DEFAULT_DATA_DIR = "../Data";
+        public const string DEFAULT_CRASH_DIR = "../Data/Crashes";
 
         // all these are relative to the default data directory,
         // set either as above or via configuration

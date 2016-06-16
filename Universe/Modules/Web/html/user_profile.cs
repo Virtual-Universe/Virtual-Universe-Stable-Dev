@@ -1,8 +1,6 @@
 ﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -106,8 +104,8 @@ namespace Universe.Modules.Web
                 vars.Add ("UserType", "Guest");
                 vars.Add ("UserPartner", "Not specified yet");
                 vars.Add ("UserAboutMe", "Nothing here yet");
-            }
 
+            }
             vars.Add ("UserPictureURL", picUrl);
 
             // TODO:  This is only showing online status if you are logged in ??
@@ -162,12 +160,15 @@ namespace Universe.Modules.Web
                     }
                 }
 
+
                 if (groups.Count == 0) {
                     groups.Add (new Dictionary<string, object> {
                         { "GroupPictureURL", "../images/icons/no_groups.jpg" },
                         { "GroupName", "None yet" }
                     });
+
                 }
+
             }
 
             vars.Add ("GroupNameText", translator.GetTranslatedString ("GroupNameText"));

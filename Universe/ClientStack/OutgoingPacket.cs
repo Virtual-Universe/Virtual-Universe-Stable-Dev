@@ -1,8 +1,6 @@
-﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
+/*
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org, http://opensimulator.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,6 +28,7 @@
 using OpenMetaverse;
 using OpenMetaverse.Packets;
 using Universe.Framework.ClientInterfaces;
+
 
 namespace Universe.ClientStack
 {
@@ -108,7 +107,8 @@ namespace Universe.ClientStack
         /// <param name="resendMethod">The delegate to be called if this packet is determined to be unacknowledged</param>
         /// <param name="finishedMethod">The delegate to be called when this packet is sent</param>
         /// <param name="packet"></param>
-        public OutgoingPacket(LLUDPClient client, UDPPacketBuffer buffer, ThrottleOutPacketType category, UnackedPacketMethod resendMethod,
+        public OutgoingPacket(LLUDPClient client, UDPPacketBuffer buffer,
+                              ThrottleOutPacketType category, UnackedPacketMethod resendMethod,
                               UnackedPacketMethod finishedMethod, Packet packet)
         {
             Client = client;
@@ -122,6 +122,13 @@ namespace Universe.ClientStack
         public void Destroy(int whoDoneIt)
         {
             WhoDoneIt = whoDoneIt;
+            /*if(!PacketPool.Instance.ReturnPacket(Packet))
+                Packet = null;
+            Buffer = null;
+            FinishedMethod = null;
+            UnackedMethod = null;
+            Client = null;
+            SequenceNumber = 0;*/
         }
     }
 }

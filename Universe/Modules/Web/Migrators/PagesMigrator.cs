@@ -1,8 +1,6 @@
 ﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -150,9 +148,18 @@ namespace Universe.Modules.Web
                     new GridPage {
                         ShowInMenu = true,
                         LoggedInRequired = true,
+                        MenuID = "Classifieds",
+                        Location = "classifieds.html",
+                        MenuPosition = 4,
+                        MenuTitle = "MenuMyClassifieds",
+                        MenuToolTip = "TooltipsMenuClassifieds"
+                    },
+                    new GridPage {
+                        ShowInMenu = true,
+                        LoggedInRequired = true,
                         MenuID = "change_user_information",
                         Location = "change_user_information.html",
-                        MenuPosition = 4,
+                        MenuPosition = 5,
                         MenuTitle = "MenuChangeUserInformation",
                         MenuToolTip = "TooltipsMenuChangeUserInformation"
                     }
@@ -380,6 +387,7 @@ namespace Universe.Modules.Web
                         MenuPosition = 3,
                         MenuTitle = "MenuWelcomeScreenManager",
                         MenuToolTip = "TooltipsMenuWelcomeScreenManager"
+
                     }
                 }
             });

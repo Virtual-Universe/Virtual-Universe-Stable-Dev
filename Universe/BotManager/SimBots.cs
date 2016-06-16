@@ -1,8 +1,6 @@
-﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
+/*
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -66,13 +64,11 @@ namespace Universe.BotManager
                 for (i = 0; i < xsize; i++)
                 {
                     int fooBar = currentMap[i, j];
-
                     if (fooBar == type)
                     {
                         double distx = botx - i;
                         double disty = boty - j;
-                        double goalDist = Math.Sqrt((distx * distx) + (disty * disty));
-
+                        double goalDist = Math.Sqrt((distx*distx) + (disty*disty));
                         if (goalDist < DistTarget)
                         {
                             target = goalDist;
@@ -82,7 +78,6 @@ namespace Universe.BotManager
                     }
                 }
             }
-
             return itemLoc;
         }
     }

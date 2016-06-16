@@ -1,8 +1,6 @@
-﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
+/*
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,31 +27,32 @@
 
 using System;
 using System.Collections.Generic;
-using Universe.Framework.Modules;
 using Universe.Framework.Services;
 using Universe.Simulation.Base;
+using Universe.Framework.Modules;
 
 namespace Universe.Servers.AssetServer
 {
-	/// <summary>
-	/// 	Starting class for the Virtual Universe Server
-	/// </summary>
-	public class Application
-	{
-		public static void Main(string[] args)
-		{
-			BaseApplication.BaseMain (args, "Universe.AssetServer.ini",
-				new MinimalSimulationBase ("Universe.AssetServer",
-					new List<Type> { typeof(IAssetDataPlugin) },
-					new List<Type> {
-						typeof(IAssetService),
-						typeof(ISyncMessagePosterService),
-						typeof(ISyncMessageRecievedService),
-						typeof(IExternalCapsHandler),
-						typeof(IConfigurationService),
-						typeof(IGridServerInfoService),
-						typeof(IJ2KDecoder)
-					}));
-		}
-	}
+    /// <summary>
+    ///     Starting class for the Universe Server
+    /// </summary>
+    public class Application
+    {
+        public static void Main(string[] args)
+        {
+            BaseApplication.BaseMain(args, "Universe.AssetServer.ini",
+                                     new MinimalSimulationBase("Universe.AssetServer ",
+                                                               new List<Type> {typeof (IAssetDataPlugin)},
+                                                               new List<Type> 
+                                                               {
+                                                                    typeof (IAssetService),
+                                                                    typeof (ISyncMessagePosterService),
+                                                                    typeof (ISyncMessageRecievedService),
+                                                                    typeof (IExternalCapsHandler),
+                                                                    typeof (IConfigurationService),
+                                                                    typeof (IGridServerInfoService),
+                                                                    typeof (IJ2KDecoder)
+                                                               }));
+        }
+    }
 }

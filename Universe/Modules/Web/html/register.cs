@@ -1,8 +1,6 @@
 ﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -40,6 +38,7 @@ using Universe.Framework.Services;
 using Universe.Framework.Services.ClassHelpers.Profile;
 using Universe.Framework.Utilities;
 using RegionFlags = Universe.Framework.Services.RegionFlags;
+
 
 namespace Universe.Modules.Web
 {
@@ -100,6 +99,7 @@ namespace Universe.Modules.Web
             }
         }
             
+
         public Dictionary<string, object> Fill(WebInterface webInterface, string filename, OSHttpRequest httpRequest,
                                                OSHttpResponse httpResponse, Dictionary<string, object> requestParameters,
                                                ITranslator translator, out string response)
@@ -139,8 +139,6 @@ namespace Universe.Modules.Web
                 string FirstName = requestParameters["FirstName"].ToString();
                 string LastName = requestParameters["LastName"].ToString();
                 //removed - greythane - deemed not used
-                // Comment - IrishwolfStarfinder: These two lines are used by the currency service for purchase of
-                // RL Currency.  These are set in a user's account settings after they log into the site - May 24, 2016
                 //string UserAddress = requestParameters["UserAddress"].ToString();
                 //string UserZip = requestParameters["UserZip"].ToString();
                 string UserCity = requestParameters["UserCity"].ToString();
@@ -251,7 +249,6 @@ namespace Universe.Modules.Web
                                 if (snapshotUUID != UUID.Zero)
                                     profile.Image = snapshotUUID;
                             }
-
                             profile.MembershipGroup = webInterface.UserFlagToType (UserFlags, webInterface.EnglishTranslator);    // membership is english
                             profile.IsNewUser = true;
                             profileData.UpdateUserProfile (profile);
@@ -285,6 +282,8 @@ namespace Universe.Modules.Web
                 daysArgs.Add(new Dictionary<string, object> {{"Value", i}});
 
             List<Dictionary<string, object>> monthsArgs = new List<Dictionary<string, object>>();
+            //for (int i = 1; i <= 12; i++)
+            //    monthsArgs.Add(new Dictionary<string, object> {{"Value", i}});
 
             monthsArgs.Add(new Dictionary<string, object> {{"Value", translator.GetTranslatedString("Jan_Short")}});
             monthsArgs.Add(new Dictionary<string, object> {{"Value", translator.GetTranslatedString("Feb_Short")}});
@@ -298,6 +297,8 @@ namespace Universe.Modules.Web
             monthsArgs.Add(new Dictionary<string, object> {{"Value", translator.GetTranslatedString("Oct_Short")}});
             monthsArgs.Add(new Dictionary<string, object> {{"Value", translator.GetTranslatedString("Nov_Short")}});
             monthsArgs.Add(new Dictionary<string, object> {{"Value", translator.GetTranslatedString("Dec_Short")}});
+
+
 
             List<Dictionary<string, object>> yearsArgs = new List<Dictionary<string, object>>();
             for (int i = 1950; i <= 2013; i++)
@@ -328,6 +329,7 @@ namespace Universe.Modules.Web
             vars.Add("RegionList", RegionListVars);
             vars.Add("UserHomeRegionText", translator.GetTranslatedString("UserHomeRegionText"));
 
+
             vars.Add("UserTypeText", translator.GetTranslatedString("UserTypeText"));
             vars.Add("UserType", webInterface.UserTypeArgs(translator)) ;
 
@@ -346,8 +348,8 @@ namespace Universe.Modules.Web
                                 );
                 avatarArchives.Add (archiveInfo);
             }
-
             vars.Add("AvatarArchive", avatarArchives);
+
 
             string tosLocation = "";
             if (loginServerConfig != null && loginServerConfig.GetBoolean("UseTermsOfServiceOnFirstLogin", false))

@@ -1,8 +1,6 @@
-﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
+/*
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org, http://opensimulator.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,6 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 
 using System;
 using System.Collections.Generic;
@@ -328,7 +327,8 @@ namespace Universe.ClientStack
         /// </summary>
         const float m_sunPainDaHalfOrbitalCutoff = 4.712388980384689858f;
 
-        static readonly Dictionary<PacketType, PacketMethod> PacketHandlers = new Dictionary<PacketType, PacketMethod>(); //Global/static handlers for all clients
+        static readonly Dictionary<PacketType, PacketMethod> PacketHandlers =
+            new Dictionary<PacketType, PacketMethod>(); //Global/static handlers for all clients
 
         readonly LLUDPServer m_udpServer;
         readonly LLUDPClient m_udpClient;
@@ -348,14 +348,19 @@ namespace Universe.ClientStack
         ///     ownerless phantom.
         ///     All manipulation of this set has to occur under an m_entityUpdates.SyncRoot lock
         /// </value>
+        //protected HashSet<uint> m_killRecord = new HashSet<uint>();
+//        protected HashSet<uint> m_attachmentsSent;
         int m_animationSequenceNumber = 1;
 
         bool m_SendLogoutPacketWhenClosing = true;
         AgentUpdateArgs lastarg;
         bool m_IsActive = true;
 
-        readonly Dictionary<PacketType, PacketProcessor> m_packetHandlers = new Dictionary<PacketType, PacketProcessor>();
-        readonly Dictionary<string, GenericMessage> m_genericPacketHandlers = new Dictionary<string, GenericMessage>();
+        readonly Dictionary<PacketType, PacketProcessor> m_packetHandlers =
+            new Dictionary<PacketType, PacketProcessor>();
+
+        readonly Dictionary<string, GenericMessage> m_genericPacketHandlers =
+            new Dictionary<string, GenericMessage>();
 
         //PauPaw:Local Generic Message handlers
 
@@ -369,8 +374,9 @@ namespace Universe.ClientStack
         uint m_agentFOVCounter;
 
         readonly IAssetService m_assetService;
-
+// ReSharper disable ConvertToConstant.Local
         bool m_checkPackets = true;
+// ReSharper restore ConvertToConstant.Local
 
         #endregion Class Members
 
@@ -464,7 +470,8 @@ namespace Universe.ClientStack
         ///     Constructor
         /// </summary>
         public LLClientView(EndPoint remoteEP, IScene scene, LLUDPServer udpServer, LLUDPClient udpClient,
-                            AgentCircuitData sessionInfo, UUID agentId, UUID sessionId, uint circuitCode)
+                            AgentCircuitData sessionInfo,
+                            UUID agentId, UUID sessionId, uint circuitCode)
         {
             InitDefaultAnimations();
 
@@ -473,6 +480,9 @@ namespace Universe.ClientStack
             IConfig advancedConfig = m_scene.Config.Configs["ClientStack.LindenUDP"];
             if (advancedConfig != null)
                 m_allowUDPInv = advancedConfig.GetBoolean("AllowUDPInventory", m_allowUDPInv);
+
+            //m_killRecord = new HashSet<uint>();
+//            m_attachmentsSent = new HashSet<uint>();
 
             m_assetService = m_scene.RequestModuleInterface<IAssetService>();
             m_GroupsModule = scene.RequestModuleInterface<IGroupsModule>();
@@ -502,13 +512,15 @@ namespace Universe.ClientStack
         public void Reset()
         {
             lastarg = null;
+            //Reset the killObjectUpdate packet stats
+            //m_killRecord = new HashSet<uint>();
         }
 
         public void SetDebugPacketLevel(int newDebug)
         {
             m_debugPacketLevel = newDebug;
         }
-
+        
         public void SetDebugPacketName(string packetName, bool remove)
         {
             if (remove)
@@ -528,7 +540,8 @@ namespace Universe.ClientStack
         public void Stop()
         {
             // Send the STOP packet NOW, otherwise it doesn't get out in time
-            DisableSimulatorPacket disable = (DisableSimulatorPacket)PacketPool.Instance.GetPacket(PacketType.DisableSimulator);
+            DisableSimulatorPacket disable =
+                (DisableSimulatorPacket) PacketPool.Instance.GetPacket(PacketType.DisableSimulator);
             OutPacket(disable, ThrottleOutPacketType.Immediate);
         }
 
@@ -538,12 +551,14 @@ namespace Universe.ClientStack
         public void Close(bool forceClose)
         {
             //MainConsole.Instance.DebugFormat(
-            //    "[Client]: Close has been called for {0} attached to scene {1}", Name, m_scene.RegionInfo.RegionName);
+            //    "[CLIENT]: Close has been called for {0} attached to scene {1}",
+            //    Name, m_scene.RegionInfo.RegionName);
 
             if (forceClose && !IsLoggingOut) //Don't send it to clients that are logging out
             {
                 // Send the STOP packet NOW, otherwise it doesn't get out in time
-                DisableSimulatorPacket disable = (DisableSimulatorPacket)PacketPool.Instance.GetPacket(PacketType.DisableSimulator);
+                DisableSimulatorPacket disable =
+                    (DisableSimulatorPacket) PacketPool.Instance.GetPacket(PacketType.DisableSimulator);
                 OutPacket(disable, ThrottleOutPacketType.Immediate);
             }
 
@@ -567,16 +582,16 @@ namespace Universe.ClientStack
             // Disable UDP handling for this client
             m_udpClient.Shutdown();
 
-            //MainConsole.Instance.InfoFormat("[Client View] Memory pre  GC {0}", System.GC.GetTotalMemory(false));
+            //MainConsole.Instance.InfoFormat("[CLIENTVIEW] Memory pre  GC {0}", System.GC.GetTotalMemory(false));
             //GC.Collect();
-            //MainConsole.Instance.InfoFormat("[Client View] Memory post GC {0}", System.GC.GetTotalMemory(true));
+            //MainConsole.Instance.InfoFormat("[CLIENTVIEW] Memory post GC {0}", System.GC.GetTotalMemory(true));
         }
 
         public void Kick(string message)
         {
             if (!ChildAgentStatus())
             {
-                KickUserPacket kupack = (KickUserPacket)PacketPool.Instance.GetPacket(PacketType.KickUser);
+                KickUserPacket kupack = (KickUserPacket) PacketPool.Instance.GetPacket(PacketType.KickUser);
                 kupack.UserInfo.AgentID = AgentId;
                 kupack.UserInfo.SessionID = SessionId;
                 kupack.TargetBlock.TargetIP = 0;
@@ -612,7 +627,6 @@ namespace Universe.ClientStack
                     result = true;
                 }
             }
-
             return result;
         }
 
@@ -628,11 +642,10 @@ namespace Universe.ClientStack
             {
                 if (!m_packetHandlers.ContainsKey(packetType))
                 {
-                    m_packetHandlers.Add(packetType, new PacketProcessor { method = handler, Async = runasync });
+                    m_packetHandlers.Add(packetType, new PacketProcessor {method = handler, Async = runasync});
                     result = true;
                 }
             }
-
             return result;
         }
 
@@ -649,7 +662,6 @@ namespace Universe.ClientStack
                     result = true;
                 }
             }
-
             return result;
         }
 
@@ -666,7 +678,6 @@ namespace Universe.ClientStack
                     result = true;
                 }
             }
-
             return result;
         }
 
@@ -681,25 +692,18 @@ namespace Universe.ClientStack
             PacketProcessor pprocessor;
 
             bool localHandler;
-            lock (m_packetHandlers)
-            {
-                localHandler = m_packetHandlers.TryGetValue(packet.Type, out pprocessor);
+            lock (m_packetHandlers) {
+                localHandler = m_packetHandlers.TryGetValue (packet.Type, out pprocessor);
             }
-
-            if (localHandler)
-            {
+            if (localHandler) {
                 //there is a local handler for this packet type
-                if (pprocessor.Async)
-                {
-                    object obj = new AsyncPacketProcess(this, pprocessor.method, packet);
-                    m_udpServer.FireAndForget(ProcessSpecificPacketAsync, obj);
+                if (pprocessor.Async) {
+                    object obj = new AsyncPacketProcess (this, pprocessor.method, packet);
+                    m_udpServer.FireAndForget (ProcessSpecificPacketAsync, obj);
                     result = true;
+                } else {
+                    result = pprocessor.method (this, packet);
                 }
-                else
-                {
-                    result = pprocessor.method(this, packet);
-                }
-
                 return result;
             }
 
@@ -710,18 +714,16 @@ namespace Universe.ClientStack
             {
                 found = PacketHandlers.TryGetValue(packet.Type, out method);
             }
-
             if (found)
             {
                 result = method(this, packet);
             }
-
             return result;
         }
 
         public void ProcessSpecificPacketAsync(object state)
         {
-            AsyncPacketProcess packetObject = (AsyncPacketProcess)state;
+            AsyncPacketProcess packetObject = (AsyncPacketProcess) state;
 
             try
             {
@@ -731,7 +733,8 @@ namespace Universe.ClientStack
             {
                 // Make sure that we see any exception caused by the asynchronous operation.
                 MainConsole.Instance.ErrorFormat(
-                    "[LLClient View]: Caught exception while processing {0} for {1}, {2} {3}", packetObject.Pack, Name, e.Message, e.StackTrace);
+                    "[LLCLIENTVIEW]: Caught exception while processing {0} for {1}, {2} {3}",
+                    packetObject.Pack, Name, e.Message, e.StackTrace);
             }
         }
 
@@ -741,52 +744,55 @@ namespace Universe.ClientStack
 
         public void SendRegionHandshake(RegionInfo regionInfo, RegionHandshakeArgs args)
         {
-            RegionHandshakePacket handshake = (RegionHandshakePacket)PacketPool.Instance.GetPacket(PacketType.RegionHandshake);
+            RegionHandshakePacket handshake =
+                (RegionHandshakePacket) PacketPool.Instance.GetPacket(PacketType.RegionHandshake);
             handshake.RegionInfo = new RegionHandshakePacket.RegionInfoBlock
-            {
-                BillableFactor = args.billableFactor,
-                IsEstateManager = args.isEstateManager,
-                TerrainHeightRange00 = args.terrainHeightRange0,
-                TerrainHeightRange01 = args.terrainHeightRange1,
-                TerrainHeightRange10 = args.terrainHeightRange2,
-                TerrainHeightRange11 = args.terrainHeightRange3,
-                TerrainStartHeight00 = args.terrainStartHeight0,
-                TerrainStartHeight01 = args.terrainStartHeight1,
-                TerrainStartHeight10 = args.terrainStartHeight2,
-                TerrainStartHeight11 = args.terrainStartHeight3,
-                SimAccess = args.simAccess,
-                WaterHeight = args.waterHeight,
-                RegionFlags = (uint)args.regionFlags,
-                SimName = Util.StringToBytes256(args.regionName),
-                SimOwner = args.SimOwner,
-                TerrainBase0 = args.terrainBase0,
-                TerrainBase1 = args.terrainBase1,
-                TerrainBase2 = args.terrainBase2,
-                TerrainBase3 = args.terrainBase3,
-                TerrainDetail0 = args.terrainDetail0,
-                TerrainDetail1 = args.terrainDetail1,
-                TerrainDetail2 = args.terrainDetail2,
-                TerrainDetail3 = args.terrainDetail3,
-                CacheID = UUID.Random()
-            };
+                                       {
+                                           BillableFactor = args.billableFactor,
+                                           IsEstateManager = args.isEstateManager,
+                                           TerrainHeightRange00 = args.terrainHeightRange0,
+                                           TerrainHeightRange01 = args.terrainHeightRange1,
+                                           TerrainHeightRange10 = args.terrainHeightRange2,
+                                           TerrainHeightRange11 = args.terrainHeightRange3,
+                                           TerrainStartHeight00 = args.terrainStartHeight0,
+                                           TerrainStartHeight01 = args.terrainStartHeight1,
+                                           TerrainStartHeight10 = args.terrainStartHeight2,
+                                           TerrainStartHeight11 = args.terrainStartHeight3,
+                                           SimAccess = args.simAccess,
+                                           WaterHeight = args.waterHeight,
+                                           RegionFlags = (uint) args.regionFlags,
+                                           SimName = Util.StringToBytes256(args.regionName),
+                                           SimOwner = args.SimOwner,
+                                           TerrainBase0 = args.terrainBase0,
+                                           TerrainBase1 = args.terrainBase1,
+                                           TerrainBase2 = args.terrainBase2,
+                                           TerrainBase3 = args.terrainBase3,
+                                           TerrainDetail0 = args.terrainDetail0,
+                                           TerrainDetail1 = args.terrainDetail1,
+                                           TerrainDetail2 = args.terrainDetail2,
+                                           TerrainDetail3 = args.terrainDetail3,
+                                           CacheID = UUID.Random()
+                                       };
 
             //I guess this is for the client to remember an old setting?
-            handshake.RegionInfo2 = new RegionHandshakePacket.RegionInfo2Block { RegionID = regionInfo.RegionID };
-            handshake.RegionInfo4 = new RegionHandshakePacket.RegionInfo4Block[1] {
-                new RegionHandshakePacket.RegionInfo4Block
-                {
-                    RegionFlagsExtended = args.regionFlags,
-                    RegionProtocols = (ulong) RegionProtocols.None
-                }
+            handshake.RegionInfo2 = new RegionHandshakePacket.RegionInfo2Block {RegionID = regionInfo.RegionID};
+            handshake.RegionInfo4 = new RegionHandshakePacket.RegionInfo4Block[1]
+                                        {
+                                            new RegionHandshakePacket.RegionInfo4Block
+                                                {
+                                                    RegionFlagsExtended = args.regionFlags,
+                                                    RegionProtocols = (ulong) RegionProtocols.None // RegionProtocols.AgentAppearanceService
+                                                }
                                         };
             handshake.RegionInfo3 = new RegionHandshakePacket.RegionInfo3Block
-            {
-                CPUClassID = 9,
-                CPURatio = 1,
-                ColoName = Utils.EmptyBytes,
-                ProductName = Util.StringToBytes256(regionInfo.RegionType),
-                ProductSKU = Utils.EmptyBytes
-            };
+                                        {
+                                            CPUClassID = 9,
+                                            CPURatio = 1,
+                                            ColoName = Utils.EmptyBytes,
+                                            ProductName = Util.StringToBytes256(regionInfo.RegionType),
+                                            ProductSKU = Utils.EmptyBytes
+                                        };
+
 
             OutPacket(handshake, ThrottleOutPacketType.Task);
         }
@@ -795,12 +801,13 @@ namespace Universe.ClientStack
         /// </summary>
         public void MoveAgentIntoRegion(RegionInfo regInfo, Vector3 pos, Vector3 look)
         {
-            AgentMovementCompletePacket mov = (AgentMovementCompletePacket)PacketPool.Instance.GetPacket(PacketType.AgentMovementComplete);
+            AgentMovementCompletePacket mov =
+                (AgentMovementCompletePacket) PacketPool.Instance.GetPacket(PacketType.AgentMovementComplete);
             mov.SimData.ChannelVersion = m_channelVersion;
             mov.AgentData.SessionID = m_sessionId;
             mov.AgentData.AgentID = AgentId;
             mov.Data.RegionHandle = regInfo.RegionHandle;
-            mov.Data.Timestamp = (uint)Util.UnixTimeSinceEpoch();
+            mov.Data.Timestamp = (uint) Util.UnixTimeSinceEpoch();
             mov.Data.Position = pos;
             mov.Data.LookAt = look;
 
@@ -808,9 +815,11 @@ namespace Universe.ClientStack
             OutPacket(mov, ThrottleOutPacketType.OutBand);
         }
 
-        public void SendChatMessage(string message, byte type, Vector3 fromPos, string fromName, UUID fromAgentID, byte source, byte audible)
+        public void SendChatMessage(string message, byte type, Vector3 fromPos, string fromName,
+                                    UUID fromAgentID, byte source, byte audible)
         {
-            ChatFromSimulatorPacket reply = (ChatFromSimulatorPacket)PacketPool.Instance.GetPacket(PacketType.ChatFromSimulator);
+            ChatFromSimulatorPacket reply =
+                (ChatFromSimulatorPacket) PacketPool.Instance.GetPacket(PacketType.ChatFromSimulator);
             reply.ChatData.Audible = audible;
             reply.ChatData.Message = Util.StringToBytes1024(message);
             reply.ChatData.ChatType = type;
@@ -826,17 +835,17 @@ namespace Universe.ClientStack
             OutPacket(reply, ThrottleOutPacketType.AvatarInfo);
         }
 
-        public void SendTelehubInfo(Vector3 TelehubPos, Quaternion TelehubRot, List<Vector3> SpawnPoint, UUID ObjectID, string nameT)
+        public void SendTelehubInfo(Vector3 TelehubPos, Quaternion TelehubRot, List<Vector3> SpawnPoint, UUID ObjectID,
+                                    string nameT)
         {
-            TelehubInfoPacket packet = (TelehubInfoPacket)PacketPool.Instance.GetPacket(PacketType.TelehubInfo);
+            TelehubInfoPacket packet = (TelehubInfoPacket) PacketPool.Instance.GetPacket(PacketType.TelehubInfo);
             packet.SpawnPointBlock = new TelehubInfoPacket.SpawnPointBlockBlock[SpawnPoint.Count];
             int i = 0;
             foreach (Vector3 pos in SpawnPoint)
             {
-                packet.SpawnPointBlock[i] = new TelehubInfoPacket.SpawnPointBlockBlock { SpawnPointPos = pos };
+                packet.SpawnPointBlock[i] = new TelehubInfoPacket.SpawnPointBlockBlock {SpawnPointPos = pos};
                 i++;
             }
-
             packet.TelehubBlock.ObjectID = ObjectID;
             packet.TelehubBlock.ObjectName = Utils.StringToBytes(nameT);
             packet.TelehubBlock.TelehubPos = TelehubPos;
@@ -853,7 +862,8 @@ namespace Universe.ClientStack
         {
             if (m_scene.Permissions.CanInstantMessage(im.FromAgentID, im.ToAgentID))
             {
-                ImprovedInstantMessagePacket msg = (ImprovedInstantMessagePacket)PacketPool.Instance.GetPacket(PacketType.ImprovedInstantMessage);
+                ImprovedInstantMessagePacket msg
+                    = (ImprovedInstantMessagePacket) PacketPool.Instance.GetPacket(PacketType.ImprovedInstantMessage);
 
                 msg.AgentData.AgentID = im.FromAgentID;
                 msg.AgentData.SessionID = UUID.Zero;
@@ -879,17 +889,18 @@ namespace Universe.ClientStack
 
         public void SendGenericMessage(string method, List<string> message)
         {
-            List<byte[]> convertedmessage = message.ConvertAll<byte[]>(delegate (string item) { return Util.StringToBytes256(item); });
+            List<byte[]> convertedmessage =
+                message.ConvertAll<byte[]>(delegate(string item) { return Util.StringToBytes256(item); });
             SendGenericMessage(method, convertedmessage);
         }
 
         public void SendGenericMessage(string method, List<byte[]> message)
         {
             GenericMessagePacket gmp = new GenericMessagePacket
-            {
-                MethodData = { Method = Util.StringToBytes256(method) },
-                ParamList = new GenericMessagePacket.ParamListBlock[message.Count]
-            };
+                                           {
+                                               MethodData = {Method = Util.StringToBytes256(method)},
+                                               ParamList = new GenericMessagePacket.ParamListBlock[message.Count]
+                                           };
             int i = 0;
             foreach (byte[] val in message)
             {
@@ -903,84 +914,86 @@ namespace Universe.ClientStack
         public void SendGroupActiveProposals(UUID groupID, UUID transactionID, GroupActiveProposals[] Proposals)
         {
             GroupActiveProposalItemReplyPacket GAPIRP = new GroupActiveProposalItemReplyPacket
-            {
-                AgentData = {
-                    AgentID = AgentId,
-                    GroupID = groupID
-                },
-                TransactionData = {
-                    TransactionID = transactionID,
-                    TotalNumItems = (uint) Proposals.Length
-                },
-                ProposalData = new GroupActiveProposalItemReplyPacket.ProposalDataBlock[Proposals.Length]
-            };
+                                                            {
+                                                                AgentData = {AgentID = AgentId, GroupID = groupID},
+                                                                TransactionData =
+                                                                    {
+                                                                        TransactionID = transactionID,
+                                                                        TotalNumItems = (uint) Proposals.Length
+                                                                    },
+                                                                ProposalData =
+                                                                    new GroupActiveProposalItemReplyPacket.
+                                                                    ProposalDataBlock[Proposals.Length]
+                                                            };
 
 
             int i = 0;
             foreach (
-                GroupActiveProposalItemReplyPacket.ProposalDataBlock ProposalData 
-                in Proposals.Select(Proposal => new GroupActiveProposalItemReplyPacket.ProposalDataBlock
-                    {
-                        VoteCast = Utils.StringToBytes("false"),
-                        VoteID = new UUID(Proposal.VoteID),
-                        VoteInitiator = new UUID(Proposal.VoteInitiator),
-                        Majority = Convert.ToInt32(Proposal.Majority),
-                        Quorum = Convert.ToInt32(Proposal.Quorum),
-                        TerseDateID = Utils.StringToBytes(Proposal.TerseDateID),
-                        StartDateTime = Utils.StringToBytes(Proposal.StartDateTime),
-                        EndDateTime = Utils.StringToBytes(Proposal.EndDateTime),
-                        ProposalText = Utils.StringToBytes(Proposal.ProposalText),
-                        AlreadyVoted = false
-                    }))
+                GroupActiveProposalItemReplyPacket.ProposalDataBlock ProposalData in
+                    Proposals.Select(Proposal => new GroupActiveProposalItemReplyPacket.ProposalDataBlock
+                                                     {
+                                                         VoteCast = Utils.StringToBytes("false"),
+                                                         VoteID = new UUID(Proposal.VoteID),
+                                                         VoteInitiator = new UUID(Proposal.VoteInitiator),
+                                                         Majority = Convert.ToInt32(Proposal.Majority),
+                                                         Quorum = Convert.ToInt32(Proposal.Quorum),
+                                                         TerseDateID = Utils.StringToBytes(Proposal.TerseDateID),
+                                                         StartDateTime = Utils.StringToBytes(Proposal.StartDateTime),
+                                                         EndDateTime = Utils.StringToBytes(Proposal.EndDateTime),
+                                                         ProposalText = Utils.StringToBytes(Proposal.ProposalText),
+                                                         AlreadyVoted = false
+                                                     }))
             {
                 GAPIRP.ProposalData[i] = ProposalData;
                 i++;
             }
-
             OutPacket(GAPIRP, ThrottleOutPacketType.AvatarInfo);
         }
 
-        public void SendGroupVoteHistory(UUID groupID, UUID transactionID, GroupVoteHistory Vote, GroupVoteHistoryItem[] VoteItems)
+        public void SendGroupVoteHistory(UUID groupID, UUID transactionID, GroupVoteHistory Vote,
+                                         GroupVoteHistoryItem[] VoteItems)
         {
             GroupVoteHistoryItemReplyPacket GVHIRP = new GroupVoteHistoryItemReplyPacket
-            {
-                AgentData = {
-                    AgentID = AgentId,
-                    GroupID = groupID
-                },
-                TransactionData = {
-                    TransactionID = transactionID,
-                    TotalNumItems = (uint) VoteItems.Length
-                },
-                HistoryItemData = {
-                    VoteID = new UUID(Vote.VoteID),
-                    VoteInitiator = new UUID(Vote.VoteInitiator),
-                    Majority = Convert.ToInt32(Vote.Majority),
-                    Quorum = Convert.ToInt32(Vote.Quorum),
-                    TerseDateID = Utils.StringToBytes(Vote.TerseDateID),
-                    StartDateTime = Utils.StringToBytes(Vote.StartDateTime),
-                    EndDateTime = Utils.StringToBytes(Vote.EndDateTime),
-                    VoteType = Utils.StringToBytes(Vote.VoteType),
-                    VoteResult = Utils.StringToBytes(Vote.VoteResult),
-                    ProposalText = Utils.StringToBytes(Vote.ProposalText)
-                }
-            };
+                                                         {
+                                                             AgentData = {AgentID = AgentId, GroupID = groupID},
+                                                             TransactionData =
+                                                                 {
+                                                                     TransactionID = transactionID,
+                                                                     TotalNumItems = (uint) VoteItems.Length
+                                                                 },
+                                                             HistoryItemData =
+                                                                 {
+                                                                     VoteID = new UUID(Vote.VoteID),
+                                                                     VoteInitiator = new UUID(Vote.VoteInitiator),
+                                                                     Majority = Convert.ToInt32(Vote.Majority),
+                                                                     Quorum = Convert.ToInt32(Vote.Quorum),
+                                                                     TerseDateID = Utils.StringToBytes(Vote.TerseDateID),
+                                                                     StartDateTime =
+                                                                         Utils.StringToBytes(Vote.StartDateTime),
+                                                                     EndDateTime = Utils.StringToBytes(Vote.EndDateTime),
+                                                                     VoteType = Utils.StringToBytes(Vote.VoteType),
+                                                                     VoteResult = Utils.StringToBytes(Vote.VoteResult),
+                                                                     ProposalText =
+                                                                         Utils.StringToBytes(Vote.ProposalText)
+                                                                 }
+                                                         };
+
 
             int i = 0;
             GVHIRP.VoteItem = new GroupVoteHistoryItemReplyPacket.VoteItemBlock[VoteItems.Length];
 
             foreach (
-                GroupVoteHistoryItemReplyPacket.VoteItemBlock VoteItem in VoteItems.Select(item => new GroupVoteHistoryItemReplyPacket.VoteItemBlock
-                    {
-                        CandidateID = item.CandidateID,
-                        NumVotes = item.NumVotes,
-                        VoteCast = Utils.StringToBytes(item.VoteCast)
-                    }))
+                GroupVoteHistoryItemReplyPacket.VoteItemBlock VoteItem in
+                    VoteItems.Select(item => new GroupVoteHistoryItemReplyPacket.VoteItemBlock
+                                                 {
+                                                     CandidateID = item.CandidateID,
+                                                     NumVotes = item.NumVotes,
+                                                     VoteCast = Utils.StringToBytes(item.VoteCast)
+                                                 }))
             {
                 GVHIRP.VoteItem[i] = VoteItem;
                 i++;
             }
-
             OutPacket(GVHIRP, ThrottleOutPacketType.AvatarInfo);
         }
 
@@ -989,31 +1002,31 @@ namespace Universe.ClientStack
                                                GroupAccountHistory[] history)
         {
             GroupAccountDetailsReplyPacket GADRP = new GroupAccountDetailsReplyPacket
-            {
-                AgentData = new GroupAccountDetailsReplyPacket.AgentDataBlock
-                { AgentID = sender.AgentId, GroupID = groupID },
-                HistoryData = new GroupAccountDetailsReplyPacket.HistoryDataBlock[history.Length]
-            };
-
+                                                       {
+                                                           AgentData = new GroupAccountDetailsReplyPacket.AgentDataBlock
+                                                                           {AgentID = sender.AgentId, GroupID = groupID},
+                                                           HistoryData =
+                                                               new GroupAccountDetailsReplyPacket.HistoryDataBlock[
+                                                               history.Length]
+                                                       };
             int i = 0;
             foreach (GroupAccountHistory h in history)
             {
-                GroupAccountDetailsReplyPacket.HistoryDataBlock History = new GroupAccountDetailsReplyPacket.HistoryDataBlock();
+                GroupAccountDetailsReplyPacket.HistoryDataBlock History =
+                    new GroupAccountDetailsReplyPacket.HistoryDataBlock();
 
                 History.Amount = h.Amount;
                 History.Description = Utils.StringToBytes(h.Description);
 
                 GADRP.HistoryData[i++] = History;
             }
-
             GADRP.MoneyData = new GroupAccountDetailsReplyPacket.MoneyDataBlock
-            {
-                CurrentInterval = currentInterval,
-                IntervalDays = interval,
-                RequestID = transactionID,
-                StartDate = Utils.StringToBytes(startDate)
-            };
-
+                                  {
+                                      CurrentInterval = currentInterval,
+                                      IntervalDays = interval,
+                                      RequestID = transactionID,
+                                      StartDate = Utils.StringToBytes(startDate)
+                                  };
             OutPacket(GADRP, ThrottleOutPacketType.AvatarInfo);
         }
 
@@ -1024,37 +1037,35 @@ namespace Universe.ClientStack
                                                string taxDate, string lastTaxDate, int parcelDirectoryFee,
                                                int landTaxFee, int groupTaxFee, int objectTaxFee)
         {
-            GroupAccountSummaryReplyPacket GASRP = (GroupAccountSummaryReplyPacket)PacketPool.Instance.GetPacket(PacketType.GroupAccountSummaryReply);
+            GroupAccountSummaryReplyPacket GASRP =
+                (GroupAccountSummaryReplyPacket) PacketPool.Instance.GetPacket(
+                    PacketType.GroupAccountSummaryReply);
 
             GASRP.AgentData = new GroupAccountSummaryReplyPacket.AgentDataBlock
-            {
-                AgentID = sender.AgentId,
-                GroupID = groupID
-            };
+                                  {AgentID = sender.AgentId, GroupID = groupID};
             GASRP.MoneyData = new GroupAccountSummaryReplyPacket.MoneyDataBlock
-            {
-                Balance = moneyAmt,
-                TotalCredits = totalTierCredits,
-                TotalDebits = totalTierDebit,
-                StartDate = Utils.StringToBytes(startDate + '\n'),
-                CurrentInterval = currentInterval,
-                GroupTaxCurrent = groupTaxFee,
-                GroupTaxEstimate = groupTaxFee,
-                IntervalDays = intervalLength,
-                LandTaxCurrent = landTaxFee,
-                LandTaxEstimate = landTaxFee,
-                LastTaxDate = Utils.StringToBytes(lastTaxDate),
-                LightTaxCurrent = 0,
-                TaxDate = Utils.StringToBytes(taxDate),
-                RequestID = requestID,
-                ParcelDirFeeEstimate = parcelDirectoryFee,
-                ParcelDirFeeCurrent = parcelDirectoryFee,
-                ObjectTaxEstimate = objectTaxFee,
-                NonExemptMembers = 0,
-                ObjectTaxCurrent = objectTaxFee,
-                LightTaxEstimate = 0
-            };
-
+                                  {
+                                      Balance = moneyAmt,
+                                      TotalCredits = totalTierCredits,
+                                      TotalDebits = totalTierDebit,
+                                      StartDate = Utils.StringToBytes(startDate + '\n'),
+                                      CurrentInterval = currentInterval,
+                                      GroupTaxCurrent = groupTaxFee,
+                                      GroupTaxEstimate = groupTaxFee,
+                                      IntervalDays = intervalLength,
+                                      LandTaxCurrent = landTaxFee,
+                                      LandTaxEstimate = landTaxFee,
+                                      LastTaxDate = Utils.StringToBytes(lastTaxDate),
+                                      LightTaxCurrent = 0,
+                                      TaxDate = Utils.StringToBytes(taxDate),
+                                      RequestID = requestID,
+                                      ParcelDirFeeEstimate = parcelDirectoryFee,
+                                      ParcelDirFeeCurrent = parcelDirectoryFee,
+                                      ObjectTaxEstimate = objectTaxFee,
+                                      NonExemptMembers = 0,
+                                      ObjectTaxCurrent = objectTaxFee,
+                                      LightTaxEstimate = 0
+                                  };
             OutPacket(GASRP, ThrottleOutPacketType.Asset);
         }
 
@@ -1062,38 +1073,34 @@ namespace Universe.ClientStack
                                                         UUID sessionID, int currentInterval, int intervalDays,
                                                         string startingDate, GroupAccountHistory[] history)
         {
-            GroupAccountTransactionsReplyPacket GATRP =(GroupAccountTransactionsReplyPacket)PacketPool.Instance.GetPacket(PacketType.GroupAccountTransactionsReply);
+            GroupAccountTransactionsReplyPacket GATRP =
+                (GroupAccountTransactionsReplyPacket) PacketPool.Instance.GetPacket(
+                    PacketType.GroupAccountTransactionsReply);
 
             GATRP.AgentData = new GroupAccountTransactionsReplyPacket.AgentDataBlock
-            {
-                AgentID = sender.AgentId,
-                GroupID = groupID
-            };
+                                  {AgentID = sender.AgentId, GroupID = groupID};
             GATRP.MoneyData = new GroupAccountTransactionsReplyPacket.MoneyDataBlock
-            {
-                CurrentInterval = currentInterval,
-                IntervalDays = intervalDays,
-                RequestID = transactionID,
-                StartDate = Utils.StringToBytes(startingDate)
-            };
-
+                                  {
+                                      CurrentInterval = currentInterval,
+                                      IntervalDays = intervalDays,
+                                      RequestID = transactionID,
+                                      StartDate = Utils.StringToBytes(startingDate)
+                                  };
             GATRP.HistoryData = new GroupAccountTransactionsReplyPacket.HistoryDataBlock[history.Length];
             int i = 0;
             foreach (GroupAccountHistory h in history)
             {
                 GroupAccountTransactionsReplyPacket.HistoryDataBlock History =
                     new GroupAccountTransactionsReplyPacket.HistoryDataBlock
-                    {
-                        Amount = h.Amount,
-                        Item = Utils.StringToBytes(h.Description),
-                        Time = Utils.StringToBytes(h.TimeString),
-                        Type = 0,
-                        User = Utils.StringToBytes(h.UserCausingCharge)
-                    };
-
+                        {
+                            Amount = h.Amount,
+                            Item = Utils.StringToBytes(h.Description),
+                            Time = Utils.StringToBytes(h.TimeString),
+                            Type = 0,
+                            User = Utils.StringToBytes(h.UserCausingCharge)
+                        };
                 GATRP.HistoryData[i++] = History;
             }
-
             OutPacket(GATRP, ThrottleOutPacketType.Asset);
         }
 
@@ -1113,20 +1120,21 @@ namespace Universe.ClientStack
         /// <param name="o"></param>
         void DoSendLayerData(object o)
         {
-            short[] map = (short[])o;
+            short[] map = (short[]) o;
             try
             {
-                for (int y = 0; y < m_scene.RegionInfo.RegionSizeY / Constants.TerrainPatchSize; y++)
+                for (int y = 0; y < m_scene.RegionInfo.RegionSizeY/Constants.TerrainPatchSize; y++)
                 {
-                    for (int x = 0; x < m_scene.RegionInfo.RegionSizeX / Constants.TerrainPatchSize; x += 4)
+                    for (int x = 0; x < m_scene.RegionInfo.RegionSizeX/Constants.TerrainPatchSize; x += 4)
                     {
                         SendLayerPacket(map, y, x);
+                        //Thread.Sleep(35);
                     }
                 }
             }
             catch (Exception e)
             {
-                MainConsole.Instance.Warn("[Client]: ClientView.API.cs: SendLayerData() - Failed with exception " + e);
+                MainConsole.Instance.Warn("[CLIENT]: ClientView.API.cs: SendLayerData() - Failed with exception " + e);
             }
         }
 
@@ -1138,26 +1146,20 @@ namespace Universe.ClientStack
         /// <param name="y">Y coordinate for patches 0..15</param>
         public void SendLayerPacket(short[] map, int y, int x)
         {
-            int[] xs = new[] { x + 0, x + 1, x + 2, x + 3 };
-            int[] ys = new[] { y, y, y, y };
+            int[] xs = new[] {x + 0, x + 1, x + 2, x + 3};
+            int[] ys = new[] {y, y, y, y};
 
             try
             {
-                byte type = (byte)TerrainPatch.LayerType.Land;
+                byte type = (byte) TerrainPatch.LayerType.Land;
                 if (m_scene.RegionInfo.RegionSizeX > Constants.RegionSize ||
                     m_scene.RegionInfo.RegionSizeY > Constants.RegionSize)
                 {
                     type++;
                 }
-
-                LayerDataPacket layerpack = UniverseTerrainCompressor.CreateLandPacket(
-                    map,
-                    xs,
-                    ys,
-                    type,
-                    m_scene.RegionInfo.RegionSizeX,
-                    m_scene.RegionInfo.RegionSizeY);
-
+                LayerDataPacket layerpack = UniverseTerrainCompressor.CreateLandPacket(map, xs, ys, type,
+                                                                                     m_scene.RegionInfo.RegionSizeX,
+                                                                                     m_scene.RegionInfo.RegionSizeY);
                 layerpack.Header.Zerocoded = true;
                 layerpack.Header.Reliable = true;
 
@@ -1166,6 +1168,7 @@ namespace Universe.ClientStack
                     for (int xa = 0; xa < 4; xa++)
                     {
                         // Send oversize packet in individual patches
+                        //
                         SendLayerData(x + xa, y, map);
                     }
                 }
@@ -1179,6 +1182,7 @@ namespace Universe.ClientStack
                 for (int xa = 0; xa < 4; xa++)
                 {
                     // Send oversize packet in individual patches
+                    //
                     SendLayerData(x + xa, y, map);
                 }
             }
@@ -1187,6 +1191,7 @@ namespace Universe.ClientStack
                 for (int xa = 0; xa < 4; xa++)
                 {
                     // Bad terrain, send individual chunks
+                    //
                     SendLayerData(x + xa, y, map);
                 }
             }
@@ -1202,28 +1207,24 @@ namespace Universe.ClientStack
         {
             try
             {
-                int[] x = new[] { px };
-                int[] y = new[] { py };
+                int[] x = new[] {px};
+                int[] y = new[] {py};
 
-                byte type = (byte)TerrainPatch.LayerType.Land;
+                byte type = (byte) TerrainPatch.LayerType.Land;
                 if (m_scene.RegionInfo.RegionSizeX > Constants.RegionSize ||
                     m_scene.RegionInfo.RegionSizeY > Constants.RegionSize)
                 {
                     type++;
                 }
-                LayerDataPacket layerpack = UniverseTerrainCompressor.CreateLandPacket(
-                    map,
-                    x,
-                    y,
-                    type,
-                    m_scene.RegionInfo.RegionSizeX,
-                    m_scene.RegionInfo.RegionSizeY);
+                LayerDataPacket layerpack = UniverseTerrainCompressor.CreateLandPacket(map, x, y, type,
+                                                                                     m_scene.RegionInfo.RegionSizeX,
+                                                                                     m_scene.RegionInfo.RegionSizeY);
 
                 OutPacket(layerpack, ThrottleOutPacketType.Land);
             }
             catch (Exception e)
             {
-                MainConsole.Instance.ErrorFormat("[Client]: SendLayerData() Failed with exception: " + e);
+                MainConsole.Instance.ErrorFormat("[CLIENT]: SendLayerData() Failed with exception: " + e);
             }
         }
 
@@ -1237,7 +1238,7 @@ namespace Universe.ClientStack
         public void SendLayerData(int[] x, int[] y, short[] map, TerrainPatch.LayerType layertype)
         {
             const int MaxPatches = 10;
-            byte type = (byte)layertype;
+            byte type = (byte) layertype;
             if (m_scene.RegionInfo.RegionSizeX > Constants.RegionSize ||
                 m_scene.RegionInfo.RegionSizeY > Constants.RegionSize)
             {
@@ -1246,7 +1247,6 @@ namespace Universe.ClientStack
                 else
                     type += 2;
             }
-
             //Only send 10 at a time
             for (int i = 0; i < x.Length; i += MaxPatches)
             {
@@ -1262,13 +1262,9 @@ namespace Universe.ClientStack
                     Array.Copy(y, i, yTemp, 0, Size);
 
                     //Build the packet
-                    LayerDataPacket layerpack = UniverseTerrainCompressor.CreateLandPacket(
-                        map,
-                        xTemp,
-                        yTemp,
-                        type,
-                        m_scene.RegionInfo.RegionSizeX,
-                        m_scene.RegionInfo.RegionSizeY);
+                    LayerDataPacket layerpack = UniverseTerrainCompressor.CreateLandPacket(map, xTemp, yTemp, type,
+                                                                                         m_scene.RegionInfo.RegionSizeX,
+                                                                                         m_scene.RegionInfo.RegionSizeY);
 
                     layerpack.Header.Zerocoded = true;
                     layerpack.Header.Reliable = true;
@@ -1278,6 +1274,7 @@ namespace Universe.ClientStack
                         for (int xa = 0; xa < Size; xa++)
                         {
                             // Send oversize packet in individual patches
+                            //
                             SendLayerData(x[i + xa], y[i + xa], map);
                         }
                     }
@@ -1291,6 +1288,7 @@ namespace Universe.ClientStack
                     for (int xa = 0; xa < Size; xa++)
                     {
                         // Send oversize packet in individual patches
+                        //
                         SendLayerData(x[i + xa], y[i + xa], map);
                     }
                 }
@@ -1299,6 +1297,7 @@ namespace Universe.ClientStack
                     for (int xa = 0; xa < Size; xa++)
                     {
                         // Bad terrain, send individual chunks
+                        //
                         SendLayerData(x[i + xa], y[i + xa], map);
                     }
                 }
@@ -1329,29 +1328,29 @@ namespace Universe.ClientStack
         /// <param name="o"></param>
         void DoSendWindData(object o)
         {
-            Vector2[] windSpeeds = (Vector2[])o;
+            Vector2[] windSpeeds = (Vector2[]) o;
             TerrainPatch[] patches = new TerrainPatch[2];
-            patches[0] = new TerrainPatch { Data = new float[16 * 16] };
-            patches[1] = new TerrainPatch { Data = new float[16 * 16] };
+            patches[0] = new TerrainPatch {Data = new float[16*16]};
+            patches[1] = new TerrainPatch {Data = new float[16*16]};
 
-            for (int x = 0; x < 16 * 16; x++)
+
+//            for (int y = 0; y < 16*16; y+=16)
+//            {
+            for (int x = 0; x < 16*16; x++)
             {
                 patches[0].Data[x] = windSpeeds[x].X;
                 patches[1].Data[x] = windSpeeds[x].Y;
             }
-
-            byte type = (byte)TerrainPatch.LayerType.Wind;
+//            }
+            byte type = (byte) TerrainPatch.LayerType.Wind;
             if (m_scene.RegionInfo.RegionSizeX > Constants.RegionSize ||
                 m_scene.RegionInfo.RegionSizeY > Constants.RegionSize)
             {
                 type += 2;
             }
-            LayerDataPacket layerpack = UniverseTerrainCompressor.CreateLayerDataPacket(
-                patches,
-                type,
-                m_scene.RegionInfo.RegionSizeX,
-                m_scene.RegionInfo.RegionSizeY);
-
+            LayerDataPacket layerpack = UniverseTerrainCompressor.CreateLayerDataPacket(patches, type,
+                                                                                      m_scene.RegionInfo.RegionSizeX,
+                                                                                      m_scene.RegionInfo.RegionSizeY);
             layerpack.Header.Zerocoded = true;
             OutPacket(layerpack, ThrottleOutPacketType.Wind);
         }
@@ -1362,29 +1361,27 @@ namespace Universe.ClientStack
         /// <param name="o"></param>
         void DoSendCloudData(object o)
         {
-            float[] cloudCover = (float[])o;
+            float[] cloudCover = (float[]) o;
             TerrainPatch[] patches = new TerrainPatch[1];
-            patches[0] = new TerrainPatch { Data = new float[16 * 16] };
+            patches[0] = new TerrainPatch {Data = new float[16*16]};
+
+//            for (int y = 0; y < 16*16; y+=16)
             {
-                for (int x = 0; x < 16 * 16; x++)
+                for (int x = 0; x < 16*16; x++)
                 {
                     patches[0].Data[x] = cloudCover[x];
                 }
             }
 
-            byte type = (byte)TerrainPatch.LayerType.Cloud;
+            byte type = (byte) TerrainPatch.LayerType.Cloud;
             if (m_scene.RegionInfo.RegionSizeX > Constants.RegionSize ||
                 m_scene.RegionInfo.RegionSizeY > Constants.RegionSize)
             {
                 type += 2;
             }
-
-            LayerDataPacket layerpack = UniverseTerrainCompressor.CreateLayerDataPacket(
-                patches,
-                type,
-                m_scene.RegionInfo.RegionSizeX,
-                m_scene.RegionInfo.RegionSizeY);
-
+            LayerDataPacket layerpack = UniverseTerrainCompressor.CreateLayerDataPacket(patches, type,
+                                                                                      m_scene.RegionInfo.RegionSizeX,
+                                                                                      m_scene.RegionInfo.RegionSizeY);
             layerpack.Header.Zerocoded = true;
             OutPacket(layerpack, ThrottleOutPacketType.Cloud);
         }
@@ -1409,7 +1406,7 @@ namespace Universe.ClientStack
 
         internal void SendMapBlockSplit(List<MapBlockData> mapBlocks, uint flag)
         {
-            MapBlockReplyPacket mapReply = (MapBlockReplyPacket)PacketPool.Instance.GetPacket(PacketType.MapBlockReply);
+            MapBlockReplyPacket mapReply = (MapBlockReplyPacket) PacketPool.Instance.GetPacket(PacketType.MapBlockReply);
             // TODO: don't create new blocks if recycling an old packet
 
             MapBlockData[] mapBlocks2 = mapBlocks.ToArray();
@@ -1421,24 +1418,16 @@ namespace Universe.ClientStack
 
             for (int i = 0; i < mapBlocks2.Length; i++)
             {
-                mapReply.Data[i] = new MapBlockReplyPacket.DataBlock {
-                    MapImageID = mapBlocks2[i].MapImageID,
-                    X = mapBlocks2[i].X,
-                    Y = mapBlocks2[i].Y
-                };
-
-                mapReply.Size[i] = new MapBlockReplyPacket.SizeBlock {
-                    SizeX = mapBlocks2[i].SizeX,
-                    SizeY = mapBlocks2[i].SizeY
-                };
-
+                mapReply.Data[i] = new MapBlockReplyPacket.DataBlock
+                                       {MapImageID = mapBlocks2[i].MapImageID, X = mapBlocks2[i].X, Y = mapBlocks2[i].Y};
+                mapReply.Size[i] = new MapBlockReplyPacket.SizeBlock
+                                       {SizeX = mapBlocks2[i].SizeX, SizeY = mapBlocks2[i].SizeY};
                 mapReply.Data[i].WaterHeight = mapBlocks2[i].WaterHeight;
                 mapReply.Data[i].Name = Utils.StringToBytes(mapBlocks2[i].Name);
                 mapReply.Data[i].RegionFlags = mapBlocks2[i].RegionFlags;
                 mapReply.Data[i].Access = mapBlocks2[i].Access;
                 mapReply.Data[i].Agents = mapBlocks2[i].Agents;
             }
-
             OutPacket(mapReply, ThrottleOutPacketType.Land);
         }
 
@@ -1448,12 +1437,14 @@ namespace Universe.ClientStack
 
             const int maxsend = 10;
 
+            //int packets = Math.Ceiling(mapBlocks2.Length / maxsend);
+
             List<MapBlockData> sendingBlocks = new List<MapBlockData>();
 
             for (int i = 0; i < mapBlocks2.Length; i++)
             {
                 sendingBlocks.Add(mapBlocks2[i]);
-                if (((i + 1) == mapBlocks2.Length) || (((i + 1) % maxsend) == 0))
+                if (((i + 1) == mapBlocks2.Length) || (((i + 1)%maxsend) == 0))
                 {
                     SendMapBlockSplit(sendingBlocks, flag);
                     sendingBlocks = new List<MapBlockData>();
@@ -1463,7 +1454,7 @@ namespace Universe.ClientStack
 
         public void SendLocalTeleport(Vector3 position, Vector3 lookAt, uint flags)
         {
-            TeleportLocalPacket tpLocal = (TeleportLocalPacket)PacketPool.Instance.GetPacket(PacketType.TeleportLocal);
+            TeleportLocalPacket tpLocal = (TeleportLocalPacket) PacketPool.Instance.GetPacket(PacketType.TeleportLocal);
             tpLocal.Info.AgentID = AgentId;
             tpLocal.Info.TeleportFlags = flags;
             tpLocal.Info.LocationID = 2;
@@ -1474,27 +1465,33 @@ namespace Universe.ClientStack
             OutPacket(tpLocal, ThrottleOutPacketType.OutBand);
         }
 
-        public void SendRegionTeleport(ulong regionHandle, byte simAccess, IPEndPoint newRegionEndPoint, uint locationID, uint flags, string capsURL)
+        public void SendRegionTeleport(ulong regionHandle, byte simAccess, IPEndPoint newRegionEndPoint,
+                                       uint locationID,
+                                       uint flags, string capsURL)
         {
+            //TeleportFinishPacket teleport = (TeleportFinishPacket)PacketPool.Instance.GetPacket(PacketType.TeleportFinish);
+
             TeleportFinishPacket teleport = new TeleportFinishPacket
-            {
-                Info = {
-                    AgentID = AgentId,
-                    RegionHandle = regionHandle,
-                    SimAccess = simAccess,
-                    SeedCapability = Util.StringToBytes256(capsURL)
-                }
-            };
+                                                {
+                                                    Info =
+                                                        {
+                                                            AgentID = AgentId,
+                                                            RegionHandle = regionHandle,
+                                                            SimAccess = simAccess,
+                                                            SeedCapability = Util.StringToBytes256(capsURL)
+                                                        }
+                                                };
+
 
             IPAddress oIP = newRegionEndPoint.Address;
             byte[] byteIP = oIP.GetAddressBytes();
-            uint ip = (uint)byteIP[3] << 24;
-            ip += (uint)byteIP[2] << 16;
-            ip += (uint)byteIP[1] << 8;
+            uint ip = (uint) byteIP[3] << 24;
+            ip += (uint) byteIP[2] << 16;
+            ip += (uint) byteIP[1] << 8;
             ip += byteIP[0];
 
             teleport.Info.SimIP = ip;
-            teleport.Info.SimPort = (ushort)newRegionEndPoint.Port;
+            teleport.Info.SimPort = (ushort) newRegionEndPoint.Port;
             teleport.Info.LocationID = 4;
             teleport.Info.TeleportFlags = 1 << 4;
 
@@ -1507,7 +1504,8 @@ namespace Universe.ClientStack
         /// </summary>
         public void SendTeleportFailed(string reason)
         {
-            TeleportFailedPacket tpFailed = (TeleportFailedPacket)PacketPool.Instance.GetPacket(PacketType.TeleportFailed);
+            TeleportFailedPacket tpFailed =
+                (TeleportFailedPacket) PacketPool.Instance.GetPacket(PacketType.TeleportFailed);
             tpFailed.Info.AgentID = AgentId;
             tpFailed.Info.Reason = Util.StringToBytes256(reason);
             tpFailed.AlertInfo = new TeleportFailedPacket.AlertInfoBlock[0];
@@ -1520,7 +1518,8 @@ namespace Universe.ClientStack
         /// </summary>
         public void SendTeleportStart(uint flags)
         {
-            TeleportStartPacket tpStart = (TeleportStartPacket)PacketPool.Instance.GetPacket(PacketType.TeleportStart);
+            TeleportStartPacket tpStart = (TeleportStartPacket) PacketPool.Instance.GetPacket(PacketType.TeleportStart);
+            //TeleportStartPacket tpStart = new TeleportStartPacket();
             tpStart.Info.TeleportFlags = flags; //16; // Teleport via location
 
             // Hack to get this out immediately and skip throttles
@@ -1529,7 +1528,8 @@ namespace Universe.ClientStack
 
         public void SendTeleportProgress(uint flags, string message)
         {
-            TeleportProgressPacket tpProgress = (TeleportProgressPacket)PacketPool.Instance.GetPacket(PacketType.TeleportProgress);
+            TeleportProgressPacket tpProgress =
+                (TeleportProgressPacket) PacketPool.Instance.GetPacket(PacketType.TeleportProgress);
             tpProgress.AgentData.AgentID = AgentId;
             tpProgress.Info.TeleportFlags = flags;
             tpProgress.Info.Message = Util.StringToBytes256(message);
@@ -1540,7 +1540,8 @@ namespace Universe.ClientStack
 
         public void SendMoneyBalance(UUID transaction, bool success, byte[] description, int balance)
         {
-            MoneyBalanceReplyPacket money = (MoneyBalanceReplyPacket)PacketPool.Instance.GetPacket(PacketType.MoneyBalanceReply);
+            MoneyBalanceReplyPacket money =
+                (MoneyBalanceReplyPacket) PacketPool.Instance.GetPacket(PacketType.MoneyBalanceReply);
             money.MoneyData.AgentID = AgentId;
             money.MoneyData.TransactionID = transaction;
             money.MoneyData.TransactionSuccess = success;
@@ -1559,14 +1560,16 @@ namespace Universe.ClientStack
                 payPrice[4] == 0)
                 return;
 
-            PayPriceReplyPacket payPriceReply = (PayPriceReplyPacket)PacketPool.Instance.GetPacket(PacketType.PayPriceReply);
+            PayPriceReplyPacket payPriceReply =
+                (PayPriceReplyPacket) PacketPool.Instance.GetPacket(PacketType.PayPriceReply);
             payPriceReply.ObjectData.ObjectID = objectID;
             payPriceReply.ObjectData.DefaultPayPrice = payPrice[0];
+
             payPriceReply.ButtonData = new PayPriceReplyPacket.ButtonDataBlock[4];
-            payPriceReply.ButtonData[0] = new PayPriceReplyPacket.ButtonDataBlock { PayButton = payPrice[1] };
-            payPriceReply.ButtonData[1] = new PayPriceReplyPacket.ButtonDataBlock { PayButton = payPrice[2] };
-            payPriceReply.ButtonData[2] = new PayPriceReplyPacket.ButtonDataBlock { PayButton = payPrice[3] };
-            payPriceReply.ButtonData[3] = new PayPriceReplyPacket.ButtonDataBlock { PayButton = payPrice[4] };
+            payPriceReply.ButtonData[0] = new PayPriceReplyPacket.ButtonDataBlock {PayButton = payPrice[1]};
+            payPriceReply.ButtonData[1] = new PayPriceReplyPacket.ButtonDataBlock {PayButton = payPrice[2]};
+            payPriceReply.ButtonData[2] = new PayPriceReplyPacket.ButtonDataBlock {PayButton = payPrice[3]};
+            payPriceReply.ButtonData[3] = new PayPriceReplyPacket.ButtonDataBlock {PayButton = payPrice[4]};
 
             OutPacket(payPriceReply, ThrottleOutPacketType.AvatarInfo);
         }
@@ -1574,12 +1577,12 @@ namespace Universe.ClientStack
         public void SendPlacesQuery(ExtendedLandData[] LandData, UUID queryID, UUID transactionID)
         {
             PlacesReplyPacket PlacesReply = new PlacesReplyPacket();
-
+            
             PlacesReplyPacket.QueryDataBlock[] Query = new PlacesReplyPacket.QueryDataBlock[LandData.Length + 1];
-
+            
             // Since we don't have Membership we should send an empty QueryData block 
             // here to keep the viewer happy
-
+            
             PlacesReplyPacket.QueryDataBlock MembershipBlock = new PlacesReplyPacket.QueryDataBlock
             {
                 ActualArea = 0,
@@ -1587,51 +1590,58 @@ namespace Universe.ClientStack
                 Desc = Utils.StringToBytes(""),
                 Dwell = 0,
                 Flags = 0,
-                GlobalX = 0,
+                GlobalX= 0,
                 GlobalY = 0,
                 GlobalZ = 0,
                 Name = Utils.StringToBytes(""),
                 OwnerID = UUID.Zero,
                 Price = 0,
                 SimName = Utils.StringToBytes(""),
-                SnapshotID = UUID.Zero
+                SnapshotID = UUID.Zero 
             };
-
             Query[0] = MembershipBlock;
-
+            
             //Note: Nothing is ever done with this?????
             int totalarea = 0;
             List<string> RegionTypes = new List<string>();
             for (int i = 0; i < LandData.Length; i++)
             {
                 PlacesReplyPacket.QueryDataBlock QueryBlock = new PlacesReplyPacket.QueryDataBlock
-                {
-                    ActualArea = LandData[i].LandData.Area,
-                    BillableArea = LandData[i].LandData.Area,
-                    Desc = Utils.StringToBytes(LandData[i].LandData.Description),
-                    Dwell = LandData[i].LandData.Dwell,
-                    Flags = 0,
-                    GlobalX = LandData[i].GlobalPosX,
-                    GlobalY = LandData[i].GlobalPosY,
-                    GlobalZ = 0,
-                    Name = Utils.StringToBytes(LandData[i].LandData.Name),
-                    OwnerID = LandData[i].LandData.OwnerID,
-                    Price = LandData[i].LandData.SalePrice,
-                    SimName = Utils.StringToBytes(LandData[i].RegionName),
-                    SnapshotID = LandData[i].LandData.SnapshotID
-                };
-
-                Query[i + 1] = QueryBlock;
+                                                                  {
+                                                                      ActualArea = LandData[i].LandData.Area,
+                                                                      BillableArea = LandData[i].LandData.Area,
+                                                                      Desc =
+                                                                          Utils.StringToBytes(
+                                                                              LandData[i].LandData.Description),
+                                                                      Dwell = LandData[i].LandData.Dwell,
+                                                                      Flags = 0,
+                                                                      GlobalX = LandData[i].GlobalPosX,
+                                                                      GlobalY = LandData[i].GlobalPosY,
+                                                                      GlobalZ = 0,
+                                                                      Name =
+                                                                          Utils.StringToBytes(LandData[i].LandData.Name),
+                                                                      OwnerID = LandData[i].LandData.OwnerID,
+                                                                      Price = LandData[i].LandData.SalePrice,
+                                                                      SimName =
+                                                                          Utils.StringToBytes(LandData[i].RegionName),
+                                                                      SnapshotID = LandData[i].LandData.SnapshotID
+                                                                  };
+                Query[i+1] = QueryBlock;
                 totalarea += LandData[i].LandData.Area;
                 RegionTypes.Add(LandData[i].RegionType);
             }
-
             PlacesReply.QueryData = Query;
-            PlacesReply.AgentData = new PlacesReplyPacket.AgentDataBlock { AgentID = AgentId, QueryID = queryID };
+            PlacesReply.AgentData = new PlacesReplyPacket.AgentDataBlock {AgentID = AgentId, QueryID = queryID};
             PlacesReply.TransactionData.TransactionID = transactionID;
             try
             {
                 OutPacket(PlacesReply, ThrottleOutPacketType.AvatarInfo);
+                //Disabled for now... it doesn't seem to work right...
+                /*IEventQueueService eq = Scene.RequestModuleInterface<IEventQueueService>();
+                if (eq != null)
+                {
+                    eq.QueryReply(PlacesReply, AgentId, RegionTypes.ToArray(), Scene.RegionInfo.RegionHandle);
+                }*/
             }
             catch (Exception ex)
             {
@@ -1643,7 +1653,7 @@ namespace Universe.ClientStack
 
         public void SendStartPingCheck(byte seq)
         {
-            StartPingCheckPacket pc = (StartPingCheckPacket)PacketPool.Instance.GetPacket(PacketType.StartPingCheck);
+            StartPingCheckPacket pc = (StartPingCheckPacket) PacketPool.Instance.GetPacket(PacketType.StartPingCheck);
             pc.Header.Reliable = false;
 
             pc.PingID.PingID = seq;
@@ -1656,11 +1666,11 @@ namespace Universe.ClientStack
         public void SendKillObject(ulong regionHandle, IEntity[] entities)
         {
             if (entities.Length == 0)
-                return;
+                return; //........... why!
 
-            //MainConsole.Instance.DebugFormat("[Client]: Sending KillObjectPacket to {0} for {1} in {2}", Name, localID, regionHandle);
+//            MainConsole.Instance.DebugFormat("[CLIENT]: Sending KillObjectPacket to {0} for {1} in {2}", Name, localID, regionHandle);
 
-            KillObjectPacket kill = (KillObjectPacket)PacketPool.Instance.GetPacket(PacketType.KillObject);
+            KillObjectPacket kill = (KillObjectPacket) PacketPool.Instance.GetPacket(PacketType.KillObject);
             kill.ObjectData = new KillObjectPacket.ObjectDataBlock[entities.Length];
             int i = 0;
             bool brokenUpdate = false;
@@ -1673,11 +1683,19 @@ namespace Universe.ClientStack
                     continue;
                 }
 
-                KillObjectPacket.ObjectDataBlock block = new KillObjectPacket.ObjectDataBlock { ID = entity.LocalId };
+                /*if ((entity is SceneObjectPart &&
+                    ((SceneObjectPart)entity).IsAttachment) ||
+                    (entity is SceneObjectGroup &&
+                    ((SceneObjectGroup)entity).RootPart.IsAttachment))
+                {
+                    // Do nothing
+                }
+                else if(entity is SceneObjectPart)
+                    m_killRecord.Add(entity.LocalId);*/
+                KillObjectPacket.ObjectDataBlock block = new KillObjectPacket.ObjectDataBlock {ID = entity.LocalId};
                 kill.ObjectData[i] = block;
                 i++;
             }
-
             //If the # of entities is not correct, we have to rebuild the entire packet
             if (brokenUpdate)
             {
@@ -1690,7 +1708,6 @@ namespace Universe.ClientStack
                     bk[i] = block;
                     i++;
                 }
-
                 kill.ObjectData = bk;
             }
 
@@ -1703,16 +1720,17 @@ namespace Universe.ClientStack
         public void SendKillObject(ulong regionHandle, uint[] entities)
         {
             if (entities.Length == 0)
-                return;
+                return; //........... why!
 
-            //MainConsole.Instance.DebugFormat("[Client]: Sending KillObjectPacket to {0} for {1} in {2}", Name, localID, regionHandle);
+            //            MainConsole.Instance.DebugFormat("[CLIENT]: Sending KillObjectPacket to {0} for {1} in {2}", Name, localID, regionHandle);
 
-            KillObjectPacket kill = (KillObjectPacket)PacketPool.Instance.GetPacket(PacketType.KillObject);
+            KillObjectPacket kill = (KillObjectPacket) PacketPool.Instance.GetPacket(PacketType.KillObject);
             kill.ObjectData = new KillObjectPacket.ObjectDataBlock[entities.Length];
             int i = 0;
 
             foreach (
-                KillObjectPacket.ObjectDataBlock block in entities.Select(entity => new KillObjectPacket.ObjectDataBlock { ID = entity }))
+                KillObjectPacket.ObjectDataBlock block in
+                    entities.Select(entity => new KillObjectPacket.ObjectDataBlock {ID = entity}))
             {
                 kill.ObjectData[i] = block;
                 i++;
@@ -1736,7 +1754,8 @@ namespace Universe.ClientStack
         /// <param name="fetchFolders">Do we need to send folder information?</param>
         /// <param name="fetchItems">Do we need to send item information?</param>
         public void SendInventoryFolderDetails(UUID ownerID, UUID folderID, List<InventoryItemBase> items,
-                                               List<InventoryFolderBase> folders, int version, bool fetchFolders, bool fetchItems)
+                                               List<InventoryFolderBase> folders, int version,
+                                               bool fetchFolders, bool fetchItems)
         {
             // An inventory descendents packet consists of a single agent section and an inventory details
             // section for each inventory item.  The size of each inventory item is approximately 550 bytes.
@@ -1764,10 +1783,13 @@ namespace Universe.ClientStack
             InventoryDescendentsPacket currentPacket = null;
 
             // Handle empty folders
+            //
             if (totalItems == 0 && totalFolders == 0)
-                currentPacket = CreateInventoryDescendentsPacket(ownerID, folderID, version, items.Count + folders.Count, 0, 0);
+                currentPacket = CreateInventoryDescendentsPacket(ownerID, folderID, version, items.Count + folders.Count,
+                                                                 0, 0);
 
             // To preserve SL compatibility, we will NOT combine folders and items in one packet
+            //
             while (itemsSent < totalItems || foldersSent < totalFolders)
             {
                 if (currentPacket == null) // Start a new packet
@@ -1783,19 +1805,16 @@ namespace Universe.ClientStack
                             itemsToSend = MAX_ITEMS_PER_PACKET;
                     }
 
-                    currentPacket = CreateInventoryDescendentsPacket(
-                        ownerID,
-                        folderID,
-                        version,
-                        items.Count + folders.Count,
-                        foldersToSend,
-                        itemsToSend);
+                    currentPacket = CreateInventoryDescendentsPacket(ownerID, folderID, version,
+                                                                     items.Count + folders.Count, foldersToSend,
+                                                                     itemsToSend);
                 }
 
                 if (foldersToSend-- > 0)
-                    currentPacket.FolderData[foldersSent % MAX_FOLDERS_PER_PACKET] = CreateFolderDataBlock(folders[foldersSent++]);
+                    currentPacket.FolderData[foldersSent%MAX_FOLDERS_PER_PACKET] =
+                        CreateFolderDataBlock(folders[foldersSent++]);
                 else if (itemsToSend-- > 0)
-                    currentPacket.ItemData[itemsSent % MAX_ITEMS_PER_PACKET] = CreateItemDataBlock(items[itemsSent++]);
+                    currentPacket.ItemData[itemsSent%MAX_ITEMS_PER_PACKET] = CreateItemDataBlock(items[itemsSent++]);
                 else
                 {
                     OutPacket(currentPacket, ThrottleOutPacketType.Asset, false, null);
@@ -1810,12 +1829,12 @@ namespace Universe.ClientStack
         InventoryDescendentsPacket.FolderDataBlock CreateFolderDataBlock(InventoryFolderBase folder)
         {
             InventoryDescendentsPacket.FolderDataBlock newBlock = new InventoryDescendentsPacket.FolderDataBlock
-            {
-                FolderID = folder.ID,
-                Name = Util.StringToBytes256(folder.Name),
-                ParentID = folder.ParentID,
-                Type = (sbyte)folder.Type
-            };
+                                                                      {
+                                                                          FolderID = folder.ID,
+                                                                          Name = Util.StringToBytes256(folder.Name),
+                                                                          ParentID = folder.ParentID,
+                                                                          Type = (sbyte) folder.Type
+                                                                      };
 
             return newBlock;
         }
@@ -1823,46 +1842,42 @@ namespace Universe.ClientStack
         InventoryDescendentsPacket.ItemDataBlock CreateItemDataBlock(InventoryItemBase item)
         {
             InventoryDescendentsPacket.ItemDataBlock newBlock = new InventoryDescendentsPacket.ItemDataBlock
-            {
-                ItemID = item.ID,
-                AssetID = item.AssetID,
-                CreatorID = item.CreatorIdAsUuid,
-                BaseMask = item.BasePermissions,
-                Description = Util.StringToBytes256(item.Description),
-                EveryoneMask = item.EveryOnePermissions,
-                OwnerMask = item.CurrentPermissions,
-                FolderID = item.Folder,
-                InvType = (sbyte)item.InvType,
-                Name = Util.StringToBytes256(item.Name),
-                NextOwnerMask = item.NextPermissions,
-                OwnerID = item.Owner,
-                Type = Util.CheckMeshType((sbyte)item.AssetType),
-                GroupID = item.GroupID,
-                GroupOwned = item.GroupOwned,
-                GroupMask = item.GroupPermissions,
-                CreationDate = item.CreationDate,
-                SalePrice = item.SalePrice,
-                SaleType = item.SaleType,
-                Flags = item.Flags
-            };
+                                                                    {
+                                                                        ItemID = item.ID,
+                                                                        AssetID = item.AssetID,
+                                                                        CreatorID = item.CreatorIdAsUuid,
+                                                                        BaseMask = item.BasePermissions,
+                                                                        Description =
+                                                                            Util.StringToBytes256(item.Description),
+                                                                        EveryoneMask = item.EveryOnePermissions,
+                                                                        OwnerMask = item.CurrentPermissions,
+                                                                        FolderID = item.Folder,
+                                                                        InvType = (sbyte) item.InvType,
+                                                                        Name = Util.StringToBytes256(item.Name),
+                                                                        NextOwnerMask = item.NextPermissions,
+                                                                        OwnerID = item.Owner,
+                                                                        Type =
+                                                                            Util.CheckMeshType((sbyte) item.AssetType),
+                                                                        GroupID = item.GroupID,
+                                                                        GroupOwned = item.GroupOwned,
+                                                                        GroupMask = item.GroupPermissions,
+                                                                        CreationDate = item.CreationDate,
+                                                                        SalePrice = item.SalePrice,
+                                                                        SaleType = item.SaleType,
+                                                                        Flags = item.Flags
+                                                                    };
 
-            newBlock.CRC = Helpers.InventoryCRC(
-                newBlock.CreationDate,
-                newBlock.SaleType,
-                newBlock.InvType, 
-                newBlock.Type,
-                newBlock.AssetID,
-                newBlock.GroupID,
-                newBlock.SalePrice,
-                newBlock.OwnerID,
-                newBlock.CreatorID,
-                newBlock.ItemID,
-                newBlock.FolderID,
-                newBlock.EveryoneMask,
-                newBlock.Flags,
-                newBlock.OwnerMask,
-                newBlock.GroupMask,
-                newBlock.NextOwnerMask);
+
+            newBlock.CRC =
+                Helpers.InventoryCRC(newBlock.CreationDate, newBlock.SaleType,
+                                     newBlock.InvType, newBlock.Type,
+                                     newBlock.AssetID, newBlock.GroupID,
+                                     newBlock.SalePrice,
+                                     newBlock.OwnerID, newBlock.CreatorID,
+                                     newBlock.ItemID, newBlock.FolderID,
+                                     newBlock.EveryoneMask,
+                                     newBlock.Flags, newBlock.OwnerMask,
+                                     newBlock.GroupMask, newBlock.NextOwnerMask);
 
             return newBlock;
         }
@@ -1871,47 +1886,45 @@ namespace Universe.ClientStack
         {
             packet.FolderData = new InventoryDescendentsPacket.FolderDataBlock[1];
             packet.FolderData[0] = new InventoryDescendentsPacket.FolderDataBlock
-            {
-                FolderID = UUID.Zero,
-                ParentID = UUID.Zero,
-                Type = -1,
-                Name = new byte[0]
-            };
+                                       {FolderID = UUID.Zero, ParentID = UUID.Zero, Type = -1, Name = new byte[0]};
         }
 
         void AddNullItemBlockToDescendentsPacket(ref InventoryDescendentsPacket packet)
         {
             packet.ItemData = new InventoryDescendentsPacket.ItemDataBlock[1];
             packet.ItemData[0] = new InventoryDescendentsPacket.ItemDataBlock
-            {
-                ItemID = UUID.Zero,
-                AssetID = UUID.Zero,
-                CreatorID = UUID.Zero,
-                BaseMask = 0,
-                Description = new byte[0],
-                EveryoneMask = 0,
-                OwnerMask = 0,
-                FolderID = UUID.Zero,
-                InvType = 0,
-                Name = new byte[0],
-                NextOwnerMask = 0,
-                OwnerID = UUID.Zero,
-                Type = -1,
-                GroupID = UUID.Zero,
-                GroupOwned = false,
-                GroupMask = 0,
-                CreationDate = 0,
-                SalePrice = 0,
-                SaleType = 0,
-                Flags = 0
-            };
+                                     {
+                                         ItemID = UUID.Zero,
+                                         AssetID = UUID.Zero,
+                                         CreatorID = UUID.Zero,
+                                         BaseMask = 0,
+                                         Description = new byte[0],
+                                         EveryoneMask = 0,
+                                         OwnerMask = 0,
+                                         FolderID = UUID.Zero,
+                                         InvType = 0,
+                                         Name = new byte[0],
+                                         NextOwnerMask = 0,
+                                         OwnerID = UUID.Zero,
+                                         Type = -1,
+                                         GroupID = UUID.Zero,
+                                         GroupOwned = false,
+                                         GroupMask = 0,
+                                         CreationDate = 0,
+                                         SalePrice = 0,
+                                         SaleType = 0,
+                                         Flags = 0
+                                     };
+
 
             // No need to add CRC
         }
 
-        InventoryDescendentsPacket CreateInventoryDescendentsPacket(UUID ownerID, UUID folderID, int version, int descendents, int folders, int items)
+        InventoryDescendentsPacket CreateInventoryDescendentsPacket(UUID ownerID, UUID folderID, int version,
+                                                                            int descendents, int folders, int items)
         {
-            InventoryDescendentsPacket descend = (InventoryDescendentsPacket)PacketPool.Instance.GetPacket(PacketType.InventoryDescendents);
+            InventoryDescendentsPacket descend =
+                (InventoryDescendentsPacket) PacketPool.Instance.GetPacket(PacketType.InventoryDescendents);
             descend.Header.Zerocoded = true;
             descend.AgentData.AgentID = AgentId;
             descend.AgentData.OwnerID = ownerID;
@@ -1934,54 +1947,47 @@ namespace Universe.ClientStack
 
         public void SendInventoryItemDetails(UUID ownerID, InventoryItemBase item)
         {
-            const uint FULL_MASK_PERMISSIONS = (uint)PermissionMask.All;
+            const uint FULL_MASK_PERMISSIONS = (uint) PermissionMask.All;
 
-            FetchInventoryReplyPacket inventoryReply = (FetchInventoryReplyPacket)PacketPool.Instance.GetPacket(PacketType.FetchInventoryReply);
+            FetchInventoryReplyPacket inventoryReply =
+                (FetchInventoryReplyPacket) PacketPool.Instance.GetPacket(PacketType.FetchInventoryReply);
             // TODO: don't create new blocks if recycling an old packet
             inventoryReply.AgentData.AgentID = AgentId;
             inventoryReply.InventoryData = new FetchInventoryReplyPacket.InventoryDataBlock[1];
             inventoryReply.InventoryData[0] = new FetchInventoryReplyPacket.InventoryDataBlock
-            {
-                ItemID = item.ID,
-                AssetID = item.AssetID,
-                CreatorID = item.CreatorIdAsUuid,
-                BaseMask = item.BasePermissions,
-                CreationDate = item.CreationDate,
-                Description = Util.StringToBytes256(item.Description),
-                EveryoneMask = item.EveryOnePermissions,
-                FolderID = item.Folder,
-                InvType = (sbyte)item.InvType,
-                Name = Util.StringToBytes256(item.Name),
-                NextOwnerMask = item.NextPermissions,
-                OwnerID = item.Owner,
-                OwnerMask = item.CurrentPermissions,
-                Type = Util.CheckMeshType((sbyte)item.AssetType),
-                GroupID = item.GroupID,
-                GroupOwned = item.GroupOwned,
-                GroupMask = item.GroupPermissions,
-                Flags = item.Flags,
-                SalePrice = item.SalePrice,
-                SaleType = item.SaleType
-            };
+                                                  {
+                                                      ItemID = item.ID,
+                                                      AssetID = item.AssetID,
+                                                      CreatorID = item.CreatorIdAsUuid,
+                                                      BaseMask = item.BasePermissions,
+                                                      CreationDate = item.CreationDate,
+                                                      Description = Util.StringToBytes256(item.Description),
+                                                      EveryoneMask = item.EveryOnePermissions,
+                                                      FolderID = item.Folder,
+                                                      InvType = (sbyte) item.InvType,
+                                                      Name = Util.StringToBytes256(item.Name),
+                                                      NextOwnerMask = item.NextPermissions,
+                                                      OwnerID = item.Owner,
+                                                      OwnerMask = item.CurrentPermissions,
+                                                      Type = Util.CheckMeshType((sbyte) item.AssetType),
+                                                      GroupID = item.GroupID,
+                                                      GroupOwned = item.GroupOwned,
+                                                      GroupMask = item.GroupPermissions,
+                                                      Flags = item.Flags,
+                                                      SalePrice = item.SalePrice,
+                                                      SaleType = item.SaleType
+                                                  };
 
-            inventoryReply.InventoryData[0].CRC = Helpers.InventoryCRC(
-                1000,
-                0,
-                inventoryReply.InventoryData[0].InvType,
-                inventoryReply.InventoryData[0].Type,
-                inventoryReply.InventoryData[0].AssetID,
-                inventoryReply.InventoryData[0].GroupID,
-                100,
-                inventoryReply.InventoryData[0].OwnerID,
-                inventoryReply.InventoryData[0].CreatorID,
-                inventoryReply.InventoryData[0].ItemID,
-                inventoryReply.InventoryData[0].FolderID,
-                FULL_MASK_PERMISSIONS,
-                1,
-                FULL_MASK_PERMISSIONS,
-                FULL_MASK_PERMISSIONS,
-                FULL_MASK_PERMISSIONS);
 
+            inventoryReply.InventoryData[0].CRC =
+                Helpers.InventoryCRC(
+                    1000, 0, inventoryReply.InventoryData[0].InvType,
+                    inventoryReply.InventoryData[0].Type, inventoryReply.InventoryData[0].AssetID,
+                    inventoryReply.InventoryData[0].GroupID, 100,
+                    inventoryReply.InventoryData[0].OwnerID, inventoryReply.InventoryData[0].CreatorID,
+                    inventoryReply.InventoryData[0].ItemID, inventoryReply.InventoryData[0].FolderID,
+                    FULL_MASK_PERMISSIONS, 1, FULL_MASK_PERMISSIONS, FULL_MASK_PERMISSIONS,
+                    FULL_MASK_PERMISSIONS);
             inventoryReply.Header.Zerocoded = true;
             OutPacket(inventoryReply, ThrottleOutPacketType.Asset);
         }
@@ -2000,8 +2006,10 @@ namespace Universe.ClientStack
             {
                 // We'll end up with some unsent folder blocks if there were some empty folders at the end of the list
                 // Send these now
-                BulkUpdateInventoryPacket bulkUpdate = (BulkUpdateInventoryPacket)PacketPool.Instance.GetPacket(PacketType.BulkUpdateInventory);
+                BulkUpdateInventoryPacket bulkUpdate
+                    = (BulkUpdateInventoryPacket) PacketPool.Instance.GetPacket(PacketType.BulkUpdateInventory);
                 bulkUpdate.Header.Zerocoded = true;
+
                 bulkUpdate.AgentData.AgentID = AgentId;
                 bulkUpdate.AgentData.TransactionID = transactionId;
                 bulkUpdate.FolderData = folderDataBlocks.ToArray();
@@ -2020,7 +2028,8 @@ namespace Universe.ClientStack
         /// <param name="folderDataBlocks"></param>
         /// <param name="transactionId"></param>
         void SendBulkUpdateInventoryFolderRecursive(
-            InventoryFolderBase folder, ref List<BulkUpdateInventoryPacket.FolderDataBlock> folderDataBlocks, UUID transactionId)
+            InventoryFolderBase folder, ref List<BulkUpdateInventoryPacket.FolderDataBlock> folderDataBlocks,
+            UUID transactionId)
         {
             folderDataBlocks.Add(GenerateBulkUpdateFolderDataBlock(folder));
 
@@ -2031,12 +2040,14 @@ namespace Universe.ClientStack
             // to be in its own bulk update packet.  Also, we can only fit 5 items in a packet (at least this was the limit
             // being used on the Linden grid at 20081203).
             InventoryCollection contents = invService.GetFolderContent(AgentId, folder.ID);
-
+            // folder.RequestListOfItems();
             List<InventoryItemBase> items = contents.Items;
             while (items.Count > 0)
             {
-                BulkUpdateInventoryPacket bulkUpdate = (BulkUpdateInventoryPacket)PacketPool.Instance.GetPacket(PacketType.BulkUpdateInventory);
+                BulkUpdateInventoryPacket bulkUpdate
+                    = (BulkUpdateInventoryPacket) PacketPool.Instance.GetPacket(PacketType.BulkUpdateInventory);
                 bulkUpdate.Header.Zerocoded = true;
+
                 bulkUpdate.AgentData.AgentID = AgentId;
                 bulkUpdate.AgentData.TransactionID = transactionId;
                 bulkUpdate.FolderData = folderDataBlocks.ToArray();
@@ -2077,12 +2088,13 @@ namespace Universe.ClientStack
         BulkUpdateInventoryPacket.FolderDataBlock GenerateBulkUpdateFolderDataBlock(InventoryFolderBase folder)
         {
             BulkUpdateInventoryPacket.FolderDataBlock folderBlock = new BulkUpdateInventoryPacket.FolderDataBlock
-            {
-                FolderID = folder.ID,
-                ParentID = folder.ParentID,
-                Type = -1,
-                Name = Util.StringToBytes256(folder.Name)
-            };
+                                                                        {
+                                                                            FolderID = folder.ID,
+                                                                            ParentID = folder.ParentID,
+                                                                            Type = -1,
+                                                                            Name = Util.StringToBytes256(folder.Name)
+                                                                        };
+
 
             return folderBlock;
         }
@@ -2095,106 +2107,93 @@ namespace Universe.ClientStack
         BulkUpdateInventoryPacket.ItemDataBlock GenerateBulkUpdateItemDataBlock(InventoryItemBase item)
         {
             BulkUpdateInventoryPacket.ItemDataBlock itemBlock = new BulkUpdateInventoryPacket.ItemDataBlock
-            {
-                ItemID = item.ID,
-                AssetID = item.AssetID,
-                CreatorID = item.CreatorIdAsUuid,
-                BaseMask = item.BasePermissions,
-                Description = Util.StringToBytes256(item.Description),
-                EveryoneMask = item.EveryOnePermissions,
-                FolderID = item.Folder,
-                InvType = (sbyte)item.InvType,
-                Name = Util.StringToBytes256(item.Name),
-                NextOwnerMask = item.NextPermissions,
-                OwnerID = item.Owner,
-                OwnerMask = item.CurrentPermissions,
-                Type = Util.CheckMeshType((sbyte)item.AssetType),
-                GroupID = item.GroupID,
-                GroupOwned = item.GroupOwned,
-                GroupMask = item.GroupPermissions,
-                Flags = item.Flags,
-                SalePrice = item.SalePrice,
-                SaleType = item.SaleType,
-                CreationDate = item.CreationDate
-            };
+                                                                    {
+                                                                        ItemID = item.ID,
+                                                                        AssetID = item.AssetID,
+                                                                        CreatorID = item.CreatorIdAsUuid,
+                                                                        BaseMask = item.BasePermissions,
+                                                                        Description =
+                                                                            Util.StringToBytes256(item.Description),
+                                                                        EveryoneMask = item.EveryOnePermissions,
+                                                                        FolderID = item.Folder,
+                                                                        InvType = (sbyte) item.InvType,
+                                                                        Name = Util.StringToBytes256(item.Name),
+                                                                        NextOwnerMask = item.NextPermissions,
+                                                                        OwnerID = item.Owner,
+                                                                        OwnerMask = item.CurrentPermissions,
+                                                                        Type =
+                                                                            Util.CheckMeshType((sbyte) item.AssetType),
+                                                                        GroupID = item.GroupID,
+                                                                        GroupOwned = item.GroupOwned,
+                                                                        GroupMask = item.GroupPermissions,
+                                                                        Flags = item.Flags,
+                                                                        SalePrice = item.SalePrice,
+                                                                        SaleType = item.SaleType,
+                                                                        CreationDate = item.CreationDate
+                                                                    };
 
-            itemBlock.CRC = Helpers.InventoryCRC(
-                1000,
-                0,
-                itemBlock.InvType,
-                itemBlock.Type,
-                itemBlock.AssetID,
-                itemBlock.GroupID,
-                100,
-                itemBlock.OwnerID,
-                itemBlock.CreatorID,
-                itemBlock.ItemID,
-                itemBlock.FolderID,
-                (uint)PermissionMask.All,
-                1,
-                (uint)PermissionMask.All,
-                (uint)PermissionMask.All,
-                (uint)PermissionMask.All);
+
+            itemBlock.CRC =
+                Helpers.InventoryCRC(
+                    1000, 0, itemBlock.InvType,
+                    itemBlock.Type, itemBlock.AssetID,
+                    itemBlock.GroupID, 100,
+                    itemBlock.OwnerID, itemBlock.CreatorID,
+                    itemBlock.ItemID, itemBlock.FolderID,
+                    (uint) PermissionMask.All, 1, (uint) PermissionMask.All, (uint) PermissionMask.All,
+                    (uint) PermissionMask.All);
 
             return itemBlock;
         }
 
         public void SendBulkUpdateInventory(InventoryItemBase item)
         {
-            const uint FULL_MASK_PERMISSIONS = (uint)PermissionMask.All;
+            const uint FULL_MASK_PERMISSIONS = (uint) PermissionMask.All;
 
-            BulkUpdateInventoryPacket bulkUpdate = (BulkUpdateInventoryPacket)PacketPool.Instance.GetPacket(PacketType.BulkUpdateInventory);
+            BulkUpdateInventoryPacket bulkUpdate
+                = (BulkUpdateInventoryPacket) PacketPool.Instance.GetPacket(PacketType.BulkUpdateInventory);
 
             bulkUpdate.AgentData.AgentID = AgentId;
             bulkUpdate.AgentData.TransactionID = UUID.Random();
 
             bulkUpdate.FolderData = new BulkUpdateInventoryPacket.FolderDataBlock[1];
             bulkUpdate.FolderData[0] = new BulkUpdateInventoryPacket.FolderDataBlock
-            { FolderID = UUID.Zero, ParentID = UUID.Zero, Type = -1, Name = new byte[0] };
+                                           {FolderID = UUID.Zero, ParentID = UUID.Zero, Type = -1, Name = new byte[0]};
 
             bulkUpdate.ItemData = new BulkUpdateInventoryPacket.ItemDataBlock[1];
             bulkUpdate.ItemData[0] = new BulkUpdateInventoryPacket.ItemDataBlock
-            {
-                ItemID = item.ID,
-                AssetID = item.AssetID,
-                CreatorID = item.CreatorIdAsUuid,
-                BaseMask = item.BasePermissions,
-                CreationDate = item.CreationDate,
-                Description = Util.StringToBytes256(item.Description),
-                EveryoneMask = item.EveryOnePermissions,
-                FolderID = item.Folder,
-                InvType = (sbyte)item.InvType,
-                Name = Util.StringToBytes256(item.Name),
-                NextOwnerMask = item.NextPermissions,
-                OwnerID = item.Owner,
-                OwnerMask = item.CurrentPermissions,
-                Type = Util.CheckMeshType((sbyte)item.AssetType),
-                GroupID = item.GroupID,
-                GroupOwned = item.GroupOwned,
-                GroupMask = item.GroupPermissions,
-                Flags = item.Flags,
-                SalePrice = item.SalePrice,
-                SaleType = item.SaleType
-            };
+                                         {
+                                             ItemID = item.ID,
+                                             AssetID = item.AssetID,
+                                             CreatorID = item.CreatorIdAsUuid,
+                                             BaseMask = item.BasePermissions,
+                                             CreationDate = item.CreationDate,
+                                             Description = Util.StringToBytes256(item.Description),
+                                             EveryoneMask = item.EveryOnePermissions,
+                                             FolderID = item.Folder,
+                                             InvType = (sbyte) item.InvType,
+                                             Name = Util.StringToBytes256(item.Name),
+                                             NextOwnerMask = item.NextPermissions,
+                                             OwnerID = item.Owner,
+                                             OwnerMask = item.CurrentPermissions,
+                                             Type = Util.CheckMeshType((sbyte) item.AssetType),
+                                             GroupID = item.GroupID,
+                                             GroupOwned = item.GroupOwned,
+                                             GroupMask = item.GroupPermissions,
+                                             Flags = item.Flags,
+                                             SalePrice = item.SalePrice,
+                                             SaleType = item.SaleType
+                                         };
 
-            bulkUpdate.ItemData[0].CRC = Helpers.InventoryCRC(
-                1000, 
-                0, 
-                bulkUpdate.ItemData[0].InvType,
-                bulkUpdate.ItemData[0].Type,
-                bulkUpdate.ItemData[0].AssetID,
-                bulkUpdate.ItemData[0].GroupID,
-                100,
-                bulkUpdate.ItemData[0].OwnerID,
-                bulkUpdate.ItemData[0].CreatorID,
-                bulkUpdate.ItemData[0].ItemID,
-                bulkUpdate.ItemData[0].FolderID,
-                FULL_MASK_PERMISSIONS, 
-                1,
-                FULL_MASK_PERMISSIONS,
-                FULL_MASK_PERMISSIONS,
-                FULL_MASK_PERMISSIONS);
 
+            bulkUpdate.ItemData[0].CRC =
+                Helpers.InventoryCRC(1000, 0, bulkUpdate.ItemData[0].InvType,
+                                     bulkUpdate.ItemData[0].Type, bulkUpdate.ItemData[0].AssetID,
+                                     bulkUpdate.ItemData[0].GroupID, 100,
+                                     bulkUpdate.ItemData[0].OwnerID, bulkUpdate.ItemData[0].CreatorID,
+                                     bulkUpdate.ItemData[0].ItemID, bulkUpdate.ItemData[0].FolderID,
+                                     FULL_MASK_PERMISSIONS, 1, FULL_MASK_PERMISSIONS, FULL_MASK_PERMISSIONS,
+                                     FULL_MASK_PERMISSIONS);
             bulkUpdate.Header.Zerocoded = true;
             OutPacket(bulkUpdate, ThrottleOutPacketType.Asset);
         }
@@ -2202,82 +2201,78 @@ namespace Universe.ClientStack
         /// <see>IClientAPI.SendInventoryItemCreateUpdate(InventoryItemBase)</see>
         public void SendInventoryItemCreateUpdate(InventoryItemBase Item, uint callbackId)
         {
-            const uint FULL_MASK_PERMISSIONS = (uint)PermissionMask.All;
+            const uint FULL_MASK_PERMISSIONS = (uint) PermissionMask.All;
 
-            UpdateCreateInventoryItemPacket InventoryReply = (UpdateCreateInventoryItemPacket)PacketPool.Instance.GetPacket(PacketType.UpdateCreateInventoryItem);
+            UpdateCreateInventoryItemPacket InventoryReply
+                = (UpdateCreateInventoryItemPacket) PacketPool.Instance.GetPacket(
+                    PacketType.UpdateCreateInventoryItem);
 
             // TODO: don't create new blocks if recycling an old packet
             InventoryReply.AgentData.AgentID = AgentId;
             InventoryReply.AgentData.SimApproved = true;
             InventoryReply.InventoryData = new UpdateCreateInventoryItemPacket.InventoryDataBlock[1];
             InventoryReply.InventoryData[0] = new UpdateCreateInventoryItemPacket.InventoryDataBlock
-            {
-                ItemID = Item.ID,
-                AssetID = Item.AssetID,
-                CreatorID = Item.CreatorIdAsUuid,
-                BaseMask = Item.BasePermissions,
-                Description = Util.StringToBytes256(Item.Description),
-                EveryoneMask = Item.EveryOnePermissions,
-                FolderID = Item.Folder,
-                InvType = (sbyte)Item.InvType,
-                Name = Util.StringToBytes256(Item.Name),
-                NextOwnerMask = Item.NextPermissions,
-                OwnerID = Item.Owner,
-                OwnerMask = Item.CurrentPermissions,
-                Type = Util.CheckMeshType((sbyte)Item.AssetType),
-                CallbackID = callbackId,
-                GroupID = Item.GroupID,
-                GroupOwned = Item.GroupOwned,
-                GroupMask = Item.GroupPermissions,
-                Flags = Item.Flags,
-                SalePrice = Item.SalePrice,
-                SaleType = Item.SaleType,
-                CreationDate = Item.CreationDate
-            };
+                                                  {
+                                                      ItemID = Item.ID,
+                                                      AssetID = Item.AssetID,
+                                                      CreatorID = Item.CreatorIdAsUuid,
+                                                      BaseMask = Item.BasePermissions,
+                                                      Description = Util.StringToBytes256(Item.Description),
+                                                      EveryoneMask = Item.EveryOnePermissions,
+                                                      FolderID = Item.Folder,
+                                                      InvType = (sbyte) Item.InvType,
+                                                      Name = Util.StringToBytes256(Item.Name),
+                                                      NextOwnerMask = Item.NextPermissions,
+                                                      OwnerID = Item.Owner,
+                                                      OwnerMask = Item.CurrentPermissions,
+                                                      Type = Util.CheckMeshType((sbyte) Item.AssetType),
+                                                      CallbackID = callbackId,
+                                                      GroupID = Item.GroupID,
+                                                      GroupOwned = Item.GroupOwned,
+                                                      GroupMask = Item.GroupPermissions,
+                                                      Flags = Item.Flags,
+                                                      SalePrice = Item.SalePrice,
+                                                      SaleType = Item.SaleType,
+                                                      CreationDate = Item.CreationDate
+                                                  };
 
-            InventoryReply.InventoryData[0].CRC = Helpers.InventoryCRC(
-                1000, 0, InventoryReply.InventoryData[0].InvType,
-                InventoryReply.InventoryData[0].Type,
-                InventoryReply.InventoryData[0].AssetID,
-                InventoryReply.InventoryData[0].GroupID,
-                100,
-                InventoryReply.InventoryData[0].OwnerID,
-                InventoryReply.InventoryData[0].CreatorID,
-                InventoryReply.InventoryData[0].ItemID,
-                InventoryReply.InventoryData[0].FolderID,
-                FULL_MASK_PERMISSIONS,
-                1,
-                FULL_MASK_PERMISSIONS,
-                FULL_MASK_PERMISSIONS,
-                FULL_MASK_PERMISSIONS);
 
+            InventoryReply.InventoryData[0].CRC =
+                Helpers.InventoryCRC(1000, 0, InventoryReply.InventoryData[0].InvType,
+                                     InventoryReply.InventoryData[0].Type, InventoryReply.InventoryData[0].AssetID,
+                                     InventoryReply.InventoryData[0].GroupID, 100,
+                                     InventoryReply.InventoryData[0].OwnerID, InventoryReply.InventoryData[0].CreatorID,
+                                     InventoryReply.InventoryData[0].ItemID, InventoryReply.InventoryData[0].FolderID,
+                                     FULL_MASK_PERMISSIONS, 1, FULL_MASK_PERMISSIONS, FULL_MASK_PERMISSIONS,
+                                     FULL_MASK_PERMISSIONS);
             InventoryReply.Header.Zerocoded = true;
             OutPacket(InventoryReply, ThrottleOutPacketType.Asset);
         }
 
         public void SendRemoveInventoryItem(UUID itemID)
         {
-            RemoveInventoryItemPacket remove = (RemoveInventoryItemPacket)PacketPool.Instance.GetPacket(PacketType.RemoveInventoryItem);
+            RemoveInventoryItemPacket remove =
+                (RemoveInventoryItemPacket) PacketPool.Instance.GetPacket(PacketType.RemoveInventoryItem);
             // TODO: don't create new blocks if recycling an old packet
             remove.AgentData.AgentID = AgentId;
             remove.AgentData.SessionID = m_sessionId;
             remove.InventoryData = new RemoveInventoryItemPacket.InventoryDataBlock[1];
-            remove.InventoryData[0] = new RemoveInventoryItemPacket.InventoryDataBlock { ItemID = itemID };
+            remove.InventoryData[0] = new RemoveInventoryItemPacket.InventoryDataBlock {ItemID = itemID};
             remove.Header.Zerocoded = true;
             OutPacket(remove, ThrottleOutPacketType.Asset);
         }
 
         public void SendTakeControls(int controls, bool passToAgent, bool TakeControls)
         {
-            ScriptControlChangePacket scriptcontrol = (ScriptControlChangePacket)PacketPool.Instance.GetPacket(PacketType.ScriptControlChange);
+            ScriptControlChangePacket scriptcontrol =
+                (ScriptControlChangePacket) PacketPool.Instance.GetPacket(PacketType.ScriptControlChange);
             ScriptControlChangePacket.DataBlock[] data = new ScriptControlChangePacket.DataBlock[1];
             ScriptControlChangePacket.DataBlock ddata = new ScriptControlChangePacket.DataBlock
-            {
-                Controls = (uint)controls,
-                PassToAgent = passToAgent,
-                TakeControls = TakeControls
-            };
-
+                                                            {
+                                                                Controls = (uint) controls,
+                                                                PassToAgent = passToAgent,
+                                                                TakeControls = TakeControls
+                                                            };
             data[0] = ddata;
             scriptcontrol.Data = data;
             OutPacket(scriptcontrol, ThrottleOutPacketType.AvatarInfo);
@@ -2285,7 +2280,8 @@ namespace Universe.ClientStack
 
         public void SendTaskInventory(UUID taskID, short serial, byte[] fileName)
         {
-            ReplyTaskInventoryPacket replytask = (ReplyTaskInventoryPacket)PacketPool.Instance.GetPacket(PacketType.ReplyTaskInventory);
+            ReplyTaskInventoryPacket replytask =
+                (ReplyTaskInventoryPacket) PacketPool.Instance.GetPacket(PacketType.ReplyTaskInventory);
             replytask.InventoryData.TaskID = taskID;
             replytask.InventoryData.Serial = serial;
             replytask.InventoryData.Filename = fileName;
@@ -2294,7 +2290,8 @@ namespace Universe.ClientStack
 
         public void SendXferPacket(ulong xferID, uint packet, byte[] data)
         {
-            SendXferPacketPacket sendXfer = (SendXferPacketPacket)PacketPool.Instance.GetPacket(PacketType.SendXferPacket);
+            SendXferPacketPacket sendXfer =
+                (SendXferPacketPacket) PacketPool.Instance.GetPacket(PacketType.SendXferPacket);
             sendXfer.XferID.ID = xferID;
             sendXfer.XferID.Packet = packet;
             sendXfer.DataPacket.Data = data;
@@ -2309,7 +2306,7 @@ namespace Universe.ClientStack
                                     int PricePublicObjectDelete, int PriceRentLight, int PriceUpload,
                                     int TeleportMinPrice, float TeleportPriceExponent)
         {
-            EconomyDataPacket economyData = (EconomyDataPacket)PacketPool.Instance.GetPacket(PacketType.EconomyData);
+            EconomyDataPacket economyData = (EconomyDataPacket) PacketPool.Instance.GetPacket(PacketType.EconomyData);
             economyData.Info.EnergyEfficiency = EnergyEfficiency;
             economyData.Info.ObjectCapacity = ObjectCapacity;
             economyData.Info.ObjectCount = ObjectCount;
@@ -2335,23 +2332,24 @@ namespace Universe.ClientStack
         {
             //construct the AvatarPickerReply packet.
             AvatarPickerReplyPacket replyPacket = new AvatarPickerReplyPacket
-            {
-                AgentData = {
-                    AgentID = AgentData.AgentID,
-                    QueryID = AgentData.QueryID
-                },
-                Data = Data.Select(arg => new AvatarPickerReplyPacket.DataBlock
-                {
-                    AvatarID = arg.AvatarID,
-                    FirstName = arg.FirstName,
-                    LastName = arg.LastName
-                }).ToArray()
-            };
+                                                      {
+                                                          AgentData =
+                                                              {AgentID = AgentData.AgentID, QueryID = AgentData.QueryID},
+                                                          Data =
+                                                              Data.Select(arg => new AvatarPickerReplyPacket.DataBlock
+                                                                                     {
+                                                                                         AvatarID = arg.AvatarID,
+                                                                                         FirstName = arg.FirstName,
+                                                                                         LastName = arg.LastName
+                                                                                     }).ToArray()
+                                                      };
 
+            //int i = 0;
             OutPacket(replyPacket, ThrottleOutPacketType.AvatarInfo);
         }
 
-        public void SendAgentDataUpdate(UUID agentid, UUID activegroupid, string name, ulong grouppowers, string groupname, string grouptitle)
+        public void SendAgentDataUpdate(UUID agentid, UUID activegroupid, string name,
+                                        ulong grouppowers, string groupname, string grouptitle)
         {
             if (agentid == this.AgentId)
             {
@@ -2360,7 +2358,8 @@ namespace Universe.ClientStack
                 m_activeGroupPowers = grouppowers;
             }
 
-            AgentDataUpdatePacket sendAgentDataUpdate = (AgentDataUpdatePacket)PacketPool.Instance.GetPacket(PacketType.AgentDataUpdate);
+            AgentDataUpdatePacket sendAgentDataUpdate =
+                (AgentDataUpdatePacket) PacketPool.Instance.GetPacket(PacketType.AgentDataUpdate);
             sendAgentDataUpdate.AgentData.ActiveGroupID = activegroupid;
             sendAgentDataUpdate.AgentData.AgentID = agentid;
             string[] spl = name.Split(' ');
@@ -2380,8 +2379,8 @@ namespace Universe.ClientStack
         /// <param name="message"></param>
         public void SendAlertMessage(string message)
         {
-            AlertMessagePacket alertPack = (AlertMessagePacket)PacketPool.Instance.GetPacket(PacketType.AlertMessage);
-            alertPack.AlertData = new AlertMessagePacket.AlertDataBlock { Message = Util.StringToBytes256(message) };
+            AlertMessagePacket alertPack = (AlertMessagePacket) PacketPool.Instance.GetPacket(PacketType.AlertMessage);
+            alertPack.AlertData = new AlertMessagePacket.AlertDataBlock {Message = Util.StringToBytes256(message)};
             alertPack.AlertInfo = new AlertMessagePacket.AlertInfoBlock[0];
             OutPacket(alertPack, ThrottleOutPacketType.AvatarInfo);
         }
@@ -2397,16 +2396,18 @@ namespace Universe.ClientStack
         /// </param>
         public void SendAgentAlertMessage(string message, bool modal)
         {
-            AgentAlertMessagePacket alertPack = (AgentAlertMessagePacket)PacketPool.Instance.GetPacket(PacketType.AgentAlertMessage);
+            AgentAlertMessagePacket alertPack =
+                (AgentAlertMessagePacket) PacketPool.Instance.GetPacket(PacketType.AgentAlertMessage);
             alertPack.AgentData.AgentID = AgentId;
             alertPack.AlertData.Message = Util.StringToBytes256(message);
             alertPack.AlertData.Modal = modal;
             OutPacket(alertPack, ThrottleOutPacketType.AvatarInfo);
         }
 
-        public void SendLoadURL(string objectname, UUID objectID, UUID ownerID, bool groupOwned, string message, string url)
+        public void SendLoadURL(string objectname, UUID objectID, UUID ownerID, bool groupOwned, string message,
+                                string url)
         {
-            LoadURLPacket loadURL = (LoadURLPacket)PacketPool.Instance.GetPacket(PacketType.LoadURL);
+            LoadURLPacket loadURL = (LoadURLPacket) PacketPool.Instance.GetPacket(PacketType.LoadURL);
             loadURL.Data.ObjectName = Util.StringToBytes256(objectname);
             loadURL.Data.ObjectID = objectID;
             loadURL.Data.OwnerID = ownerID;
@@ -2416,9 +2417,10 @@ namespace Universe.ClientStack
             OutPacket(loadURL, ThrottleOutPacketType.AvatarInfo);
         }
 
-        public void SendDialog(string objectname, UUID objectID, UUID ownerID, string ownerFirstName, string ownerLastName, string msg, UUID textureID, int ch, string[] buttonlabels)
+        public void SendDialog(string objectname, UUID objectID, UUID ownerID, string ownerFirstName,
+                               string ownerLastName, string msg, UUID textureID, int ch, string[] buttonlabels)
         {
-            ScriptDialogPacket dialog = (ScriptDialogPacket)PacketPool.Instance.GetPacket(PacketType.ScriptDialog);
+            ScriptDialogPacket dialog = (ScriptDialogPacket) PacketPool.Instance.GetPacket(PacketType.ScriptDialog);
             dialog.Data.ObjectID = objectID;
             dialog.Data.ObjectName = Util.StringToBytes256(objectname);
             // this is the username of the *owner*
@@ -2430,29 +2432,28 @@ namespace Universe.ClientStack
             ScriptDialogPacket.ButtonsBlock[] buttons = new ScriptDialogPacket.ButtonsBlock[buttonlabels.Length];
             for (int i = 0; i < buttonlabels.Length; i++)
             {
-                buttons[i] = new ScriptDialogPacket.ButtonsBlock { ButtonLabel = Util.StringToBytes256(buttonlabels[i]) };
+                buttons[i] = new ScriptDialogPacket.ButtonsBlock {ButtonLabel = Util.StringToBytes256(buttonlabels[i])};
             }
-
             dialog.Buttons = buttons;
             dialog.OwnerData = new ScriptDialogPacket.OwnerDataBlock[1];
-            dialog.OwnerData[0] = new ScriptDialogPacket.OwnerDataBlock { OwnerID = ownerID };
+            dialog.OwnerData[0] = new ScriptDialogPacket.OwnerDataBlock {OwnerID = ownerID};
             OutPacket(dialog, ThrottleOutPacketType.AvatarInfo);
         }
 
         public void SendPreLoadSound(UUID objectID, UUID ownerID, UUID soundID)
         {
-            PreloadSoundPacket preSound = (PreloadSoundPacket)PacketPool.Instance.GetPacket(PacketType.PreloadSound);
+            PreloadSoundPacket preSound = (PreloadSoundPacket) PacketPool.Instance.GetPacket(PacketType.PreloadSound);
             // TODO: don't create new blocks if recycling an old packet
             preSound.DataBlock = new PreloadSoundPacket.DataBlockBlock[1];
             preSound.DataBlock[0] = new PreloadSoundPacket.DataBlockBlock
-            { ObjectID = objectID, OwnerID = ownerID, SoundID = soundID };
+                                        {ObjectID = objectID, OwnerID = ownerID, SoundID = soundID};
             preSound.Header.Zerocoded = true;
             OutPacket(preSound, ThrottleOutPacketType.Asset);
         }
 
         public void SendPlayAttachedSound(UUID soundID, UUID objectID, UUID ownerID, float gain, byte flags)
         {
-            AttachedSoundPacket sound = (AttachedSoundPacket)PacketPool.Instance.GetPacket(PacketType.AttachedSound);
+            AttachedSoundPacket sound = (AttachedSoundPacket) PacketPool.Instance.GetPacket(PacketType.AttachedSound);
             sound.DataBlock.SoundID = soundID;
             sound.DataBlock.ObjectID = objectID;
             sound.DataBlock.OwnerID = ownerID;
@@ -2462,9 +2463,10 @@ namespace Universe.ClientStack
             OutPacket(sound, ThrottleOutPacketType.Asset);
         }
 
-        public void SendTriggeredSound(UUID soundID, UUID ownerID, UUID objectID, UUID parentID, ulong handle, Vector3 position, float gain)
+        public void SendTriggeredSound(UUID soundID, UUID ownerID, UUID objectID, UUID parentID, ulong handle,
+                                       Vector3 position, float gain)
         {
-            SoundTriggerPacket sound = (SoundTriggerPacket)PacketPool.Instance.GetPacket(PacketType.SoundTrigger);
+            SoundTriggerPacket sound = (SoundTriggerPacket) PacketPool.Instance.GetPacket(PacketType.SoundTrigger);
             sound.SoundData.SoundID = soundID;
             sound.SoundData.OwnerID = ownerID;
             sound.SoundData.ObjectID = objectID;
@@ -2478,14 +2480,16 @@ namespace Universe.ClientStack
 
         public void SendAttachedSoundGainChange(UUID objectID, float gain)
         {
-            AttachedSoundGainChangePacket sound = (AttachedSoundGainChangePacket)PacketPool.Instance.GetPacket(PacketType.AttachedSoundGainChange);
+            AttachedSoundGainChangePacket sound =
+                (AttachedSoundGainChangePacket) PacketPool.Instance.GetPacket(PacketType.AttachedSoundGainChange);
             sound.DataBlock.ObjectID = objectID;
             sound.DataBlock.Gain = gain;
 
             OutPacket(sound, ThrottleOutPacketType.Asset);
         }
 
-        public void SendSunPos(Vector3 Position, Vector3 Velocity, ulong currentTime, uint secondsPerSunCycle, uint secondsPerYear, float orbitalPosition)
+        public void SendSunPos(Vector3 Position, Vector3 Velocity, ulong currentTime, uint secondsPerSunCycle,
+                               uint secondsPerYear, float orbitalPosition)
         {
             // Viewers based on the Linden viewer code, do wacky things for orbital positions from Midnight to Sunrise
             // So adjust for that
@@ -2493,10 +2497,12 @@ namespace Universe.ClientStack
 
             if (orbitalPosition > m_sunPainDaHalfOrbitalCutoff) // things get weird from midnight to sunrise
             {
-                orbitalPosition = (orbitalPosition - m_sunPainDaHalfOrbitalCutoff) * 0.6666666667f + m_sunPainDaHalfOrbitalCutoff;
+                orbitalPosition = (orbitalPosition - m_sunPainDaHalfOrbitalCutoff)*0.6666666667f +
+                                  m_sunPainDaHalfOrbitalCutoff;
             }
 
-            SimulatorViewerTimeMessagePacket viewertime = (SimulatorViewerTimeMessagePacket)PacketPool.Instance.GetPacket(PacketType.SimulatorViewerTimeMessage);
+            SimulatorViewerTimeMessagePacket viewertime =
+                (SimulatorViewerTimeMessagePacket) PacketPool.Instance.GetPacket(PacketType.SimulatorViewerTimeMessage);
             viewertime.TimeInfo.SunDirection = Position;
             viewertime.TimeInfo.SunAngVelocity = Velocity;
 
@@ -2504,6 +2510,7 @@ namespace Universe.ClientStack
             // to prevent existing code from breaking if it assumed that 6 hours were included.
             // 21600 == 6 hours * 60 minutes * 60 Seconds
             viewertime.TimeInfo.UsecSinceStart = currentTime + 21600;
+
             viewertime.TimeInfo.SecPerDay = secondsPerSunCycle;
             viewertime.TimeInfo.SecPerYear = secondsPerYear;
             viewertime.TimeInfo.SunPhase = orbitalPosition;
@@ -2514,11 +2521,13 @@ namespace Universe.ClientStack
 
         public void SendViewerEffect(ViewerEffectPacket.EffectBlock[] effectBlocks)
         {
-            ViewerEffectPacket packet = (ViewerEffectPacket)PacketPool.Instance.GetPacket(PacketType.ViewerEffect);
+            ViewerEffectPacket packet = (ViewerEffectPacket) PacketPool.Instance.GetPacket(PacketType.ViewerEffect);
             packet.Header.Reliable = false;
             packet.Header.Zerocoded = true;
+
             packet.AgentData.AgentID = AgentId;
             packet.AgentData.SessionID = SessionId;
+
             packet.Effect = effectBlocks;
 
             OutPacket(packet, ThrottleOutPacketType.State);
@@ -2528,7 +2537,8 @@ namespace Universe.ClientStack
                                          string flAbout, uint flags, UUID flImageID, UUID imageID, string profileURL,
                                          UUID partnerID)
         {
-            AvatarPropertiesReplyPacket avatarReply = (AvatarPropertiesReplyPacket)PacketPool.Instance.GetPacket(PacketType.AvatarPropertiesReply);
+            AvatarPropertiesReplyPacket avatarReply =
+                (AvatarPropertiesReplyPacket) PacketPool.Instance.GetPacket(PacketType.AvatarPropertiesReply);
             avatarReply.AgentData.AgentID = AgentId;
             avatarReply.AgentData.AvatarID = avatarID;
             avatarReply.PropertiesData.AboutText = aboutText != null
@@ -2555,16 +2565,18 @@ namespace Universe.ClientStack
         {
             if (!ChildAgentStatus())
                 SendInstantMessage(new GridInstantMessage()
-                {
-                    FromAgentID = FromAvatarID,
-                    FromAgentName = FromAvatarName,
-                    ToAgentID = AgentId,
-                    Dialog = (byte)InstantMessageDialog.MessageBox,
-                    Message = Message,
-                    Offline = 0,
-                    Position = new Vector3(),
-                    RegionID = Scene.RegionInfo.RegionID
-                });
+            {
+                FromAgentID = FromAvatarID,
+                FromAgentName = FromAvatarName,
+                ToAgentID = AgentId,
+                Dialog = (byte)InstantMessageDialog.MessageBox,
+                Message = Message,
+                Offline = 0,
+                Position = new Vector3(),
+                RegionID = Scene.RegionInfo.RegionID
+            });
+
+            //SendInstantMessage(FromAvatarID, fromSessionID, Message, AgentId, SessionId, FromAvatarName, (byte)21,(uint) Util.UnixTimeSinceEpoch());
         }
 
         public void SendLogoutPacket()
@@ -2576,12 +2588,12 @@ namespace Universe.ClientStack
 
             if (m_SendLogoutPacketWhenClosing)
             {
-                LogoutReplyPacket logReply = (LogoutReplyPacket)PacketPool.Instance.GetPacket(PacketType.LogoutReply);
+                LogoutReplyPacket logReply = (LogoutReplyPacket) PacketPool.Instance.GetPacket(PacketType.LogoutReply);
                 // TODO: don't create new blocks if recycling an old packet
                 logReply.AgentData.AgentID = AgentId;
                 logReply.AgentData.SessionID = SessionId;
                 logReply.InventoryData = new LogoutReplyPacket.InventoryDataBlock[1];
-                logReply.InventoryData[0] = new LogoutReplyPacket.InventoryDataBlock { ItemID = UUID.Zero };
+                logReply.InventoryData[0] = new LogoutReplyPacket.InventoryDataBlock {ItemID = UUID.Zero};
 
                 OutPacket(logReply, ThrottleOutPacketType.OutBand);
             }
@@ -2589,7 +2601,8 @@ namespace Universe.ClientStack
 
         public void SendHealth(float health)
         {
-            HealthMessagePacket healthpacket = (HealthMessagePacket)PacketPool.Instance.GetPacket(PacketType.HealthMessage);
+            HealthMessagePacket healthpacket =
+                (HealthMessagePacket) PacketPool.Instance.GetPacket(PacketType.HealthMessage);
             healthpacket.HealthData.Health = health;
             OutPacket(healthpacket, ThrottleOutPacketType.AvatarInfo);
         }
@@ -2597,14 +2610,14 @@ namespace Universe.ClientStack
         public void SendAgentOnline(UUID[] agentIDs)
         {
             OnlineNotificationPacket onp = new OnlineNotificationPacket();
-            OnlineNotificationPacket.AgentBlockBlock[] onpb = new OnlineNotificationPacket.AgentBlockBlock[agentIDs.Length];
+            OnlineNotificationPacket.AgentBlockBlock[] onpb =
+                new OnlineNotificationPacket.AgentBlockBlock[agentIDs.Length];
             for (int i = 0; i < agentIDs.Length; i++)
             {
                 OnlineNotificationPacket.AgentBlockBlock onpbl = new OnlineNotificationPacket.AgentBlockBlock
-                { AgentID = agentIDs[i] };
+                                                                     {AgentID = agentIDs[i]};
                 onpb[i] = onpbl;
             }
-
             onp.AgentBlock = onpb;
             onp.Header.Reliable = true;
             OutPacket(onp, ThrottleOutPacketType.AvatarInfo);
@@ -2613,14 +2626,14 @@ namespace Universe.ClientStack
         public void SendAgentOffline(UUID[] agentIDs)
         {
             OfflineNotificationPacket offp = new OfflineNotificationPacket();
-            OfflineNotificationPacket.AgentBlockBlock[] offpb = new OfflineNotificationPacket.AgentBlockBlock[agentIDs.Length];
+            OfflineNotificationPacket.AgentBlockBlock[] offpb =
+                new OfflineNotificationPacket.AgentBlockBlock[agentIDs.Length];
             for (int i = 0; i < agentIDs.Length; i++)
             {
                 OfflineNotificationPacket.AgentBlockBlock onpbl = new OfflineNotificationPacket.AgentBlockBlock
-                { AgentID = agentIDs[i] };
+                                                                      {AgentID = agentIDs[i]};
                 offpb[i] = onpbl;
             }
-
             offp.AgentBlock = offpb;
             offp.Header.Reliable = true;
             OutPacket(offp, ThrottleOutPacketType.AvatarInfo);
@@ -2629,13 +2642,12 @@ namespace Universe.ClientStack
         public void SendSitResponse(UUID TargetID, Vector3 OffsetPos, Quaternion SitOrientation, bool autopilot,
                                     Vector3 CameraAtOffset, Vector3 CameraEyeOffset, bool ForceMouseLook)
         {
-            AvatarSitResponsePacket avatarSitResponse = new AvatarSitResponsePacket { SitObject = { ID = TargetID } };
+            AvatarSitResponsePacket avatarSitResponse = new AvatarSitResponsePacket {SitObject = {ID = TargetID}};
             if (CameraAtOffset != Vector3.Zero)
             {
                 avatarSitResponse.SitTransform.CameraAtOffset = CameraAtOffset;
                 avatarSitResponse.SitTransform.CameraEyeOffset = CameraEyeOffset;
             }
-
             avatarSitResponse.SitTransform.ForceMouselook = ForceMouseLook;
             avatarSitResponse.SitTransform.AutoPilot = autopilot;
             avatarSitResponse.SitTransform.SitPosition = OffsetPos;
@@ -2649,10 +2661,10 @@ namespace Universe.ClientStack
             GrantGodlikePowersPacket respondPacket = new GrantGodlikePowersPacket();
             GrantGodlikePowersPacket.GrantDataBlock gdb = new GrantGodlikePowersPacket.GrantDataBlock();
             GrantGodlikePowersPacket.AgentDataBlock adb = new GrantGodlikePowersPacket.AgentDataBlock
-            { AgentID = AgentId, SessionID = SessionId };
+                                                              {AgentID = AgentId, SessionID = SessionId};
 
             // More security
-            gdb.GodLevel = (byte)AdminLevel;
+            gdb.GodLevel = (byte) AdminLevel;
             gdb.Token = Token;
             respondPacket.AgentData = adb;
             respondPacket.GrantData = gdb;
@@ -2662,24 +2674,27 @@ namespace Universe.ClientStack
         public void SendGroupMembership(GroupMembershipData[] GroupMembership)
         {
             AgentGroupDataUpdatePacket Groupupdate = new AgentGroupDataUpdatePacket();
-            AgentGroupDataUpdatePacket.GroupDataBlock[] Groups = new AgentGroupDataUpdatePacket.GroupDataBlock[GroupMembership.Length];
+            AgentGroupDataUpdatePacket.GroupDataBlock[] Groups =
+                new AgentGroupDataUpdatePacket.GroupDataBlock[GroupMembership.Length];
             for (int i = 0; i < GroupMembership.Length; i++)
             {
                 AgentGroupDataUpdatePacket.GroupDataBlock Group = new AgentGroupDataUpdatePacket.GroupDataBlock
-                {
-                    AcceptNotices = GroupMembership[i].AcceptNotices,
-                    Contribution = GroupMembership[i].Contribution,
-                    GroupID = GroupMembership[i].GroupID,
-                    GroupInsigniaID = GroupMembership[i].GroupPicture,
-                    GroupName = Util.StringToBytes256(GroupMembership[i].GroupName),
-                    GroupPowers = GroupMembership[i].GroupPowers
-                };
-
+                                                                      {
+                                                                          AcceptNotices =
+                                                                              GroupMembership[i].AcceptNotices,
+                                                                          Contribution = GroupMembership[i].Contribution,
+                                                                          GroupID = GroupMembership[i].GroupID,
+                                                                          GroupInsigniaID =
+                                                                              GroupMembership[i].GroupPicture,
+                                                                          GroupName =
+                                                                              Util.StringToBytes256(
+                                                                                  GroupMembership[i].GroupName),
+                                                                          GroupPowers = GroupMembership[i].GroupPowers
+                                                                      };
                 Groups[i] = Group;
             }
-
             Groupupdate.GroupData = Groups;
-            Groupupdate.AgentData = new AgentGroupDataUpdatePacket.AgentDataBlock { AgentID = AgentId };
+            Groupupdate.AgentData = new AgentGroupDataUpdatePacket.AgentDataBlock {AgentID = AgentId};
             OutPacket(Groupupdate, ThrottleOutPacketType.AvatarInfo);
 
             try
@@ -2698,67 +2713,66 @@ namespace Universe.ClientStack
             }
         }
 
+
         public void SendGroupNameReply(UUID groupLLUID, string GroupName)
         {
             UUIDGroupNameReplyPacket pack = new UUIDGroupNameReplyPacket();
-            UUIDGroupNameReplyPacket.UUIDNameBlockBlock[] uidnameblock = new UUIDGroupNameReplyPacket.UUIDNameBlockBlock[1];
+            UUIDGroupNameReplyPacket.UUIDNameBlockBlock[] uidnameblock =
+                new UUIDGroupNameReplyPacket.UUIDNameBlockBlock[1];
             UUIDGroupNameReplyPacket.UUIDNameBlockBlock uidnamebloc = new UUIDGroupNameReplyPacket.UUIDNameBlockBlock
-            {
-                ID = groupLLUID,
-                GroupName = Util.StringToBytes256(GroupName)
-            };
-
+                                                                          {
+                                                                              ID = groupLLUID,
+                                                                              GroupName =
+                                                                                  Util.StringToBytes256(GroupName)
+                                                                          };
             uidnameblock[0] = uidnamebloc;
             pack.UUIDNameBlock = uidnameblock;
             OutPacket(pack, ThrottleOutPacketType.AvatarInfo);
         }
 
-        static readonly object _lock = new object();
+        static readonly object _lock = new object ();
         public void SendLandStatReply(uint reportType, uint requestFlags, uint resultCount, LandStatReportItem[] lsrpia)
         {
             LandStatReplyMessage message = new LandStatReplyMessage
-            {
-                ReportType = reportType,
-                RequestFlags = requestFlags,
-                TotalObjectCount = resultCount,
-                ReportDataBlocks = new LandStatReplyMessage.ReportDataBlock[lsrpia.Length]
-            };
-
-            for (int i = 0; i < lsrpia.Length; i++)
-            {
-                lock (_lock)
-                {
-                    LandStatReplyMessage.ReportDataBlock block = new LandStatReplyMessage.ReportDataBlock
-                    {
-                        Location = lsrpia[i].Location,
-                        MonoScore = lsrpia[i].Score,
-                        OwnerName = lsrpia[i].OwnerName,
-                        Score = lsrpia[i].Score,
-                        TaskID = lsrpia[i].TaskID,
-                        TaskLocalID = lsrpia[i].TaskLocalID,
-                        TaskName = lsrpia[i].TaskName,
-                        TimeStamp = lsrpia[i].TimeModified
+                                               {
+                                                   ReportType = reportType,
+                                                   RequestFlags = requestFlags,
+                                                   TotalObjectCount = resultCount,
+                                                   ReportDataBlocks =
+                                                       new LandStatReplyMessage.ReportDataBlock[lsrpia.Length]
+                                               };
+                for (int i = 0; i < lsrpia.Length; i++) {
+                lock (_lock) {
+                    LandStatReplyMessage.ReportDataBlock block = new LandStatReplyMessage.ReportDataBlock {
+                        Location = lsrpia [i].Location,
+                        MonoScore = lsrpia [i].Score,
+                        OwnerName = lsrpia [i].OwnerName,
+                        Score = lsrpia [i].Score,
+                        TaskID = lsrpia [i].TaskID,
+                        TaskLocalID = lsrpia [i].TaskLocalID,
+                        TaskName = lsrpia [i].TaskName,
+                        TimeStamp = lsrpia [i].TimeModified
                     };
-
-                    message.ReportDataBlocks[i] = block;
+                    message.ReportDataBlocks [i] = block;
                 }
             }
             IEventQueueService eventService = m_scene.RequestModuleInterface<IEventQueueService>();
             if (eventService != null)
                 eventService.LandStatReply(message, AgentId, m_scene.RegionInfo.RegionID);
-
+            
         }
 
         public void SendScriptRunningReply(UUID objectID, UUID itemID, bool running)
         {
             ScriptRunningReplyPacket scriptRunningReply = new ScriptRunningReplyPacket
-            {
-                Script = {
-                    ObjectID = objectID,
-                    ItemID = itemID,
-                    Running = running
-                }
-            };
+                                                              {
+                                                                  Script =
+                                                                      {
+                                                                          ObjectID = objectID,
+                                                                          ItemID = itemID,
+                                                                          Running = running
+                                                                      }
+                                                              };
 
             OutPacket(scriptRunningReply, ThrottleOutPacketType.AvatarInfo);
         }
@@ -2766,17 +2780,18 @@ namespace Universe.ClientStack
         void SendFailedAsset(AssetRequestToClient req, TransferPacketStatus assetErrors)
         {
             TransferInfoPacket TransferPkt = new TransferInfoPacket
-            {
-                TransferInfo = {
-                    ChannelType = (int) ChannelType.Asset,
-                    Status = (int) assetErrors,
-                    TargetType = 0,
-                    Params = req.Params,Size = 0,
-                    TransferID = req.TransferRequestID
-                },
-                Header = { Zerocoded = true }
-            };
-
+                                              {
+                                                  TransferInfo =
+                                                      {
+                                                          ChannelType = (int) ChannelType.Asset,
+                                                          Status = (int) assetErrors,
+                                                          TargetType = 0,
+                                                          Params = req.Params,
+                                                          Size = 0,
+                                                          TransferID = req.TransferRequestID
+                                                      },
+                                                  Header = {Zerocoded = true}
+                                              };
             OutPacket(TransferPkt, ThrottleOutPacketType.Transfer);
         }
 
@@ -2784,21 +2799,21 @@ namespace Universe.ClientStack
         {
             if (req.AssetInf.Data == null)
             {
-                MainConsole.Instance.ErrorFormat("[LLClient View]: Cannot send asset {0} ({1}), asset data is null",
+                MainConsole.Instance.ErrorFormat("[LLClientView]: Cannot send asset {0} ({1}), asset data is null",
                                                  req.AssetInf.ID, req.AssetInf.TypeString);
                 return;
             }
 
             //MainConsole.Instance.Debug("sending asset " + req.RequestAssetID);
             TransferInfoPacket Transfer = new TransferInfoPacket
-            {
-                TransferInfo = {
-                    ChannelType = (int) ChannelType.Asset,
-                    Status = (int) TransferPacketStatus.MorePacketsToCome,
-                    TargetType = 0
-                }
-            };
-
+                                              {
+                                                  TransferInfo =
+                                                      {
+                                                          ChannelType = (int) ChannelType.Asset,
+                                                          Status = (int) TransferPacketStatus.MorePacketsToCome,
+                                                          TargetType = 0
+                                                      }
+                                              };
             if (req.AssetRequestSource == 2)
             {
                 Transfer.TransferInfo.Params = new byte[20];
@@ -2809,8 +2824,10 @@ namespace Universe.ClientStack
             else if (req.AssetRequestSource == 3)
             {
                 Transfer.TransferInfo.Params = req.Params;
+                // Transfer.TransferInfo.Params = new byte[100];
+                //Array.Copy(req.RequestUser.AgentId.GetBytes(), 0, Transfer.TransferInfo.Params, 0, 16);
+                //Array.Copy(req.RequestUser.SessionId.GetBytes(), 0, Transfer.TransferInfo.Params, 16, 16);
             }
-
             Transfer.TransferInfo.Size = req.AssetInf.Data.Length;
             Transfer.TransferInfo.TransferID = req.TransferRequestID;
             Transfer.Header.Zerocoded = true;
@@ -2819,17 +2836,17 @@ namespace Universe.ClientStack
             if (req.NumPackets == 1)
             {
                 TransferPacketPacket TransferPacket = new TransferPacketPacket
-                {
-                    TransferData = {
-                        Packet = 0,
-                        ChannelType = (int) ChannelType.Asset,
-                        TransferID = req.TransferRequestID,
-                        Data = req.AssetInf.Data,
-                        Status = (int) TransferPacketStatus.Done
-                    },
-                    Header = { Zerocoded = true }
-                };
-
+                                                          {
+                                                              TransferData =
+                                                                  {
+                                                                      Packet = 0,
+                                                                      ChannelType = (int) ChannelType.Asset,
+                                                                      TransferID = req.TransferRequestID,
+                                                                      Data = req.AssetInf.Data,
+                                                                      Status = (int) TransferPacketStatus.Done
+                                                                  },
+                                                              Header = {Zerocoded = true}
+                                                          };
                 OutPacket(TransferPacket, ThrottleOutPacketType.Transfer);
             }
             else
@@ -2842,15 +2859,17 @@ namespace Universe.ClientStack
                 while (processedLength < req.AssetInf.Data.Length)
                 {
                     TransferPacketPacket TransferPacket = new TransferPacketPacket
-                    {
-                        TransferData = {
-                            Packet = packetNumber,
-                            ChannelType = (int) ChannelType.Asset,
-                            TransferID = req.TransferRequestID
-                        }
-                    };
+                                                              {
+                                                                  TransferData =
+                                                                      {
+                                                                          Packet = packetNumber,
+                                                                          ChannelType = (int) ChannelType.Asset,
+                                                                          TransferID = req.TransferRequestID
+                                                                      }
+                                                              };
 
-                    int chunkSize = Math.Min(req.AssetInf.Data.Length - processedLength, packetNumber == 0 ? firstPacketSize : maxChunkSize);
+                    int chunkSize = Math.Min(req.AssetInf.Data.Length - processedLength,
+                                             packetNumber == 0 ? firstPacketSize : maxChunkSize);
 
                     byte[] chunk = new byte[chunkSize];
                     Array.Copy(req.AssetInf.Data, processedLength, chunk, 0, chunk.Length);
@@ -2860,13 +2879,12 @@ namespace Universe.ClientStack
                     // 0 indicates more packets to come, 1 indicates last packet
                     if (req.AssetInf.Data.Length - processedLength == 0)
                     {
-                        TransferPacket.TransferData.Status = (int)TransferPacketStatus.Done;
+                        TransferPacket.TransferData.Status = (int) TransferPacketStatus.Done;
                     }
                     else
                     {
-                        TransferPacket.TransferData.Status = (int)TransferPacketStatus.MorePacketsToCome;
+                        TransferPacket.TransferData.Status = (int) TransferPacketStatus.MorePacketsToCome;
                     }
-
                     TransferPacket.Header.Zerocoded = true;
                     OutPacket(TransferPacket, ThrottleOutPacketType.Transfer);
 
@@ -2877,7 +2895,8 @@ namespace Universe.ClientStack
 
         public void SendRegionHandle(UUID regionID, ulong handle)
         {
-            RegionIDAndHandleReplyPacket reply = (RegionIDAndHandleReplyPacket)PacketPool.Instance.GetPacket(PacketType.RegionIDAndHandleReply);
+            RegionIDAndHandleReplyPacket reply =
+                (RegionIDAndHandleReplyPacket) PacketPool.Instance.GetPacket(PacketType.RegionIDAndHandleReply);
             reply.ReplyBlock.RegionID = regionID;
             reply.ReplyBlock.RegionHandle = handle;
             OutPacket(reply, ThrottleOutPacketType.Land);
@@ -2885,7 +2904,8 @@ namespace Universe.ClientStack
 
         public void SendParcelInfo(LandData land, UUID parcelID, uint x, uint y, string SimName)
         {
-            ParcelInfoReplyPacket reply = (ParcelInfoReplyPacket)PacketPool.Instance.GetPacket(PacketType.ParcelInfoReply);
+            ParcelInfoReplyPacket reply =
+                (ParcelInfoReplyPacket) PacketPool.Instance.GetPacket(PacketType.ParcelInfoReply);
             reply.AgentData.AgentID = m_agentId;
             reply.Data.ParcelID = parcelID;
             reply.Data.OwnerID = land.OwnerID;
@@ -2895,18 +2915,17 @@ namespace Universe.ClientStack
             reply.Data.BillableArea = land.Area; // TODO: what is this?
 
             // Bit 0: Mature, bit 7: on sale, other bits: no idea
-            reply.Data.Flags = (byte)(
+            reply.Data.Flags = (byte) (
                                           land.Maturity > 0
                                               ? (1 << 0)
                                               : 0 +
-                                                ((land.Flags & (uint)ParcelFlags.ForSale) != 0 ? (1 << 7) : 0));
+                                                ((land.Flags & (uint) ParcelFlags.ForSale) != 0 ? (1 << 7) : 0));
 
             Vector3 pos = land.UserLocation;
             if (pos.Equals(Vector3.Zero))
             {
-                pos = (land.AABBMax + land.AABBMin) * 0.5f;
+                pos = (land.AABBMax + land.AABBMin)*0.5f;
             }
-
             reply.Data.GlobalX = x;
             reply.Data.GlobalY = y;
             reply.Data.GlobalZ = pos.Z;
@@ -2914,14 +2933,15 @@ namespace Universe.ClientStack
             reply.Data.SnapshotID = land.SnapshotID;
             reply.Data.Dwell = land.Dwell;
             reply.Data.SalePrice = land.SalePrice;
-            reply.Data.AuctionID = (int)land.AuctionID;
+            reply.Data.AuctionID = (int) land.AuctionID;
 
             OutPacket(reply, ThrottleOutPacketType.Land);
         }
 
         public void SendScriptTeleportRequest(string objName, string simName, Vector3 pos, Vector3 lookAt)
         {
-            ScriptTeleportRequestPacket packet = (ScriptTeleportRequestPacket)PacketPool.Instance.GetPacket(PacketType.ScriptTeleportRequest);
+            ScriptTeleportRequestPacket packet =
+                (ScriptTeleportRequestPacket) PacketPool.Instance.GetPacket(PacketType.ScriptTeleportRequest);
 
             packet.Data.ObjectName = Utils.StringToBytes(objName);
             packet.Data.SimName = Utils.StringToBytes(simName);
@@ -2933,16 +2953,22 @@ namespace Universe.ClientStack
 
         public void SendDirPlacesReply(UUID queryID, DirPlacesReplyData[] data)
         {
-            DirPlacesReplyPacket packet = (DirPlacesReplyPacket)PacketPool.Instance.GetPacket(PacketType.DirPlacesReply);
+            DirPlacesReplyPacket packet =
+                (DirPlacesReplyPacket) PacketPool.Instance.GetPacket(PacketType.DirPlacesReply);
 
             packet.AgentData = new DirPlacesReplyPacket.AgentDataBlock();
+
             packet.QueryData = new DirPlacesReplyPacket.QueryDataBlock[1];
             packet.QueryData[0] = new DirPlacesReplyPacket.QueryDataBlock();
+
             packet.AgentData.AgentID = AgentId;
+
             packet.QueryData[0].QueryID = queryID;
 
-            DirPlacesReplyPacket.QueryRepliesBlock[] replies = new DirPlacesReplyPacket.QueryRepliesBlock[0];
-            DirPlacesReplyPacket.StatusDataBlock[] status = new DirPlacesReplyPacket.StatusDataBlock[0];
+            DirPlacesReplyPacket.QueryRepliesBlock[] replies =
+                new DirPlacesReplyPacket.QueryRepliesBlock[0];
+            DirPlacesReplyPacket.StatusDataBlock[] status =
+                new DirPlacesReplyPacket.StatusDataBlock[0];
 
             packet.QueryReplies = replies;
             packet.StatusData = status;
@@ -2968,12 +2994,18 @@ namespace Universe.ClientStack
                 if (packet.Length >= 1000)
                 {
                     OutPacket(packet, ThrottleOutPacketType.AvatarInfo);
-                    packet = (DirPlacesReplyPacket)PacketPool.Instance.GetPacket(PacketType.DirPlacesReply);
+
+                    packet = (DirPlacesReplyPacket) PacketPool.Instance.GetPacket(PacketType.DirPlacesReply);
+
                     packet.AgentData = new DirPlacesReplyPacket.AgentDataBlock();
+
                     packet.QueryData = new DirPlacesReplyPacket.QueryDataBlock[1];
                     packet.QueryData[0] = new DirPlacesReplyPacket.QueryDataBlock();
+
                     packet.AgentData.AgentID = AgentId;
+
                     packet.QueryData[0].QueryID = queryID;
+
                     replies = new DirPlacesReplyPacket.QueryRepliesBlock[0];
                     status = new DirPlacesReplyPacket.StatusDataBlock[0];
                 }
@@ -2986,25 +3018,28 @@ namespace Universe.ClientStack
 
         public void SendDirPeopleReply(UUID queryID, DirPeopleReplyData[] data)
         {
-            DirPeopleReplyPacket packet = (DirPeopleReplyPacket)PacketPool.Instance.GetPacket(PacketType.DirPeopleReply);
+            DirPeopleReplyPacket packet =
+                (DirPeopleReplyPacket) PacketPool.Instance.GetPacket(PacketType.DirPeopleReply);
 
-            packet.AgentData = new DirPeopleReplyPacket.AgentDataBlock { AgentID = AgentId };
-            packet.QueryData = new DirPeopleReplyPacket.QueryDataBlock { QueryID = queryID };
-            packet.QueryReplies = new DirPeopleReplyPacket.QueryRepliesBlock[data.Length];
+            packet.AgentData = new DirPeopleReplyPacket.AgentDataBlock {AgentID = AgentId};
+
+            packet.QueryData = new DirPeopleReplyPacket.QueryDataBlock {QueryID = queryID};
+
+            packet.QueryReplies = new DirPeopleReplyPacket.QueryRepliesBlock[
+                data.Length];
 
             int i = 0;
             foreach (DirPeopleReplyData d in data)
             {
                 packet.QueryReplies[i] = new DirPeopleReplyPacket.QueryRepliesBlock
-                {
-                    AgentID = d.agentID,
-                    FirstName = Utils.StringToBytes(d.firstName),
-                    LastName = Utils.StringToBytes(d.lastName),
-                    Group = Utils.StringToBytes(d.group),
-                    Online = d.online,
-                    Reputation = d.reputation
-                };
-
+                                             {
+                                                 AgentID = d.agentID,
+                                                 FirstName = Utils.StringToBytes(d.firstName),
+                                                 LastName = Utils.StringToBytes(d.lastName),
+                                                 Group = Utils.StringToBytes(d.group),
+                                                 Online = d.online,
+                                                 Reputation = d.reputation
+                                             };
                 i++;
             }
 
@@ -3014,12 +3049,18 @@ namespace Universe.ClientStack
 
         public void SendDirEventsReply(UUID queryID, DirEventsReplyData[] data)
         {
-            DirEventsReplyPacket packet = (DirEventsReplyPacket)PacketPool.Instance.GetPacket(PacketType.DirEventsReply);
+            DirEventsReplyPacket packet =
+                (DirEventsReplyPacket) PacketPool.Instance.GetPacket(PacketType.DirEventsReply);
 
-            packet.AgentData = new DirEventsReplyPacket.AgentDataBlock { AgentID = AgentId };
-            packet.QueryData = new DirEventsReplyPacket.QueryDataBlock { QueryID = queryID };
-            packet.QueryReplies = new DirEventsReplyPacket.QueryRepliesBlock[data.Length];
-            packet.StatusData = new DirEventsReplyPacket.StatusDataBlock[data.Length];
+            packet.AgentData = new DirEventsReplyPacket.AgentDataBlock {AgentID = AgentId};
+
+            packet.QueryData = new DirEventsReplyPacket.QueryDataBlock {QueryID = queryID};
+
+            packet.QueryReplies = new DirEventsReplyPacket.QueryRepliesBlock[
+                data.Length];
+
+            packet.StatusData = new DirEventsReplyPacket.StatusDataBlock[
+                data.Length];
 
             int i = 0;
             foreach (DirEventsReplyData d in data)
@@ -3027,9 +3068,11 @@ namespace Universe.ClientStack
                 packet.QueryReplies[i] = new DirEventsReplyPacket.QueryRepliesBlock();
                 packet.StatusData[i] = new DirEventsReplyPacket.StatusDataBlock();
                 packet.QueryReplies[i].OwnerID = d.ownerID;
-                packet.QueryReplies[i].Name = Utils.StringToBytes(d.name);
+                packet.QueryReplies[i].Name =
+                    Utils.StringToBytes(d.name);
                 packet.QueryReplies[i].EventID = d.eventID;
-                packet.QueryReplies[i].Date = Utils.StringToBytes(d.date);
+                packet.QueryReplies[i].Date =
+                    Utils.StringToBytes(d.date);
                 packet.QueryReplies[i].UnixTime = d.unixTime;
                 packet.QueryReplies[i].EventFlags = d.eventFlags;
                 packet.StatusData[i].Status = d.Status;
@@ -3042,23 +3085,26 @@ namespace Universe.ClientStack
 
         public void SendDirGroupsReply(UUID queryID, DirGroupsReplyData[] data)
         {
-            DirGroupsReplyPacket packet = (DirGroupsReplyPacket)PacketPool.Instance.GetPacket(PacketType.DirGroupsReply);
+            DirGroupsReplyPacket packet =
+                (DirGroupsReplyPacket) PacketPool.Instance.GetPacket(PacketType.DirGroupsReply);
 
-            packet.AgentData = new DirGroupsReplyPacket.AgentDataBlock { AgentID = AgentId };
-            packet.QueryData = new DirGroupsReplyPacket.QueryDataBlock { QueryID = queryID };
-            packet.QueryReplies = new DirGroupsReplyPacket.QueryRepliesBlock[data.Length];
+            packet.AgentData = new DirGroupsReplyPacket.AgentDataBlock {AgentID = AgentId};
+
+            packet.QueryData = new DirGroupsReplyPacket.QueryDataBlock {QueryID = queryID};
+
+            packet.QueryReplies = new DirGroupsReplyPacket.QueryRepliesBlock[
+                data.Length];
 
             int i = 0;
             foreach (DirGroupsReplyData d in data)
             {
                 packet.QueryReplies[i] = new DirGroupsReplyPacket.QueryRepliesBlock
-                {
-                    GroupID = d.groupID,
-                    GroupName = Utils.StringToBytes(d.groupName),
-                    Members = d.members,
-                    SearchOrder = d.searchOrder
-                };
-
+                                             {
+                                                 GroupID = d.groupID,
+                                                 GroupName = Utils.StringToBytes(d.groupName),
+                                                 Members = d.members,
+                                                 SearchOrder = d.searchOrder
+                                             };
                 i++;
             }
 
@@ -3068,12 +3114,17 @@ namespace Universe.ClientStack
 
         public void SendDirClassifiedReply(UUID queryID, DirClassifiedReplyData[] data)
         {
-            DirClassifiedReplyPacket packet = (DirClassifiedReplyPacket)PacketPool.Instance.GetPacket(PacketType.DirClassifiedReply);
+            DirClassifiedReplyPacket packet =
+                (DirClassifiedReplyPacket) PacketPool.Instance.GetPacket(PacketType.DirClassifiedReply);
 
-            packet.AgentData = new DirClassifiedReplyPacket.AgentDataBlock { AgentID = AgentId };
-            packet.QueryData = new DirClassifiedReplyPacket.QueryDataBlock { QueryID = queryID };
-            packet.QueryReplies = new DirClassifiedReplyPacket.QueryRepliesBlock[data.Length];
-            packet.StatusData = new DirClassifiedReplyPacket.StatusDataBlock[data.Length];
+            packet.AgentData = new DirClassifiedReplyPacket.AgentDataBlock {AgentID = AgentId};
+
+            packet.QueryData = new DirClassifiedReplyPacket.QueryDataBlock {QueryID = queryID};
+
+            packet.QueryReplies = new DirClassifiedReplyPacket.QueryRepliesBlock[
+                data.Length];
+            packet.StatusData = new DirClassifiedReplyPacket.StatusDataBlock[
+                data.Length];
 
             int i = 0;
             foreach (DirClassifiedReplyData d in data)
@@ -3081,7 +3132,8 @@ namespace Universe.ClientStack
                 packet.QueryReplies[i] = new DirClassifiedReplyPacket.QueryRepliesBlock();
                 packet.StatusData[i] = new DirClassifiedReplyPacket.StatusDataBlock();
                 packet.QueryReplies[i].ClassifiedID = d.classifiedID;
-                packet.QueryReplies[i].Name = Utils.StringToBytes(d.name);
+                packet.QueryReplies[i].Name =
+                    Utils.StringToBytes(d.name);
                 packet.QueryReplies[i].ClassifiedFlags = d.classifiedFlags;
                 packet.QueryReplies[i].CreationDate = d.creationDate;
                 packet.QueryReplies[i].ExpirationDate = d.expirationDate;
@@ -3096,24 +3148,27 @@ namespace Universe.ClientStack
 
         public void SendDirLandReply(UUID queryID, DirLandReplyData[] data)
         {
-            DirLandReplyPacket packet = (DirLandReplyPacket)PacketPool.Instance.GetPacket(PacketType.DirLandReply);
-            packet.AgentData = new DirLandReplyPacket.AgentDataBlock { AgentID = AgentId };
-            packet.QueryData = new DirLandReplyPacket.QueryDataBlock { QueryID = queryID };
-            packet.QueryReplies = new DirLandReplyPacket.QueryRepliesBlock[data.Length];
+            DirLandReplyPacket packet = (DirLandReplyPacket) PacketPool.Instance.GetPacket(PacketType.DirLandReply);
+
+            packet.AgentData = new DirLandReplyPacket.AgentDataBlock {AgentID = AgentId};
+
+            packet.QueryData = new DirLandReplyPacket.QueryDataBlock {QueryID = queryID};
+
+            packet.QueryReplies = new DirLandReplyPacket.QueryRepliesBlock[
+                data.Length];
 
             int i = 0;
             foreach (DirLandReplyData d in data)
             {
                 packet.QueryReplies[i] = new DirLandReplyPacket.QueryRepliesBlock
-                {
-                    ParcelID = d.parcelID,
-                    Name = Utils.StringToBytes(d.name),
-                    Auction = d.auction,
-                    ForSale = d.forSale,
-                    SalePrice = d.salePrice,
-                    ActualArea = d.actualArea
-                };
-
+                                             {
+                                                 ParcelID = d.parcelID,
+                                                 Name = Utils.StringToBytes(d.name),
+                                                 Auction = d.auction,
+                                                 ForSale = d.forSale,
+                                                 SalePrice = d.salePrice,
+                                                 ActualArea = d.actualArea
+                                             };
                 i++;
             }
 
@@ -3123,22 +3178,25 @@ namespace Universe.ClientStack
 
         public void SendDirPopularReply(UUID queryID, DirPopularReplyData[] data)
         {
-            DirPopularReplyPacket packet = (DirPopularReplyPacket)PacketPool.Instance.GetPacket(PacketType.DirPopularReply);
-       
-            packet.AgentData = new DirPopularReplyPacket.AgentDataBlock { AgentID = AgentId };
-            packet.QueryData = new DirPopularReplyPacket.QueryDataBlock { QueryID = queryID };
-            packet.QueryReplies = new DirPopularReplyPacket.QueryRepliesBlock[data.Length];
+            DirPopularReplyPacket packet =
+                (DirPopularReplyPacket) PacketPool.Instance.GetPacket(PacketType.DirPopularReply);
+
+            packet.AgentData = new DirPopularReplyPacket.AgentDataBlock {AgentID = AgentId};
+
+            packet.QueryData = new DirPopularReplyPacket.QueryDataBlock {QueryID = queryID};
+
+            packet.QueryReplies = new DirPopularReplyPacket.QueryRepliesBlock[
+                data.Length];
 
             int i = 0;
             foreach (DirPopularReplyData d in data)
             {
                 packet.QueryReplies[i] = new DirPopularReplyPacket.QueryRepliesBlock
-                {
-                    ParcelID = d.ParcelID,
-                    Name = Utils.StringToBytes(d.Name),
-                    Dwell = d.Dwell
-                };
-
+                                             {
+                                                 ParcelID = d.ParcelID,
+                                                 Name = Utils.StringToBytes(d.Name),
+                                                 Dwell = d.Dwell
+                                             };
                 i++;
             }
 
@@ -3148,25 +3206,27 @@ namespace Universe.ClientStack
 
         public void SendEventInfoReply(EventData data)
         {
-            EventInfoReplyPacket packet = (EventInfoReplyPacket)PacketPool.Instance.GetPacket(PacketType.EventInfoReply);
+            EventInfoReplyPacket packet =
+                (EventInfoReplyPacket) PacketPool.Instance.GetPacket(PacketType.EventInfoReply);
 
-            packet.AgentData = new EventInfoReplyPacket.AgentDataBlock { AgentID = AgentId };
+            packet.AgentData = new EventInfoReplyPacket.AgentDataBlock {AgentID = AgentId};
+
             packet.EventData = new EventInfoReplyPacket.EventDataBlock
-            {
-                EventID = data.eventID,
-                Creator = Utils.StringToBytes(data.creator),
-                Name = Utils.StringToBytes(data.name),
-                Category = Utils.StringToBytes(data.category),
-                Desc = Utils.StringToBytes(data.description),
-                Date = Utils.StringToBytes(data.date),
-                DateUTC = data.dateUTC,
-                Duration = data.duration,
-                Cover = data.cover,
-                Amount = data.amount,
-                SimName = Utils.StringToBytes(data.simName),
-                GlobalPos = new Vector3d(data.globalPos),
-                EventFlags = data.eventFlags
-            };
+                                   {
+                                       EventID = data.eventID,
+                                       Creator = Utils.StringToBytes(data.creator),
+                                       Name = Utils.StringToBytes(data.name),
+                                       Category = Utils.StringToBytes(data.category),
+                                       Desc = Utils.StringToBytes(data.description),
+                                       Date = Utils.StringToBytes(data.date),
+                                       DateUTC = data.dateUTC,
+                                       Duration = data.duration,
+                                       Cover = data.cover,
+                                       Amount = data.amount,
+                                       SimName = Utils.StringToBytes(data.simName),
+                                       GlobalPos = new Vector3d(data.globalPos),
+                                       EventFlags = data.eventFlags
+                                   };
 
             OutPacket(packet, ThrottleOutPacketType.AvatarInfo);
         }
@@ -3174,27 +3234,24 @@ namespace Universe.ClientStack
         public void SendMapItemReply(mapItemReply[] replies, uint mapitemtype, uint flags)
         {
             MapItemReplyPacket mirplk = new MapItemReplyPacket
-            {
-                AgentData = { AgentID = AgentId },
-                RequestData = { ItemType = mapitemtype },
-                Data = new MapItemReplyPacket.DataBlock[replies.Length]
-            };
-
+                                            {
+                                                AgentData = {AgentID = AgentId},
+                                                RequestData = {ItemType = mapitemtype},
+                                                Data = new MapItemReplyPacket.DataBlock[replies.Length]
+                                            };
             for (int i = 0; i < replies.Length; i++)
             {
                 MapItemReplyPacket.DataBlock mrdata = new MapItemReplyPacket.DataBlock
-                {
-                    X = replies[i].x,
-                    Y = replies[i].y,
-                    ID = replies[i].id,
-                    Extra = replies[i].Extra,
-                    Extra2 = replies[i].Extra2,
-                    Name = Utils.StringToBytes(replies[i].name)
-                };
-
+                                                          {
+                                                              X = replies[i].x,
+                                                              Y = replies[i].y,
+                                                              ID = replies[i].id,
+                                                              Extra = replies[i].Extra,
+                                                              Extra2 = replies[i].Extra2,
+                                                              Name = Utils.StringToBytes(replies[i].name)
+                                                          };
                 mirplk.Data[i] = mrdata;
             }
-
             //MainConsole.Instance.Debug(mirplk.ToString());
             OutPacket(mirplk, ThrottleOutPacketType.Land);
         }
@@ -3203,7 +3260,8 @@ namespace Universe.ClientStack
         {
             // a bit special, as this uses AgentID to store the source instead
             // of the destination. The destination (the receiver) goes into destID
-            OfferCallingCardPacket p = (OfferCallingCardPacket)PacketPool.Instance.GetPacket(PacketType.OfferCallingCard);
+            OfferCallingCardPacket p =
+                (OfferCallingCardPacket) PacketPool.Instance.GetPacket(PacketType.OfferCallingCard);
             p.AgentData.AgentID = srcID;
             p.AgentData.SessionID = UUID.Zero;
             p.AgentBlock.DestID = AgentId;
@@ -3213,17 +3271,19 @@ namespace Universe.ClientStack
 
         public void SendAcceptCallingCard(UUID transactionID)
         {
-            AcceptCallingCardPacket p = (AcceptCallingCardPacket)PacketPool.Instance.GetPacket(PacketType.AcceptCallingCard);
+            AcceptCallingCardPacket p =
+                (AcceptCallingCardPacket) PacketPool.Instance.GetPacket(PacketType.AcceptCallingCard);
             p.AgentData.AgentID = AgentId;
             p.AgentData.SessionID = UUID.Zero;
             p.FolderData = new AcceptCallingCardPacket.FolderDataBlock[1];
-            p.FolderData[0] = new AcceptCallingCardPacket.FolderDataBlock { FolderID = UUID.Zero };
+            p.FolderData[0] = new AcceptCallingCardPacket.FolderDataBlock {FolderID = UUID.Zero};
             OutPacket(p, ThrottleOutPacketType.AvatarInfo);
         }
 
         public void SendDeclineCallingCard(UUID transactionID)
         {
-            DeclineCallingCardPacket p = (DeclineCallingCardPacket)PacketPool.Instance.GetPacket(PacketType.DeclineCallingCard);
+            DeclineCallingCardPacket p =
+                (DeclineCallingCardPacket) PacketPool.Instance.GetPacket(PacketType.DeclineCallingCard);
             p.AgentData.AgentID = AgentId;
             p.AgentData.SessionID = UUID.Zero;
             p.TransactionBlock.TransactionID = transactionID;
@@ -3232,7 +3292,8 @@ namespace Universe.ClientStack
 
         public void SendTerminateFriend(UUID exFriendID)
         {
-            TerminateFriendshipPacket p = (TerminateFriendshipPacket)PacketPool.Instance.GetPacket(PacketType.TerminateFriendship);
+            TerminateFriendshipPacket p =
+                (TerminateFriendshipPacket) PacketPool.Instance.GetPacket(PacketType.TerminateFriendship);
             p.AgentData.AgentID = AgentId;
             p.AgentData.SessionID = SessionId;
             p.ExBlock.OtherID = exFriendID;
@@ -3275,27 +3336,37 @@ namespace Universe.ClientStack
 
         public void SendJoinGroupReply(UUID groupID, bool success)
         {
-            JoinGroupReplyPacket p = (JoinGroupReplyPacket)PacketPool.Instance.GetPacket(PacketType.JoinGroupReply);
-            p.AgentData = new JoinGroupReplyPacket.AgentDataBlock { AgentID = AgentId };
-            p.GroupData = new JoinGroupReplyPacket.GroupDataBlock { GroupID = groupID, Success = success };
+            JoinGroupReplyPacket p = (JoinGroupReplyPacket) PacketPool.Instance.GetPacket(PacketType.JoinGroupReply);
+
+            p.AgentData = new JoinGroupReplyPacket.AgentDataBlock {AgentID = AgentId};
+
+            p.GroupData = new JoinGroupReplyPacket.GroupDataBlock {GroupID = groupID, Success = success};
+
             OutPacket(p, ThrottleOutPacketType.AvatarInfo);
         }
 
         public void SendEjectGroupMemberReply(UUID agentID, UUID groupID, bool success)
         {
-            EjectGroupMemberReplyPacket p = (EjectGroupMemberReplyPacket)PacketPool.Instance.GetPacket(PacketType.EjectGroupMemberReply);
+            EjectGroupMemberReplyPacket p =
+                (EjectGroupMemberReplyPacket) PacketPool.Instance.GetPacket(PacketType.EjectGroupMemberReply);
 
-            p.AgentData = new EjectGroupMemberReplyPacket.AgentDataBlock { AgentID = agentID };
-            p.GroupData = new EjectGroupMemberReplyPacket.GroupDataBlock { GroupID = groupID };
-            p.EjectData = new EjectGroupMemberReplyPacket.EjectDataBlock { Success = success };
+            p.AgentData = new EjectGroupMemberReplyPacket.AgentDataBlock {AgentID = agentID};
+
+            p.GroupData = new EjectGroupMemberReplyPacket.GroupDataBlock {GroupID = groupID};
+
+            p.EjectData = new EjectGroupMemberReplyPacket.EjectDataBlock {Success = success};
+
             OutPacket(p, ThrottleOutPacketType.AvatarInfo);
         }
 
         public void SendLeaveGroupReply(UUID groupID, bool success)
         {
-            LeaveGroupReplyPacket p = (LeaveGroupReplyPacket)PacketPool.Instance.GetPacket(PacketType.LeaveGroupReply);
-            p.AgentData = new LeaveGroupReplyPacket.AgentDataBlock { AgentID = AgentId };
-            p.GroupData = new LeaveGroupReplyPacket.GroupDataBlock { GroupID = groupID, Success = success };
+            LeaveGroupReplyPacket p = (LeaveGroupReplyPacket) PacketPool.Instance.GetPacket(PacketType.LeaveGroupReply);
+
+            p.AgentData = new LeaveGroupReplyPacket.AgentDataBlock {AgentID = AgentId};
+
+            p.GroupData = new LeaveGroupReplyPacket.GroupDataBlock {GroupID = groupID, Success = success};
+
             OutPacket(p, ThrottleOutPacketType.AvatarInfo);
         }
 
@@ -3304,9 +3375,11 @@ namespace Universe.ClientStack
             if (classifiedID.Length != name.Length)
                 return;
 
-            AvatarClassifiedReplyPacket ac = (AvatarClassifiedReplyPacket)PacketPool.Instance.GetPacket(PacketType.AvatarClassifiedReply);
+            AvatarClassifiedReplyPacket ac =
+                (AvatarClassifiedReplyPacket) PacketPool.Instance.GetPacket(
+                    PacketType.AvatarClassifiedReply);
 
-            ac.AgentData = new AvatarClassifiedReplyPacket.AgentDataBlock { AgentID = AgentId, TargetID = targetID };
+            ac.AgentData = new AvatarClassifiedReplyPacket.AgentDataBlock {AgentID = AgentId, TargetID = targetID};
 
             ac.Data = new AvatarClassifiedReplyPacket.DataBlock[classifiedID.Length];
             int i;
@@ -3324,57 +3397,65 @@ namespace Universe.ClientStack
                                             uint parentEstate, UUID snapshotID, string simName, Vector3 globalPos,
                                             string parcelName, byte classifiedFlags, int price)
         {
-            ClassifiedInfoReplyPacket cr = (ClassifiedInfoReplyPacket)PacketPool.Instance.GetPacket(PacketType.ClassifiedInfoReply);
+            ClassifiedInfoReplyPacket cr =
+                (ClassifiedInfoReplyPacket) PacketPool.Instance.GetPacket(
+                    PacketType.ClassifiedInfoReply);
 
-            cr.AgentData = new ClassifiedInfoReplyPacket.AgentDataBlock { AgentID = AgentId };
+            cr.AgentData = new ClassifiedInfoReplyPacket.AgentDataBlock {AgentID = AgentId};
 
             cr.Data = new ClassifiedInfoReplyPacket.DataBlock
-            {
-                ClassifiedID = classifiedID,
-                CreatorID = creatorID,
-                CreationDate = creationDate,
-                ExpirationDate = expirationDate,
-                Category = category,
-                Name = Utils.StringToBytes(name),
-                Desc = Utils.StringToBytes(description),
-                ParcelID = parcelID,
-                ParentEstate = parentEstate,
-                SnapshotID = snapshotID,
-                SimName = Utils.StringToBytes(simName),
-                PosGlobal = new Vector3d(globalPos),
-                ParcelName = Utils.StringToBytes(parcelName),
-                ClassifiedFlags = classifiedFlags,
-                PriceForListing = price
-            };
+                          {
+                              ClassifiedID = classifiedID,
+                              CreatorID = creatorID,
+                              CreationDate = creationDate,
+                              ExpirationDate = expirationDate,
+                              Category = category,
+                              Name = Utils.StringToBytes(name),
+                              Desc = Utils.StringToBytes(description),
+                              ParcelID = parcelID,
+                              ParentEstate = parentEstate,
+                              SnapshotID = snapshotID,
+                              SimName = Utils.StringToBytes(simName),
+                              PosGlobal = new Vector3d(globalPos),
+                              ParcelName = Utils.StringToBytes(parcelName),
+                              ClassifiedFlags = classifiedFlags,
+                              PriceForListing = price
+                          };
 
             OutPacket(cr, ThrottleOutPacketType.AvatarInfo);
         }
 
         public void SendAgentDropGroup(UUID groupID)
         {
-            AgentDropGroupPacket dg = (AgentDropGroupPacket)PacketPool.Instance.GetPacket(PacketType.AgentDropGroup);
+            AgentDropGroupPacket dg =
+                (AgentDropGroupPacket) PacketPool.Instance.GetPacket(
+                    PacketType.AgentDropGroup);
 
-            dg.AgentData = new AgentDropGroupPacket.AgentDataBlock { AgentID = AgentId, GroupID = groupID };
+            dg.AgentData = new AgentDropGroupPacket.AgentDataBlock {AgentID = AgentId, GroupID = groupID};
 
             OutPacket(dg, ThrottleOutPacketType.AvatarInfo);
         }
 
         public void SendAvatarNotesReply(UUID targetID, string text)
         {
-            AvatarNotesReplyPacket an = (AvatarNotesReplyPacket)PacketPool.Instance.GetPacket(PacketType.AvatarNotesReply);
+            AvatarNotesReplyPacket an =
+                (AvatarNotesReplyPacket) PacketPool.Instance.GetPacket(
+                    PacketType.AvatarNotesReply);
 
-            an.AgentData = new AvatarNotesReplyPacket.AgentDataBlock { AgentID = AgentId };
+            an.AgentData = new AvatarNotesReplyPacket.AgentDataBlock {AgentID = AgentId};
 
-            an.Data = new AvatarNotesReplyPacket.DataBlock { TargetID = targetID, Notes = Utils.StringToBytes(text) };
+            an.Data = new AvatarNotesReplyPacket.DataBlock {TargetID = targetID, Notes = Utils.StringToBytes(text)};
 
             OutPacket(an, ThrottleOutPacketType.AvatarInfo);
         }
 
         public void SendAvatarPicksReply(UUID targetID, Dictionary<UUID, string> picks)
         {
-            AvatarPicksReplyPacket ap = (AvatarPicksReplyPacket)PacketPool.Instance.GetPacket(PacketType.AvatarPicksReply);
+            AvatarPicksReplyPacket ap =
+                (AvatarPicksReplyPacket) PacketPool.Instance.GetPacket(
+                    PacketType.AvatarPicksReply);
 
-            ap.AgentData = new AvatarPicksReplyPacket.AgentDataBlock { AgentID = AgentId, TargetID = targetID };
+            ap.AgentData = new AvatarPicksReplyPacket.AgentDataBlock {AgentID = AgentId, TargetID = targetID};
 
             ap.Data = new AvatarPicksReplyPacket.DataBlock[picks.Count];
 
@@ -3382,7 +3463,7 @@ namespace Universe.ClientStack
             foreach (KeyValuePair<UUID, string> pick in picks)
             {
                 ap.Data[i] = new AvatarPicksReplyPacket.DataBlock
-                { PickID = pick.Key, PickName = Utils.StringToBytes(pick.Value) };
+                                 {PickID = pick.Key, PickName = Utils.StringToBytes(pick.Value)};
                 i++;
             }
 
@@ -3391,9 +3472,11 @@ namespace Universe.ClientStack
 
         public void SendAvatarClassifiedReply(UUID targetID, Dictionary<UUID, string> classifieds)
         {
-            AvatarClassifiedReplyPacket ac = (AvatarClassifiedReplyPacket)PacketPool.Instance.GetPacket(PacketType.AvatarClassifiedReply);
+            AvatarClassifiedReplyPacket ac =
+                (AvatarClassifiedReplyPacket) PacketPool.Instance.GetPacket(
+                    PacketType.AvatarClassifiedReply);
 
-            ac.AgentData = new AvatarClassifiedReplyPacket.AgentDataBlock { AgentID = AgentId, TargetID = targetID };
+            ac.AgentData = new AvatarClassifiedReplyPacket.AgentDataBlock {AgentID = AgentId, TargetID = targetID};
 
             ac.Data = new AvatarClassifiedReplyPacket.DataBlock[classifieds.Count];
 
@@ -3401,7 +3484,7 @@ namespace Universe.ClientStack
             foreach (KeyValuePair<UUID, string> classified in classifieds)
             {
                 ac.Data[i] = new AvatarClassifiedReplyPacket.DataBlock
-                { ClassifiedID = classified.Key, Name = Utils.StringToBytes(classified.Value) };
+                                 {ClassifiedID = classified.Key, Name = Utils.StringToBytes(classified.Value)};
                 i++;
             }
 
@@ -3410,44 +3493,52 @@ namespace Universe.ClientStack
 
         public void SendParcelDwellReply(int localID, UUID parcelID, float dwell)
         {
-            ParcelDwellReplyPacket pd = (ParcelDwellReplyPacket)PacketPool.Instance.GetPacket(PacketType.ParcelDwellReply);
+            ParcelDwellReplyPacket pd =
+                (ParcelDwellReplyPacket) PacketPool.Instance.GetPacket(
+                    PacketType.ParcelDwellReply);
 
-            pd.AgentData = new ParcelDwellReplyPacket.AgentDataBlock { AgentID = AgentId };
+            pd.AgentData = new ParcelDwellReplyPacket.AgentDataBlock {AgentID = AgentId};
 
-            pd.Data = new ParcelDwellReplyPacket.DataBlock { LocalID = localID, ParcelID = parcelID, Dwell = dwell };
+            pd.Data = new ParcelDwellReplyPacket.DataBlock {LocalID = localID, ParcelID = parcelID, Dwell = dwell};
 
             OutPacket(pd, ThrottleOutPacketType.Land);
         }
 
         public void SendUserInfoReply(bool imViaEmail, bool visible, string email)
         {
-            UserInfoReplyPacket ur = (UserInfoReplyPacket)PacketPool.Instance.GetPacket(PacketType.UserInfoReply);
+            UserInfoReplyPacket ur =
+                (UserInfoReplyPacket) PacketPool.Instance.GetPacket(
+                    PacketType.UserInfoReply);
 
             string Visible = "hidden";
             if (visible)
                 Visible = "default";
 
-            ur.AgentData = new UserInfoReplyPacket.AgentDataBlock { AgentID = AgentId };
+            ur.AgentData = new UserInfoReplyPacket.AgentDataBlock {AgentID = AgentId};
 
             ur.UserData = new UserInfoReplyPacket.UserDataBlock
-            {
-                IMViaEMail = imViaEmail,
-                DirectoryVisibility = Utils.StringToBytes(Visible),
-                EMail = Utils.StringToBytes(email)
-            };
+                              {
+                                  IMViaEMail = imViaEmail,
+                                  DirectoryVisibility = Utils.StringToBytes(Visible),
+                                  EMail = Utils.StringToBytes(email)
+                              };
 
             OutPacket(ur, ThrottleOutPacketType.AvatarInfo);
         }
 
         public void SendCreateGroupReply(UUID groupID, bool success, string message)
         {
-            CreateGroupReplyPacket createGroupReply = (CreateGroupReplyPacket)PacketPool.Instance.GetPacket(PacketType.CreateGroupReply);
+            CreateGroupReplyPacket createGroupReply =
+                (CreateGroupReplyPacket) PacketPool.Instance.GetPacket(PacketType.CreateGroupReply);
 
-            createGroupReply.AgentData = new CreateGroupReplyPacket.AgentDataBlock();
-            createGroupReply.ReplyData = new CreateGroupReplyPacket.ReplyDataBlock();
+            createGroupReply.AgentData =
+                new CreateGroupReplyPacket.AgentDataBlock();
+            createGroupReply.ReplyData =
+                new CreateGroupReplyPacket.ReplyDataBlock();
 
             createGroupReply.AgentData.AgentID = AgentId;
             createGroupReply.ReplyData.GroupID = groupID;
+
             createGroupReply.ReplyData.Success = success;
             createGroupReply.ReplyData.Message = Utils.StringToBytes(message);
             OutPacket(createGroupReply, ThrottleOutPacketType.AvatarInfo);
@@ -3455,19 +3546,21 @@ namespace Universe.ClientStack
 
         public void SendUseCachedMuteList()
         {
-            UseCachedMuteListPacket useCachedMuteList = (UseCachedMuteListPacket)PacketPool.Instance.GetPacket(PacketType.UseCachedMuteList);
+            UseCachedMuteListPacket useCachedMuteList =
+                (UseCachedMuteListPacket) PacketPool.Instance.GetPacket(PacketType.UseCachedMuteList);
 
-            useCachedMuteList.AgentData = new UseCachedMuteListPacket.AgentDataBlock { AgentID = AgentId };
+            useCachedMuteList.AgentData = new UseCachedMuteListPacket.AgentDataBlock {AgentID = AgentId};
 
             OutPacket(useCachedMuteList, ThrottleOutPacketType.AvatarInfo);
         }
 
         public void SendMuteListUpdate(string filename)
         {
-            MuteListUpdatePacket muteListUpdate = (MuteListUpdatePacket)PacketPool.Instance.GetPacket(PacketType.MuteListUpdate);
+            MuteListUpdatePacket muteListUpdate =
+                (MuteListUpdatePacket) PacketPool.Instance.GetPacket(PacketType.MuteListUpdate);
 
             muteListUpdate.MuteData = new MuteListUpdatePacket.MuteDataBlock
-            { AgentID = AgentId, Filename = Utils.StringToBytes(filename) };
+                                          {AgentID = AgentId, Filename = Utils.StringToBytes(filename)};
 
             OutPacket(muteListUpdate, ThrottleOutPacketType.AvatarInfo);
         }
@@ -3476,24 +3569,27 @@ namespace Universe.ClientStack
                                       UUID snapshotID, string user, string originalName, string simName,
                                       Vector3 posGlobal, int sortOrder, bool enabled)
         {
-            PickInfoReplyPacket pickInfoReply = (PickInfoReplyPacket)PacketPool.Instance.GetPacket(PacketType.PickInfoReply);
-            pickInfoReply.AgentData = new PickInfoReplyPacket.AgentDataBlock { AgentID = AgentId };
+            PickInfoReplyPacket pickInfoReply =
+                (PickInfoReplyPacket) PacketPool.Instance.GetPacket(PacketType.PickInfoReply);
+
+            pickInfoReply.AgentData = new PickInfoReplyPacket.AgentDataBlock {AgentID = AgentId};
+
             pickInfoReply.Data = new PickInfoReplyPacket.DataBlock
-            {
-                PickID = pickID,
-                CreatorID = creatorID,
-                TopPick = topPick,
-                ParcelID = parcelID,
-                Name = Utils.StringToBytes(name),
-                Desc = Utils.StringToBytes(desc),
-                SnapshotID = snapshotID,
-                User = Utils.StringToBytes(user),
-                OriginalName = Utils.StringToBytes(originalName),
-                SimName = Utils.StringToBytes(simName),
-                PosGlobal = new Vector3d(posGlobal),
-                SortOrder = sortOrder,
-                Enabled = enabled
-            };
+                                     {
+                                         PickID = pickID,
+                                         CreatorID = creatorID,
+                                         TopPick = topPick,
+                                         ParcelID = parcelID,
+                                         Name = Utils.StringToBytes(name),
+                                         Desc = Utils.StringToBytes(desc),
+                                         SnapshotID = snapshotID,
+                                         User = Utils.StringToBytes(user),
+                                         OriginalName = Utils.StringToBytes(originalName),
+                                         SimName = Utils.StringToBytes(simName),
+                                         PosGlobal = new Vector3d(posGlobal),
+                                         SortOrder = sortOrder,
+                                         Enabled = enabled
+                                     };
 
             OutPacket(pickInfoReply, ThrottleOutPacketType.AvatarInfo);
         }
@@ -3504,9 +3600,10 @@ namespace Universe.ClientStack
 
         public void SendWearables(AvatarWearable[] wearables, int serial)
         {
-            AgentWearablesUpdatePacket aw = (AgentWearablesUpdatePacket)PacketPool.Instance.GetPacket(PacketType.AgentWearablesUpdate);
+            AgentWearablesUpdatePacket aw =
+                (AgentWearablesUpdatePacket) PacketPool.Instance.GetPacket(PacketType.AgentWearablesUpdate);
             aw.AgentData.AgentID = AgentId;
-            aw.AgentData.SerialNum = (uint)serial;
+            aw.AgentData.SerialNum = (uint) serial;
             aw.AgentData.SessionID = m_sessionId;
 
             int count = wearables.Sum(t => t.Count);
@@ -3519,49 +3616,48 @@ namespace Universe.ClientStack
                 for (int j = 0; j < wearables[i].Count; j++)
                 {
                     AgentWearablesUpdatePacket.WearableDataBlock awb = new AgentWearablesUpdatePacket.WearableDataBlock
-                    {
-                        WearableType = (byte)i,
-                        AssetID = wearables[i][j].AssetID,
-                        ItemID = wearables[i][j].ItemID
-                    };
-
+                                                                           {
+                                                                               WearableType = (byte) i,
+                                                                               AssetID = wearables[i][j].AssetID,
+                                                                               ItemID = wearables[i][j].ItemID
+                                                                           };
                     aw.WearableData[idx] = awb;
                     idx++;
 
-                    //MainConsole.Instance.DebugFormat(
-                    //    "[Appearance]: Sending wearable item/asset {0} {1} (index {2}) for {3}", awb.ItemID, awb.AssetID, i, Name);
+                    //                                MainConsole.Instance.DebugFormat(
+                    //                                    "[APPEARANCE]: Sending wearable item/asset {0} {1} (index {2}) for {3}",
+                    //                                    awb.ItemID, awb.AssetID, i, Name);
                 }
             }
 
+            //            OutPacket(aw, ThrottleOutPacketType.Texture);
             OutPacket(aw, ThrottleOutPacketType.AvatarInfo);
         }
 
         public void SendAppearance(AvatarAppearance app)
         {
-            AvatarAppearancePacket avp = (AvatarAppearancePacket)PacketPool.Instance.GetPacket(PacketType.AvatarAppearance);
+            AvatarAppearancePacket avp =
+                (AvatarAppearancePacket) PacketPool.Instance.GetPacket(PacketType.AvatarAppearance);
             // TODO: don't create new blocks if recycling an old packet
             avp.VisualParam = new AvatarAppearancePacket.VisualParamBlock[app.VisualParams.Length];
             avp.ObjectData.TextureEntry = app.Texture.GetBytes();
             for (int i = 0; i < app.VisualParams.Length; i++)
             {
                 AvatarAppearancePacket.VisualParamBlock avblock = new AvatarAppearancePacket.VisualParamBlock
-                {
-                    ParamValue = app.VisualParams[i]
-                };
-
+                                                                      {
+                                                                          ParamValue = app.VisualParams[i]
+                                                                      };
                 avp.VisualParam[i] = avblock;
             }
-
             avp.AppearanceData = new AvatarAppearancePacket.AppearanceDataBlock[1]
                                      {
-                                         new AvatarAppearancePacket.AppearanceDataBlock()
-                                         {
+                                         new AvatarAppearancePacket.AppearanceDataBlock() 
+                                         {  
                                              CofVersion = app.Serial,
                                              AppearanceVersion = (int)RegionProtocols.None
                                          }
                                      };
-
-            avp.AppearanceHover = new AvatarAppearancePacket.AppearanceHoverBlock[1] {
+            avp.AppearanceHover = new AvatarAppearancePacket.AppearanceHoverBlock[1] { 
                 new AvatarAppearancePacket.AppearanceHoverBlock () {
                     HoverHeight = Vector3.Zero
                 }
@@ -3569,44 +3665,50 @@ namespace Universe.ClientStack
 
             avp.Sender.IsTrial = false;
             avp.Sender.ID = app.Owner;
-            //MainConsole.Instance.InfoFormat("[LLClient View]: Sending appearance for {0} to {1}", agentID.ToString(), AgentId.ToString());
+            //MainConsole.Instance.InfoFormat("[LLClientView]: Sending appearance for {0} to {1}", agentID.ToString(), AgentId.ToString());
             //            OutPacket(avp, ThrottleOutPacketType.Texture);
             OutPacket(avp, ThrottleOutPacketType.AvatarInfo);
         }
 
         public void SendAnimations(AnimationGroup animations)
         {
-            //MainConsole.Instance.DebugFormat("[Client]: Sending animations to {0}", Name);
+            //MainConsole.Instance.DebugFormat("[CLIENT]: Sending animations to {0}", Name);
 
-            AvatarAnimationPacket ani = (AvatarAnimationPacket)PacketPool.Instance.GetPacket(PacketType.AvatarAnimation);
+            AvatarAnimationPacket ani =
+                (AvatarAnimationPacket) PacketPool.Instance.GetPacket(PacketType.AvatarAnimation);
             // TODO: don't create new blocks if recycling an old packet
             ani.AnimationSourceList = new AvatarAnimationPacket.AnimationSourceListBlock[animations.Animations.Length];
-            ani.Sender = new AvatarAnimationPacket.SenderBlock { ID = animations.AvatarID };
+
+            ani.Sender = new AvatarAnimationPacket.SenderBlock {ID = animations.AvatarID};
+
             ani.AnimationList = new AvatarAnimationPacket.AnimationListBlock[animations.Animations.Length];
+
             ani.PhysicalAvatarEventList = new AvatarAnimationPacket.PhysicalAvatarEventListBlock[1];
             ani.PhysicalAvatarEventList[0] = new AvatarAnimationPacket.PhysicalAvatarEventListBlock
-            { TypeData = new byte[0] };
+                                                 {TypeData = new byte[0]};
 
             for (int i = 0; i < animations.Animations.Length; ++i)
             {
                 ani.AnimationList[i] = new AvatarAnimationPacket.AnimationListBlock
-                {
-                    AnimID = animations.Animations[i],
-                    AnimSequenceID = animations.SequenceNums[i] + ((i + 1) * 2)
-                };
+                                           {
+                                               AnimID = animations.Animations[i],
+                                               AnimSequenceID = animations.SequenceNums[i] + ((i + 1)*2)
+                                           };
 
                 ani.AnimationSourceList[i] = new AvatarAnimationPacket.AnimationSourceListBlock
-                { ObjectID = animations.ObjectIDs[i] };
+                                                 {ObjectID = animations.ObjectIDs[i]};
+                //if (objectIDs[i] == UUID.Zero)
+                //    ani.AnimationSourceList[i].ObjectID = sourceAgentId;
             }
-
             //We do this here to keep the numbers under control
-            m_animationSequenceNumber += (animations.Animations.Length * 2);
+            m_animationSequenceNumber += (animations.Animations.Length*2);
 
             ani.Header.Reliable = true;
             ani.HasVariableBlocks = false;
+            //            OutPacket(ani, ThrottleOutPacketType.Asset);
             OutPacket(ani, ThrottleOutPacketType.AvatarInfo, true, null,
                       delegate
-                      { m_scene.GetScenePresence(AgentId).SceneViewer.FinishedAnimationPacketSend(animations); });
+                          { m_scene.GetScenePresence(AgentId).SceneViewer.FinishedAnimationPacketSend(animations); });
         }
 
         #endregion
@@ -3622,7 +3724,7 @@ namespace Universe.ClientStack
             if (presence == null || presence.IsChildAgent)
                 return;
 
-            ObjectUpdatePacket objupdate = (ObjectUpdatePacket)PacketPool.Instance.GetPacket(PacketType.ObjectUpdate);
+            ObjectUpdatePacket objupdate = (ObjectUpdatePacket) PacketPool.Instance.GetPacket(PacketType.ObjectUpdate);
             objupdate.Header.Zerocoded = true;
 
             objupdate.RegionData.RegionHandle = presence.Scene.RegionInfo.RegionHandle;
@@ -3630,8 +3732,10 @@ namespace Universe.ClientStack
             ushort timeDilation = Utils.FloatToUInt16(TIME_DILATION, 0.0f, 1.0f);
 
             objupdate.RegionData.TimeDilation = timeDilation;
+
             objupdate.ObjectData = new ObjectUpdatePacket.ObjectDataBlock[1];
             objupdate.ObjectData[0] = CreateAvatarUpdateBlock(presence);
+
             OutPacket(objupdate, ThrottleOutPacketType.OutBand);
         }
 
@@ -3639,7 +3743,8 @@ namespace Universe.ClientStack
         {
             if (!IsActive) return; // We don't need to update inactive clients.
 
-            CoarseLocationUpdatePacket loc = (CoarseLocationUpdatePacket)PacketPool.Instance.GetPacket(PacketType.CoarseLocationUpdate);
+            CoarseLocationUpdatePacket loc =
+                (CoarseLocationUpdatePacket) PacketPool.Instance.GetPacket(PacketType.CoarseLocationUpdate);
             loc.Header.Reliable = false;
 
             // Each packet can only hold around 60 avatar positions and the client clears the mini-map each time
@@ -3656,19 +3761,20 @@ namespace Universe.ClientStack
             {
                 CoarseLocationUpdatePacket.LocationBlock lb =
                     new CoarseLocationUpdatePacket.LocationBlock
-                    {
-                        X = (byte)CoarseLocations[i].X,
-                        Y = (byte)CoarseLocations[i].Y,
-                        Z = CoarseLocations[i].Z > 1024 ? (byte)0 : (byte)(CoarseLocations[i].Z * 0.25f)
-                    };
+                        {
+                            X = (byte) CoarseLocations[i].X,
+                            Y = (byte) CoarseLocations[i].Y,
+                            Z = CoarseLocations[i].Z > 1024 ? (byte) 0 : (byte) (CoarseLocations[i].Z*0.25f)
+                        };
+
 
                 loc.Location[i] = lb;
-                loc.AgentData[i] = new CoarseLocationUpdatePacket.AgentDataBlock { AgentID = users[i] };
+                loc.AgentData[i] = new CoarseLocationUpdatePacket.AgentDataBlock {AgentID = users[i]};
                 if (users[i] == AgentId)
                     selfindex = i;
             }
 
-            ib.You = (short)selfindex;
+            ib.You = (short) selfindex;
             ib.Prey = -1;
             loc.Index = ib;
 
@@ -3693,7 +3799,8 @@ namespace Universe.ClientStack
             foreach (EntityUpdate update in updates)
             {
                 terseUpdates.Add(update);
-                terseUpdateBlocks.Value.Add(CreateImprovedTerseBlock(update.Entity, update.Flags.HasFlag(PrimUpdateFlags.Textures)));
+                terseUpdateBlocks.Value.Add(CreateImprovedTerseBlock(update.Entity,
+                                                                     update.Flags.HasFlag(PrimUpdateFlags.Textures)));
             }
 
             ushort timeDilation = Utils.FloatToUInt16(m_scene.TimeDilation, 0.0f, 1.0f);
@@ -3703,23 +3810,28 @@ namespace Universe.ClientStack
                 List<ImprovedTerseObjectUpdatePacket.ObjectDataBlock> blocks = terseUpdateBlocks.Value;
 
                 ImprovedTerseObjectUpdatePacket packet = new ImprovedTerseObjectUpdatePacket
-                {
-                    RegionData = {
-                        RegionHandle = m_scene.RegionInfo.RegionHandle,
-                        TimeDilation = timeDilation
-                    },
-                    ObjectData = new ImprovedTerseObjectUpdatePacket.ObjectDataBlock[blocks.Count]
-                };
+                                                             {
+                                                                 RegionData =
+                                                                     {
+                                                                         RegionHandle = m_scene.RegionInfo.RegionHandle,
+                                                                         TimeDilation = timeDilation
+                                                                     },
+                                                                 ObjectData =
+                                                                     new ImprovedTerseObjectUpdatePacket.ObjectDataBlock
+                                                                     [blocks.Count]
+                                                             };
 
                 for (int i = 0; i < blocks.Count; i++)
                     packet.ObjectData[i] = blocks[i];
 
-                OutPacket(packet, ThrottleOutPacketType.AvatarInfo, true, p => ResendPrimUpdates(terseUpdates, p),
-                          delegate{
-                              IScenePresence presence = m_scene.GetScenePresence(AgentId);
-                              if (presence != null)
-                                  presence.SceneViewer.FinishedEntityPacketSend(terseUpdates);
-                          });
+                OutPacket(packet, ThrottleOutPacketType.AvatarInfo, true,
+                          p => ResendPrimUpdates(terseUpdates, p),
+                          delegate
+                              {
+                                  IScenePresence presence = m_scene.GetScenePresence(AgentId);
+                                  if (presence != null)
+                                      presence.SceneViewer.FinishedEntityPacketSend(terseUpdates);
+                              });
             }
         }
 
@@ -3766,26 +3878,25 @@ namespace Universe.ClientStack
                     // This doesn't appear to apply to child prims - a client will happily ignore these updates
                     // after the root prim has been deleted.
                     /*if (m_killRecord.Contains(entity.LocalId))
-                    {
+                        {
                         MainConsole.Instance.ErrorFormat(
-                            "[Client]: Preventing update for prim with local id {0} after client for user {1} told it was deleted. Mantis this at http://mantis.virtual-planets.org/bug_report_page.php !",
+                            "[CLIENT]: Preventing update for prim with local id {0} after client for user {1} told it was deleted. Mantis this at http://mantis.Universe-sim.org/bug_report_page.php !",
                             entity.LocalId, Name);
                         return;
-                    }*/
-
-                    ISceneChildEntity ent = (ISceneChildEntity)entity;
+                        }*/
+                    ISceneChildEntity ent = (ISceneChildEntity) entity;
                     if (ent.Shape.PCode == 9 && ent.Shape.State != 0)
                     {
                         //Don't send hud attachments to other avatars except for the owner
                         byte state = ent.Shape.State;
-                        if ((state == (byte)AttachmentPoint.HUDBottom ||
-                             state == (byte)AttachmentPoint.HUDBottomLeft ||
-                             state == (byte)AttachmentPoint.HUDBottomRight ||
-                             state == (byte)AttachmentPoint.HUDCenter ||
-                             state == (byte)AttachmentPoint.HUDCenter2 ||
-                             state == (byte)AttachmentPoint.HUDTop ||
-                             state == (byte)AttachmentPoint.HUDTopLeft ||
-                             state == (byte)AttachmentPoint.HUDTopRight)
+                        if ((state == (byte) AttachmentPoint.HUDBottom ||
+                             state == (byte) AttachmentPoint.HUDBottomLeft ||
+                             state == (byte) AttachmentPoint.HUDBottomRight ||
+                             state == (byte) AttachmentPoint.HUDCenter ||
+                             state == (byte) AttachmentPoint.HUDCenter2 ||
+                             state == (byte) AttachmentPoint.HUDTop ||
+                             state == (byte) AttachmentPoint.HUDTopLeft ||
+                             state == (byte) AttachmentPoint.HUDTopRight)
                             &&
                             ent.OwnerID != AgentId)
                             continue;
@@ -3851,10 +3962,9 @@ namespace Universe.ClientStack
                 try
                 {
                     //Do NOT send cached updates for terse updates
-                    //ONLY send full updates for attachments unless you want to figure out all the little screwy things 
-                    //with sending compressed updates and attachments
+                    //ONLY send full updates for attachments unless you want to figure out all the little screwy things with sending compressed updates and attachments
                     if (entity is ISceneChildEntity &&
-                        ((ISceneChildEntity)entity).IsAttachment)
+                        ((ISceneChildEntity) entity).IsAttachment)
                     {
                         canUseCached = false;
                         canUseImproved = false;
@@ -3864,23 +3974,24 @@ namespace Universe.ClientStack
                     if (canUseCached && !isTerse)
                     {
                         cachedUpdates.Add(update);
-                        cachedUpdateBlocks.Value.Add(CreatePrimCachedUpdateBlock((ISceneChildEntity)entity, m_agentId));
+                        cachedUpdateBlocks.Value.Add(CreatePrimCachedUpdateBlock((ISceneChildEntity) entity,
+                                                                                 m_agentId));
                     }
                     else if (!canUseImproved && !canUseCompressed)
                     {
                         fullUpdates.Add(update);
                         if (entity is IScenePresence)
                         {
-                            objectUpdateBlocks.Value.Add(CreateAvatarUpdateBlock((IScenePresence)entity));
+                            objectUpdateBlocks.Value.Add(CreateAvatarUpdateBlock((IScenePresence) entity));
                         }
                         else
                         {
-                            objectUpdateBlocks.Value.Add(CreatePrimUpdateBlock((ISceneChildEntity)entity, m_agentId));
+                            objectUpdateBlocks.Value.Add(CreatePrimUpdateBlock((ISceneChildEntity) entity, m_agentId));
                         }
                     }
                     else if (!canUseImproved)
                     {
-                        ISceneChildEntity cEntity = (ISceneChildEntity)entity;
+                        ISceneChildEntity cEntity = (ISceneChildEntity) entity;
                         compressedUpdates.Add(update);
                         //We are sending a compressed, which the client will save, add it to the cache
                         if (module != null)
@@ -3944,17 +4055,20 @@ namespace Universe.ClientStack
                             Flags |= CompressedFlags.HasNameValues;
 
                         compressedUpdates.Add(update);
-                        compressedUpdateBlocks.Value.Add(CreateCompressedUpdateBlock((ISceneChildEntity)entity, Flags, updateFlags));
+                        compressedUpdateBlocks.Value.Add(CreateCompressedUpdateBlock((ISceneChildEntity) entity, Flags,
+                                                                                     updateFlags));
                     }
                     else
                     {
                         terseUpdates.Add(update);
-                        terseUpdateBlocks.Value.Add(CreateImprovedTerseBlock(entity, updateFlags.HasFlag(PrimUpdateFlags.Textures)));
+                        terseUpdateBlocks.Value.Add(CreateImprovedTerseBlock(entity,
+                                                                             updateFlags.HasFlag(
+                                                                                 PrimUpdateFlags.Textures)));
                     }
                 }
                 catch (Exception ex)
                 {
-                    MainConsole.Instance.Warn("[LLClient View]: Issue creating an update block " + ex);
+                    MainConsole.Instance.Warn("[LLCLIENTVIEW]: Issue creating an update block " + ex);
                     return;
                 }
             }
@@ -3977,7 +4091,7 @@ namespace Universe.ClientStack
             {
                 List<ObjectUpdatePacket.ObjectDataBlock> blocks = objectUpdateBlocks.Value;
 
-                ObjectUpdatePacket packet = (ObjectUpdatePacket)PacketPool.Instance.GetPacket(PacketType.ObjectUpdate);
+                ObjectUpdatePacket packet = (ObjectUpdatePacket) PacketPool.Instance.GetPacket(PacketType.ObjectUpdate);
                 packet.RegionData.RegionHandle = m_scene.RegionInfo.RegionHandle;
                 packet.RegionData.TimeDilation = timeDilation;
                 packet.ObjectData = new ObjectUpdatePacket.ObjectDataBlock[blocks.Count];
@@ -3985,19 +4099,25 @@ namespace Universe.ClientStack
                 for (int i = 0; i < blocks.Count; i++)
                     packet.ObjectData[i] = blocks[i];
 
-                OutPacket(packet, ThrottleOutPacketType.Task, true, p => ResendPrimUpdates(fullUpdates, p),
-                    delegate{
-                        IScenePresence presence = m_scene.GetScenePresence(AgentId);
-                        if (presence != null)
-                            presence.SceneViewer.FinishedEntityPacketSend(fullUpdates);
-                    });
+
+                //ObjectUpdatePacket oo = new ObjectUpdatePacket(packet.ToBytes(), ref ii);
+
+                OutPacket(packet, ThrottleOutPacketType.Task, true,
+                          p => ResendPrimUpdates(fullUpdates, p),
+                          delegate
+                              {
+                                  IScenePresence presence = m_scene.GetScenePresence(AgentId);
+                                  if (presence != null)
+                                      presence.SceneViewer.FinishedEntityPacketSend(fullUpdates);
+                              });
             }
 
             if (compressedUpdateBlocks.IsValueCreated)
             {
                 List<ObjectUpdateCompressedPacket.ObjectDataBlock> blocks = compressedUpdateBlocks.Value;
 
-                ObjectUpdateCompressedPacket packet = (ObjectUpdateCompressedPacket)PacketPool.Instance.GetPacket(PacketType.ObjectUpdateCompressed);
+                ObjectUpdateCompressedPacket packet =
+                    (ObjectUpdateCompressedPacket) PacketPool.Instance.GetPacket(PacketType.ObjectUpdateCompressed);
                 packet.RegionData.RegionHandle = m_scene.RegionInfo.RegionHandle;
                 packet.RegionData.TimeDilation = timeDilation;
                 packet.ObjectData = new ObjectUpdateCompressedPacket.ObjectDataBlock[blocks.Count];
@@ -4006,19 +4126,22 @@ namespace Universe.ClientStack
                 for (int i = 0; i < blocks.Count; i++)
                     packet.ObjectData[i] = blocks[i];
 
-                OutPacket(packet, ThrottleOutPacketType.Task, true, p => ResendPrimUpdates(compressedUpdates, p),
-                          delegate{
-                              IScenePresence presence = m_scene.GetScenePresence(AgentId);
-                              if (presence != null)
-                                  presence.SceneViewer.FinishedEntityPacketSend(compressedUpdates);
-                          });
+                OutPacket(packet, ThrottleOutPacketType.Task, true,
+                          p => ResendPrimUpdates(compressedUpdates, p),
+                          delegate
+                              {
+                                  IScenePresence presence = m_scene.GetScenePresence(AgentId);
+                                  if (presence != null)
+                                      presence.SceneViewer.FinishedEntityPacketSend(compressedUpdates);
+                              });
             }
 
             if (cachedUpdateBlocks.IsValueCreated)
             {
                 List<ObjectUpdateCachedPacket.ObjectDataBlock> blocks = cachedUpdateBlocks.Value;
 
-                ObjectUpdateCachedPacket packet = (ObjectUpdateCachedPacket)PacketPool.Instance.GetPacket(PacketType.ObjectUpdateCached);
+                ObjectUpdateCachedPacket packet =
+                    (ObjectUpdateCachedPacket) PacketPool.Instance.GetPacket(PacketType.ObjectUpdateCached);
                 packet.RegionData.RegionHandle = m_scene.RegionInfo.RegionHandle;
                 packet.RegionData.TimeDilation = timeDilation;
                 packet.ObjectData = new ObjectUpdateCachedPacket.ObjectDataBlock[blocks.Count];
@@ -4026,12 +4149,14 @@ namespace Universe.ClientStack
                 for (int i = 0; i < blocks.Count; i++)
                     packet.ObjectData[i] = blocks[i];
 
-                OutPacket(packet, ThrottleOutPacketType.Task, true, p => ResendPrimUpdates(cachedUpdates, p),
-                          delegate{
-                              IScenePresence presence = m_scene.GetScenePresence(AgentId);
-                              if (presence != null)
-                                  presence.SceneViewer.FinishedEntityPacketSend(cachedUpdates);
-                          });
+                OutPacket(packet, ThrottleOutPacketType.Task, true,
+                          p => ResendPrimUpdates(cachedUpdates, p),
+                          delegate
+                              {
+                                  IScenePresence presence = m_scene.GetScenePresence(AgentId);
+                                  if (presence != null)
+                                      presence.SceneViewer.FinishedEntityPacketSend(cachedUpdates);
+                              });
             }
 
             if (terseUpdateBlocks.IsValueCreated)
@@ -4039,23 +4164,28 @@ namespace Universe.ClientStack
                 List<ImprovedTerseObjectUpdatePacket.ObjectDataBlock> blocks = terseUpdateBlocks.Value;
 
                 ImprovedTerseObjectUpdatePacket packet = new ImprovedTerseObjectUpdatePacket
-                {
-                    RegionData = {
-                        RegionHandle = m_scene.RegionInfo.RegionHandle,
-                        TimeDilation = timeDilation
-                    },
-                    ObjectData = new ImprovedTerseObjectUpdatePacket.ObjectDataBlock[blocks.Count]
-                };
+                                                             {
+                                                                 RegionData =
+                                                                     {
+                                                                         RegionHandle = m_scene.RegionInfo.RegionHandle,
+                                                                         TimeDilation = timeDilation
+                                                                     },
+                                                                 ObjectData =
+                                                                     new ImprovedTerseObjectUpdatePacket.ObjectDataBlock
+                                                                     [blocks.Count]
+                                                             };
 
                 for (int i = 0; i < blocks.Count; i++)
                     packet.ObjectData[i] = blocks[i];
 
-                OutPacket(packet, ThrottleOutPacketType.Task, true, p => ResendPrimUpdates(terseUpdates, p),
-                          delegate{
-                              IScenePresence presence = m_scene.GetScenePresence(AgentId);
-                              if (presence != null)
-                                  presence.SceneViewer.FinishedEntityPacketSend(terseUpdates);
-                          });
+                OutPacket(packet, ThrottleOutPacketType.Task, true,
+                          p => ResendPrimUpdates(terseUpdates, p),
+                          delegate
+                              {
+                                  IScenePresence presence = m_scene.GetScenePresence(AgentId);
+                                  if (presence != null)
+                                      presence.SceneViewer.FinishedEntityPacketSend(terseUpdates);
+                              });
             }
         }
 
@@ -4076,9 +4206,9 @@ namespace Universe.ClientStack
                 foreach (EntityUpdate update in updates)
                 {
                     if (update.Entity is ISceneChildEntity)
-                        viewer.QueuePartForUpdate((ISceneChildEntity)update.Entity, update.Flags);
+                        viewer.QueuePartForUpdate((ISceneChildEntity) update.Entity, update.Flags);
                     else
-                        viewer.QueuePresenceForUpdate((IScenePresence)update.Entity, update.Flags);
+                        viewer.QueuePresenceForUpdate((IScenePresence) update.Entity, update.Flags);
                 }
             }
         }
@@ -4101,7 +4231,7 @@ namespace Universe.ClientStack
             // arraytmp  1 contains current number of packets in avatarinfo
             // arraytmp  2 contains current number of packets in texture
 
-            int[] arraytmp = (int[])o;
+            int[] arraytmp = (int[]) o;
             int ptmp = m_udpServer.PrimUpdatesPerCallback - arraytmp[0];
             int atmp = m_udpServer.AvatarUpdatesPerCallBack - arraytmp[1];
 
@@ -4119,6 +4249,8 @@ namespace Universe.ClientStack
 
         void ProcessTextureRequests(int numPackets)
         {
+            //note: tmp is never used
+            //int tmp = m_udpClient.GetCurTexPacksInQueue();
             if (m_imageManager != null)
                 m_imageManager.ProcessImageQueue(numPackets);
         }
@@ -4126,57 +4258,52 @@ namespace Universe.ClientStack
         public void SendAssetUploadCompleteMessage(sbyte AssetType, bool Success, UUID AssetFullID)
         {
             AssetUploadCompletePacket newPack = new AssetUploadCompletePacket
-            {
-                AssetBlock = {
-                    Type = AssetType,
-                    Success = Success,
-                    UUID = AssetFullID
-                },
-                Header = { Zerocoded = true }
-            };
-
+                                                    {
+                                                        AssetBlock =
+                                                            {Type = AssetType, Success = Success, UUID = AssetFullID},
+                                                        Header = {Zerocoded = true}
+                                                    };
             OutPacket(newPack, ThrottleOutPacketType.Asset);
         }
 
         public void SendXferRequest(ulong XferID, short AssetType, UUID vFileID, byte FilePath, byte[] FileName)
         {
             RequestXferPacket newPack = new RequestXferPacket
-            {
-                XferID = {
-                    ID = XferID,
-                    VFileType = AssetType,
-                    VFileID = vFileID,
-                    FilePath = FilePath,
-                    Filename = FileName
-                },
-                Header = { Zerocoded = true }
-            };
-
+                                            {
+                                                XferID =
+                                                    {
+                                                        ID = XferID,
+                                                        VFileType = AssetType,
+                                                        VFileID = vFileID,
+                                                        FilePath = FilePath,
+                                                        Filename = FileName
+                                                    },
+                                                Header = {Zerocoded = true}
+                                            };
             OutPacket(newPack, ThrottleOutPacketType.Transfer);
         }
 
         public void SendConfirmXfer(ulong xferID, uint PacketID)
         {
             ConfirmXferPacketPacket newPack = new ConfirmXferPacketPacket
-            {
-                XferID = { ID = xferID, Packet = PacketID },
-                Header = { Zerocoded = true }
-            };
-
+                                                  {
+                                                      XferID = {ID = xferID, Packet = PacketID},
+                                                      Header = {Zerocoded = true}
+                                                  };
             OutPacket(newPack, ThrottleOutPacketType.Transfer);
         }
 
         public void SendInitiateDownload(string simFileName, string clientFileName)
         {
             InitiateDownloadPacket newPack = new InitiateDownloadPacket
-            {
-                AgentData = { AgentID = AgentId },
-                FileData = {
-                    SimFilename = Utils.StringToBytes(simFileName),
-                    ViewerFilename = Utils.StringToBytes(clientFileName)
-                }
-            };
-
+                                                 {
+                                                     AgentData = {AgentID = AgentId},
+                                                     FileData =
+                                                         {
+                                                             SimFilename = Utils.StringToBytes(simFileName),
+                                                             ViewerFilename = Utils.StringToBytes(clientFileName)
+                                                         }
+                                                 };
             OutPacket(newPack, ThrottleOutPacketType.Transfer);
         }
 
@@ -4184,7 +4311,7 @@ namespace Universe.ClientStack
             ushort numParts, UUID ImageUUID, uint ImageSize, byte[] ImageData, byte imageCodec)
         {
             ImageDataPacket im = new ImageDataPacket
-            { Header = { Reliable = false }, ImageID = { Packets = numParts, ID = ImageUUID } };
+                                     {Header = {Reliable = false}, ImageID = {Packets = numParts, ID = ImageUUID}};
 
             if (ImageSize > 0)
                 im.ImageID.Size = ImageSize;
@@ -4198,18 +4325,19 @@ namespace Universe.ClientStack
         public void SendImageNextPart(ushort partNumber, UUID imageUuid, byte[] imageData)
         {
             ImagePacketPacket im = new ImagePacketPacket
-            {
-                Header = { Reliable = false },
-                ImageID = { Packet = partNumber, ID = imageUuid },
-                ImageData = { Data = imageData }
-            };
+                                       {
+                                           Header = {Reliable = false},
+                                           ImageID = {Packet = partNumber, ID = imageUuid},
+                                           ImageData = {Data = imageData}
+                                       };
 
             OutPacket(im, ThrottleOutPacketType.Texture);
         }
 
         public void SendImageNotFound(UUID imageid)
         {
-            ImageNotInDatabasePacket notFoundPacket = (ImageNotInDatabasePacket)PacketPool.Instance.GetPacket(PacketType.ImageNotInDatabase);
+            ImageNotInDatabasePacket notFoundPacket
+                = (ImageNotInDatabasePacket) PacketPool.Instance.GetPacket(PacketType.ImageNotInDatabase);
 
             notFoundPacket.ImageID.ID = imageid;
 
@@ -4226,20 +4354,25 @@ namespace Universe.ClientStack
             m_sendingSimStatsPacket = true;
 
             SimStatsPacket pack = new SimStatsPacket
-            {
-                Region = stats.RegionBlock,
-                RegionInfo = new SimStatsPacket.RegionInfoBlock[1]
-                {
-                    new SimStatsPacket.RegionInfoBlock()
-                    {
-                        RegionFlagsExtended = stats.RegionBlock.RegionFlags
-                    }
-                },
-                Stat = stats.StatsBlock,
-                Header = { Reliable = false }
-            };
+                                      {
+                                          Region = stats.RegionBlock,
+                                          RegionInfo =
+                                              new SimStatsPacket.RegionInfoBlock[1]
+                                                  {
+                                                      new SimStatsPacket.RegionInfoBlock()
+                                                          {
+                                                              RegionFlagsExtended =
+                                                                  stats.RegionBlock
+                                                                       .RegionFlags
+                                                          }
+                                                  },
+                                          Stat = stats.StatsBlock,
+                                          Header = {Reliable = false}
+                                      };
 
-            OutPacket(pack, ThrottleOutPacketType.Task, true, null, delegate { m_sendingSimStatsPacket = false; });
+
+            OutPacket(pack, ThrottleOutPacketType.Task, true, null,
+                      delegate { m_sendingSimStatsPacket = false; });
         }
 
         public void SendObjectPropertiesFamilyData(uint RequestFlags, UUID ObjectUUID, UUID OwnerID, UUID GroupID,
@@ -4249,30 +4382,32 @@ namespace Universe.ClientStack
                                                    UUID LastOwnerID, string ObjectName, string Description)
         {
             ObjectPropertiesFamilyPacket objPropFamilyPack =
-                (ObjectPropertiesFamilyPacket)PacketPool.Instance.GetPacket(PacketType.ObjectPropertiesFamily);
+                (ObjectPropertiesFamilyPacket) PacketPool.Instance.GetPacket(PacketType.ObjectPropertiesFamily);
             // TODO: don't create new blocks if recycling an old packet
 
             ObjectPropertiesFamilyPacket.ObjectDataBlock objPropDB = new ObjectPropertiesFamilyPacket.ObjectDataBlock
-            {
-                RequestFlags = RequestFlags,
-                ObjectID = ObjectUUID,
-                OwnerID = OwnerID == GroupID
-                ? UUID.Zero
-                : OwnerID,
-                GroupID = GroupID,
-                BaseMask = BaseMask,
-                OwnerMask = OwnerMask,
-                GroupMask = GroupMask,
-                EveryoneMask = EveryoneMask,
-                NextOwnerMask = NextOwnerMask,
-                OwnershipCost = OwnershipCost,
-                SaleType = SaleType,
-                SalePrice = SalePrice,
-                Category = Category,
-                LastOwnerID = LastOwnerID,
-                Name = Util.StringToBytes256(ObjectName),
-                Description = Util.StringToBytes256(Description)
-            };
+                                                                         {
+                                                                             RequestFlags = RequestFlags,
+                                                                             ObjectID = ObjectUUID,
+                                                                             OwnerID =
+                                                                                 OwnerID == GroupID
+                                                                                     ? UUID.Zero
+                                                                                     : OwnerID,
+                                                                             GroupID = GroupID,
+                                                                             BaseMask = BaseMask,
+                                                                             OwnerMask = OwnerMask,
+                                                                             GroupMask = GroupMask,
+                                                                             EveryoneMask = EveryoneMask,
+                                                                             NextOwnerMask = NextOwnerMask,
+                                                                             OwnershipCost = OwnershipCost,
+                                                                             SaleType = SaleType,
+                                                                             SalePrice = SalePrice,
+                                                                             Category = Category,
+                                                                             LastOwnerID = LastOwnerID,
+                                                                             Name = Util.StringToBytes256(ObjectName),
+                                                                             Description =
+                                                                                 Util.StringToBytes256(Description)
+                                                                         };
 
             objPropFamilyPack.ObjectData = objPropDB;
             objPropFamilyPack.Header.Zerocoded = true;
@@ -4282,51 +4417,53 @@ namespace Universe.ClientStack
 
         public void SendObjectPropertiesReply(List<IEntity> parts)
         {
+            //ObjectPropertiesPacket proper = (ObjectPropertiesPacket)PacketPool.Instance.GetPacket(PacketType.ObjectProperties);
             // TODO: don't create new blocks if recycling an old packet
 
             //Theres automatic splitting, just let it go on through
-            ObjectPropertiesPacket proper = (ObjectPropertiesPacket)PacketPool.Instance.GetPacket(PacketType.ObjectProperties);
+            ObjectPropertiesPacket proper =
+                (ObjectPropertiesPacket) PacketPool.Instance.GetPacket(PacketType.ObjectProperties);
 
             proper.ObjectData =
                 parts.OfType<ISceneChildEntity>()
                      .Select(entity => entity as ISceneChildEntity)
                      .Select(part => new ObjectPropertiesPacket.ObjectDataBlock
-                     {
-                         ItemID = part.FromUserInventoryItemID,
-                         CreationDate = (ulong)part.CreationDate * 1000000,
-                         CreatorID = part.CreatorID,
-                         FolderID = UUID.Zero,
-                         FromTaskID = UUID.Zero,
-                         GroupID = part.GroupID,
-                         InventorySerial = (short)part.InventorySerial,
-                         LastOwnerID = part.LastOwnerID,
-                         ObjectID = part.UUID,
-                         OwnerID = part.OwnerID == part.GroupID ? UUID.Zero : part.OwnerID,
-                         TouchName = Util.StringToBytes256(part.ParentEntity.RootChild.TouchName),
-                         TextureID = new byte[0],
-                         SitName = Util.StringToBytes256(part.ParentEntity.RootChild.SitName),
-                         Name = Util.StringToBytes256(part.Name),
-                         Description = Util.StringToBytes256(part.Description),
-                         OwnerMask = part.ParentEntity.RootChild.OwnerMask,
-                         NextOwnerMask = part.ParentEntity.RootChild.NextOwnerMask,
-                         GroupMask = part.ParentEntity.RootChild.GroupMask,
-                         EveryoneMask = part.ParentEntity.RootChild.EveryoneMask,
-                         BaseMask = part.ParentEntity.RootChild.BaseMask,
-                         SaleType = part.ParentEntity.RootChild.ObjectSaleType,
-                         SalePrice = part.ParentEntity.RootChild.SalePrice
-                     }).ToArray();
+                                         {
+                                             ItemID = part.FromUserInventoryItemID,
+                                             CreationDate = (ulong) part.CreationDate*1000000,
+                                             CreatorID = part.CreatorID,
+                                             FolderID = UUID.Zero,
+                                             FromTaskID = UUID.Zero,
+                                             GroupID = part.GroupID,
+                                             InventorySerial = (short) part.InventorySerial,
+                                             LastOwnerID = part.LastOwnerID,
+                                             ObjectID = part.UUID,
+                                             OwnerID = part.OwnerID == part.GroupID ? UUID.Zero : part.OwnerID,
+                                             TouchName = Util.StringToBytes256(part.ParentEntity.RootChild.TouchName),
+                                             TextureID = new byte[0],
+                                             SitName = Util.StringToBytes256(part.ParentEntity.RootChild.SitName),
+                                             Name = Util.StringToBytes256(part.Name),
+                                             Description = Util.StringToBytes256(part.Description),
+                                             OwnerMask = part.ParentEntity.RootChild.OwnerMask,
+                                             NextOwnerMask = part.ParentEntity.RootChild.NextOwnerMask,
+                                             GroupMask = part.ParentEntity.RootChild.GroupMask,
+                                             EveryoneMask = part.ParentEntity.RootChild.EveryoneMask,
+                                             BaseMask = part.ParentEntity.RootChild.BaseMask,
+                                             SaleType = part.ParentEntity.RootChild.ObjectSaleType,
+                                             SalePrice = part.ParentEntity.RootChild.SalePrice
+                                         }).ToArray();
 
             proper.Header.Zerocoded = true;
             bool hasFinishedSending = false; //Since this packet will be split up, we only want to finish sending once
             OutPacket(proper, ThrottleOutPacketType.State, true, null, delegate
-            {
-                if (hasFinishedSending)
-                    return;
-                hasFinishedSending = true;
-                m_scene.GetScenePresence(AgentId).
-                        SceneViewer.
-                        FinishedPropertyPacketSend(parts);
-            });
+                                                                           {
+                                                                               if (hasFinishedSending)
+                                                                                   return;
+                                                                               hasFinishedSending = true;
+                                                                               m_scene.GetScenePresence(AgentId).
+                                                                                       SceneViewer.
+                                                                                       FinishedPropertyPacketSend(parts);
+                                                                           });
         }
 
         #region Estate Data Sending Methods
@@ -4338,7 +4475,6 @@ namespace Universe.ClientStack
             {
                 return true;
             }
-
             return false;
         }
 
@@ -4346,19 +4482,19 @@ namespace Universe.ClientStack
 
         {
             EstateOwnerMessagePacket packet = new EstateOwnerMessagePacket
-            {
-                AgentData = {
-                    TransactionID = UUID.Random(),
-                    AgentID = AgentId,
-                    SessionID = SessionId
-                },
-                MethodData = {
-                    Invoice = invoice,
-                    Method = Utils.StringToBytes("setaccess")
-                }
-            };
+                                                  {
+                                                      AgentData =
+                                                          {
+                                                              TransactionID = UUID.Random(),
+                                                              AgentID = AgentId,
+                                                              SessionID = SessionId
+                                                          },
+                                                      MethodData =
+                                                          {Invoice = invoice, Method = Utils.StringToBytes("setaccess")}
+                                                  };
 
-            EstateOwnerMessagePacket.ParamListBlock[] returnblock = new EstateOwnerMessagePacket.ParamListBlock[6 + Data.Count];
+            EstateOwnerMessagePacket.ParamListBlock[] returnblock =
+                new EstateOwnerMessagePacket.ParamListBlock[6 + Data.Count];
 
             for (int i = 0; i < (6 + Data.Count); i++)
             {
@@ -4404,31 +4540,31 @@ namespace Universe.ClientStack
                 (from t in bl where t != null where t.BannedUserID != UUID.Zero select t.BannedUserID).ToList();
 
             EstateOwnerMessagePacket packet = new EstateOwnerMessagePacket
-            {
-                AgentData = {
-                    TransactionID = UUID.Random(),
-                    AgentID = AgentId,
-                    SessionID = SessionId
-                },
-                MethodData = {
-                    Invoice = invoice,
-                    Method = Utils.StringToBytes("setaccess")
-                }
-            };
+                                                  {
+                                                      AgentData =
+                                                          {
+                                                              TransactionID = UUID.Random(),
+                                                              AgentID = AgentId,
+                                                              SessionID = SessionId
+                                                          },
+                                                      MethodData =
+                                                          {Invoice = invoice, Method = Utils.StringToBytes("setaccess")}
+                                                  };
 
-            EstateOwnerMessagePacket.ParamListBlock[] returnblock = new EstateOwnerMessagePacket.ParamListBlock[6 + BannedUsers.Count];
+            EstateOwnerMessagePacket.ParamListBlock[] returnblock =
+                new EstateOwnerMessagePacket.ParamListBlock[6 + BannedUsers.Count];
 
             for (int i = 0; i < (6 + BannedUsers.Count); i++)
             {
                 returnblock[i] = new EstateOwnerMessagePacket.ParamListBlock();
             }
-
             int j = 0;
 
             returnblock[j].Parameter = Utils.StringToBytes(estateID.ToString());
             j++;
 
-            returnblock[j].Parameter = Utils.StringToBytes(((int)EstateTools.EstateAccessReplyDelta.EstateBans).ToString());
+            returnblock[j].Parameter =
+                Utils.StringToBytes(((int) EstateTools.EstateAccessReplyDelta.EstateBans).ToString());
             j++;
             returnblock[j].Parameter = Utils.StringToBytes("0");
             j++;
@@ -4463,7 +4599,7 @@ namespace Universe.ClientStack
             rinfoblk.PricePerMeter = args.pricePerMeter;
             rinfoblk.RedirectGridX = args.redirectGridX;
             rinfoblk.RedirectGridY = args.redirectGridY;
-            rinfoblk.RegionFlags = (uint)args.regionFlags;
+            rinfoblk.RegionFlags = (uint) args.regionFlags;
             rinfoblk.SimAccess = args.simAccess;
             rinfoblk.SunHour = args.sunHour;
             rinfoblk.TerrainLowerLimit = args.terrainLowerLimit;
@@ -4473,22 +4609,23 @@ namespace Universe.ClientStack
             rinfoblk.SimName = Utils.StringToBytes(args.simName);
 
             rinfopack.RegionInfo2 = new RegionInfoPacket.RegionInfo2Block
-            {
-                HardMaxAgents = uint.MaxValue,
-                HardMaxObjects = uint.MaxValue,
-                MaxAgents32 = args.maxAgents,
-                ProductName = Utils.StringToBytes(args.regionType),
-                ProductSKU = Utils.EmptyBytes
-            };
+                                        {
+                                            HardMaxAgents = uint.MaxValue,
+                                            HardMaxObjects = uint.MaxValue,
+                                            MaxAgents32 = args.maxAgents,
+                                            ProductName = Utils.StringToBytes(args.regionType),
+                                            ProductSKU = Utils.EmptyBytes
+                                        };
 
             rinfopack.HasVariableBlocks = true;
             rinfopack.RegionInfo = rinfoblk;
-            rinfopack.AgentData = new RegionInfoPacket.AgentDataBlock { AgentID = AgentId, SessionID = SessionId };
+            rinfopack.AgentData = new RegionInfoPacket.AgentDataBlock {AgentID = AgentId, SessionID = SessionId};
             rinfopack.RegionInfo3 = new RegionInfoPacket.RegionInfo3Block[1]
                                         {
                                             new RegionInfoPacket.RegionInfo3Block()
                                                 {
-                                                    RegionFlagsExtended = args.regionFlags
+                                                    RegionFlagsExtended =
+                                                        args.regionFlags
                                                 }
                                         };
 
@@ -4499,13 +4636,15 @@ namespace Universe.ClientStack
         {
             EstateCovenantReplyPacket einfopack = new EstateCovenantReplyPacket();
             EstateCovenantReplyPacket.DataBlock edata = new EstateCovenantReplyPacket.DataBlock
-            {
-                CovenantID = covenant,
-                CovenantTimestamp = (uint)covenantLastUpdated,
-                EstateOwnerID = m_scene.RegionInfo.EstateSettings.EstateOwner,
-                EstateName = Utils.StringToBytes(m_scene.RegionInfo.EstateSettings.EstateName)
-            };
-
+                                                            {
+                                                                CovenantID = covenant,
+                                                                CovenantTimestamp = (uint) covenantLastUpdated,
+                                                                EstateOwnerID =
+                                                                    m_scene.RegionInfo.EstateSettings.EstateOwner,
+                                                                EstateName =
+                                                                    Utils.StringToBytes(
+                                                                        m_scene.RegionInfo.EstateSettings.EstateName)
+                                                            };
             einfopack.Data = edata;
             OutPacket(einfopack, ThrottleOutPacketType.AvatarInfo);
         }
@@ -4515,10 +4654,10 @@ namespace Universe.ClientStack
                                            string abuseEmail, UUID estateOwner)
         {
             EstateOwnerMessagePacket packet = new EstateOwnerMessagePacket
-            {
-                MethodData = { Invoice = invoice },
-                AgentData = { TransactionID = UUID.Random() }
-            };
+                                                  {
+                                                      MethodData = {Invoice = invoice},
+                                                      AgentData = {TransactionID = UUID.Random()}
+                                                  };
             packet.MethodData.Method = Utils.StringToBytes("estateupdateinfo");
             EstateOwnerMessagePacket.ParamListBlock[] returnblock = new EstateOwnerMessagePacket.ParamListBlock[10];
 
@@ -4531,6 +4670,7 @@ namespace Universe.ClientStack
             returnblock[0].Parameter = Utils.StringToBytes(estateName);
             returnblock[1].Parameter = Utils.StringToBytes(estateOwner.ToString());
             returnblock[2].Parameter = Utils.StringToBytes(estateID.ToString());
+
             returnblock[3].Parameter = Utils.StringToBytes(estateFlags.ToString());
             returnblock[4].Parameter = Utils.StringToBytes(sunPosition.ToString());
             returnblock[5].Parameter = Utils.StringToBytes(parentEstate.ToString());
@@ -4541,7 +4681,7 @@ namespace Universe.ClientStack
 
             packet.ParamList = returnblock;
             packet.Header.Reliable = false;
-            //MainConsole.Instance.Debug("[Estate]: SIM--->" + packet.ToString());
+            //MainConsole.Instance.Debug("[ESTATE]: SIM--->" + packet.ToString());
             OutPacket(packet, ThrottleOutPacketType.AvatarInfo);
         }
 
@@ -4551,7 +4691,7 @@ namespace Universe.ClientStack
 
         public void SendLandParcelOverlay(byte[] data, int sequence_id)
         {
-            ParcelOverlayPacket packet = (ParcelOverlayPacket)PacketPool.Instance.GetPacket(PacketType.ParcelOverlay);
+            ParcelOverlayPacket packet = (ParcelOverlayPacket) PacketPool.Instance.GetPacket(PacketType.ParcelOverlay);
             packet.ParcelData.Data = data;
             packet.ParcelData.SequenceID = sequence_id;
             packet.Header.Zerocoded = true;
@@ -4590,7 +4730,7 @@ namespace Universe.ClientStack
             updateMessage.ClaimPrice = landData.ClaimPrice;
             updateMessage.GroupID = landData.GroupID;
             updateMessage.IsGroupOwned = landData.IsGroupOwned;
-            updateMessage.LandingType = (LandingType)landData.LandingType;
+            updateMessage.LandingType = (LandingType) landData.LandingType;
             updateMessage.LocalID = landData.LocalID;
 
             updateMessage.MaxPrims = parcelObjectCapacity;
@@ -4603,21 +4743,21 @@ namespace Universe.ClientStack
             updateMessage.OtherCleanTime = landData.OtherCleanTime;
             updateMessage.OtherCount = 0; //TODO: Unimplemented
             updateMessage.OwnerID = landData.OwnerID;
-            updateMessage.ParcelFlags = (ParcelFlags)landData.Flags;
+            updateMessage.ParcelFlags = (ParcelFlags) landData.Flags;
             updateMessage.ParcelPrimBonus = simObjectBonusFactor;
             updateMessage.PassHours = landData.PassHours;
             updateMessage.PassPrice = landData.PassPrice;
             updateMessage.PublicCount = 0; //TODO: Unimplemented
             updateMessage.Privacy = landData.Private;
 
-            updateMessage.RegionPushOverride = (regionFlags & (uint)RegionFlags.RestrictPushObject) > 0;
-            updateMessage.RegionDenyAnonymous = (regionFlags & (uint)RegionFlags.DenyAnonymous) > 0;
+            updateMessage.RegionPushOverride = (regionFlags & (uint) RegionFlags.RestrictPushObject) > 0;
+            updateMessage.RegionDenyAnonymous = (regionFlags & (uint) RegionFlags.DenyAnonymous) > 0;
 
-            updateMessage.RegionDenyIdentified = (regionFlags & (uint)RegionFlags.DenyIdentified) > 0;
-            updateMessage.RegionDenyTransacted = (regionFlags & (uint)RegionFlags.DenyTransacted) > 0;
+            updateMessage.RegionDenyIdentified = (regionFlags & (uint) RegionFlags.DenyIdentified) > 0;
+            updateMessage.RegionDenyTransacted = (regionFlags & (uint) RegionFlags.DenyTransacted) > 0;
 
             updateMessage.RentPrice = 0;
-            updateMessage.RequestResult = (ParcelResult)request_result;
+            updateMessage.RequestResult = (ParcelResult) request_result;
             updateMessage.SalePrice = landData.SalePrice;
             updateMessage.SelfCount = 0; //TODO: Unimplemented
             updateMessage.SequenceID = sequence_id;
@@ -4656,7 +4796,8 @@ namespace Universe.ClientStack
 
         public void SendLandAccessListData(List<UUID> avatars, uint accessFlag, int localLandID)
         {
-            ParcelAccessListReplyPacket replyPacket = (ParcelAccessListReplyPacket)PacketPool.Instance.GetPacket(PacketType.ParcelAccessListReply);
+            ParcelAccessListReplyPacket replyPacket =
+                (ParcelAccessListReplyPacket) PacketPool.Instance.GetPacket(PacketType.ParcelAccessListReply);
             replyPacket.Data.AgentID = AgentId;
             replyPacket.Data.Flags = accessFlag;
             replyPacket.Data.LocalID = localLandID;
@@ -4664,7 +4805,8 @@ namespace Universe.ClientStack
 
             replyPacket.List =
                 avatars.Select(
-                    avatar => new ParcelAccessListReplyPacket.ListBlock { Flags = accessFlag, ID = avatar, Time = 0 }).ToArray();
+                    avatar => new ParcelAccessListReplyPacket.ListBlock {Flags = accessFlag, ID = avatar, Time = 0}).
+                        ToArray();
 
             replyPacket.Header.Zerocoded = true;
             OutPacket(replyPacket, ThrottleOutPacketType.Land);
@@ -4674,7 +4816,8 @@ namespace Universe.ClientStack
         {
             bool firstCall = true;
             const int MAX_OBJECTS_PER_PACKET = 251;
-            ForceObjectSelectPacket pack = (ForceObjectSelectPacket)PacketPool.Instance.GetPacket(PacketType.ForceObjectSelect);
+            ForceObjectSelectPacket pack =
+                (ForceObjectSelectPacket) PacketPool.Instance.GetPacket(PacketType.ForceObjectSelect);
             while (ObjectIDs.Count > 0)
             {
                 if (firstCall)
@@ -4688,13 +4831,14 @@ namespace Universe.ClientStack
                 }
 
                 ForceObjectSelectPacket.DataBlock[] data = ObjectIDs.Count > MAX_OBJECTS_PER_PACKET
-                                                               ? new ForceObjectSelectPacket.DataBlock[MAX_OBJECTS_PER_PACKET]
+                                                               ? new ForceObjectSelectPacket.DataBlock[
+                                                                     MAX_OBJECTS_PER_PACKET]
                                                                : new ForceObjectSelectPacket.DataBlock[ObjectIDs.Count];
 
                 int i;
                 for (i = 0; i < MAX_OBJECTS_PER_PACKET && ObjectIDs.Count > 0; i++)
                 {
-                    data[i] = new ForceObjectSelectPacket.DataBlock { LocalID = Convert.ToUInt32(ObjectIDs[0]) };
+                    data[i] = new ForceObjectSelectPacket.DataBlock {LocalID = Convert.ToUInt32(ObjectIDs[0])};
                     ObjectIDs.RemoveAt(0);
                 }
                 pack.Data = data;
@@ -4705,9 +4849,10 @@ namespace Universe.ClientStack
 
         public void SendCameraConstraint(Vector4 ConstraintPlane)
         {
-            CameraConstraintPacket cpack = (CameraConstraintPacket)PacketPool.Instance.GetPacket(PacketType.CameraConstraint);
-            cpack.CameraCollidePlane = new CameraConstraintPacket.CameraCollidePlaneBlock { Plane = ConstraintPlane };
-            //MainConsole.Instance.DebugFormat("[Client View]: Constraint {0}", ConstraintPlane);
+            CameraConstraintPacket cpack =
+                (CameraConstraintPacket) PacketPool.Instance.GetPacket(PacketType.CameraConstraint);
+            cpack.CameraCollidePlane = new CameraConstraintPacket.CameraCollidePlaneBlock {Plane = ConstraintPlane};
+            //MainConsole.Instance.DebugFormat("[CLIENTVIEW]: Constraint {0}", ConstraintPlane);
             OutPacket(cpack, ThrottleOutPacketType.AvatarInfo);
         }
 
@@ -4718,28 +4863,30 @@ namespace Universe.ClientStack
             if (notifyCount > 32)
             {
                 MainConsole.Instance.InfoFormat(
-                    "[Land]: More than {0} avatars own prims on this parcel.  Only sending back details of first {0}"
+                    "[LAND]: Mor e than {0} avatars own prims on this parcel.  Only sending back details of first {0}"
                     + " - a developer might want to investigate whether this is a hard limit", 32);
 
                 notifyCount = 32;
             }
 
             ParcelObjectOwnersReplyMessage message = new ParcelObjectOwnersReplyMessage
-            {
-                PrimOwnersBlock = new ParcelObjectOwnersReplyMessage.PrimOwner[notifyCount]
-            };
+                                                         {
+                                                             PrimOwnersBlock =
+                                                                 new ParcelObjectOwnersReplyMessage.PrimOwner[
+                                                                 notifyCount]
+                                                         };
 
             int num = 0;
             foreach (LandObjectOwners owner in objectOwners)
             {
                 message.PrimOwnersBlock[num] = new ParcelObjectOwnersReplyMessage.PrimOwner
-                {
-                    Count = owner.Count,
-                    IsGroupOwned = owner.GroupOwned,
-                    OnlineStatus = owner.Online,
-                    OwnerID = owner.OwnerID,
-                    TimeStamp = owner.TimeLastRezzed
-                };
+                                                   {
+                                                       Count = owner.Count,
+                                                       IsGroupOwned = owner.GroupOwned,
+                                                       OnlineStatus = owner.Online,
+                                                       OwnerID = owner.OwnerID,
+                                                       TimeStamp = owner.TimeLastRezzed
+                                                   };
 
                 num++;
 
@@ -4758,7 +4905,8 @@ namespace Universe.ClientStack
 
         #region Helper Methods
 
-        ImprovedTerseObjectUpdatePacket.ObjectDataBlock CreateImprovedTerseBlock(IEntity entity, bool sendTexture)
+        ImprovedTerseObjectUpdatePacket.ObjectDataBlock CreateImprovedTerseBlock(IEntity entity,
+                                                                                         bool sendTexture)
         {
             #region ScenePresence/SOP Handling
 
@@ -4772,14 +4920,12 @@ namespace Universe.ClientStack
 
             if (entity is IScenePresence)
             {
-                IScenePresence presence = (IScenePresence)entity;
+                IScenePresence presence = (IScenePresence) entity;
 
                 attachPoint = 0;
                 if (presence.PhysicsActor != null && !presence.PhysicsActor.IsColliding)
                     presence.CollisionPlane = Vector4.UnitW;
-                //We have to do this, otherwise the last ground one will be what we have, 
-                //and it can cause the client to think that it shouldn't fly down, 
-                //which will cause the agent to fall instead
+                //We have to do this, otherwise the last ground one will be what we have, and it can cause the client to think that it shouldn't fly down, which will cause the agent to fall instead
                 collisionPlane = presence.CollisionPlane;
                 position = presence.OffsetPosition;
                 velocity = presence.Velocity;
@@ -4791,7 +4937,7 @@ namespace Universe.ClientStack
             }
             else
             {
-                ISceneChildEntity part = (ISceneChildEntity)entity;
+                ISceneChildEntity part = (ISceneChildEntity) entity;
 
                 attachPoint = part.AttachmentPoint;
                 collisionPlane = Vector4.Zero;
@@ -4814,8 +4960,8 @@ namespace Universe.ClientStack
             pos += 4;
 
             // Avatar/CollisionPlane
-            data[pos] = (byte)((attachPoint & 0x0f) << 4);
-            data[pos++] += (byte)(attachPoint >> 4);
+            data[pos] = (byte) ((attachPoint & 0x0f) << 4);
+            data[pos++] += (byte) (attachPoint >> 4);
 
             if (avatar)
             {
@@ -4823,7 +4969,7 @@ namespace Universe.ClientStack
 
                 if (collisionPlane == Vector4.Zero)
                     collisionPlane = Vector4.UnitW;
-                //MainConsole.Instance.DebugFormat("[Collision Plane]: {0}",collisionPlane);
+                //MainConsole.Instance.DebugFormat("CollisionPlane: {0}",collisionPlane);
                 collisionPlane.ToBytes(data, pos);
                 pos += 16;
             }
@@ -4837,7 +4983,7 @@ namespace Universe.ClientStack
             pos += 12;
 
             // Velocity
-            //MainConsole.Instance.DebugFormat("[Velocity]: {0}", velocity);
+            //MainConsole.Instance.DebugFormat("Velocity: {0}", velocity);
             Utils.UInt16ToBytes(Utils.FloatToUInt16(velocity.X, -128.0f, 128.0f), data, pos);
             pos += 2;
             Utils.UInt16ToBytes(Utils.FloatToUInt16(velocity.Y, -128.0f, 128.0f), data, pos);
@@ -4872,7 +5018,7 @@ namespace Universe.ClientStack
             pos += 2;
 
             ImprovedTerseObjectUpdatePacket.ObjectDataBlock block =
-                new ImprovedTerseObjectUpdatePacket.ObjectDataBlock { Data = data };
+                new ImprovedTerseObjectUpdatePacket.ObjectDataBlock {Data = data};
 
             if (textureEntry != null && textureEntry.Length > 0)
             {
@@ -4889,7 +5035,6 @@ namespace Universe.ClientStack
             {
                 block.TextureEntry = Utils.EmptyBytes;
             }
-
             return block;
         }
 
@@ -4900,29 +5045,37 @@ namespace Universe.ClientStack
             //No Zero vectors, as it causes bent knee in the client! Replace with <0, 0, 0, 1>
             if (data.CollisionPlane == Vector4.Zero)
                 data.CollisionPlane = Vector4.UnitW;
-            //MainConsole.Instance.DebugFormat("[Collision Plane]: {0}", data.CollisionPlane);
+            //MainConsole.Instance.DebugFormat("CollisionPlane: {0}", data.CollisionPlane);
             data.CollisionPlane.ToBytes(objectData, 0);
             data.OffsetPosition.ToBytes(objectData, 16);
             data.Velocity.ToBytes(objectData, 28);
+            //data.Acceleration.ToBytes(objectData, 40);
             data.Rotation.ToBytes(objectData, 52);
+            //data.AngularVelocity.ToBytes(objectData, 64);
             string[] spl = data.Name.Split(' ');
             string first = spl[0], last = (spl.Length == 1 ? "" : Util.CombineParams(spl, 1));
 
             ObjectUpdatePacket.ObjectDataBlock update = new ObjectUpdatePacket.ObjectDataBlock
-            {
-                Data = Utils.EmptyBytes,
-                ExtraParams = new byte[1],
-                FullID = data.UUID,
-                ID = data.LocalId,
-                Material = (byte)Material.Flesh,
-                MediaURL = Utils.EmptyBytes,
-                NameValue = Utils.StringToBytes(
-                    "FirstName STRING RW SV " + first + "\nLastName STRING RW SV " + last + "\nTitle STRING RW SV " +
+                                                            {
+                                                                Data = Utils.EmptyBytes,
+                                                                ExtraParams = new byte[1],
+                                                                FullID = data.UUID,
+                                                                ID = data.LocalId,
+                                                                Material = (byte) Material.Flesh,
+                                                                MediaURL = Utils.EmptyBytes,
+                                                                NameValue =
+                                                                    Utils.StringToBytes("FirstName STRING RW SV " +
+                                                                                        first +
+                                                                                        "\nLastName STRING RW SV " +
+                                                                                        last +
+                                                                                        "\nTitle STRING RW SV " +
                                                                                         (m_GroupsModule == null
                                                                                              ? ""
-                                                                                             : m_GroupsModule.GetGroupTitle(data.UUID))),
-                ObjectData = objectData
-            };
+                                                                                             : m_GroupsModule.
+                                                                                                   GetGroupTitle(
+                                                                                                       data.UUID))),
+                                                                ObjectData = objectData
+                                                            };
 
             if (data.ParentID == UUID.Zero)
                 update.ParentID = 0;
@@ -4931,11 +5084,10 @@ namespace Universe.ClientStack
                 ISceneChildEntity part = Scene.GetSceneObjectPart(data.ParentID);
                 update.ParentID = part.LocalId;
             }
-
             update.PathCurve = 16;
             update.PathScaleX = 100;
             update.PathScaleY = 100;
-            update.PCode = (byte)PCode.Avatar;
+            update.PCode = (byte) PCode.Avatar;
             update.ProfileCurve = 1;
             update.PSBlock = Utils.EmptyBytes;
             update.Scale = new Vector3(0.45f, 0.6f, 1.9f);
@@ -4944,7 +5096,7 @@ namespace Universe.ClientStack
             update.TextureAnim = Utils.EmptyBytes;
             // Don't send texture entry for avatars here - this is accomplished via the AvatarAppearance packet
             update.TextureEntry = Utils.EmptyBytes;
-            update.UpdateFlags = (uint)(
+            update.UpdateFlags = (uint) (
                                             PrimFlags.Physics | PrimFlags.ObjectModify | PrimFlags.ObjectCopy |
                                             PrimFlags.ObjectAnyOwner |
                                             PrimFlags.ObjectYouOwner | PrimFlags.ObjectMove | PrimFlags.InventoryEmpty |
@@ -4954,14 +5106,15 @@ namespace Universe.ClientStack
             return update;
         }
 
-        ObjectUpdateCachedPacket.ObjectDataBlock CreatePrimCachedUpdateBlock(ISceneChildEntity data, UUID recipientID)
+        ObjectUpdateCachedPacket.ObjectDataBlock CreatePrimCachedUpdateBlock(ISceneChildEntity data,
+                                                                                     UUID recipientID)
         {
             ObjectUpdateCachedPacket.ObjectDataBlock odb = new ObjectUpdateCachedPacket.ObjectDataBlock
-            { CRC = data.CRC, ID = data.LocalId };
+                                                               {CRC = data.CRC, ID = data.LocalId};
 
             #region PrimFlags
 
-            PrimFlags flags = (PrimFlags)m_scene.Permissions.GenerateClientFlags(recipientID, data);
+            PrimFlags flags = (PrimFlags) m_scene.Permissions.GenerateClientFlags(recipientID, data);
 
             // Don't send the CreateSelected flag to everyone
             flags &= ~PrimFlags.CreateSelected;
@@ -4978,7 +5131,7 @@ namespace Universe.ClientStack
 
             #endregion PrimFlags
 
-            odb.UpdateFlags = (uint)flags;
+            odb.UpdateFlags = (uint) flags;
             return odb;
         }
 
@@ -4995,29 +5148,29 @@ namespace Universe.ClientStack
             catch (Exception e)
             {
                 MainConsole.Instance.Warn(
-                    "[LLClient View]: exception converting quaternion to bytes, using Quaternion.Identity. Exception: " +
+                    "[LLClientView]: exception converting quaternion to bytes, using Quaternion.Identity. Exception: " +
                     e);
-
                 Quaternion.Identity.ToBytes(objectData, 36);
             }
-
             data.AngularVelocity.ToBytes(objectData, 48);
 
             ObjectUpdatePacket.ObjectDataBlock update = new ObjectUpdatePacket.ObjectDataBlock
-            {
-                ClickAction = data.ClickAction,
-                CRC = data.CRC,
-                ExtraParams = data.Shape.ExtraParams ?? Utils.EmptyBytes,
-                FullID = data.UUID,
-                ID = data.LocalId,
-                Material = (byte)data.Material,
-                MediaURL = Utils.StringToBytes(data.CurrentMediaVersion)
-            };
-
+                                                            {
+                                                                ClickAction = data.ClickAction,
+                                                                CRC = data.CRC,
+                                                                ExtraParams = data.Shape.ExtraParams ?? Utils.EmptyBytes,
+                                                                FullID = data.UUID,
+                                                                ID = data.LocalId,
+                                                                Material = (byte) data.Material,
+                                                                MediaURL = Utils.StringToBytes(data.CurrentMediaVersion)
+                                                            };
+            //update.JointAxisOrAnchor = Vector3.Zero; // These are deprecated
+            //update.JointPivot = Vector3.Zero;
+            //update.JointType = 0;
             if (data.IsAttachment)
             {
                 update.NameValue = Util.StringToBytes256("AttachItemID STRING RW SV " + data.FromUserInventoryItemID);
-                update.State = (byte)((data.AttachmentPoint % 16) * 16 + (data.AttachmentPoint / 16));
+                update.State = (byte) ((data.AttachmentPoint%16)*16 + (data.AttachmentPoint/16));
             }
             else
             {
@@ -5058,7 +5211,7 @@ namespace Universe.ClientStack
 
             #region PrimFlags
 
-            PrimFlags flags = (PrimFlags)m_scene.Permissions.GenerateClientFlags(recipientID, data);
+            PrimFlags flags = (PrimFlags) m_scene.Permissions.GenerateClientFlags(recipientID, data);
 
             // Don't send the CreateSelected flag to everyone
             flags &= ~PrimFlags.CreateSelected;
@@ -5073,10 +5226,11 @@ namespace Universe.ClientStack
                 }
             }
 
-            //MainConsole.Instance.DebugFormat(
-            //    "[LLClient View]: Constructing client update for part {0} {1} with flags {2}, localId {3}", data.Name, update.FullID, flags, update.ID);
+//            MainConsole.Instance.DebugFormat(
+//                "[LLCLIENTVIEW]: Constructing client update for part {0} {1} with flags {2}, localId {3}",
+//                data.Name, update.FullID, flags, update.ID);
 
-            update.UpdateFlags = (uint)flags;
+            update.UpdateFlags = (uint) flags;
 
             #endregion PrimFlags
 
@@ -5084,17 +5238,17 @@ namespace Universe.ClientStack
             {
                 update.Sound = data.Sound;
                 update.OwnerID = data.OwnerID;
-                update.Gain = (float)data.SoundGain;
-                update.Radius = (float)data.SoundRadius;
+                update.Gain = (float) data.SoundGain;
+                update.Radius = (float) data.SoundRadius;
                 update.Flags = data.SoundFlags;
             }
 
-            switch ((PCode)data.Shape.PCode)
+            switch ((PCode) data.Shape.PCode)
             {
                 case PCode.Grass:
                 case PCode.Tree:
                 case PCode.NewTree:
-                    update.Data = new[] { data.Shape.State };
+                    update.Data = new[] {data.Shape.State};
                     break;
                 default:
                     update.Data = Utils.EmptyBytes;
@@ -5133,7 +5287,6 @@ namespace Universe.ClientStack
 
                 if ((updateFlags & CompressedFlags.HasAngularVelocity) != 0)
                     objectData.Write(part.AngularVelocity.GetBytes(), 0, 12);
-
                 if ((updateFlags & CompressedFlags.HasParent) != 0)
                 {
                     if (part.IsAttachment)
@@ -5145,7 +5298,6 @@ namespace Universe.ClientStack
                         Utils.UIntToBytes(part.ParentID, byteData, 0);
                     objectData.Write(byteData, 0, 4);
                 }
-
                 if ((updateFlags & CompressedFlags.Tree) != 0)
                 {
                     objectData.WriteByte(part.Shape.State); //Tree type
@@ -5155,7 +5307,6 @@ namespace Universe.ClientStack
                     //Remove the flag, we have no clue what to do with this
                     updateFlags &= ~(CompressedFlags.ScratchPad);
                 }
-
                 if ((updateFlags & CompressedFlags.HasText) != 0)
                 {
                     byte[] text = Utils.StringToBytes(part.Text);
@@ -5164,7 +5315,6 @@ namespace Universe.ClientStack
                     byte[] textcolor = part.GetTextColor().GetBytes(false);
                     objectData.Write(textcolor, 0, textcolor.Length);
                 }
-
                 if ((updateFlags & CompressedFlags.MediaURL) != 0)
                 {
                     byte[] text = Util.StringToBytes256(part.CurrentMediaVersion);
@@ -5178,6 +5328,7 @@ namespace Universe.ClientStack
                         Primitive.ParticleSystem Sys = new Primitive.ParticleSystem();
                         byte[] pdata = Sys.GetBytes();
                         objectData.Write(pdata, 0, pdata.Length);
+                        //updateFlags = updateFlags & ~CompressedFlags.HasParticles;
                     }
                     else
                         objectData.Write(part.ParticleSystem, 0, part.ParticleSystem.Length);
@@ -5195,7 +5346,6 @@ namespace Universe.ClientStack
                     Utils.FloatToBytes((float)part.SoundRadius, byteData, 0);
                     objectData.Write(byteData, 0, 4);
                 }
-
                 if ((updateFlags & CompressedFlags.HasNameValues) != 0)
                 {
                     if (part.IsAttachment)
@@ -5281,17 +5431,17 @@ namespace Universe.ClientStack
 
         public void SendNameReply(UUID profileId, string name)
         {
-            UUIDNameReplyPacket packet = (UUIDNameReplyPacket)PacketPool.Instance.GetPacket(PacketType.UUIDNameReply);
+            UUIDNameReplyPacket packet = (UUIDNameReplyPacket) PacketPool.Instance.GetPacket(PacketType.UUIDNameReply);
             // TODO: don't create new blocks if recycling an old packet
             packet.UUIDNameBlock = new UUIDNameReplyPacket.UUIDNameBlockBlock[1];
             string[] spl = name.Split(' ');
             string first = spl[0], last = (spl.Length == 1 ? "" : Util.CombineParams(spl, 1));
             packet.UUIDNameBlock[0] = new UUIDNameReplyPacket.UUIDNameBlockBlock
-            {
-                ID = profileId,
-                FirstName = Util.StringToBytes256(first),
-                LastName = Util.StringToBytes256(last)
-            };
+                                          {
+                                              ID = profileId,
+                                              FirstName = Util.StringToBytes256(first),
+                                              LastName = Util.StringToBytes256(last)
+                                          };
 
             OutPacket(packet, ThrottleOutPacketType.Asset);
         }
@@ -5379,6 +5529,7 @@ namespace Universe.ClientStack
             // Handle ObjectImage (TextureEntry) updates synchronously, since when updating multiple prim faces at once,
             // some clients will send out a separate ObjectImage packet for each face
             AddLocalPacketHandler(PacketType.ObjectImage, HandleObjectImage, false);
+
             AddLocalPacketHandler(PacketType.ObjectGrab, HandleObjectGrab, false);
             AddLocalPacketHandler(PacketType.ObjectGrabUpdate, HandleObjectGrabUpdate, false);
             AddLocalPacketHandler(PacketType.ObjectDeGrab, HandleObjectDeGrab);
@@ -5409,13 +5560,11 @@ namespace Universe.ClientStack
             AddLocalPacketHandler(PacketType.MoveInventoryFolder, HandleMoveInventoryFolder, true);
             AddLocalPacketHandler(PacketType.CreateInventoryItem, HandleCreateInventoryItem);
             AddLocalPacketHandler(PacketType.LinkInventoryItem, HandleLinkInventoryItem);
-
             if (m_allowUDPInv)
             {
                 AddLocalPacketHandler(PacketType.FetchInventory, HandleFetchInventory);
                 AddLocalPacketHandler(PacketType.FetchInventoryDescendents, HandleFetchInventoryDescendents);
             }
-
             AddLocalPacketHandler(PacketType.PurgeInventoryDescendents, HandlePurgeInventoryDescendents, true);
             AddLocalPacketHandler(PacketType.UpdateInventoryItem, HandleUpdateInventoryItem, true);
             AddLocalPacketHandler(PacketType.CopyInventoryItem, HandleCopyInventoryItem, true);
@@ -5556,7 +5705,8 @@ namespace Universe.ClientStack
             if (OnAgentUpdate != null)
             {
                 bool update = false;
-                AgentUpdatePacket agenUpdate = (AgentUpdatePacket)Pack;
+                //bool forcedUpdate = false;
+                AgentUpdatePacket agenUpdate = (AgentUpdatePacket) Pack;
 
                 #region Packet Session and User Check
 
@@ -5567,27 +5717,30 @@ namespace Universe.ClientStack
 
                 AgentUpdatePacket.AgentDataBlock x = agenUpdate.AgentData;
 
-                // We can only check when we have something to check against.
+                // We can only check when we have something to check
+                // against.
 
                 if (lastarg != null)
                 {
-                    update = (
-                        (x.BodyRotation != lastarg.BodyRotation) ||
-                        (x.CameraAtAxis != lastarg.CameraAtAxis) ||
-                        (x.CameraCenter != lastarg.CameraCenter) ||
-                        (x.CameraLeftAxis != lastarg.CameraLeftAxis) ||
-                        (x.CameraUpAxis != lastarg.CameraUpAxis) ||
-                        (x.ControlFlags != lastarg.ControlFlags) ||
-                        (x.Far != lastarg.Far) ||
-                        (x.Flags != lastarg.Flags) ||
-                        (x.State != lastarg.State) ||
-                        (x.HeadRotation != lastarg.HeadRotation) ||
-                        (x.SessionID != lastarg.SessionID) ||
-                        (x.AgentID != lastarg.AgentID)
+                    update =
+                        (
+                            (x.BodyRotation != lastarg.BodyRotation) ||
+                            (x.CameraAtAxis != lastarg.CameraAtAxis) ||
+                            (x.CameraCenter != lastarg.CameraCenter) ||
+                            (x.CameraLeftAxis != lastarg.CameraLeftAxis) ||
+                            (x.CameraUpAxis != lastarg.CameraUpAxis) ||
+                            (x.ControlFlags != lastarg.ControlFlags) ||
+                            (x.Far != lastarg.Far) ||
+                            (x.Flags != lastarg.Flags) ||
+                            (x.State != lastarg.State) ||
+                            (x.HeadRotation != lastarg.HeadRotation) ||
+                            (x.SessionID != lastarg.SessionID) ||
+                            (x.AgentID != lastarg.AgentID)
                         );
                 }
                 else
                 {
+                    //forcedUpdate = true;
                     update = true;
                 }
 
@@ -5598,21 +5751,20 @@ namespace Universe.ClientStack
                 if (update)
                 {
                     AgentUpdateArgs arg = new AgentUpdateArgs
-                    {
-                        AgentID = x.AgentID,
-                        BodyRotation = x.BodyRotation,
-                        CameraAtAxis = x.CameraAtAxis,
-                        CameraCenter = x.CameraCenter,
-                        CameraLeftAxis = x.CameraLeftAxis,
-                        CameraUpAxis = x.CameraUpAxis,
-                        ControlFlags = x.ControlFlags,
-                        Far = x.Far,
-                        Flags = x.Flags,
-                        HeadRotation = x.HeadRotation,
-                        SessionID = x.SessionID,
-                        State = x.State
-                    };
-
+                                              {
+                                                  AgentID = x.AgentID,
+                                                  BodyRotation = x.BodyRotation,
+                                                  CameraAtAxis = x.CameraAtAxis,
+                                                  CameraCenter = x.CameraCenter,
+                                                  CameraLeftAxis = x.CameraLeftAxis,
+                                                  CameraUpAxis = x.CameraUpAxis,
+                                                  ControlFlags = x.ControlFlags,
+                                                  Far = x.Far,
+                                                  Flags = x.Flags,
+                                                  HeadRotation = x.HeadRotation,
+                                                  SessionID = x.SessionID,
+                                                  State = x.State
+                                              };
                     UpdateAgent handlerAgentUpdate = OnAgentUpdate;
                     lastarg = arg; // save this set of arguments for nexttime
                     if (handlerAgentUpdate != null)
@@ -5627,7 +5779,7 @@ namespace Universe.ClientStack
 
         bool HandleMoneyTransferRequest(IClientAPI sender, Packet Pack)
         {
-            MoneyTransferRequestPacket money = (MoneyTransferRequestPacket)Pack;
+            MoneyTransferRequestPacket money = (MoneyTransferRequestPacket) Pack;
             // validate the agent owns the agentID and sessionID
             if (money.MoneyData.SourceID == sender.AgentId && money.AgentData.AgentID == sender.AgentId &&
                 money.AgentData.SessionID == sender.SessionId)
@@ -5648,7 +5800,8 @@ namespace Universe.ClientStack
 
         bool HandleParcelGodMarkAsContent(IClientAPI client, Packet Packet)
         {
-            ParcelGodMarkAsContentPacket ParcelGodMarkAsContent = (ParcelGodMarkAsContentPacket)Packet;
+            ParcelGodMarkAsContentPacket ParcelGodMarkAsContent =
+                (ParcelGodMarkAsContentPacket) Packet;
 
             #region Packet Session and User Check
 
@@ -5664,16 +5817,17 @@ namespace Universe.ClientStack
             ParcelGodMark ParcelGodMarkAsContentHandler = OnParcelGodMark;
             if (ParcelGodMarkAsContentHandler != null)
             {
-                ParcelGodMarkAsContentHandler(this, ParcelGodMarkAsContent.AgentData.AgentID, ParcelGodMarkAsContent.ParcelData.LocalID);
+                ParcelGodMarkAsContentHandler(this,
+                                              ParcelGodMarkAsContent.AgentData.AgentID,
+                                              ParcelGodMarkAsContent.ParcelData.LocalID);
                 return true;
             }
-
             return false;
         }
 
         bool HandleFreezeUser(IClientAPI client, Packet Packet)
         {
-            FreezeUserPacket FreezeUser = (FreezeUserPacket)Packet;
+            FreezeUserPacket FreezeUser = (FreezeUserPacket) Packet;
 
             #region Packet Session and User Check
 
@@ -5695,13 +5849,13 @@ namespace Universe.ClientStack
                                   FreezeUser.Data.TargetID);
                 return true;
             }
-
             return false;
         }
 
         bool HandleEjectUser(IClientAPI client, Packet Packet)
         {
-            EjectUserPacket EjectUser = (EjectUserPacket)Packet;
+            EjectUserPacket EjectUser =
+                (EjectUserPacket) Packet;
 
             #region Packet Session and User Check
 
@@ -5723,13 +5877,13 @@ namespace Universe.ClientStack
                                  EjectUser.Data.TargetID);
                 return true;
             }
-
             return false;
         }
 
         bool HandleParcelBuyPass(IClientAPI client, Packet Packet)
         {
-            ParcelBuyPassPacket ParcelBuyPass = (ParcelBuyPassPacket)Packet;
+            ParcelBuyPassPacket ParcelBuyPass =
+                (ParcelBuyPassPacket) Packet;
 
             #region Packet Session and User Check
 
@@ -5750,13 +5904,12 @@ namespace Universe.ClientStack
                                      ParcelBuyPass.ParcelData.LocalID);
                 return true;
             }
-
             return false;
         }
 
         bool HandleParcelBuyRequest(IClientAPI sender, Packet Pack)
         {
-            ParcelBuyPacket parcel = (ParcelBuyPacket)Pack;
+            ParcelBuyPacket parcel = (ParcelBuyPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -5780,16 +5933,14 @@ namespace Universe.ClientStack
                                      parcel.ParcelData.Price,
                                      false);
                 }
-
                 return true;
             }
-
             return false;
         }
 
         bool HandleUUIDGroupNameRequest(IClientAPI sender, Packet Pack)
         {
-            UUIDGroupNameRequestPacket upack = (UUIDGroupNameRequestPacket)Pack;
+            UUIDGroupNameRequestPacket upack = (UUIDGroupNameRequestPacket) Pack;
 
             foreach (UUIDGroupNameRequestPacket.UUIDNameBlockBlock t in upack.UUIDNameBlock)
             {
@@ -5805,7 +5956,7 @@ namespace Universe.ClientStack
 
         public bool HandleGenericMessage(IClientAPI sender, Packet pack)
         {
-            GenericMessagePacket gmpack = (GenericMessagePacket)pack;
+            GenericMessagePacket gmpack = (GenericMessagePacket) pack;
             if (m_genericPacketHandlers.Count == 0) return false;
             if (gmpack.AgentData.SessionID != SessionId) return false;
 
@@ -5831,25 +5982,24 @@ namespace Universe.ClientStack
                         {
                             OnBinaryGenericMessage(this, method, msgBytes.ToArray());
                         }
-
                         handlerGenericMessage(sender, method, msg);
                         return true;
                     }
                     catch (Exception e)
                     {
                         MainConsole.Instance.ErrorFormat(
-                            "[LLClient View]: Exception when handling generic message {0}{1}", e.Message, e.StackTrace);
+                            "[LLCLIENTVIEW]: Exception when handling generic message {0}{1}", e.Message, e.StackTrace);
                     }
                 }
             }
 
-            //MainConsole.Instance.Debug("[LLClient View]: Not handling GenericMessage with method-type of: " + method);
+            //MainConsole.Instance.Debug("[LLCLIENTVIEW]: Not handling GenericMessage with method-type of: " + method);
             return false;
         }
 
         public bool HandleObjectGroupRequest(IClientAPI sender, Packet Pack)
         {
-            ObjectGroupPacket ogpack = (ObjectGroupPacket)Pack;
+            ObjectGroupPacket ogpack = (ObjectGroupPacket) Pack;
             if (ogpack.AgentData.SessionID != SessionId) return false;
 
             RequestObjectPropertiesFamily handlerObjectGroupRequest = OnObjectGroupRequest;
@@ -5857,20 +6007,18 @@ namespace Universe.ClientStack
             {
                 foreach (ObjectGroupPacket.ObjectDataBlock t in ogpack.ObjectData)
                 {
-                    handlerObjectGroupRequest(this, ogpack.AgentData.GroupID, t.ObjectLocalID, UUID.Zero);
+                    handlerObjectGroupRequest(this, ogpack.AgentData.GroupID, t.ObjectLocalID,
+                                              UUID.Zero);
                 }
             }
-
             return true;
         }
 
         bool HandleViewerEffect(IClientAPI sender, Packet Pack)
         {
-            ViewerEffectPacket viewer = (ViewerEffectPacket)Pack;
-
+            ViewerEffectPacket viewer = (ViewerEffectPacket) Pack;
             if (viewer.AgentData.SessionID != SessionId) return false;
             ViewerEffectEventHandler handlerViewerEffect = OnViewerEffect;
-
             if (handlerViewerEffect != null)
             {
                 int length = viewer.Effect.Length;
@@ -5879,15 +6027,14 @@ namespace Universe.ClientStack
                 {
                     //copy the effects block arguments into the event handler arg.
                     ViewerEffectEventHandlerArg argument = new ViewerEffectEventHandlerArg
-                    {
-                        AgentID = viewer.Effect[i].AgentID,
-                        Color = viewer.Effect[i].Color,
-                        Duration = viewer.Effect[i].Duration,
-                        ID = viewer.Effect[i].ID,
-                        Type = viewer.Effect[i].Type,
-                        TypeData = viewer.Effect[i].TypeData
-                    };
-
+                                                               {
+                                                                   AgentID = viewer.Effect[i].AgentID,
+                                                                   Color = viewer.Effect[i].Color,
+                                                                   Duration = viewer.Effect[i].Duration,
+                                                                   ID = viewer.Effect[i].ID,
+                                                                   Type = viewer.Effect[i].Type,
+                                                                   TypeData = viewer.Effect[i].TypeData
+                                                               };
                     args.Add(argument);
                 }
 
@@ -5899,7 +6046,7 @@ namespace Universe.ClientStack
 
         bool HandleAvatarPropertiesRequest(IClientAPI sender, Packet Pack)
         {
-            AvatarPropertiesRequestPacket avatarProperties = (AvatarPropertiesRequestPacket)Pack;
+            AvatarPropertiesRequestPacket avatarProperties = (AvatarPropertiesRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -5917,13 +6064,12 @@ namespace Universe.ClientStack
             {
                 handlerRequestAvatarProperties(this, avatarProperties.AgentData.AvatarID);
             }
-
             return true;
         }
 
         bool HandleChatFromViewer(IClientAPI sender, Packet Pack)
         {
-            ChatFromViewerPacket inchatpack = (ChatFromViewerPacket)Pack;
+            ChatFromViewerPacket inchatpack = (ChatFromViewerPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -5936,30 +6082,30 @@ namespace Universe.ClientStack
 
             #endregion
 
-            string fromName = String.Empty;
+            string fromName = String.Empty; //ClientAvatar.firstname + " " + ClientAvatar.lastname;
             byte[] message = inchatpack.ChatData.Message;
             byte type = inchatpack.ChatData.Type;
-            Vector3 fromPos = new Vector3();
+            Vector3 fromPos = new Vector3(); // ClientAvatar.Pos;
+            // UUID fromAgentID = AgentId;
 
             int channel = inchatpack.ChatData.Channel;
 
             if (OnChatFromClient != null)
             {
                 OSChatMessage args = new OSChatMessage
-                {
-                    Channel = channel,
-                    From = fromName,
-                    Message = Utils.BytesToString(message),
-                    Type = (ChatTypeEnum)type,
-                    Position = fromPos,
-                    Scene = Scene,
-                    Sender = this,
-                    SenderUUID = AgentId
-                };
+                                         {
+                                             Channel = channel,
+                                             From = fromName,
+                                             Message = Utils.BytesToString(message),
+                                             Type = (ChatTypeEnum) type,
+                                             Position = fromPos,
+                                             Scene = Scene,
+                                             Sender = this,
+                                             SenderUUID = AgentId
+                                         };
 
                 HandleChatFromClient(args);
             }
-
             return true;
         }
 
@@ -5972,7 +6118,7 @@ namespace Universe.ClientStack
 
         bool HandlerAvatarPropertiesUpdate(IClientAPI sender, Packet Pack)
         {
-            AvatarPropertiesUpdatePacket avatarProps = (AvatarPropertiesUpdatePacket)Pack;
+            AvatarPropertiesUpdatePacket avatarProps = (AvatarPropertiesUpdatePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -5999,15 +6145,14 @@ namespace Universe.ClientStack
                                               Properties.AllowPublish,
                                               Properties.MaturePublish);
             }
-
             return true;
         }
 
         bool HandlerScriptDialogReply(IClientAPI sender, Packet Pack)
         {
-            ScriptDialogReplyPacket rdialog = (ScriptDialogReplyPacket)Pack;
+            ScriptDialogReplyPacket rdialog = (ScriptDialogReplyPacket) Pack;
 
-            //MainConsole.Instance.DebugFormat("[Client]: Received ScriptDialogReply from {0}", rdialog.Data.ObjectID);
+            //MainConsole.Instance.DebugFormat("[CLIENT]: Received ScriptDialogReply from {0}", rdialog.Data.ObjectID);
 
             #region Packet Session and User Check
 
@@ -6025,16 +6170,15 @@ namespace Universe.ClientStack
             if (OnChatFromClient != null)
             {
                 OSChatMessage args = new OSChatMessage
-                {
-                    Channel = ch,
-                    From = String.Empty,
-                    Message = Utils.BytesToString(msg),
-                    Type = ChatTypeEnum.Shout,
-                    Position = new Vector3(),
-                    Scene = Scene,
-                    Sender = this
-                };
-
+                                         {
+                                             Channel = ch,
+                                             From = String.Empty,
+                                             Message = Utils.BytesToString(msg),
+                                             Type = ChatTypeEnum.Shout,
+                                             Position = new Vector3(),
+                                             Scene = Scene,
+                                             Sender = this
+                                         };
                 ChatMessage handlerChatFromClient2 = OnChatFromClient;
                 if (handlerChatFromClient2 != null)
                     handlerChatFromClient2(this, args);
@@ -6045,7 +6189,7 @@ namespace Universe.ClientStack
 
         bool HandlerImprovedInstantMessage(IClientAPI sender, Packet Pack)
         {
-            ImprovedInstantMessagePacket msgpack = (ImprovedInstantMessagePacket)Pack;
+            ImprovedInstantMessagePacket msgpack = (ImprovedInstantMessagePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -6060,7 +6204,7 @@ namespace Universe.ClientStack
 
             string IMfromName = Util.FieldToString(msgpack.MessageBlock.FromAgentName);
             string IMmessage = Utils.BytesToString(msgpack.MessageBlock.Message);
-
+            
             GridInstantMessage im = new GridInstantMessage()
             {
                 RegionID = Scene.RegionInfo.RegionID,
@@ -6075,7 +6219,6 @@ namespace Universe.ClientStack
                 Position = msgpack.MessageBlock.Position,
                 BinaryBucket = msgpack.MessageBlock.BinaryBucket
             };
-
             IncomingInstantMessage(im);
             return true;
         }
@@ -6098,7 +6241,7 @@ namespace Universe.ClientStack
 
         bool HandlerAcceptFriendship(IClientAPI sender, Packet Pack)
         {
-            AcceptFriendshipPacket afriendpack = (AcceptFriendshipPacket)Pack;
+            AcceptFriendshipPacket afriendpack = (AcceptFriendshipPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -6123,13 +6266,12 @@ namespace Universe.ClientStack
             {
                 handlerApproveFriendRequest(this, agentID, transactionID, callingCardFolders);
             }
-
             return true;
         }
 
         bool HandlerDeclineFriendship(IClientAPI sender, Packet Pack)
         {
-            DeclineFriendshipPacket dfriendpack = (DeclineFriendshipPacket)Pack;
+            DeclineFriendshipPacket dfriendpack = (DeclineFriendshipPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -6144,15 +6286,17 @@ namespace Universe.ClientStack
 
             if (OnDenyFriendRequest != null)
             {
-                OnDenyFriendRequest(this, dfriendpack.AgentData.AgentID, dfriendpack.TransactionBlock.TransactionID, null);
+                OnDenyFriendRequest(this,
+                                    dfriendpack.AgentData.AgentID,
+                                    dfriendpack.TransactionBlock.TransactionID,
+                                    null);
             }
-
             return true;
         }
 
         bool HandlerTerminateFrendship(IClientAPI sender, Packet Pack)
         {
-            TerminateFriendshipPacket tfriendpack = (TerminateFriendshipPacket)Pack;
+            TerminateFriendshipPacket tfriendpack = (TerminateFriendshipPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -6173,13 +6317,13 @@ namespace Universe.ClientStack
             {
                 handlerTerminateFriendship(this, listOwnerAgentID, exFriendID);
             }
-
             return true;
         }
 
         bool HandleFindAgent(IClientAPI client, Packet Packet)
         {
-            FindAgentPacket FindAgent = (FindAgentPacket)Packet;
+            FindAgentPacket FindAgent =
+                (FindAgentPacket) Packet;
 
             FindAgentUpdate FindAgentHandler = OnFindAgent;
             if (FindAgentHandler != null)
@@ -6187,13 +6331,13 @@ namespace Universe.ClientStack
                 FindAgentHandler(this, FindAgent.AgentBlock.Hunter, FindAgent.AgentBlock.Prey);
                 return true;
             }
-
             return false;
         }
 
         bool HandleTrackAgent(IClientAPI client, Packet Packet)
         {
-            TrackAgentPacket TrackAgent = (TrackAgentPacket)Packet;
+            TrackAgentPacket TrackAgent =
+                (TrackAgentPacket) Packet;
 
             #region Packet Session and User Check
 
@@ -6209,16 +6353,17 @@ namespace Universe.ClientStack
             TrackAgentUpdate TrackAgentHandler = OnTrackAgent;
             if (TrackAgentHandler != null)
             {
-                TrackAgentHandler(this, TrackAgent.AgentData.AgentID, TrackAgent.TargetData.PreyID);
+                TrackAgentHandler(this,
+                                  TrackAgent.AgentData.AgentID,
+                                  TrackAgent.TargetData.PreyID);
                 return true;
             }
-
             return false;
         }
 
         bool HandlerRezObject(IClientAPI sender, Packet Pack)
         {
-            RezObjectPacket rezPacket = (RezObjectPacket)Pack;
+            RezObjectPacket rezPacket = (RezObjectPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -6240,13 +6385,12 @@ namespace Universe.ClientStack
                                  rezPacket.RezData.RezSelected, rezPacket.RezData.RemoveItem,
                                  rezPacket.RezData.FromTaskID);
             }
-
             return true;
         }
 
         bool HandlerRezObjectFromNotecard(IClientAPI sender, Packet Pack)
         {
-            RezObjectFromNotecardPacket rezPacket = (RezObjectFromNotecardPacket)Pack;
+            RezObjectFromNotecardPacket rezPacket = (RezObjectFromNotecardPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -6268,13 +6412,12 @@ namespace Universe.ClientStack
                                  rezPacket.RezData.RezSelected, rezPacket.RezData.RemoveItem,
                                  rezPacket.RezData.FromTaskID);
             }
-
             return true;
         }
 
         bool HandlerDeRezObject(IClientAPI sender, Packet Pack)
         {
-            DeRezObjectPacket DeRezPacket = (DeRezObjectPacket)Pack;
+            DeRezObjectPacket DeRezPacket = (DeRezObjectPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -6296,16 +6439,15 @@ namespace Universe.ClientStack
                 // values given by a Second Life client
                 handlerDeRezObject(this, deRezIDs,
                                    DeRezPacket.AgentBlock.GroupID,
-                                   (DeRezAction)DeRezPacket.AgentBlock.Destination,
+                                   (DeRezAction) DeRezPacket.AgentBlock.Destination,
                                    DeRezPacket.AgentBlock.DestinationID);
             }
-
             return true;
         }
 
         bool HandlerModifyLand(IClientAPI sender, Packet Pack)
         {
-            ModifyLandPacket modify = (ModifyLandPacket)Pack;
+            ModifyLandPacket modify = (ModifyLandPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -6318,7 +6460,7 @@ namespace Universe.ClientStack
 
             #endregion
 
-            //MainConsole.Instance.Info("[Land]: LAND:" + modify.ToString());
+            //MainConsole.Instance.Info("[LAND]: LAND:" + modify.ToString());
             if (modify.ParcelData.Length > 0)
             {
                 if (OnModifyTerrain != null)
@@ -6374,7 +6516,7 @@ namespace Universe.ClientStack
 
         bool HandlerAgentSetAppearance(IClientAPI sender, Packet Pack)
         {
-            AgentSetAppearancePacket appear = (AgentSetAppearancePacket)Pack;
+            AgentSetAppearancePacket appear = (AgentSetAppearancePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -6401,25 +6543,26 @@ namespace Universe.ClientStack
 
                     Primitive.TextureEntry te = null;
                     if (appear.ObjectData.TextureEntry.Length > 1)
-                        te = new Primitive.TextureEntry(appear.ObjectData.TextureEntry, 0, appear.ObjectData.TextureEntry.Length);
+                        te = new Primitive.TextureEntry(appear.ObjectData.TextureEntry, 0,
+                                                        appear.ObjectData.TextureEntry.Length);
 
                     WearableCache[] items = new WearableCache[appear.WearableData.Length];
                     for (int i = 0; i < appear.WearableData.Length; i++)
                     {
                         WearableCache cache = new WearableCache
-                        {
-                            CacheID = appear.WearableData[i].CacheID,
-                            TextureIndex = appear.WearableData[i].TextureIndex
-                        };
-
+                                                  {
+                                                      CacheID = appear.WearableData[i].CacheID,
+                                                      TextureIndex = appear.WearableData[i].TextureIndex
+                                                  };
                         items[i] = cache;
                     }
-
                     handlerSetAppearance(this, te, visualparams, items, appear.AgentData.SerialNum);
                 }
                 catch (Exception e)
                 {
-                    MainConsole.Instance.ErrorFormat("[Client View]: AgentSetApperance packet handler threw an exception, {0}", e);
+                    MainConsole.Instance.ErrorFormat(
+                        "[CLIENT VIEW]: AgentSetApperance packet handler threw an exception, {0}",
+                        e);
                 }
             }
 
@@ -6435,12 +6578,13 @@ namespace Universe.ClientStack
         /// <returns></returns>
         bool HandleAgentTextureCached(IClientAPI simclient, Packet packet)
         {
-            AgentCachedTexturePacket cachedtex = (AgentCachedTexturePacket)packet;
+            AgentCachedTexturePacket cachedtex = (AgentCachedTexturePacket) packet;
 
             if (cachedtex.AgentData.SessionID != SessionId) return false;
 
             List<CachedAgentArgs> args =
-                cachedtex.WearableData.Select(t => new CachedAgentArgs { ID = t.ID, TextureIndex = t.TextureIndex }).ToList();
+                cachedtex.WearableData.Select(t => new CachedAgentArgs {ID = t.ID, TextureIndex = t.TextureIndex}).
+                          ToList();
 
             AgentCachedTextureRequest actr = OnAgentCachedTextureRequest;
             if (actr != null)
@@ -6452,20 +6596,21 @@ namespace Universe.ClientStack
         public void SendAgentCachedTexture(List<CachedAgentArgs> args)
         {
             AgentCachedTextureResponsePacket cachedresp =
-                (AgentCachedTextureResponsePacket)PacketPool.Instance.GetPacket(PacketType.AgentCachedTextureResponse);
+                (AgentCachedTextureResponsePacket) PacketPool.Instance.GetPacket(PacketType.AgentCachedTextureResponse);
             cachedresp.AgentData.AgentID = AgentId;
             cachedresp.AgentData.SessionID = m_sessionId;
             cachedresp.AgentData.SerialNum = m_cachedTextureSerial;
             m_cachedTextureSerial++;
-            cachedresp.WearableData = new AgentCachedTextureResponsePacket.WearableDataBlock[args.Count];
+            cachedresp.WearableData =
+                new AgentCachedTextureResponsePacket.WearableDataBlock[args.Count];
             for (int i = 0; i < args.Count; i++)
             {
                 cachedresp.WearableData[i] = new AgentCachedTextureResponsePacket.WearableDataBlock
-                {
-                    TextureIndex = args[i].TextureIndex,
-                    TextureID = args[i].ID,
-                    HostName = new byte[0]
-                };
+                                                 {
+                                                     TextureIndex = args[i].TextureIndex,
+                                                     TextureID = args[i].ID,
+                                                     HostName = new byte[0]
+                                                 };
             }
 
             cachedresp.Header.Zerocoded = true;
@@ -6476,7 +6621,7 @@ namespace Universe.ClientStack
         {
             if (OnAvatarNowWearing != null)
             {
-                AgentIsNowWearingPacket nowWearing = (AgentIsNowWearingPacket)Pack;
+                AgentIsNowWearingPacket nowWearing = (AgentIsNowWearingPacket) Pack;
 
                 #region Packet Session and User Check
 
@@ -6493,7 +6638,8 @@ namespace Universe.ClientStack
 
                 foreach (
                     AvatarWearingArgs.Wearable wearable in
-                        nowWearing.WearableData.Select(t => new AvatarWearingArgs.Wearable(t.ItemID, t.WearableType)))
+                        nowWearing.WearableData.Select(t => new AvatarWearingArgs.Wearable(t.ItemID,
+                                                                                           t.WearableType)))
                 {
                     wearingArgs.NowWearing.Add(wearable);
                 }
@@ -6504,7 +6650,6 @@ namespace Universe.ClientStack
                     handlerAvatarNowWearing(this, wearingArgs);
                 }
             }
-
             return true;
         }
 
@@ -6513,7 +6658,7 @@ namespace Universe.ClientStack
             RezSingleAttachmentFromInv handlerRezSingleAttachment = OnRezSingleAttachmentFromInv;
             if (handlerRezSingleAttachment != null)
             {
-                RezSingleAttachmentFromInvPacket rez = (RezSingleAttachmentFromInvPacket)Pack;
+                RezSingleAttachmentFromInvPacket rez = (RezSingleAttachmentFromInvPacket) Pack;
 
                 #region Packet Session and User Check
 
@@ -6526,12 +6671,41 @@ namespace Universe.ClientStack
 
                 #endregion
 
-                handlerRezSingleAttachment(this, rez.ObjectData.ItemID, rez.ObjectData.AttachmentPt);
+                handlerRezSingleAttachment(this, rez.ObjectData.ItemID,
+                                           rez.ObjectData.AttachmentPt);
             }
 
             return true;
         }
 
+     /* original - assumed all objects were attachments
+      bool HandlerRezRestoreToWorld(IClientAPI sender, Packet Pack)
+        {
+            RezSingleAttachmentFromInv handlerRezSingleAttachment = OnRezSingleAttachmentFromInv;
+            if (handlerRezSingleAttachment != null)
+            {
+                RezRestoreToWorldPacket rez = (RezRestoreToWorldPacket) Pack;
+
+                #region Packet Session and User Check
+
+                if (m_checkPackets)
+                {
+                    if (rez.AgentData.SessionID != SessionId ||
+                        rez.AgentData.AgentID != AgentId)
+                        return true;
+                }
+
+                #endregion
+
+                handlerRezSingleAttachment(this, rez.InventoryData.ItemID,
+                                           0);
+            }
+
+            return true;
+        }
+       */
+
+        // update 20160129 - greythane-
         bool HandlerRezRestoreToWorld(IClientAPI sender, Packet Pack)
         {
             RezRestoreToWorld handlerRezRestoreToWorld = OnRezRestoreToWorld;
@@ -6540,21 +6714,21 @@ namespace Universe.ClientStack
                 RezRestoreToWorldPacket rezPacket = (RezRestoreToWorldPacket)Pack;
 
                 #region Packet Session and User Check
-
                 if (m_checkPackets)
                 {
                     if (rezPacket.AgentData.SessionID != SessionId ||
                         rezPacket.AgentData.AgentID != AgentId)
                         return true;
                 }
-
                 #endregion
 
                 handlerRezRestoreToWorld(this, rezPacket.InventoryData.ItemID, rezPacket.InventoryData.GroupID);
-            }
 
+            }
             return true;
         }
+
+
 
         bool HandleRezMultipleAttachmentsFromInv(IClientAPI sender, Packet Pack)
         {
@@ -6562,7 +6736,7 @@ namespace Universe.ClientStack
 
             if (handlerRezMultipleAttachments != null)
             {
-                RezMultipleAttachmentsFromInvPacket rez = (RezMultipleAttachmentsFromInvPacket)Pack;
+                RezMultipleAttachmentsFromInvPacket rez = (RezMultipleAttachmentsFromInvPacket) Pack;
 
                 #region Packet Session and User Check
 
@@ -6589,19 +6763,20 @@ namespace Universe.ClientStack
             UUIDNameRequest handlerDetachAttachmentIntoInv = OnDetachAttachmentIntoInv;
             if (handlerDetachAttachmentIntoInv != null)
             {
-                DetachAttachmentIntoInvPacket detachtoInv = (DetachAttachmentIntoInvPacket)Pack;
+                DetachAttachmentIntoInvPacket detachtoInv = (DetachAttachmentIntoInvPacket) Pack;
 
                 #region Packet Session and User Check
 
-                //TODO!
+//TODO!
                 // UNSUPPORTED ON THIS PACKET
 
                 #endregion
 
                 UUID itemID = detachtoInv.ObjectData.ItemID;
+                // UUID ATTACH_agentID = detachtoInv.ObjectData.AgentID;
+
                 handlerDetachAttachmentIntoInv(itemID, this);
             }
-
             return true;
         }
 
@@ -6609,7 +6784,7 @@ namespace Universe.ClientStack
         {
             if (OnObjectAttach != null)
             {
-                ObjectAttachPacket att = (ObjectAttachPacket)Pack;
+                ObjectAttachPacket att = (ObjectAttachPacket) Pack;
 
                 #region Packet Session and User Check
 
@@ -6632,13 +6807,12 @@ namespace Universe.ClientStack
                     }
                 }
             }
-
             return true;
         }
 
         bool HandleObjectDetach(IClientAPI sender, Packet Pack)
         {
-            ObjectDetachPacket dett = (ObjectDetachPacket)Pack;
+            ObjectDetachPacket dett = (ObjectDetachPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -6660,13 +6834,12 @@ namespace Universe.ClientStack
                     handlerObjectDetach(obj, this);
                 }
             }
-
             return true;
         }
 
         bool HandleObjectDrop(IClientAPI sender, Packet Pack)
         {
-            ObjectDropPacket dropp = (ObjectDropPacket)Pack;
+            ObjectDropPacket dropp = (ObjectDropPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -6688,13 +6861,12 @@ namespace Universe.ClientStack
                     handlerObjectDrop(obj, this);
                 }
             }
-
             return true;
         }
 
         bool HandleSetAlwaysRun(IClientAPI sender, Packet Pack)
         {
-            SetAlwaysRunPacket run = (SetAlwaysRunPacket)Pack;
+            SetAlwaysRunPacket run = (SetAlwaysRunPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -6721,7 +6893,6 @@ namespace Universe.ClientStack
             {
                 handlerCompleteMovementToRegion(sender);
             }
-
             handlerCompleteMovementToRegion = null;
 
             return true;
@@ -6729,7 +6900,7 @@ namespace Universe.ClientStack
 
         bool HandleAgentAnimation(IClientAPI sender, Packet Pack)
         {
-            AgentAnimationPacket AgentAni = (AgentAnimationPacket)Pack;
+            AgentAnimationPacket AgentAni = (AgentAnimationPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -6761,7 +6932,6 @@ namespace Universe.ClientStack
                     }
                 }
             }
-
             return true;
         }
 
@@ -6769,7 +6939,7 @@ namespace Universe.ClientStack
         {
             if (OnAgentRequestSit != null)
             {
-                AgentRequestSitPacket agentRequestSit = (AgentRequestSitPacket)Pack;
+                AgentRequestSitPacket agentRequestSit = (AgentRequestSitPacket) Pack;
 
                 #region Packet Session and User Check
 
@@ -6784,9 +6954,9 @@ namespace Universe.ClientStack
 
                 AgentRequestSit handlerAgentRequestSit = OnAgentRequestSit;
                 if (handlerAgentRequestSit != null)
-                    handlerAgentRequestSit(this, agentRequestSit.TargetObject.TargetID, agentRequestSit.TargetObject.Offset);
+                    handlerAgentRequestSit(this,
+                                           agentRequestSit.TargetObject.TargetID, agentRequestSit.TargetObject.Offset);
             }
-
             return true;
         }
 
@@ -6794,7 +6964,7 @@ namespace Universe.ClientStack
         {
             if (OnAgentSit != null)
             {
-                AgentSitPacket agentSit = (AgentSitPacket)Pack;
+                AgentSitPacket agentSit = (AgentSitPacket) Pack;
 
                 #region Packet Session and User Check
 
@@ -6813,19 +6983,18 @@ namespace Universe.ClientStack
                     OnAgentSit(this, agentSit.AgentData.AgentID);
                 }
             }
-
             return true;
         }
 
         bool HandleSoundTrigger(IClientAPI sender, Packet Pack)
         {
-            SoundTriggerPacket soundTriggerPacket = (SoundTriggerPacket)Pack;
+            SoundTriggerPacket soundTriggerPacket = (SoundTriggerPacket) Pack;
 
             #region Packet Session and User Check
 
             if (m_checkPackets)
             {
-                //TODO!
+//TODO!
                 // UNSUPPORTED ON THIS PACKET
             }
 
@@ -6840,13 +7009,12 @@ namespace Universe.ClientStack
                                     soundTriggerPacket.SoundData.Gain, soundTriggerPacket.SoundData.Position,
                                     soundTriggerPacket.SoundData.Handle, 0);
             }
-
             return true;
         }
 
         bool HandleAvatarPickerRequest(IClientAPI sender, Packet Pack)
         {
-            AvatarPickerRequestPacket avRequestQuery = (AvatarPickerRequestPacket)Pack;
+            AvatarPickerRequestPacket avRequestQuery = (AvatarPickerRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -6866,15 +7034,15 @@ namespace Universe.ClientStack
             AvatarPickerRequest handlerAvatarPickerRequest = OnAvatarPickerRequest;
             if (handlerAvatarPickerRequest != null)
             {
-                handlerAvatarPickerRequest(this, Requestdata.AgentID, Requestdata.QueryID, Utils.BytesToString(querydata.Name));
+                handlerAvatarPickerRequest(this, Requestdata.AgentID, Requestdata.QueryID,
+                                           Utils.BytesToString(querydata.Name));
             }
-
             return true;
         }
 
         bool HandleAgentDataUpdateRequest(IClientAPI sender, Packet Pack)
         {
-            AgentDataUpdateRequestPacket avRequestDataUpdatePacket = (AgentDataUpdateRequestPacket)Pack;
+            AgentDataUpdateRequestPacket avRequestDataUpdatePacket = (AgentDataUpdateRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -6891,7 +7059,8 @@ namespace Universe.ClientStack
 
             if (handlerAgentDataUpdateRequest != null)
             {
-                handlerAgentDataUpdateRequest(this, avRequestDataUpdatePacket.AgentData.AgentID, avRequestDataUpdatePacket.AgentData.SessionID);
+                handlerAgentDataUpdateRequest(this, avRequestDataUpdatePacket.AgentData.AgentID,
+                                              avRequestDataUpdatePacket.AgentData.SessionID);
             }
 
             return true;
@@ -6908,13 +7077,12 @@ namespace Universe.ClientStack
             {
                 SendUserInfoReply(false, true, "");
             }
-
             return true;
         }
 
         bool HandleUpdateUserInfo(IClientAPI sender, Packet Pack)
         {
-            UpdateUserInfoPacket updateUserInfo = (UpdateUserInfoPacket)Pack;
+            UpdateUserInfoPacket updateUserInfo = (UpdateUserInfoPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -6931,19 +7099,21 @@ namespace Universe.ClientStack
             if (handlerUpdateUserInfo != null)
             {
                 bool visible = true;
-                string DirectoryVisibility = Utils.BytesToString(updateUserInfo.UserData.DirectoryVisibility);
+                string DirectoryVisibility =
+                    Utils.BytesToString(updateUserInfo.UserData.DirectoryVisibility);
                 if (DirectoryVisibility == "hidden")
                     visible = false;
 
-                handlerUpdateUserInfo(updateUserInfo.UserData.IMViaEMail, visible, this);
+                handlerUpdateUserInfo(
+                    updateUserInfo.UserData.IMViaEMail,
+                    visible, this);
             }
-
             return true;
         }
 
         bool HandleSetStartLocationRequest(IClientAPI sender, Packet Pack)
         {
-            SetStartLocationRequestPacket avSetStartLocationRequestPacket = (SetStartLocationRequestPacket)Pack;
+            SetStartLocationRequestPacket avSetStartLocationRequestPacket = (SetStartLocationRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -6959,7 +7129,7 @@ namespace Universe.ClientStack
             if (avSetStartLocationRequestPacket.AgentData.AgentID == AgentId &&
                 avSetStartLocationRequestPacket.AgentData.SessionID == SessionId)
             {
-                // Linden Client limitation
+                // Linden Client limitation..
                 if (avSetStartLocationRequestPacket.StartLocationData.LocationPos.X == 255.5f
                     || avSetStartLocationRequestPacket.StartLocationData.LocationPos.Y == 255.5f)
                 {
@@ -6976,7 +7146,6 @@ namespace Universe.ClientStack
                         }
                     }
                 }
-
                 TeleportLocationRequest handlerSetStartLocationRequest = OnSetStartLocationRequest;
                 if (handlerSetStartLocationRequest != null)
                 {
@@ -6986,13 +7155,12 @@ namespace Universe.ClientStack
                                                    avSetStartLocationRequestPacket.StartLocationData.LocationID);
                 }
             }
-
             return true;
         }
 
         bool HandleAgentThrottle(IClientAPI sender, Packet Pack)
         {
-            AgentThrottlePacket atpack = (AgentThrottlePacket)Pack;
+            AgentThrottlePacket atpack = (AgentThrottlePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7053,7 +7221,6 @@ namespace Universe.ClientStack
             {
                 handlerForceReleaseControls(this, AgentId);
             }
-
             return true;
         }
 
@@ -7063,7 +7230,7 @@ namespace Universe.ClientStack
 
         bool HandleObjectLink(IClientAPI sender, Packet Pack)
         {
-            ObjectLinkPacket link = (ObjectLinkPacket)Pack;
+            ObjectLinkPacket link = (ObjectLinkPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7087,19 +7254,17 @@ namespace Universe.ClientStack
                     childrenprims.Add(link.ObjectData[i].ObjectLocalID);
                 }
             }
-
             LinkObjects handlerLinkObjects = OnLinkObjects;
             if (handlerLinkObjects != null)
             {
                 handlerLinkObjects(this, parentprimid, childrenprims);
             }
-
             return true;
         }
 
         bool HandleObjectDelink(IClientAPI sender, Packet Pack)
         {
-            ObjectDelinkPacket delink = (ObjectDelinkPacket)Pack;
+            ObjectDelinkPacket delink = (ObjectDelinkPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7122,7 +7287,6 @@ namespace Universe.ClientStack
             {
                 handlerDelinkObjects(prims, this);
             }
-
             return true;
         }
 
@@ -7130,7 +7294,7 @@ namespace Universe.ClientStack
         {
             if (OnAddPrim != null)
             {
-                ObjectAddPacket addPacket = (ObjectAddPacket)Pack;
+                ObjectAddPacket addPacket = (ObjectAddPacket) Pack;
 
                 #region Packet Session and User Check
 
@@ -7145,6 +7309,10 @@ namespace Universe.ClientStack
 
                 PrimitiveBaseShape shape = GetShapeFromAddPacket(addPacket);
                 // MainConsole.Instance.Info("[REZData]: " + addPacket.ToString());
+                //BypassRaycast: 1
+                //RayStart: <69.79469, 158.2652, 98.40343>
+                //RayEnd: <61.97724, 141.995, 92.58341>
+                //RayTargetID: 00000000-0000-0000-0000-000000000000
 
                 //Check to see if adding the prim is allowed; useful for any module wanting to restrict the
                 //object from rezing initially
@@ -7155,13 +7323,12 @@ namespace Universe.ClientStack
                                    shape, addPacket.ObjectData.BypassRaycast, addPacket.ObjectData.RayStart,
                                    addPacket.ObjectData.RayTargetID, addPacket.ObjectData.RayEndIsIntersection);
             }
-
             return true;
         }
 
         bool HandleObjectShape(IClientAPI sender, Packet Pack)
         {
-            ObjectShapePacket shapePacket = (ObjectShapePacket)Pack;
+            ObjectShapePacket shapePacket = (ObjectShapePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7180,38 +7347,38 @@ namespace Universe.ClientStack
                 if (handlerUpdatePrimShape != null)
                 {
                     UpdateShapeArgs shapeData = new UpdateShapeArgs
-                    {
-                        ObjectLocalID = t.ObjectLocalID,
-                        PathBegin = t.PathBegin,
-                        PathCurve = t.PathCurve,
-                        PathEnd = t.PathEnd,
-                        PathRadiusOffset = t.PathRadiusOffset,
-                        PathRevolutions = t.PathRevolutions,
-                        PathScaleX = t.PathScaleX,
-                        PathScaleY = t.PathScaleY,
-                        PathShearX = t.PathShearX,
-                        PathShearY = t.PathShearY,
-                        PathSkew = t.PathSkew,
-                        PathTaperX = t.PathTaperX,
-                        PathTaperY = t.PathTaperY,
-                        PathTwist = t.PathTwist,
-                        PathTwistBegin = t.PathTwistBegin,
-                        ProfileBegin = t.ProfileBegin,
-                        ProfileCurve = t.ProfileCurve,
-                        ProfileEnd = t.ProfileEnd,
-                        ProfileHollow = t.ProfileHollow
-                    };
+                                                    {
+                                                        ObjectLocalID = t.ObjectLocalID,
+                                                        PathBegin = t.PathBegin,
+                                                        PathCurve = t.PathCurve,
+                                                        PathEnd = t.PathEnd,
+                                                        PathRadiusOffset = t.PathRadiusOffset,
+                                                        PathRevolutions = t.PathRevolutions,
+                                                        PathScaleX = t.PathScaleX,
+                                                        PathScaleY = t.PathScaleY,
+                                                        PathShearX = t.PathShearX,
+                                                        PathShearY = t.PathShearY,
+                                                        PathSkew = t.PathSkew,
+                                                        PathTaperX = t.PathTaperX,
+                                                        PathTaperY = t.PathTaperY,
+                                                        PathTwist = t.PathTwist,
+                                                        PathTwistBegin = t.PathTwistBegin,
+                                                        ProfileBegin = t.ProfileBegin,
+                                                        ProfileCurve = t.ProfileCurve,
+                                                        ProfileEnd = t.ProfileEnd,
+                                                        ProfileHollow = t.ProfileHollow
+                                                    };
 
-                    handlerUpdatePrimShape(m_agentId, t.ObjectLocalID, shapeData);
+                    handlerUpdatePrimShape(m_agentId, t.ObjectLocalID,
+                                           shapeData);
                 }
             }
-
             return true;
         }
 
         bool HandleObjectExtraParams(IClientAPI sender, Packet Pack)
         {
-            ObjectExtraParamsPacket extraPar = (ObjectExtraParamsPacket)Pack;
+            ObjectExtraParamsPacket extraPar = (ObjectExtraParamsPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7229,16 +7396,17 @@ namespace Universe.ClientStack
             {
                 foreach (ObjectExtraParamsPacket.ObjectDataBlock t in extraPar.ObjectData)
                 {
-                    handlerUpdateExtraParams(m_agentId, t.ObjectLocalID, t.ParamType, t.ParamInUse, t.ParamData);
+                    handlerUpdateExtraParams(m_agentId, t.ObjectLocalID,
+                                             t.ParamType,
+                                             t.ParamInUse, t.ParamData);
                 }
             }
-
             return true;
         }
 
         bool HandleObjectDuplicate(IClientAPI sender, Packet Pack)
         {
-            ObjectDuplicatePacket dupe = (ObjectDuplicatePacket)Pack;
+            ObjectDuplicatePacket dupe = (ObjectDuplicatePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7250,6 +7418,8 @@ namespace Universe.ClientStack
             }
 
             #endregion
+
+//            ObjectDuplicatePacket.AgentDataBlock AgentandGroupData = dupe.AgentData;
 
             foreach (ObjectDuplicatePacket.ObjectDataBlock t in dupe.ObjectData)
             {
@@ -7267,7 +7437,7 @@ namespace Universe.ClientStack
 
         bool HandleRequestMultipleObjects(IClientAPI sender, Packet Pack)
         {
-            RequestMultipleObjectsPacket incomingRequest = (RequestMultipleObjectsPacket)Pack;
+            RequestMultipleObjectsPacket incomingRequest = (RequestMultipleObjectsPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7285,16 +7455,16 @@ namespace Universe.ClientStack
                 ObjectRequest handlerObjectRequest = OnObjectRequest;
                 if (handlerObjectRequest != null)
                 {
-                    handlerObjectRequest(t.ID, t.CacheMissType, this);
+                    handlerObjectRequest(t.ID, t.CacheMissType,
+                                         this);
                 }
             }
-
             return true;
         }
 
         bool HandleObjectSelect(IClientAPI sender, Packet Pack)
         {
-            ObjectSelectPacket incomingselect = (ObjectSelectPacket)Pack;
+            ObjectSelectPacket incomingselect = (ObjectSelectPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7308,7 +7478,7 @@ namespace Universe.ClientStack
             #endregion
 
             ObjectSelect handlerObjectSelect = null;
-
+            
             List<uint> LocalIDs = incomingselect.ObjectData.Select(t => t.ObjectLocalID).ToList();
 
             handlerObjectSelect = OnObjectSelect;
@@ -7316,13 +7486,12 @@ namespace Universe.ClientStack
             {
                 handlerObjectSelect(LocalIDs, this);
             }
-
             return true;
         }
 
         bool HandleObjectDeselect(IClientAPI sender, Packet Pack)
         {
-            ObjectDeselectPacket incomingdeselect = (ObjectDeselectPacket)Pack;
+            ObjectDeselectPacket incomingdeselect = (ObjectDeselectPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7343,14 +7512,13 @@ namespace Universe.ClientStack
                     OnObjectDeselect(t.ObjectLocalID, this);
                 }
             }
-
             return true;
         }
 
         bool HandleObjectPosition(IClientAPI sender, Packet Pack)
         {
-            // DEPRECIATED: but till libsecondlife removes it, people will use it
-            ObjectPositionPacket position = (ObjectPositionPacket)Pack;
+            // DEPRECATED: but till libsecondlife removes it, people will use it
+            ObjectPositionPacket position = (ObjectPositionPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7367,7 +7535,8 @@ namespace Universe.ClientStack
             {
                 UpdateVectorWithUpdate handlerUpdateVector = OnUpdatePrimGroupPosition;
                 if (handlerUpdateVector != null)
-                    handlerUpdateVector(t.ObjectLocalID, t.Position, this, true);
+                    handlerUpdateVector(t.ObjectLocalID, t.Position, this,
+                                        true);
             }
 
             return true;
@@ -7375,8 +7544,8 @@ namespace Universe.ClientStack
 
         bool HandleObjectScale(IClientAPI sender, Packet Pack)
         {
-            // DEPRECIATED: but till libsecondlife removes it, people will use it
-            ObjectScalePacket scale = (ObjectScalePacket)Pack;
+            // DEPRECATED: but till libsecondlife removes it, people will use it
+            ObjectScalePacket scale = (ObjectScalePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7401,8 +7570,8 @@ namespace Universe.ClientStack
 
         bool HandleObjectRotation(IClientAPI sender, Packet Pack)
         {
-            // DEPRECIATED: but till libsecondlife removes it, people will use it
-            ObjectRotationPacket rotation = (ObjectRotationPacket)Pack;
+            // DEPRECATED: but till libsecondlife removes it, people will use it
+            ObjectRotationPacket rotation = (ObjectRotationPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7419,7 +7588,8 @@ namespace Universe.ClientStack
             {
                 UpdatePrimRotation handlerUpdatePrimRotation = OnUpdatePrimGroupRotation;
                 if (handlerUpdatePrimRotation != null)
-                    handlerUpdatePrimRotation(t.ObjectLocalID, t.Rotation, this);
+                    handlerUpdatePrimRotation(t.ObjectLocalID, t.Rotation,
+                                              this);
             }
 
             return true;
@@ -7427,7 +7597,7 @@ namespace Universe.ClientStack
 
         bool HandleObjectFlagUpdate(IClientAPI sender, Packet Pack)
         {
-            ObjectFlagUpdatePacket flags = (ObjectFlagUpdatePacket)Pack;
+            ObjectFlagUpdatePacket flags = (ObjectFlagUpdatePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7447,29 +7617,28 @@ namespace Universe.ClientStack
                 handlerUpdatePrimFlags(flags.AgentData.ObjectLocalID, flags.AgentData.UsePhysics,
                                        flags.AgentData.IsTemporary, flags.AgentData.IsPhantom, flags.ExtraPhysics, this);
             }
-
             return true;
         }
 
         bool HandleObjectImage(IClientAPI sender, Packet Pack)
         {
-            ObjectImagePacket imagePack = (ObjectImagePacket)Pack;
+            ObjectImagePacket imagePack = (ObjectImagePacket) Pack;
 
             foreach (ObjectImagePacket.ObjectDataBlock t in imagePack.ObjectData)
             {
                 UpdatePrimTexture handlerUpdatePrimTexture = OnUpdatePrimTexture;
                 if (handlerUpdatePrimTexture != null)
                 {
-                    handlerUpdatePrimTexture(t.ObjectLocalID, t.TextureEntry, this);
+                    handlerUpdatePrimTexture(t.ObjectLocalID,
+                                             t.TextureEntry, this);
                 }
             }
-
             return true;
         }
 
         bool HandleObjectGrab(IClientAPI sender, Packet Pack)
         {
-            ObjectGrabPacket grab = (ObjectGrabPacket)Pack;
+            ObjectGrabPacket grab = (ObjectGrabPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7490,25 +7659,23 @@ namespace Universe.ClientStack
                 if ((grab.SurfaceInfo != null) && (grab.SurfaceInfo.Length > 0))
                 {
                     touchArgs.AddRange(grab.SurfaceInfo.Select(surfaceInfo => new SurfaceTouchEventArgs
-                    {
-                        Binormal = surfaceInfo.Binormal,
-                        FaceIndex = surfaceInfo.FaceIndex,
-                        Normal = surfaceInfo.Normal,
-                        Position = surfaceInfo.Position,
-                        STCoord = surfaceInfo.STCoord,
-                        UVCoord = surfaceInfo.UVCoord
-                    }));
+                                                                                  {
+                                                                                      Binormal = surfaceInfo.Binormal,
+                                                                                      FaceIndex = surfaceInfo.FaceIndex,
+                                                                                      Normal = surfaceInfo.Normal,
+                                                                                      Position = surfaceInfo.Position,
+                                                                                      STCoord = surfaceInfo.STCoord,
+                                                                                      UVCoord = surfaceInfo.UVCoord
+                                                                                  }));
                 }
-
                 handlerGrabObject(grab.ObjectData.LocalID, grab.ObjectData.GrabOffset, this, touchArgs);
             }
-
             return true;
         }
 
         bool HandleObjectGrabUpdate(IClientAPI sender, Packet Pack)
         {
-            ObjectGrabUpdatePacket grabUpdate = (ObjectGrabUpdatePacket)Pack;
+            ObjectGrabUpdatePacket grabUpdate = (ObjectGrabUpdatePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7529,26 +7696,29 @@ namespace Universe.ClientStack
                 if ((grabUpdate.SurfaceInfo != null) && (grabUpdate.SurfaceInfo.Length > 0))
                 {
                     touchArgs.AddRange(grabUpdate.SurfaceInfo.Select(surfaceInfo => new SurfaceTouchEventArgs
-                    {
-                        Binormal = surfaceInfo.Binormal,
-                        FaceIndex = surfaceInfo.FaceIndex,
-                        Normal = surfaceInfo.Normal,
-                        Position = surfaceInfo.Position,
-                        STCoord = surfaceInfo.STCoord,
-                        UVCoord = surfaceInfo.UVCoord
-                    }));
+                                                                                        {
+                                                                                            Binormal =
+                                                                                                surfaceInfo.Binormal,
+                                                                                            FaceIndex =
+                                                                                                surfaceInfo.FaceIndex,
+                                                                                            Normal = surfaceInfo.Normal,
+                                                                                            Position =
+                                                                                                surfaceInfo.Position,
+                                                                                            STCoord =
+                                                                                                surfaceInfo.STCoord,
+                                                                                            UVCoord =
+                                                                                                surfaceInfo.UVCoord
+                                                                                        }));
                 }
-
-                handlerGrabUpdate(grabUpdate.ObjectData.ObjectID,
-                    grabUpdate.ObjectData.GrabOffsetInitial, grabUpdate.ObjectData.GrabPosition, this, touchArgs);
+                handlerGrabUpdate(grabUpdate.ObjectData.ObjectID, grabUpdate.ObjectData.GrabOffsetInitial,
+                                  grabUpdate.ObjectData.GrabPosition, this, touchArgs);
             }
-
             return true;
         }
 
         bool HandleObjectDeGrab(IClientAPI sender, Packet Pack)
         {
-            ObjectDeGrabPacket deGrab = (ObjectDeGrabPacket)Pack;
+            ObjectDeGrabPacket deGrab = (ObjectDeGrabPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7568,26 +7738,25 @@ namespace Universe.ClientStack
                 if ((deGrab.SurfaceInfo != null) && (deGrab.SurfaceInfo.Length > 0))
                 {
                     touchArgs.AddRange(deGrab.SurfaceInfo.Select(surfaceInfo => new SurfaceTouchEventArgs
-                    {
-                        Binormal = surfaceInfo.Binormal,
-                        FaceIndex = surfaceInfo.FaceIndex,
-                        Normal = surfaceInfo.Normal,
-                        Position = surfaceInfo.Position,
-                        STCoord = surfaceInfo.STCoord,
-                        UVCoord = surfaceInfo.UVCoord
-                    }));
+                                                                                    {
+                                                                                        Binormal = surfaceInfo.Binormal,
+                                                                                        FaceIndex =
+                                                                                            surfaceInfo.FaceIndex,
+                                                                                        Normal = surfaceInfo.Normal,
+                                                                                        Position = surfaceInfo.Position,
+                                                                                        STCoord = surfaceInfo.STCoord,
+                                                                                        UVCoord = surfaceInfo.UVCoord
+                                                                                    }));
                 }
-
                 handlerDeGrabObject(deGrab.ObjectData.LocalID, this, touchArgs);
             }
-
             return true;
         }
 
         bool HandleObjectSpinStart(IClientAPI sender, Packet Pack)
         {
-            //MainConsole.Instance.Warn("[Client]: unhandled ObjectSpinStart packet");
-            ObjectSpinStartPacket spinStart = (ObjectSpinStartPacket)Pack;
+            //MainConsole.Instance.Warn("[CLIENT]: unhandled ObjectSpinStart packet");
+            ObjectSpinStartPacket spinStart = (ObjectSpinStartPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7605,14 +7774,13 @@ namespace Universe.ClientStack
             {
                 handlerSpinStart(spinStart.ObjectData.ObjectID, this);
             }
-
             return true;
         }
 
         bool HandleObjectSpinUpdate(IClientAPI sender, Packet Pack)
         {
-            //MainConsole.Instance.Warn("[Client]: unhandled ObjectSpinUpdate packet");
-            ObjectSpinUpdatePacket spinUpdate = (ObjectSpinUpdatePacket)Pack;
+            //MainConsole.Instance.Warn("[CLIENT]: unhandled ObjectSpinUpdate packet");
+            ObjectSpinUpdatePacket spinUpdate = (ObjectSpinUpdatePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7628,21 +7796,20 @@ namespace Universe.ClientStack
             Vector3 axis;
             float angle;
             spinUpdate.ObjectData.Rotation.GetAxisAngle(out axis, out angle);
-            //MainConsole.Instance.Warn("[Client]: ObjectSpinUpdate packet rot axis:" + axis + " angle:" + angle);
+            //MainConsole.Instance.Warn("[CLIENT]: ObjectSpinUpdate packet rot axis:" + axis + " angle:" + angle);
 
             SpinObject handlerSpinUpdate = OnSpinUpdate;
             if (handlerSpinUpdate != null)
             {
                 handlerSpinUpdate(spinUpdate.ObjectData.ObjectID, spinUpdate.ObjectData.Rotation, this);
             }
-
             return true;
         }
 
         bool HandleObjectSpinStop(IClientAPI sender, Packet Pack)
         {
-            //MainConsole.Instance.Warn("[Client]: unhandled ObjectSpinStop packet");
-            ObjectSpinStopPacket spinStop = (ObjectSpinStopPacket)Pack;
+            //MainConsole.Instance.Warn("[CLIENT]: unhandled ObjectSpinStop packet");
+            ObjectSpinStopPacket spinStop = (ObjectSpinStopPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7660,13 +7827,12 @@ namespace Universe.ClientStack
             {
                 handlerSpinStop(spinStop.ObjectData.ObjectID, this);
             }
-
             return true;
         }
 
         bool HandleObjectDescription(IClientAPI sender, Packet Pack)
         {
-            ObjectDescriptionPacket objDes = (ObjectDescriptionPacket)Pack;
+            ObjectDescriptionPacket objDes = (ObjectDescriptionPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7684,16 +7850,16 @@ namespace Universe.ClientStack
                 GenericCall7 handlerObjectDescription = OnObjectDescription;
                 if (handlerObjectDescription != null)
                 {
-                    handlerObjectDescription(this, t.LocalID, Util.FieldToString(t.Description));
+                    handlerObjectDescription(this, t.LocalID,
+                                             Util.FieldToString(t.Description));
                 }
             }
-
             return true;
         }
 
         bool HandleObjectName(IClientAPI sender, Packet Pack)
         {
-            ObjectNamePacket objName = (ObjectNamePacket)Pack;
+            ObjectNamePacket objName = (ObjectNamePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7711,10 +7877,10 @@ namespace Universe.ClientStack
                 GenericCall7 handlerObjectName = OnObjectName;
                 if (handlerObjectName != null)
                 {
-                    handlerObjectName(this, t.LocalID, Util.FieldToString(t.Name));
+                    handlerObjectName(this, t.LocalID,
+                                      Util.FieldToString(t.Name));
                 }
             }
-
             return true;
         }
 
@@ -7722,7 +7888,7 @@ namespace Universe.ClientStack
         {
             if (OnObjectPermissions != null)
             {
-                ObjectPermissionsPacket newobjPerms = (ObjectPermissionsPacket)Pack;
+                ObjectPermissionsPacket newobjPerms = (ObjectPermissionsPacket) Pack;
 
                 #region Packet Session and User Check
 
@@ -7769,7 +7935,7 @@ namespace Universe.ClientStack
 
         bool HandleUndo(IClientAPI sender, Packet Pack)
         {
-            UndoPacket undoitem = (UndoPacket)Pack;
+            UndoPacket undoitem = (UndoPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7794,13 +7960,12 @@ namespace Universe.ClientStack
                     }
                 }
             }
-
             return true;
         }
 
         bool HandleLandUndo(IClientAPI sender, Packet Pack)
         {
-            UndoLandPacket undolanditem = (UndoLandPacket)Pack;
+            UndoLandPacket undolanditem = (UndoLandPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7818,13 +7983,12 @@ namespace Universe.ClientStack
             {
                 handlerOnUndo(this);
             }
-
             return true;
         }
 
         bool HandleRedo(IClientAPI sender, Packet Pack)
         {
-            RedoPacket redoitem = (RedoPacket)Pack;
+            RedoPacket redoitem = (RedoPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7849,13 +8013,12 @@ namespace Universe.ClientStack
                     }
                 }
             }
-
             return true;
         }
 
         bool HandleObjectDuplicateOnRay(IClientAPI sender, Packet Pack)
         {
-            ObjectDuplicateOnRayPacket dupeOnRay = (ObjectDuplicateOnRayPacket)Pack;
+            ObjectDuplicateOnRayPacket dupeOnRay = (ObjectDuplicateOnRayPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7889,7 +8052,7 @@ namespace Universe.ClientStack
         bool HandleRequestObjectPropertiesFamily(IClientAPI sender, Packet Pack)
         {
             //This powers the little tooltip that appears when you move your mouse over an object
-            RequestObjectPropertiesFamilyPacket packToolTip = (RequestObjectPropertiesFamilyPacket)Pack;
+            RequestObjectPropertiesFamilyPacket packToolTip = (RequestObjectPropertiesFamilyPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7908,7 +8071,8 @@ namespace Universe.ClientStack
 
             if (handlerRequestObjectPropertiesFamily != null)
             {
-                handlerRequestObjectPropertiesFamily(this, m_agentId, packObjBlock.RequestFlags, packObjBlock.ObjectID);
+                handlerRequestObjectPropertiesFamily(this, m_agentId, packObjBlock.RequestFlags,
+                                                     packObjBlock.ObjectID);
             }
 
             return true;
@@ -7917,7 +8081,7 @@ namespace Universe.ClientStack
         bool HandleObjectIncludeInSearch(IClientAPI sender, Packet Pack)
         {
             //This lets us set objects to appear in search (stuff like DataSnapshot, etc)
-            ObjectIncludeInSearchPacket packInSearch = (ObjectIncludeInSearchPacket)Pack;
+            ObjectIncludeInSearchPacket packInSearch = (ObjectIncludeInSearchPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7942,13 +8106,12 @@ namespace Universe.ClientStack
                     handlerObjectIncludeInSearch(this, inSearch, localID);
                 }
             }
-
             return true;
         }
 
         bool HandleScriptAnswerYes(IClientAPI sender, Packet Pack)
         {
-            ScriptAnswerYesPacket scriptAnswer = (ScriptAnswerYesPacket)Pack;
+            ScriptAnswerYesPacket scriptAnswer = (ScriptAnswerYesPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7964,15 +8127,15 @@ namespace Universe.ClientStack
             ScriptAnswer handlerScriptAnswer = OnScriptAnswer;
             if (handlerScriptAnswer != null)
             {
-                handlerScriptAnswer(this, scriptAnswer.Data.TaskID, scriptAnswer.Data.ItemID, scriptAnswer.Data.Questions);
+                handlerScriptAnswer(this, scriptAnswer.Data.TaskID, scriptAnswer.Data.ItemID,
+                                    scriptAnswer.Data.Questions);
             }
-
             return true;
         }
 
         bool HandleObjectClickAction(IClientAPI sender, Packet Pack)
         {
-            ObjectClickActionPacket ocpacket = (ObjectClickActionPacket)Pack;
+            ObjectClickActionPacket ocpacket = (ObjectClickActionPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -7995,13 +8158,12 @@ namespace Universe.ClientStack
                     handlerObjectClickAction(this, localID, action.ToString());
                 }
             }
-
             return true;
         }
 
         bool HandleObjectMaterial(IClientAPI sender, Packet Pack)
         {
-            ObjectMaterialPacket ompacket = (ObjectMaterialPacket)Pack;
+            ObjectMaterialPacket ompacket = (ObjectMaterialPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -8024,7 +8186,6 @@ namespace Universe.ClientStack
                     handlerObjectMaterial(this, localID, material.ToString());
                 }
             }
-
             return true;
         }
 
@@ -8034,7 +8195,7 @@ namespace Universe.ClientStack
 
         bool HandleRequestImage(IClientAPI sender, Packet Pack)
         {
-            RequestImagePacket imageRequest = (RequestImagePacket)Pack;
+            RequestImagePacket imageRequest = (RequestImagePacket) Pack;
             //MainConsole.Instance.Debug("image request: " + Pack.ToString());
 
             #region Packet Session and User Check
@@ -8048,6 +8209,7 @@ namespace Universe.ClientStack
 
             #endregion
 
+            //handlerTextureRequest = null;
             foreach (RequestImagePacket.RequestImageBlock t in imageRequest.RequestImage)
             {
                 TextureRequestArgs args = new TextureRequestArgs();
@@ -8063,7 +8225,7 @@ namespace Universe.ClientStack
                 // NOTE: This is not a built in part of the LLUDP protocol, but we double the
                 // priority of avatar textures to get avatars rezzing in faster than the
                 // surrounding scene
-                if ((ImageType)block.Type == ImageType.Baked)
+                if ((ImageType) block.Type == ImageType.Baked)
                     args.Priority *= 2.0f;
 
                 // in the end, we null this, so we have to check if it's null
@@ -8072,7 +8234,6 @@ namespace Universe.ClientStack
                     m_imageManager.EnqueueReq(args);
                 }
             }
-
             return true;
         }
 
@@ -8085,22 +8246,23 @@ namespace Universe.ClientStack
         /// <returns>This parameter may be ignored since we appear to return true whatever happens</returns>
         bool HandleTransferRequest(IClientAPI sender, Packet Pack)
         {
-            //MainConsole.Instance.Debug("[LLClient View]: ProcessInPacket() - Got transfer request");
+            //MainConsole.Instance.Debug("ClientView.ProcessPackets.cs:ProcessInPacket() - Got transfer request");
 
-            TransferRequestPacket transfer = (TransferRequestPacket)Pack;
+            TransferRequestPacket transfer = (TransferRequestPacket) Pack;
             //MainConsole.Instance.Debug("Transfer Request: " + transfer.ToString());
-
             // Validate inventory transfers
             // Has to be done here, because AssetCache can't do it
+            //
             UUID taskID = UUID.Zero;
-            if (transfer.TransferInfo.SourceType == (int)SourceType.SimInventoryItem)
+            if (transfer.TransferInfo.SourceType == (int) SourceType.SimInventoryItem)
             {
                 taskID = new UUID(transfer.TransferInfo.Params, 48);
                 UUID itemID = new UUID(transfer.TransferInfo.Params, 64);
                 UUID requestID = new UUID(transfer.TransferInfo.Params, 80);
 
-                //MainConsole.Instance.DebugFormat(
-                //    "[Client]: Got request for asset {0} from item {1} in prim {2} by {3}", requestID, itemID, taskID, Name);
+//                MainConsole.Instance.DebugFormat(
+//                    "[CLIENT]: Got request for asset {0} from item {1} in prim {2} by {3}",
+//                    requestID, itemID, taskID, Name);
 
                 if (!m_scene.Permissions.BypassPermissions())
                 {
@@ -8111,7 +8273,7 @@ namespace Universe.ClientStack
                         if (part == null)
                         {
                             MainConsole.Instance.WarnFormat(
-                                "[Client]: {0} requested asset {1} from item {2} in prim {3} but prim does not exist",
+                                "[CLIENT]: {0} requested asset {1} from item {2} in prim {3} but prim does not exist",
                                 Name, requestID, itemID, taskID);
                             return true;
                         }
@@ -8120,17 +8282,17 @@ namespace Universe.ClientStack
                         if (tii == null)
                         {
                             MainConsole.Instance.WarnFormat(
-                                "[Client]: {0} requested asset {1} from item {2} in prim {3} but item does not exist",
+                                "[CLIENT]: {0} requested asset {1} from item {2} in prim {3} but item does not exist",
                                 Name, requestID, itemID, taskID);
                             return true;
                         }
 
-                        if (tii.Type == (int)AssetType.LSLText)
+                        if (tii.Type == (int) AssetType.LSLText)
                         {
                             if (!m_scene.Permissions.CanEditScript(itemID, taskID, AgentId))
                                 return true;
                         }
-                        else if (tii.Type == (int)AssetType.Notecard)
+                        else if (tii.Type == (int) AssetType.Notecard)
                         {
                             if (!m_scene.Permissions.CanEditNotecard(itemID, taskID, AgentId))
                                 return true;
@@ -8140,20 +8302,20 @@ namespace Universe.ClientStack
                             if (!m_scene.Permissions.CanEditObjectInventory(part.UUID, AgentId))
                             {
                                 MainConsole.Instance.Warn(
-                                    "[LLClient View]: Permissions check for CanEditObjectInventory fell through to standard code!");
+                                    "[LLClientView]: Permissions check for CanEditObjectInventory fell through to standard code!");
 
                                 if (part.OwnerID != AgentId)
                                 {
                                     MainConsole.Instance.WarnFormat(
-                                        "[Client]: {0} requested asset {1} from item {2} in prim {3} but the prim is owned by {4}",
+                                        "[CLIENT]: {0} requested asset {1} from item {2} in prim {3} but the prim is owned by {4}",
                                         Name, requestID, itemID, taskID, part.OwnerID);
                                     return true;
                                 }
 
-                                if ((part.OwnerMask & (uint)PermissionMask.Modify) == 0)
+                                if ((part.OwnerMask & (uint) PermissionMask.Modify) == 0)
                                 {
                                     MainConsole.Instance.WarnFormat(
-                                        "[Client]: {0} requested asset {1} from item {2} in prim {3} but modify permissions are not set",
+                                        "[CLIENT]: {0} requested asset {1} from item {2} in prim {3} but modify permissions are not set",
                                         Name, requestID, itemID, taskID);
                                     return true;
                                 }
@@ -8161,21 +8323,21 @@ namespace Universe.ClientStack
                                 if (tii.OwnerID != AgentId)
                                 {
                                     MainConsole.Instance.WarnFormat(
-                                        "[Client]: {0} requested asset {1} from item {2} in prim {3} but the item is owned by {4}",
+                                        "[CLIENT]: {0} requested asset {1} from item {2} in prim {3} but the item is owned by {4}",
                                         Name, requestID, itemID, taskID, tii.OwnerID);
                                     return true;
                                 }
 
                                 if ((
                                         tii.CurrentPermissions &
-                                        ((uint)PermissionMask.Modify | (uint)PermissionMask.Copy |
-                                         (uint)PermissionMask.Transfer))
+                                        ((uint) PermissionMask.Modify | (uint) PermissionMask.Copy |
+                                         (uint) PermissionMask.Transfer))
                                     !=
-                                    ((uint)PermissionMask.Modify | (uint)PermissionMask.Copy |
-                                     (uint)PermissionMask.Transfer))
+                                    ((uint) PermissionMask.Modify | (uint) PermissionMask.Copy |
+                                     (uint) PermissionMask.Transfer))
                                 {
                                     MainConsole.Instance.WarnFormat(
-                                        "[Client]: {0} requested asset {1} from item {2} in prim {3} but item permissions are not modify/copy/transfer",
+                                        "[CLIENT]: {0} requested asset {1} from item {2} in prim {3} but item permissions are not modify/copy/transfer",
                                         Name, requestID, itemID, taskID);
                                     return true;
                                 }
@@ -8183,7 +8345,7 @@ namespace Universe.ClientStack
                                 if (tii.AssetID != requestID)
                                 {
                                     MainConsole.Instance.WarnFormat(
-                                        "[Client]: {0} requested asset {1} from item {2} in prim {3} but this does not match item's asset {4}",
+                                        "[CLIENT]: {0} requested asset {1} from item {2} in prim {3} but this does not match item's asset {4}",
                                         Name, requestID, itemID, taskID, tii.AssetID);
                                     return true;
                                 }
@@ -8211,10 +8373,11 @@ namespace Universe.ClientStack
 
         bool HandleAssetUploadRequest(IClientAPI sender, Packet Pack)
         {
-            AssetUploadRequestPacket request = (AssetUploadRequestPacket)Pack;
+            AssetUploadRequestPacket request = (AssetUploadRequestPacket) Pack;
 
-            //MainConsole.Instance.Debug("upload request " + request.ToString());
-            //MainConsole.Instance.Debug("upload request was for assetid: " + request.AssetBlock.TransactionID.Combine(this.SecureSessionId).ToString());
+
+            // MainConsole.Instance.Debug("upload request " + request.ToString());
+            // MainConsole.Instance.Debug("upload request was for assetid: " + request.AssetBlock.TransactionID.Combine(this.SecureSessionId).ToString());
             UUID temp = UUID.Combine(request.AssetBlock.TransactionID, SecureSessionId);
 
             UDPAssetUploadRequest handlerAssetUploadRequest = OnAssetUploadRequest;
@@ -8226,13 +8389,12 @@ namespace Universe.ClientStack
                                           request.AssetBlock.AssetData, request.AssetBlock.StoreLocal,
                                           request.AssetBlock.Tempfile);
             }
-
             return true;
         }
 
         bool HandleRequestXfer(IClientAPI sender, Packet Pack)
         {
-            RequestXferPacket xferReq = (RequestXferPacket)Pack;
+            RequestXferPacket xferReq = (RequestXferPacket) Pack;
 
             RequestXfer handlerRequestXfer = OnRequestXfer;
 
@@ -8245,7 +8407,7 @@ namespace Universe.ClientStack
 
         bool HandleSendXferPacket(IClientAPI sender, Packet Pack)
         {
-            SendXferPacketPacket xferRec = (SendXferPacketPacket)Pack;
+            SendXferPacketPacket xferRec = (SendXferPacketPacket) Pack;
 
             XferReceive handlerXferReceive = OnXferReceive;
             if (handlerXferReceive != null)
@@ -8257,7 +8419,7 @@ namespace Universe.ClientStack
 
         bool HandleConfirmXferPacket(IClientAPI sender, Packet Pack)
         {
-            ConfirmXferPacketPacket confirmXfer = (ConfirmXferPacketPacket)Pack;
+            ConfirmXferPacketPacket confirmXfer = (ConfirmXferPacketPacket) Pack;
 
             ConfirmXfer handlerConfirmXfer = OnConfirmXfer;
             if (handlerConfirmXfer != null)
@@ -8269,7 +8431,7 @@ namespace Universe.ClientStack
 
         bool HandleAbortXfer(IClientAPI sender, Packet Pack)
         {
-            AbortXferPacket abortXfer = (AbortXferPacket)Pack;
+            AbortXferPacket abortXfer = (AbortXferPacket) Pack;
             AbortXfer handlerAbortXfer = OnAbortXfer;
             if (handlerAbortXfer != null)
             {
@@ -8281,14 +8443,14 @@ namespace Universe.ClientStack
 
         public void SendAbortXferPacket(ulong xferID)
         {
-            AbortXferPacket xferItem = (AbortXferPacket)PacketPool.Instance.GetPacket(PacketType.AbortXfer);
+            AbortXferPacket xferItem = (AbortXferPacket) PacketPool.Instance.GetPacket(PacketType.AbortXfer);
             xferItem.XferID.ID = xferID;
             OutPacket(xferItem, ThrottleOutPacketType.Transfer);
         }
 
         bool HandleCreateInventoryFolder(IClientAPI sender, Packet Pack)
         {
-            CreateInventoryFolderPacket invFolder = (CreateInventoryFolderPacket)Pack;
+            CreateInventoryFolderPacket invFolder = (CreateInventoryFolderPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -8305,7 +8467,7 @@ namespace Universe.ClientStack
             if (handlerCreateInventoryFolder != null)
             {
                 handlerCreateInventoryFolder(this, invFolder.FolderData.FolderID,
-                                             (ushort)invFolder.FolderData.Type,
+                                             (ushort) invFolder.FolderData.Type,
                                              Util.FieldToString(invFolder.FolderData.Name),
                                              invFolder.FolderData.ParentID);
             }
@@ -8317,7 +8479,7 @@ namespace Universe.ClientStack
         {
             if (OnUpdateInventoryFolder != null)
             {
-                UpdateInventoryFolderPacket invFolderx = (UpdateInventoryFolderPacket)Pack;
+                UpdateInventoryFolderPacket invFolderx = (UpdateInventoryFolderPacket) Pack;
 
                 #region Packet Session and User Check
 
@@ -8331,14 +8493,17 @@ namespace Universe.ClientStack
                 #endregion
 
                 foreach (UpdateInventoryFolderPacket.FolderDataBlock t in from t in invFolderx.FolderData
-                                                                          let handlerUpdateInventoryFolder = OnUpdateInventoryFolder
+                                                                          let handlerUpdateInventoryFolder =
+                                                                              OnUpdateInventoryFolder
                                                                           where handlerUpdateInventoryFolder != null
                                                                           select t)
                 {
-                    OnUpdateInventoryFolder(this, t.FolderID, (ushort)t.Type, Util.FieldToString(t.Name), t.ParentID);
+                    OnUpdateInventoryFolder(this, t.FolderID,
+                                            (ushort) t.Type,
+                                            Util.FieldToString(t.Name),
+                                            t.ParentID);
                 }
             }
-
             return true;
         }
 
@@ -8346,7 +8511,7 @@ namespace Universe.ClientStack
         {
             if (OnMoveInventoryFolder != null)
             {
-                MoveInventoryFolderPacket invFoldery = (MoveInventoryFolderPacket)Pack;
+                MoveInventoryFolderPacket invFoldery = (MoveInventoryFolderPacket) Pack;
 
                 #region Packet Session and User Check
 
@@ -8360,20 +8525,21 @@ namespace Universe.ClientStack
                 #endregion
 
                 foreach (MoveInventoryFolderPacket.InventoryDataBlock t in from t in invFoldery.InventoryData
-                                                                           let handlerMoveInventoryFolder = OnMoveInventoryFolder
+                                                                           let handlerMoveInventoryFolder =
+                                                                               OnMoveInventoryFolder
                                                                            where handlerMoveInventoryFolder != null
                                                                            select t)
                 {
-                    OnMoveInventoryFolder(this, t.FolderID, t.ParentID);
+                    OnMoveInventoryFolder(this, t.FolderID,
+                                          t.ParentID);
                 }
             }
-
             return true;
         }
 
         bool HandleCreateInventoryItem(IClientAPI sender, Packet Pack)
         {
-            CreateInventoryItemPacket createItem = (CreateInventoryItemPacket)Pack;
+            CreateInventoryItemPacket createItem = (CreateInventoryItemPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -8406,7 +8572,7 @@ namespace Universe.ClientStack
 
         bool HandleLinkInventoryItem(IClientAPI sender, Packet Pack)
         {
-            LinkInventoryItemPacket createLink = (LinkInventoryItemPacket)Pack;
+            LinkInventoryItemPacket createLink = (LinkInventoryItemPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -8442,7 +8608,7 @@ namespace Universe.ClientStack
         {
             if (OnFetchInventory != null)
             {
-                FetchInventoryPacket FetchInventoryx = (FetchInventoryPacket)Pack;
+                FetchInventoryPacket FetchInventoryx = (FetchInventoryPacket) Pack;
 
                 #region Packet Session and User Check
 
@@ -8461,17 +8627,17 @@ namespace Universe.ClientStack
 
                     if (handlerFetchInventory != null)
                     {
-                        OnFetchInventory(this, t.ItemID, t.OwnerID);
+                        OnFetchInventory(this, t.ItemID,
+                                         t.OwnerID);
                     }
                 }
             }
-
             return true;
         }
 
         bool HandleFetchInventoryDescendents(IClientAPI sender, Packet Pack)
         {
-            FetchInventoryDescendentsPacket Fetch = (FetchInventoryDescendentsPacket)Pack;
+            FetchInventoryDescendentsPacket Fetch = (FetchInventoryDescendentsPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -8491,13 +8657,12 @@ namespace Universe.ClientStack
                                                  Fetch.InventoryData.FetchFolders, Fetch.InventoryData.FetchItems,
                                                  Fetch.InventoryData.SortOrder);
             }
-
             return true;
         }
 
         bool HandlePurgeInventoryDescendents(IClientAPI sender, Packet Pack)
         {
-            PurgeInventoryDescendentsPacket Purge = (PurgeInventoryDescendentsPacket)Pack;
+            PurgeInventoryDescendentsPacket Purge = (PurgeInventoryDescendentsPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -8521,7 +8686,7 @@ namespace Universe.ClientStack
 
         bool HandleUpdateInventoryItem(IClientAPI sender, Packet Pack)
         {
-            UpdateInventoryItemPacket inventoryItemUpdate = (UpdateInventoryItemPacket)Pack;
+            UpdateInventoryItemPacket inventoryItemUpdate = (UpdateInventoryItemPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -8542,24 +8707,34 @@ namespace Universe.ClientStack
 
                     if (handlerUpdateInventoryItem == null) continue;
                     InventoryItemBase itemUpd = new InventoryItemBase
-                    {
-                        ID = t.ItemID,
-                        Name = Util.FieldToString(t.Name),
-                        Description = Util.FieldToString(t.Description),
-                        GroupID = t.GroupID,
-                        GroupOwned = t.GroupOwned,
-                        GroupPermissions = t.GroupMask,
-                        NextPermissions = t.NextOwnerMask,
-                        EveryOnePermissions = t.EveryoneMask,
-                        CreationDate = t.CreationDate,
-                        Folder = t.FolderID,
-                        InvType = t.InvType,
-                        SalePrice = t.SalePrice,
-                        SaleType = t.SaleType,
-                        Flags = t.Flags
-                    };
+                                                    {
+                                                        ID = t.ItemID,
+                                                        Name =
+                                                            Util.FieldToString(
+                                                                t.Name),
+                                                        Description =
+                                                            Util.FieldToString(
+                                                                t.Description),
+                                                        GroupID = t.GroupID,
+                                                        GroupOwned = t.GroupOwned,
+                                                        GroupPermissions =
+                                                            t.GroupMask,
+                                                        NextPermissions =
+                                                            t.NextOwnerMask,
+                                                        EveryOnePermissions =
+                                                            t.EveryoneMask,
+                                                        CreationDate =
+                                                            t.CreationDate,
+                                                        Folder = t.FolderID,
+                                                        InvType = t.InvType,
+                                                        SalePrice = t.SalePrice,
+                                                        SaleType = t.SaleType,
+                                                        Flags = t.Flags
+                                                    };
 
-                    OnUpdateInventoryItem(this, t.TransactionID, t.ItemID, itemUpd);
+                    OnUpdateInventoryItem(this, t.TransactionID,
+                                          t.ItemID,
+                                          itemUpd);
                 }
             }
 
@@ -8568,7 +8743,7 @@ namespace Universe.ClientStack
 
         bool HandleCopyInventoryItem(IClientAPI sender, Packet Pack)
         {
-            CopyInventoryItemPacket copyitem = (CopyInventoryItemPacket)Pack;
+            CopyInventoryItemPacket copyitem = (CopyInventoryItemPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -8600,7 +8775,7 @@ namespace Universe.ClientStack
 
         bool HandleMoveInventoryItem(IClientAPI sender, Packet Pack)
         {
-            MoveInventoryItemPacket moveitem = (MoveInventoryItemPacket)Pack;
+            MoveInventoryItemPacket moveitem = (MoveInventoryItemPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -8616,11 +8791,14 @@ namespace Universe.ClientStack
             if (OnMoveInventoryItem != null)
             {
                 MoveInventoryItem handlerMoveInventoryItem = null;
-                List<InventoryItemBase> items = moveitem.InventoryData.Select(datablock => new InventoryItemBase(datablock.ItemID, AgentId)
-                {
-                    Folder = datablock.FolderID,
-                    Name = Util.FieldToString(datablock.NewName)
-                })
+                List<InventoryItemBase> items =
+                    moveitem.InventoryData.Select(
+                        datablock =>
+                        new InventoryItemBase(datablock.ItemID, AgentId)
+                            {
+                                Folder = datablock.FolderID,
+                                Name = Util.FieldToString(datablock.NewName)
+                            })
                             .ToList();
                 handlerMoveInventoryItem = OnMoveInventoryItem;
                 if (handlerMoveInventoryItem != null)
@@ -8634,7 +8812,7 @@ namespace Universe.ClientStack
 
         bool HandleChangeInventoryItemFlags(IClientAPI sender, Packet Pack)
         {
-            ChangeInventoryItemFlagsPacket inventoryItemUpdate = (ChangeInventoryItemFlagsPacket)Pack;
+            ChangeInventoryItemFlagsPacket inventoryItemUpdate = (ChangeInventoryItemFlagsPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -8651,11 +8829,14 @@ namespace Universe.ClientStack
             {
                 foreach (
                     ChangeInventoryItemFlagsPacket.InventoryDataBlock t in from t in inventoryItemUpdate.InventoryData
-                                                                           let handlerUpdateInventoryItem = OnChangeInventoryItemFlags
+                                                                           let handlerUpdateInventoryItem =
+                                                                               OnChangeInventoryItemFlags
                                                                            where handlerUpdateInventoryItem != null
                                                                            select t)
                 {
-                    OnChangeInventoryItemFlags(this, t.ItemID, t.Flags);
+                    OnChangeInventoryItemFlags(this,
+                                               t.ItemID,
+                                               t.Flags);
                 }
             }
 
@@ -8664,7 +8845,7 @@ namespace Universe.ClientStack
 
         bool HandleRemoveInventoryItem(IClientAPI sender, Packet Pack)
         {
-            RemoveInventoryItemPacket removeItem = (RemoveInventoryItemPacket)Pack;
+            RemoveInventoryItemPacket removeItem = (RemoveInventoryItemPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -8687,13 +8868,12 @@ namespace Universe.ClientStack
                     handlerRemoveInventoryItem(this, uuids);
                 }
             }
-
             return true;
         }
 
         bool HandleRemoveInventoryFolder(IClientAPI sender, Packet Pack)
         {
-            RemoveInventoryFolderPacket removeFolder = (RemoveInventoryFolderPacket)Pack;
+            RemoveInventoryFolderPacket removeFolder = (RemoveInventoryFolderPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -8722,7 +8902,7 @@ namespace Universe.ClientStack
 
         bool HandleRemoveInventoryObjects(IClientAPI sender, Packet Pack)
         {
-            RemoveInventoryObjectsPacket removeObject = (RemoveInventoryObjectsPacket)Pack;
+            RemoveInventoryObjectsPacket removeObject = (RemoveInventoryObjectsPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -8762,7 +8942,7 @@ namespace Universe.ClientStack
 
         bool HandleRequestTaskInventory(IClientAPI sender, Packet Pack)
         {
-            RequestTaskInventoryPacket requesttask = (RequestTaskInventoryPacket)Pack;
+            RequestTaskInventoryPacket requesttask = (RequestTaskInventoryPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -8780,13 +8960,12 @@ namespace Universe.ClientStack
             {
                 handlerRequestTaskInventory(this, requesttask.InventoryData.LocalID);
             }
-
             return true;
         }
 
         bool HandleUpdateTaskInventory(IClientAPI sender, Packet Pack)
         {
-            UpdateTaskInventoryPacket updatetask = (UpdateTaskInventoryPacket)Pack;
+            UpdateTaskInventoryPacket updatetask = (UpdateTaskInventoryPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -8807,28 +8986,36 @@ namespace Universe.ClientStack
                     if (handlerUpdateTaskInventory != null)
                     {
                         TaskInventoryItem newTaskItem = new TaskInventoryItem
-                        {
-                            ItemID = updatetask.InventoryData.ItemID,
-                            ParentID = updatetask.InventoryData.FolderID,
-                            CreatorID = updatetask.InventoryData.CreatorID,
-                            OwnerID = updatetask.InventoryData.OwnerID,
-                            GroupID = updatetask.InventoryData.GroupID,
-                            BasePermissions = updatetask.InventoryData.BaseMask,
-                            CurrentPermissions = updatetask.InventoryData.OwnerMask,
-                            GroupPermissions = updatetask.InventoryData.GroupMask,
-                            EveryonePermissions = updatetask.InventoryData.EveryoneMask,
-                            NextPermissions = updatetask.InventoryData.NextOwnerMask,
-                            Type = updatetask.InventoryData.Type,
-                            InvType = updatetask.InventoryData.InvType,
-                            Flags = updatetask.InventoryData.Flags,
-                            SaleType = updatetask.InventoryData.SaleType,
-                            SalePrice = updatetask.InventoryData.SalePrice,
-                            Name = Util.FieldToString(updatetask.InventoryData.Name),
-                            Description = Util.FieldToString(updatetask.InventoryData.Description),
-                            CreationDate = (uint)updatetask.InventoryData.CreationDate
-                        };
+                                                            {
+                                                                ItemID = updatetask.InventoryData.ItemID,
+                                                                ParentID = updatetask.InventoryData.FolderID,
+                                                                CreatorID = updatetask.InventoryData.CreatorID,
+                                                                OwnerID = updatetask.InventoryData.OwnerID,
+                                                                GroupID = updatetask.InventoryData.GroupID,
+                                                                BasePermissions = updatetask.InventoryData.BaseMask,
+                                                                CurrentPermissions = updatetask.InventoryData.OwnerMask,
+                                                                GroupPermissions = updatetask.InventoryData.GroupMask,
+                                                                EveryonePermissions =
+                                                                    updatetask.InventoryData.EveryoneMask,
+                                                                NextPermissions = updatetask.InventoryData.NextOwnerMask,
+                                                                Type = updatetask.InventoryData.Type,
+                                                                InvType = updatetask.InventoryData.InvType,
+                                                                Flags = updatetask.InventoryData.Flags,
+                                                                SaleType = updatetask.InventoryData.SaleType,
+                                                                SalePrice = updatetask.InventoryData.SalePrice,
+                                                                Name = Util.FieldToString(updatetask.InventoryData.Name),
+                                                                Description =
+                                                                    Util.FieldToString(
+                                                                        updatetask.InventoryData.Description),
+                                                                CreationDate =
+                                                                    (uint) updatetask.InventoryData.CreationDate
+                                                            };
 
-                        handlerUpdateTaskInventory(this, updatetask.InventoryData.TransactionID, newTaskItem, updatetask.UpdateData.LocalID);
+                        // Unused?  Clicking share with group sets GroupPermissions instead, so perhaps this is something
+                        // different
+                        //newTaskItem.GroupOwned=updatetask.InventoryData.GroupOwned;
+                        handlerUpdateTaskInventory(this, updatetask.InventoryData.TransactionID,
+                                                   newTaskItem, updatetask.UpdateData.LocalID);
                     }
                 }
             }
@@ -8838,7 +9025,7 @@ namespace Universe.ClientStack
 
         bool HandleRemoveTaskInventory(IClientAPI sender, Packet Pack)
         {
-            RemoveTaskInventoryPacket removeTask = (RemoveTaskInventoryPacket)Pack;
+            RemoveTaskInventoryPacket removeTask = (RemoveTaskInventoryPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -8863,7 +9050,7 @@ namespace Universe.ClientStack
 
         bool HandleMoveTaskInventory(IClientAPI sender, Packet Pack)
         {
-            MoveTaskInventoryPacket moveTaskInventoryPacket = (MoveTaskInventoryPacket)Pack;
+            MoveTaskInventoryPacket moveTaskInventoryPacket = (MoveTaskInventoryPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -8892,7 +9079,7 @@ namespace Universe.ClientStack
         bool HandleRezScript(IClientAPI sender, Packet Pack)
         {
             //MainConsole.Instance.Debug(Pack.ToString());
-            RezScriptPacket rezScriptx = (RezScriptPacket)Pack;
+            RezScriptPacket rezScriptx = (RezScriptPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -8907,33 +9094,33 @@ namespace Universe.ClientStack
 
             RezScript handlerRezScript = OnRezScript;
             InventoryItemBase item = new InventoryItemBase
-            {
-                ID = rezScriptx.InventoryBlock.ItemID,
-                Folder = rezScriptx.InventoryBlock.FolderID,
-                CreatorId = rezScriptx.InventoryBlock.CreatorID.ToString(),
-                Owner = rezScriptx.InventoryBlock.OwnerID,
-                BasePermissions = rezScriptx.InventoryBlock.BaseMask,
-                CurrentPermissions = rezScriptx.InventoryBlock.OwnerMask,
-                EveryOnePermissions = rezScriptx.InventoryBlock.EveryoneMask,
-                NextPermissions = rezScriptx.InventoryBlock.NextOwnerMask,
-                GroupPermissions = rezScriptx.InventoryBlock.GroupMask,
-                GroupOwned = rezScriptx.InventoryBlock.GroupOwned,
-                GroupID = rezScriptx.InventoryBlock.GroupID,
-                AssetType = rezScriptx.InventoryBlock.Type,
-                InvType = rezScriptx.InventoryBlock.InvType,
-                Flags = rezScriptx.InventoryBlock.Flags,
-                SaleType = rezScriptx.InventoryBlock.SaleType,
-                SalePrice = rezScriptx.InventoryBlock.SalePrice,
-                Name = Util.FieldToString(rezScriptx.InventoryBlock.Name),
-                Description = Util.FieldToString(rezScriptx.InventoryBlock.Description),
-                CreationDate = rezScriptx.InventoryBlock.CreationDate
-            };
+                                         {
+                                             ID = rezScriptx.InventoryBlock.ItemID,
+                                             Folder = rezScriptx.InventoryBlock.FolderID,
+                                             CreatorId = rezScriptx.InventoryBlock.CreatorID.ToString(),
+                                             Owner = rezScriptx.InventoryBlock.OwnerID,
+                                             BasePermissions = rezScriptx.InventoryBlock.BaseMask,
+                                             CurrentPermissions = rezScriptx.InventoryBlock.OwnerMask,
+                                             EveryOnePermissions = rezScriptx.InventoryBlock.EveryoneMask,
+                                             NextPermissions = rezScriptx.InventoryBlock.NextOwnerMask,
+                                             GroupPermissions = rezScriptx.InventoryBlock.GroupMask,
+                                             GroupOwned = rezScriptx.InventoryBlock.GroupOwned,
+                                             GroupID = rezScriptx.InventoryBlock.GroupID,
+                                             AssetType = rezScriptx.InventoryBlock.Type,
+                                             InvType = rezScriptx.InventoryBlock.InvType,
+                                             Flags = rezScriptx.InventoryBlock.Flags,
+                                             SaleType = rezScriptx.InventoryBlock.SaleType,
+                                             SalePrice = rezScriptx.InventoryBlock.SalePrice,
+                                             Name = Util.FieldToString(rezScriptx.InventoryBlock.Name),
+                                             Description = Util.FieldToString(rezScriptx.InventoryBlock.Description),
+                                             CreationDate = rezScriptx.InventoryBlock.CreationDate
+                                         };
 
             if (handlerRezScript != null)
             {
-                handlerRezScript(this, item, rezScriptx.InventoryBlock.TransactionID, rezScriptx.UpdateBlock.ObjectLocalID);
+                handlerRezScript(this, item, rezScriptx.InventoryBlock.TransactionID,
+                                 rezScriptx.UpdateBlock.ObjectLocalID);
             }
-
             return true;
         }
 
@@ -8956,7 +9143,7 @@ namespace Universe.ClientStack
 
         bool HandleMapBlockRequest(IClientAPI sender, Packet Pack)
         {
-            MapBlockRequestPacket MapRequest = (MapBlockRequestPacket)Pack;
+            MapBlockRequestPacket MapRequest = (MapBlockRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -8976,13 +9163,12 @@ namespace Universe.ClientStack
                                         MapRequest.PositionData.MaxX, MapRequest.PositionData.MaxY,
                                         MapRequest.AgentData.Flags);
             }
-
             return true;
         }
 
         bool HandleMapNameRequest(IClientAPI sender, Packet Pack)
         {
-            MapNameRequestPacket map = (MapNameRequestPacket)Pack;
+            MapNameRequestPacket map = (MapNameRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -8995,19 +9181,19 @@ namespace Universe.ClientStack
 
             #endregion
 
-            string mapName = Util.UTF8.GetString(map.NameData.Name, 0, map.NameData.Name.Length - 1);
+            string mapName = Util.UTF8.GetString(map.NameData.Name, 0,
+                                                 map.NameData.Name.Length - 1);
             RequestMapName handlerMapNameRequest = OnMapNameRequest;
             if (handlerMapNameRequest != null)
             {
                 handlerMapNameRequest(this, mapName, map.AgentData.Flags);
             }
-
             return true;
         }
 
         bool HandleTeleportLandmarkRequest(IClientAPI sender, Packet Pack)
         {
-            TeleportLandmarkRequestPacket tpReq = (TeleportLandmarkRequestPacket)Pack;
+            TeleportLandmarkRequestPacket tpReq = (TeleportLandmarkRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -9025,50 +9211,56 @@ namespace Universe.ClientStack
             if (lmid != UUID.Zero)
             {
                 m_assetService.Get(lmid.ToString(), null, (id, s, lma) =>
-                {
-                    if (lma == null)
-                    {
-                        // Failed to find landmark
-                        TeleportCancelPacket tpCancel =
-                            (TeleportCancelPacket)
-                            PacketPool.Instance.GetPacket(PacketType.TeleportCancel);
-                        tpCancel.Info.SessionID = tpReq.Info.SessionID;
-                        tpCancel.Info.AgentID = tpReq.Info.AgentID;
-                        OutPacket(tpCancel, ThrottleOutPacketType.Asset);
-                    }
-                    try
-                    {
-                        lm = new AssetLandmark(lma);
-                    }
-                    catch (NullReferenceException)
-                    {
-                        // asset not found generates null ref inside the assetlandmark constructor.
-                        TeleportCancelPacket tpCancel =
-                            (TeleportCancelPacket)
-                            PacketPool.Instance.GetPacket(
-                                PacketType.TeleportCancel);
-                        tpCancel.Info.SessionID = tpReq.Info.SessionID;
-                        tpCancel.Info.AgentID = tpReq.Info.AgentID;
-                        OutPacket(tpCancel, ThrottleOutPacketType.Asset);
-                        return;
-                    }
+                                                              {
+                                                                  if (lma == null)
+                                                                  {
+                                                                      // Failed to find landmark
+                                                                      TeleportCancelPacket tpCancel =
+                                                                          (TeleportCancelPacket)
+                                                                          PacketPool.Instance.GetPacket(
+                                                                              PacketType.TeleportCancel);
+                                                                      tpCancel.Info.SessionID = tpReq.Info.SessionID;
+                                                                      tpCancel.Info.AgentID = tpReq.Info.AgentID;
+                                                                      OutPacket(tpCancel, ThrottleOutPacketType.Asset);
+                                                                  }
 
-                    TeleportLandmarkRequest handlerTeleportLandmarkRequest = OnTeleportLandmarkRequest;
-                    if (handlerTeleportLandmarkRequest != null)
-                    {
-                        handlerTeleportLandmarkRequest(this, lm.RegionID, lm.Position);
-                    }
-                    else
-                    {
-                        //no event handler so cancel request
-                        TeleportCancelPacket tpCancel =
-                            (TeleportCancelPacket)
-                            PacketPool.Instance.GetPacket(PacketType.TeleportCancel);
-                        tpCancel.Info.AgentID = tpReq.Info.AgentID;
-                        tpCancel.Info.SessionID = tpReq.Info.SessionID;
-                        OutPacket(tpCancel, ThrottleOutPacketType.Asset);
-                    }
-                });
+                                                                  try
+                                                                  {
+                                                                      lm = new AssetLandmark(lma);
+                                                                  }
+                                                                  catch (NullReferenceException)
+                                                                  {
+                                                                      // asset not found generates null ref inside the assetlandmark constructor.
+                                                                      TeleportCancelPacket tpCancel =
+                                                                          (TeleportCancelPacket)
+                                                                          PacketPool.Instance.GetPacket(
+                                                                              PacketType.TeleportCancel);
+                                                                      tpCancel.Info.SessionID = tpReq.Info.SessionID;
+                                                                      tpCancel.Info.AgentID = tpReq.Info.AgentID;
+                                                                      OutPacket(tpCancel, ThrottleOutPacketType.Asset);
+                                                                      return;
+                                                                  }
+                                                                  TeleportLandmarkRequest handlerTeleportLandmarkRequest
+                                                                      = OnTeleportLandmarkRequest;
+                                                                  if (handlerTeleportLandmarkRequest != null)
+                                                                  {
+                                                                      handlerTeleportLandmarkRequest(this, lm.RegionID,
+                                                                                                     lm.Position);
+                                                                  }
+                                                                  else
+                                                                  {
+                                                                      //no event handler so cancel request
+
+
+                                                                      TeleportCancelPacket tpCancel =
+                                                                          (TeleportCancelPacket)
+                                                                          PacketPool.Instance.GetPacket(
+                                                                              PacketType.TeleportCancel);
+                                                                      tpCancel.Info.AgentID = tpReq.Info.AgentID;
+                                                                      tpCancel.Info.SessionID = tpReq.Info.SessionID;
+                                                                      OutPacket(tpCancel, ThrottleOutPacketType.Asset);
+                                                                  }
+                                                              });
             }
             else
             {
@@ -9078,7 +9270,6 @@ namespace Universe.ClientStack
                 {
                     handlerTeleportHomeRequest(AgentId, this);
                 }
-
                 return true;
             }
 
@@ -9087,7 +9278,7 @@ namespace Universe.ClientStack
 
         bool HandleTeleportLocationRequest(IClientAPI sender, Packet Pack)
         {
-            TeleportLocationRequestPacket tpLocReq = (TeleportLocationRequestPacket)Pack;
+            TeleportLocationRequestPacket tpLocReq = (TeleportLocationRequestPacket) Pack;
             // MainConsole.Instance.Debug(tpLocReq.ToString());
 
             #region Packet Session and User Check
@@ -9104,17 +9295,18 @@ namespace Universe.ClientStack
             TeleportLocationRequest handlerTeleportLocationRequest = OnTeleportLocationRequest;
             if (handlerTeleportLocationRequest != null)
             {
-                handlerTeleportLocationRequest(this, tpLocReq.Info.RegionHandle, tpLocReq.Info.Position, tpLocReq.Info.LookAt, 16);
+                handlerTeleportLocationRequest(this, tpLocReq.Info.RegionHandle, tpLocReq.Info.Position,
+                                               tpLocReq.Info.LookAt, 16);
             }
             else
             {
                 //no event handler so cancel request
-                TeleportCancelPacket tpCancel = (TeleportCancelPacket)PacketPool.Instance.GetPacket(PacketType.TeleportCancel);
+                TeleportCancelPacket tpCancel =
+                    (TeleportCancelPacket) PacketPool.Instance.GetPacket(PacketType.TeleportCancel);
                 tpCancel.Info.SessionID = tpLocReq.AgentData.SessionID;
                 tpCancel.Info.AgentID = tpLocReq.AgentData.AgentID;
                 OutPacket(tpCancel, ThrottleOutPacketType.Asset);
             }
-
             return true;
         }
 
@@ -9122,7 +9314,7 @@ namespace Universe.ClientStack
 
         bool HandleUUIDNameRequest(IClientAPI sender, Packet Pack)
         {
-            UUIDNameRequestPacket incoming = (UUIDNameRequestPacket)Pack;
+            UUIDNameRequestPacket incoming = (UUIDNameRequestPacket) Pack;
 
             foreach (UUIDNameRequestPacket.UUIDNameBlockBlock UUIDBlock in incoming.UUIDNameBlock)
             {
@@ -9132,7 +9324,6 @@ namespace Universe.ClientStack
                     handlerNameRequest(UUIDBlock.ID, this);
                 }
             }
-
             return true;
         }
 
@@ -9140,20 +9331,19 @@ namespace Universe.ClientStack
 
         bool HandleRegionHandleRequest(IClientAPI sender, Packet Pack)
         {
-            RegionHandleRequestPacket rhrPack = (RegionHandleRequestPacket)Pack;
+            RegionHandleRequestPacket rhrPack = (RegionHandleRequestPacket) Pack;
 
             RegionHandleRequest handlerRegionHandleRequest = OnRegionHandleRequest;
             if (handlerRegionHandleRequest != null)
             {
                 handlerRegionHandleRequest(this, rhrPack.RequestBlock.RegionID);
             }
-
             return true;
         }
 
         bool HandleParcelInfoRequest(IClientAPI sender, Packet Pack)
         {
-            ParcelInfoRequestPacket pirPack = (ParcelInfoRequestPacket)Pack;
+            ParcelInfoRequestPacket pirPack = (ParcelInfoRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -9171,13 +9361,12 @@ namespace Universe.ClientStack
             {
                 handlerParcelInfoRequest(this, pirPack.Data.ParcelID);
             }
-
             return true;
         }
 
         bool HandleParcelAccessListRequest(IClientAPI sender, Packet Pack)
         {
-            ParcelAccessListRequestPacket requestPacket = (ParcelAccessListRequestPacket)Pack;
+            ParcelAccessListRequestPacket requestPacket = (ParcelAccessListRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -9198,13 +9387,12 @@ namespace Universe.ClientStack
                                                requestPacket.Data.Flags, requestPacket.Data.SequenceID,
                                                requestPacket.Data.LocalID, this);
             }
-
             return true;
         }
 
         bool HandleParcelAccessListUpdate(IClientAPI sender, Packet Pack)
         {
-            ParcelAccessListUpdatePacket updatePacket = (ParcelAccessListUpdatePacket)Pack;
+            ParcelAccessListUpdatePacket updatePacket = (ParcelAccessListUpdatePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -9219,11 +9407,11 @@ namespace Universe.ClientStack
 
             List<ParcelManager.ParcelAccessEntry> entries =
                 updatePacket.List.Select(block => new ParcelManager.ParcelAccessEntry
-                {
-                    AgentID = block.ID,
-                    Flags = (AccessList)block.Flags,
-                    Time = new DateTime()
-                }).ToList();
+                                                      {
+                                                          AgentID = block.ID,
+                                                          Flags = (AccessList) block.Flags,
+                                                          Time = new DateTime()
+                                                      }).ToList();
 
             ParcelAccessListUpdateRequest handlerParcelAccessListUpdateRequest = OnParcelAccessListUpdateRequest;
             if (handlerParcelAccessListUpdateRequest != null)
@@ -9232,13 +9420,12 @@ namespace Universe.ClientStack
                                                      updatePacket.AgentData.SessionID, updatePacket.Data.Flags,
                                                      updatePacket.Data.LocalID, entries, this);
             }
-
             return true;
         }
 
         bool HandleParcelPropertiesRequest(IClientAPI sender, Packet Pack)
         {
-            ParcelPropertiesRequestPacket propertiesRequest = (ParcelPropertiesRequestPacket)Pack;
+            ParcelPropertiesRequestPacket propertiesRequest = (ParcelPropertiesRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -9254,20 +9441,19 @@ namespace Universe.ClientStack
             ParcelPropertiesRequest handlerParcelPropertiesRequest = OnParcelPropertiesRequest;
             if (handlerParcelPropertiesRequest != null)
             {
-                handlerParcelPropertiesRequest((int)Math.Round(propertiesRequest.ParcelData.West),
-                                               (int)Math.Round(propertiesRequest.ParcelData.South),
-                                               (int)Math.Round(propertiesRequest.ParcelData.East),
-                                               (int)Math.Round(propertiesRequest.ParcelData.North),
+                handlerParcelPropertiesRequest((int) Math.Round(propertiesRequest.ParcelData.West),
+                                               (int) Math.Round(propertiesRequest.ParcelData.South),
+                                               (int) Math.Round(propertiesRequest.ParcelData.East),
+                                               (int) Math.Round(propertiesRequest.ParcelData.North),
                                                propertiesRequest.ParcelData.SequenceID,
                                                propertiesRequest.ParcelData.SnapSelection, this);
             }
-
             return true;
         }
 
         bool HandleParcelDivide(IClientAPI sender, Packet Pack)
         {
-            ParcelDividePacket landDivide = (ParcelDividePacket)Pack;
+            ParcelDividePacket landDivide = (ParcelDividePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -9283,18 +9469,17 @@ namespace Universe.ClientStack
             ParcelDivideRequest handlerParcelDivideRequest = OnParcelDivideRequest;
             if (handlerParcelDivideRequest != null)
             {
-                handlerParcelDivideRequest((int)Math.Round(landDivide.ParcelData.West),
-                                           (int)Math.Round(landDivide.ParcelData.South),
-                                           (int)Math.Round(landDivide.ParcelData.East),
-                                           (int)Math.Round(landDivide.ParcelData.North), this);
+                handlerParcelDivideRequest((int) Math.Round(landDivide.ParcelData.West),
+                                           (int) Math.Round(landDivide.ParcelData.South),
+                                           (int) Math.Round(landDivide.ParcelData.East),
+                                           (int) Math.Round(landDivide.ParcelData.North), this);
             }
-
             return true;
         }
 
         bool HandleParcelJoin(IClientAPI sender, Packet Pack)
         {
-            ParcelJoinPacket landJoin = (ParcelJoinPacket)Pack;
+            ParcelJoinPacket landJoin = (ParcelJoinPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -9311,18 +9496,17 @@ namespace Universe.ClientStack
 
             if (handlerParcelJoinRequest != null)
             {
-                handlerParcelJoinRequest((int)Math.Round(landJoin.ParcelData.West),
-                                         (int)Math.Round(landJoin.ParcelData.South),
-                                         (int)Math.Round(landJoin.ParcelData.East),
-                                         (int)Math.Round(landJoin.ParcelData.North), this);
+                handlerParcelJoinRequest((int) Math.Round(landJoin.ParcelData.West),
+                                         (int) Math.Round(landJoin.ParcelData.South),
+                                         (int) Math.Round(landJoin.ParcelData.East),
+                                         (int) Math.Round(landJoin.ParcelData.North), this);
             }
-
             return true;
         }
 
         bool HandleParcelPropertiesUpdate(IClientAPI sender, Packet Pack)
         {
-            ParcelPropertiesUpdatePacket parcelPropertiesPacket = (ParcelPropertiesUpdatePacket)Pack;
+            ParcelPropertiesUpdatePacket parcelPropertiesPacket = (ParcelPropertiesUpdatePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -9340,29 +9524,28 @@ namespace Universe.ClientStack
             if (handlerParcelPropertiesUpdateRequest != null)
             {
                 LandUpdateArgs args = new LandUpdateArgs
-                {
-                    AuthBuyerID = parcelPropertiesPacket.ParcelData.AuthBuyerID,
-                    Category = (ParcelCategory)parcelPropertiesPacket.ParcelData.Category,
-                    Desc = Utils.BytesToString(parcelPropertiesPacket.ParcelData.Desc),
-                    GroupID = parcelPropertiesPacket.ParcelData.GroupID,
-                    LandingType = parcelPropertiesPacket.ParcelData.LandingType,
-                    MediaAutoScale = parcelPropertiesPacket.ParcelData.MediaAutoScale,
-                    MediaID = parcelPropertiesPacket.ParcelData.MediaID,
-                    MediaURL = Utils.BytesToString(parcelPropertiesPacket.ParcelData.MediaURL),
-                    MusicURL = Utils.BytesToString(parcelPropertiesPacket.ParcelData.MusicURL),
-                    Name = Utils.BytesToString(parcelPropertiesPacket.ParcelData.Name),
-                    ParcelFlags = parcelPropertiesPacket.ParcelData.ParcelFlags,
-                    PassHours = parcelPropertiesPacket.ParcelData.PassHours,
-                    PassPrice = parcelPropertiesPacket.ParcelData.PassPrice,
-                    SalePrice = parcelPropertiesPacket.ParcelData.SalePrice,
-                    SnapshotID = parcelPropertiesPacket.ParcelData.SnapshotID,
-                    UserLocation = parcelPropertiesPacket.ParcelData.UserLocation,
-                    UserLookAt = parcelPropertiesPacket.ParcelData.UserLookAt
-                };
+                                          {
+                                              AuthBuyerID = parcelPropertiesPacket.ParcelData.AuthBuyerID,
+                                              Category = (ParcelCategory) parcelPropertiesPacket.ParcelData.Category,
+                                              Desc = Utils.BytesToString(parcelPropertiesPacket.ParcelData.Desc),
+                                              GroupID = parcelPropertiesPacket.ParcelData.GroupID,
+                                              LandingType = parcelPropertiesPacket.ParcelData.LandingType,
+                                              MediaAutoScale = parcelPropertiesPacket.ParcelData.MediaAutoScale,
+                                              MediaID = parcelPropertiesPacket.ParcelData.MediaID,
+                                              MediaURL = Utils.BytesToString(parcelPropertiesPacket.ParcelData.MediaURL),
+                                              MusicURL = Utils.BytesToString(parcelPropertiesPacket.ParcelData.MusicURL),
+                                              Name = Utils.BytesToString(parcelPropertiesPacket.ParcelData.Name),
+                                              ParcelFlags = parcelPropertiesPacket.ParcelData.ParcelFlags,
+                                              PassHours = parcelPropertiesPacket.ParcelData.PassHours,
+                                              PassPrice = parcelPropertiesPacket.ParcelData.PassPrice,
+                                              SalePrice = parcelPropertiesPacket.ParcelData.SalePrice,
+                                              SnapshotID = parcelPropertiesPacket.ParcelData.SnapshotID,
+                                              UserLocation = parcelPropertiesPacket.ParcelData.UserLocation,
+                                              UserLookAt = parcelPropertiesPacket.ParcelData.UserLookAt
+                                          };
 
                 handlerParcelPropertiesUpdateRequest(args, parcelPropertiesPacket.ParcelData.LocalID, this);
             }
-
             return true;
         }
 
@@ -9378,7 +9561,7 @@ namespace Universe.ClientStack
 
         bool HandleParcelSelectObjects(IClientAPI sender, Packet Pack)
         {
-            ParcelSelectObjectsPacket selectPacket = (ParcelSelectObjectsPacket)Pack;
+            ParcelSelectObjectsPacket selectPacket = (ParcelSelectObjectsPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -9397,15 +9580,15 @@ namespace Universe.ClientStack
 
             if (handlerParcelSelectObjects != null)
             {
-                handlerParcelSelectObjects(selectPacket.ParcelData.LocalID, Convert.ToInt32(selectPacket.ParcelData.ReturnType), returnIDs, this);
+                handlerParcelSelectObjects(selectPacket.ParcelData.LocalID,
+                                           Convert.ToInt32(selectPacket.ParcelData.ReturnType), returnIDs, this);
             }
-
             return true;
         }
 
         bool HandleParcelObjectOwnersRequest(IClientAPI sender, Packet Pack)
         {
-            ParcelObjectOwnersRequestPacket reqPacket = (ParcelObjectOwnersRequestPacket)Pack;
+            ParcelObjectOwnersRequestPacket reqPacket = (ParcelObjectOwnersRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -9424,13 +9607,12 @@ namespace Universe.ClientStack
             {
                 handlerParcelObjectOwnerRequest(reqPacket.ParcelData.LocalID, this);
             }
-
             return true;
         }
 
         bool HandleParcelGodForceOwner(IClientAPI sender, Packet Pack)
         {
-            ParcelGodForceOwnerPacket godForceOwnerPacket = (ParcelGodForceOwnerPacket)Pack;
+            ParcelGodForceOwnerPacket godForceOwnerPacket = (ParcelGodForceOwnerPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -9448,13 +9630,12 @@ namespace Universe.ClientStack
             {
                 handlerParcelGodForceOwner(godForceOwnerPacket.Data.LocalID, godForceOwnerPacket.Data.OwnerID, this);
             }
-
             return true;
         }
 
         bool HandleParcelRelease(IClientAPI sender, Packet Pack)
         {
-            ParcelReleasePacket releasePacket = (ParcelReleasePacket)Pack;
+            ParcelReleasePacket releasePacket = (ParcelReleasePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -9472,13 +9653,12 @@ namespace Universe.ClientStack
             {
                 handlerParcelAbandonRequest(releasePacket.Data.LocalID, this);
             }
-
             return true;
         }
 
         bool HandleParcelReclaim(IClientAPI sender, Packet Pack)
         {
-            ParcelReclaimPacket reclaimPacket = (ParcelReclaimPacket)Pack;
+            ParcelReclaimPacket reclaimPacket = (ParcelReclaimPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -9496,13 +9676,12 @@ namespace Universe.ClientStack
             {
                 handlerParcelReclaim(reclaimPacket.Data.LocalID, this);
             }
-
             return true;
         }
 
         bool HandleParcelReturnObjects(IClientAPI sender, Packet Pack)
         {
-            ParcelReturnObjectsPacket parcelReturnObjects = (ParcelReturnObjectsPacket)Pack;
+            ParcelReturnObjectsPacket parcelReturnObjects = (ParcelReturnObjectsPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -9531,13 +9710,12 @@ namespace Universe.ClientStack
                                                   parcelReturnObjects.ParcelData.ReturnType, puserselectedOwnerIDs,
                                                   puserselectedTaskIDs, this);
             }
-
             return true;
         }
 
         bool HandleParcelSetOtherCleanTime(IClientAPI sender, Packet Pack)
         {
-            ParcelSetOtherCleanTimePacket parcelSetOtherCleanTimePacket = (ParcelSetOtherCleanTimePacket)Pack;
+            ParcelSetOtherCleanTimePacket parcelSetOtherCleanTimePacket = (ParcelSetOtherCleanTimePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -9557,13 +9735,12 @@ namespace Universe.ClientStack
                                                parcelSetOtherCleanTimePacket.ParcelData.LocalID,
                                                parcelSetOtherCleanTimePacket.ParcelData.OtherCleanTime);
             }
-
             return true;
         }
 
         bool HandleLandStatRequest(IClientAPI sender, Packet Pack)
         {
-            LandStatRequestPacket lsrp = (LandStatRequestPacket)Pack;
+            LandStatRequestPacket lsrp = (LandStatRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -9582,13 +9759,13 @@ namespace Universe.ClientStack
                 handlerLandStatRequest(lsrp.RequestData.ParcelLocalID, lsrp.RequestData.ReportType,
                                        lsrp.RequestData.RequestFlags, Utils.BytesToString(lsrp.RequestData.Filter), this);
             }
-
             return true;
         }
 
         bool HandleParcelDwellRequest(IClientAPI sender, Packet Pack)
         {
-            ParcelDwellRequestPacket dwellrq = (ParcelDwellRequestPacket)Pack;
+            ParcelDwellRequestPacket dwellrq =
+                (ParcelDwellRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -9606,7 +9783,6 @@ namespace Universe.ClientStack
             {
                 handlerParcelDwellRequest(dwellrq.Data.LocalID, this);
             }
-
             return true;
         }
 
@@ -9616,7 +9792,7 @@ namespace Universe.ClientStack
 
         bool HandleEstateOwnerMessage(IClientAPI sender, Packet Pack)
         {
-            EstateOwnerMessagePacket messagePacket = (EstateOwnerMessagePacket)Pack;
+            EstateOwnerMessagePacket messagePacket = (EstateOwnerMessagePacket) Pack;
             //MainConsole.Instance.Debug(messagePacket.ToString());
             GodLandStatRequest handlerLandStatRequest;
 
@@ -9661,6 +9837,21 @@ namespace Universe.ClientStack
                                                 convertParamStringToBool(messagePacket.ParamList[8].Parameter));
                     }
                     return true;
+                    //                            case "texturebase":
+                    //                                if (((Scene)m_scene).Permissions.CanIssueEstateCommand(AgentId, false))
+                    //                                {
+                    //                                    foreach (EstateOwnerMessagePacket.ParamListBlock block in messagePacket.ParamList)
+                    //                                    {
+                    //                                        string s = Utils.BytesToString(block.Parameter);
+                    //                                        string[] splitField = s.Split(' ');
+                    //                                        if (splitField.Length == 2)
+                    //                                        {
+                    //                                            UUID tempUUID = new UUID(splitField[1]);
+                    //                                            OnSetEstateTerrainBaseTexture(this, Convert.ToInt16(splitField[0]), tempUUID);
+                    //                                        }
+                    //                                    }
+                    //                                }
+                    //                                break;
                 case "texturedetail":
                     if (m_scene.Permissions.CanIssueEstateCommand(AgentId, false))
                     {
@@ -9689,8 +9880,8 @@ namespace Universe.ClientStack
                             if (splitField.Length == 3)
                             {
                                 Int16 corner = Convert.ToInt16(splitField[0]);
-                                float lowValue = (float)Convert.ToDecimal(splitField[1], Culture.NumberFormatInfo);
-                                float highValue = (float)Convert.ToDecimal(splitField[2], Culture.NumberFormatInfo);
+                                float lowValue = (float) Convert.ToDecimal(splitField[1], Culture.NumberFormatInfo);
+                                float highValue = (float) Convert.ToDecimal(splitField[2], Culture.NumberFormatInfo);
 
                                 OnSetEstateTerrainTextureHeights(this, corner, lowValue, highValue);
                             }
@@ -9708,7 +9899,8 @@ namespace Universe.ClientStack
                     {
                         if (messagePacket.ParamList.Length != 9)
                         {
-                            MainConsole.Instance.Error("[Estate Owner Message]: SetRegionTerrain method has a ParamList of invalid length");
+                            MainConsole.Instance.Error(
+                                "EstateOwnerMessage: SetRegionTerrain method has a ParamList of invalid length");
                         }
                         else
                         {
@@ -9716,13 +9908,13 @@ namespace Universe.ClientStack
                             {
                                 string tmp = Utils.BytesToString(messagePacket.ParamList[0].Parameter);
                                 if (!tmp.Contains(".")) tmp += ".00";
-                                float WaterHeight = (float)Convert.ToDecimal(tmp, Culture.NumberFormatInfo);
+                                float WaterHeight = (float) Convert.ToDecimal(tmp, Culture.NumberFormatInfo);
                                 tmp = Utils.BytesToString(messagePacket.ParamList[1].Parameter);
                                 if (!tmp.Contains(".")) tmp += ".00";
-                                float TerrainRaiseLimit = (float)Convert.ToDecimal(tmp, Culture.NumberFormatInfo);
+                                float TerrainRaiseLimit = (float) Convert.ToDecimal(tmp, Culture.NumberFormatInfo);
                                 tmp = Utils.BytesToString(messagePacket.ParamList[2].Parameter);
                                 if (!tmp.Contains(".")) tmp += ".00";
-                                float TerrainLowerLimit = (float)Convert.ToDecimal(tmp, Culture.NumberFormatInfo);
+                                float TerrainLowerLimit = (float) Convert.ToDecimal(tmp, Culture.NumberFormatInfo);
                                 bool UseEstateSun = convertParamStringToBool(messagePacket.ParamList[3].Parameter);
                                 bool UseFixedSun = convertParamStringToBool(messagePacket.ParamList[4].Parameter);
                                 float SunHour =
@@ -9743,7 +9935,8 @@ namespace Universe.ClientStack
                             catch (Exception ex)
                             {
                                 MainConsole.Instance.Error(
-                                    "[Estate Owner Message]: Exception while setting terrain settings: \n" + messagePacket + "\n" + ex);
+                                    "EstateOwnerMessage: Exception while setting terrain settings: \n" +
+                                    messagePacket + "\n" + ex);
                             }
                         }
                     }
@@ -9757,8 +9950,8 @@ namespace Universe.ClientStack
                         {
                             float timeSeconds;
                             Utils.TryParseSingle(Utils.BytesToString(block.Parameter), out timeSeconds);
-                            timeSeconds = (int)timeSeconds;
-                            OnEstateRestartSimRequest(this, (int)timeSeconds);
+                            timeSeconds = (int) timeSeconds;
+                            OnEstateRestartSimRequest(this, (int) timeSeconds);
                         }
                     }
                     return true;
@@ -9778,7 +9971,8 @@ namespace Universe.ClientStack
                     {
                         int estateAccessType = Convert.ToInt16(Utils.BytesToString(messagePacket.ParamList[1].Parameter));
                         OnUpdateEstateAccessDeltaRequest(this, messagePacket.MethodData.Invoice, estateAccessType,
-                                                         new UUID(Utils.BytesToString(messagePacket.ParamList[2].Parameter)));
+                                                         new UUID(
+                                                             Utils.BytesToString(messagePacket.ParamList[2].Parameter)));
                     }
                     return true;
                 case "simulatormessage":
@@ -9812,7 +10006,6 @@ namespace Universe.ClientStack
                             SenderName = Utils.BytesToString(messagePacket.ParamList[3].Parameter);
                             Message = Utils.BytesToString(messagePacket.ParamList[4].Parameter);
                         }
-
                         OnEstateBlueBoxMessageRequest(this, invoice, SenderID, sessionID, SenderName, Message);
                     }
                     return true;
@@ -9881,7 +10074,6 @@ namespace Universe.ClientStack
                                     handlerBakeTerrain(this);
                                 }
                             }
-
                             if (Utils.BytesToString(messagePacket.ParamList[0].Parameter) == "download filename")
                             {
                                 if (messagePacket.ParamList.Length > 1)
@@ -9889,11 +10081,11 @@ namespace Universe.ClientStack
                                     RequestTerrain handlerRequestTerrain = OnRequestTerrain;
                                     if (handlerRequestTerrain != null)
                                     {
-                                        handlerRequestTerrain(this, Utils.BytesToString(messagePacket.ParamList[1].Parameter));
+                                        handlerRequestTerrain(this,
+                                                              Utils.BytesToString(messagePacket.ParamList[1].Parameter));
                                     }
                                 }
                             }
-
                             if (Utils.BytesToString(messagePacket.ParamList[0].Parameter) == "upload filename")
                             {
                                 if (messagePacket.ParamList.Length > 1)
@@ -9901,13 +10093,13 @@ namespace Universe.ClientStack
                                     RequestTerrain handlerUploadTerrain = OnUploadTerrain;
                                     if (handlerUploadTerrain != null)
                                     {
-                                        handlerUploadTerrain(this, Utils.BytesToString(messagePacket.ParamList[1].Parameter));
+                                        handlerUploadTerrain(this,
+                                                             Utils.BytesToString(messagePacket.ParamList[1].Parameter));
                                     }
                                 }
                             }
                         }
                     }
-
                     return true;
 
                 case "estatechangeinfo":
@@ -9924,7 +10116,6 @@ namespace Universe.ClientStack
                             handlerEstateChangeInfo(this, invoice, SenderID, param1, param2);
                         }
                     }
-
                     return true;
 
                 case "refreshmapvisibility":
@@ -9946,7 +10137,7 @@ namespace Universe.ClientStack
                         m_scene.ClientManager.TryGetValue(Prey, out client);
                         if (client == null)
                             return true;
-                        client.Kick("The Virtual Universe Manager has kicked you");
+                        client.Kick("The Universe Manager has kicked you");
                         IEntityTransferModule transferModule = Scene.RequestModuleInterface<IEntityTransferModule>();
                         if (transferModule != null)
                             transferModule.IncomingCloseAgent(Scene, Prey);
@@ -9984,13 +10175,14 @@ namespace Universe.ClientStack
                     return true;
                 default:
                     MainConsole.Instance.WarnFormat(
-                        "[LLClient View]: EstateOwnerMessage: Unknown method {0} requested for {1}", method, Name);
+                        "[LLCLIENTVIEW]: EstateOwnerMessage: Unknown method {0} requested for {1}",
+                        method, Name);
 
                     for (int i = 0; i < messagePacket.ParamList.Length; i++)
                     {
                         EstateOwnerMessagePacket.ParamListBlock block = messagePacket.ParamList[i];
-                        string data = (string)Utils.BytesToString(block.Parameter);
-                        MainConsole.Instance.DebugFormat("[LLClient View]: Param {0}={1}", i, data);
+                        string data = (string) Utils.BytesToString(block.Parameter);
+                        MainConsole.Instance.DebugFormat("[LLCLIENTVIEW]: Param {0}={1}", i, data);
                     }
 
                     return true;
@@ -9999,7 +10191,7 @@ namespace Universe.ClientStack
 
         bool HandleRequestRegionInfo(IClientAPI sender, Packet Pack)
         {
-            RequestRegionInfoPacket.AgentDataBlock mPacket = ((RequestRegionInfoPacket)Pack).AgentData;
+            RequestRegionInfoPacket.AgentDataBlock mPacket = ((RequestRegionInfoPacket) Pack).AgentData;
 
             #region Packet Session and User Check
 
@@ -10017,18 +10209,19 @@ namespace Universe.ClientStack
             {
                 handlerRegionInfoRequest(this);
             }
-
             return true;
         }
 
         bool HandleEstateCovenantRequest(IClientAPI sender, Packet Pack)
         {
+            //EstateCovenantRequestPacket.AgentDataBlock epack =
+            //     ((EstateCovenantRequestPacket)Pack).AgentData;
+
             EstateCovenantRequest handlerEstateCovenantRequest = OnEstateCovenantRequest;
             if (handlerEstateCovenantRequest != null)
             {
                 handlerEstateCovenantRequest(this);
             }
-
             return true;
         }
 
@@ -10038,7 +10231,7 @@ namespace Universe.ClientStack
 
         bool HandleRequestGodlikePowers(IClientAPI sender, Packet Pack)
         {
-            RequestGodlikePowersPacket rglpPack = (RequestGodlikePowersPacket)Pack;
+            RequestGodlikePowersPacket rglpPack = (RequestGodlikePowersPacket) Pack;
             RequestGodlikePowersPacket.RequestBlockBlock rblock = rglpPack.RequestBlock;
             UUID token = rblock.Token;
 
@@ -10067,7 +10260,8 @@ namespace Universe.ClientStack
 
         bool HandleGodUpdateRegionInfoUpdate(IClientAPI client, Packet Packet)
         {
-            GodUpdateRegionInfoPacket GodUpdateRegionInfo = (GodUpdateRegionInfoPacket)Packet;
+            GodUpdateRegionInfoPacket GodUpdateRegionInfo =
+                (GodUpdateRegionInfoPacket) Packet;
 
             GodUpdateRegionInfoUpdate handlerGodUpdateRegionInfo = OnGodUpdateRegionInfoUpdate;
 
@@ -10094,13 +10288,13 @@ namespace Universe.ClientStack
                                            GodUpdateRegionInfo.RegionInfo.RedirectGridY);
                 return true;
             }
-
             return false;
         }
 
         bool HandleSimWideDeletes(IClientAPI client, Packet Packet)
         {
-            SimWideDeletesPacket SimWideDeletesRequest = (SimWideDeletesPacket)Packet;
+            SimWideDeletesPacket SimWideDeletesRequest =
+                (SimWideDeletesPacket) Packet;
 
             #region Packet Session and User Check
 
@@ -10116,16 +10310,17 @@ namespace Universe.ClientStack
             SimWideDeletesDelegate handlerSimWideDeletesRequest = OnSimWideDeletes;
             if (handlerSimWideDeletesRequest != null)
             {
-                handlerSimWideDeletesRequest(this, (int)SimWideDeletesRequest.DataBlock.Flags, SimWideDeletesRequest.DataBlock.TargetID);
+                handlerSimWideDeletesRequest(this, (int) SimWideDeletesRequest.DataBlock.Flags,
+                                             SimWideDeletesRequest.DataBlock.TargetID);
                 return true;
             }
-
             return false;
         }
 
         bool HandleGodlikeMessage(IClientAPI client, Packet Packet)
         {
-            GodlikeMessagePacket GodlikeMessage = (GodlikeMessagePacket)Packet;
+            GodlikeMessagePacket GodlikeMessage =
+                (GodlikeMessagePacket) Packet;
 
             #region Packet Session and User Check
 
@@ -10140,7 +10335,8 @@ namespace Universe.ClientStack
 
             GodlikeMessage handlerGodlikeMessage = OnGodlikeMessage;
 
-            List<string> Parameters = GodlikeMessage.ParamList.Select(block => Utils.BytesToString(block.Parameter)).ToList();
+            List<string> Parameters =
+                GodlikeMessage.ParamList.Select(block => Utils.BytesToString(block.Parameter)).ToList();
 
             if (handlerGodlikeMessage != null)
             {
@@ -10150,13 +10346,13 @@ namespace Universe.ClientStack
                                       Parameters);
                 return true;
             }
-
             return false;
         }
 
         bool HandleSaveStatePacket(IClientAPI client, Packet Packet)
         {
-            StateSavePacket SaveStateMessage = (StateSavePacket)Packet;
+            StateSavePacket SaveStateMessage =
+                (StateSavePacket) Packet;
 
             #region Packet Session and User Check
 
@@ -10175,13 +10371,12 @@ namespace Universe.ClientStack
                 handlerSaveStatePacket(this, SaveStateMessage.AgentData.AgentID);
                 return true;
             }
-
             return false;
         }
 
         bool HandleGodKickUser(IClientAPI sender, Packet Pack)
         {
-            GodKickUserPacket gkupack = (GodKickUserPacket)Pack;
+            GodKickUserPacket gkupack = (GodKickUserPacket) Pack;
 
             if (gkupack.UserInfo.GodSessionID == SessionId && AgentId == gkupack.UserInfo.GodID)
             {
@@ -10196,7 +10391,6 @@ namespace Universe.ClientStack
             {
                 SendAgentAlertMessage("Kick request denied", false);
             }
-
             return true;
         }
 
@@ -10206,7 +10400,7 @@ namespace Universe.ClientStack
 
         bool HandleMoneyBalanceRequest(IClientAPI sender, Packet Pack)
         {
-            MoneyBalanceRequestPacket moneybalancerequestpacket = (MoneyBalanceRequestPacket)Pack;
+            MoneyBalanceRequestPacket moneybalancerequestpacket = (MoneyBalanceRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -10238,26 +10432,24 @@ namespace Universe.ClientStack
             {
                 handlerEconomoyDataRequest(this);
             }
-
             return true;
         }
 
         bool HandleRequestPayPrice(IClientAPI sender, Packet Pack)
         {
-            RequestPayPricePacket requestPayPricePacket = (RequestPayPricePacket)Pack;
+            RequestPayPricePacket requestPayPricePacket = (RequestPayPricePacket) Pack;
 
             RequestPayPrice handlerRequestPayPrice = OnRequestPayPrice;
             if (handlerRequestPayPrice != null)
             {
                 handlerRequestPayPrice(this, requestPayPricePacket.ObjectData.ObjectID);
             }
-
             return true;
         }
 
         bool HandleObjectSaleInfo(IClientAPI sender, Packet Pack)
         {
-            ObjectSaleInfoPacket objectSaleInfoPacket = (ObjectSaleInfoPacket)Pack;
+            ObjectSaleInfoPacket objectSaleInfoPacket = (ObjectSaleInfoPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -10273,7 +10465,8 @@ namespace Universe.ClientStack
             ObjectSaleInfo handlerObjectSaleInfo = OnObjectSaleInfo;
             if (handlerObjectSaleInfo != null)
             {
-                foreach (ObjectSaleInfoPacket.ObjectDataBlock d in objectSaleInfoPacket.ObjectData)
+                foreach (ObjectSaleInfoPacket.ObjectDataBlock d
+                    in objectSaleInfoPacket.ObjectData)
                 {
                     handlerObjectSaleInfo(this,
                                           objectSaleInfoPacket.AgentData.SessionID,
@@ -10282,13 +10475,12 @@ namespace Universe.ClientStack
                                           d.SalePrice);
                 }
             }
-
             return true;
         }
 
         bool HandleObjectBuy(IClientAPI sender, Packet Pack)
         {
-            ObjectBuyPacket objectBuyPacket = (ObjectBuyPacket)Pack;
+            ObjectBuyPacket objectBuyPacket = (ObjectBuyPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -10305,7 +10497,8 @@ namespace Universe.ClientStack
 
             if (handlerObjectBuy != null)
             {
-                foreach (ObjectBuyPacket.ObjectDataBlock d in objectBuyPacket.ObjectData)
+                foreach (ObjectBuyPacket.ObjectDataBlock d
+                    in objectBuyPacket.ObjectData)
                 {
                     handlerObjectBuy(this,
                                      objectBuyPacket.AgentData.SessionID,
@@ -10316,7 +10509,6 @@ namespace Universe.ClientStack
                                      d.SalePrice);
                 }
             }
-
             return true;
         }
 
@@ -10326,20 +10518,19 @@ namespace Universe.ClientStack
 
         bool HandleGetScriptRunning(IClientAPI sender, Packet Pack)
         {
-            GetScriptRunningPacket scriptRunning = (GetScriptRunningPacket)Pack;
+            GetScriptRunningPacket scriptRunning = (GetScriptRunningPacket) Pack;
 
             GetScriptRunning handlerGetScriptRunning = OnGetScriptRunning;
             if (handlerGetScriptRunning != null)
             {
                 handlerGetScriptRunning(this, scriptRunning.Script.ObjectID, scriptRunning.Script.ItemID);
             }
-
             return true;
         }
 
         bool HandleSetScriptRunning(IClientAPI sender, Packet Pack)
         {
-            SetScriptRunningPacket setScriptRunning = (SetScriptRunningPacket)Pack;
+            SetScriptRunningPacket setScriptRunning = (SetScriptRunningPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -10355,15 +10546,15 @@ namespace Universe.ClientStack
             SetScriptRunning handlerSetScriptRunning = OnSetScriptRunning;
             if (handlerSetScriptRunning != null)
             {
-                handlerSetScriptRunning(this, setScriptRunning.Script.ObjectID, setScriptRunning.Script.ItemID, setScriptRunning.Script.Running);
+                handlerSetScriptRunning(this, setScriptRunning.Script.ObjectID, setScriptRunning.Script.ItemID,
+                                        setScriptRunning.Script.Running);
             }
-
             return true;
         }
 
         bool HandleScriptReset(IClientAPI sender, Packet Pack)
         {
-            ScriptResetPacket scriptResetPacket = (ScriptResetPacket)Pack;
+            ScriptResetPacket scriptResetPacket = (ScriptResetPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -10381,7 +10572,6 @@ namespace Universe.ClientStack
             {
                 handlerScriptReset(this, scriptResetPacket.Script.ObjectID, scriptResetPacket.Script.ItemID);
             }
-
             return true;
         }
 
@@ -10391,7 +10581,7 @@ namespace Universe.ClientStack
 
         bool HandleActivateGestures(IClientAPI sender, Packet Pack)
         {
-            ActivateGesturesPacket activateGesturePacket = (ActivateGesturesPacket)Pack;
+            ActivateGesturesPacket activateGesturePacket = (ActivateGesturesPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -10411,16 +10601,14 @@ namespace Universe.ClientStack
                                        activateGesturePacket.Data[0].AssetID,
                                        activateGesturePacket.Data[0].ItemID);
             }
-
-            else
-                MainConsole.Instance.Error("Null pointer for activateGesture");
+            else MainConsole.Instance.Error("Null pointer for activateGesture");
 
             return true;
         }
 
         bool HandleDeactivateGestures(IClientAPI sender, Packet Pack)
         {
-            DeactivateGesturesPacket deactivateGesturePacket = (DeactivateGesturesPacket)Pack;
+            DeactivateGesturesPacket deactivateGesturePacket = (DeactivateGesturesPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -10438,13 +10626,12 @@ namespace Universe.ClientStack
             {
                 handlerDeactivateGesture(this, deactivateGesturePacket.Data[0].ItemID);
             }
-
             return true;
         }
 
         bool HandleObjectOwner(IClientAPI sender, Packet Pack)
         {
-            ObjectOwnerPacket objectOwnerPacket = (ObjectOwnerPacket)Pack;
+            ObjectOwnerPacket objectOwnerPacket = (ObjectOwnerPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -10462,9 +10649,9 @@ namespace Universe.ClientStack
             ObjectOwner handlerObjectOwner = OnObjectOwner;
             if (handlerObjectOwner != null)
             {
-                handlerObjectOwner(this, objectOwnerPacket.HeaderData.OwnerID, objectOwnerPacket.HeaderData.GroupID, localIDs);
+                handlerObjectOwner(this, objectOwnerPacket.HeaderData.OwnerID, objectOwnerPacket.HeaderData.GroupID,
+                                   localIDs);
             }
-
             return true;
         }
 
@@ -10472,7 +10659,7 @@ namespace Universe.ClientStack
 
         bool HandleAgentFOV(IClientAPI sender, Packet Pack)
         {
-            AgentFOVPacket fovPacket = (AgentFOVPacket)Pack;
+            AgentFOVPacket fovPacket = (AgentFOVPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -10494,7 +10681,6 @@ namespace Universe.ClientStack
                     handlerAgentFOV(this, fovPacket.FOVBlock.VerticalAngle);
                 }
             }
-
             return true;
         }
 
@@ -10502,7 +10688,7 @@ namespace Universe.ClientStack
 
         bool HandleViewerStats(IClientAPI sender, Packet Pack)
         {
-            //MainConsole.Instance.Warn("[Client]: unhandled ViewerStats packet");
+            //MainConsole.Instance.Warn("[CLIENT]: unhandled ViewerStats packet");
             return true;
         }
 
@@ -10520,7 +10706,7 @@ namespace Universe.ClientStack
 
         bool HandleMapItemRequest(IClientAPI sender, Packet Pack)
         {
-            MapItemRequestPacket mirpk = (MapItemRequestPacket)Pack;
+            MapItemRequestPacket mirpk = (MapItemRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -10541,13 +10727,13 @@ namespace Universe.ClientStack
                                       mirpk.AgentData.Godlike, mirpk.RequestData.ItemType,
                                       mirpk.RequestData.RegionHandle);
             }
-
             return true;
         }
 
         bool HandleMuteListRequest(IClientAPI sender, Packet Pack)
         {
-            MuteListRequestPacket muteListRequest = (MuteListRequestPacket)Pack;
+            MuteListRequestPacket muteListRequest =
+                (MuteListRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -10569,13 +10755,13 @@ namespace Universe.ClientStack
             {
                 SendUseCachedMuteList();
             }
-
             return true;
         }
 
         bool HandleUpdateMuteListEntry(IClientAPI client, Packet Packet)
         {
-            UpdateMuteListEntryPacket UpdateMuteListEntry = (UpdateMuteListEntryPacket)Packet;
+            UpdateMuteListEntryPacket UpdateMuteListEntry =
+                (UpdateMuteListEntryPacket) Packet;
 
             #region Packet Session and User Check
 
@@ -10595,16 +10781,15 @@ namespace Universe.ClientStack
                                            Utils.BytesToString(UpdateMuteListEntry.MuteData.MuteName),
                                            UpdateMuteListEntry.MuteData.MuteType,
                                            UpdateMuteListEntry.AgentData.AgentID);
-
                 return true;
             }
-
             return false;
         }
 
         bool HandleRemoveMuteListEntry(IClientAPI client, Packet Packet)
         {
-            RemoveMuteListEntryPacket RemoveMuteListEntry = (RemoveMuteListEntryPacket)Packet;
+            RemoveMuteListEntryPacket RemoveMuteListEntry =
+                (RemoveMuteListEntryPacket) Packet;
 
             #region Packet Session and User Check
 
@@ -10624,16 +10809,15 @@ namespace Universe.ClientStack
                                            RemoveMuteListEntry.MuteData.MuteID,
                                            Utils.BytesToString(RemoveMuteListEntry.MuteData.MuteName),
                                            RemoveMuteListEntry.AgentData.AgentID);
-
                 return true;
             }
-
             return false;
         }
 
         bool HandleUserReport(IClientAPI client, Packet Packet)
         {
-            UserReportPacket UserReport = (UserReportPacket)Packet;
+            UserReportPacket UserReport =
+                (UserReportPacket) Packet;
 
             #region Packet Session and User Check
 
@@ -10661,16 +10845,15 @@ namespace Universe.ClientStack
                                   UserReport.ReportData.ScreenshotID,
                                   Utils.BytesToString(UserReport.ReportData.Summary),
                                   UserReport.AgentData.AgentID);
-
                 return true;
             }
-
             return false;
         }
 
         bool HandleSendPostcard(IClientAPI client, Packet packet)
         {
-            SendPostcardPacket SendPostcard = (SendPostcardPacket)packet;
+            SendPostcardPacket SendPostcard =
+                (SendPostcardPacket) packet;
 
             #region Packet Session and User Check
 
@@ -10689,13 +10872,12 @@ namespace Universe.ClientStack
                 handlerSendPostcard(this);
                 return true;
             }
-
             return false;
         }
 
         bool HandleViewerStartAuction(IClientAPI client, Packet packet)
         {
-            ViewerStartAuctionPacket aPacket = (ViewerStartAuctionPacket)packet;
+            ViewerStartAuctionPacket aPacket = (ViewerStartAuctionPacket) packet;
             ViewerStartAuction handlerStartAuction = OnViewerStartAuction;
 
             if (handlerStartAuction != null)
@@ -10703,13 +10885,12 @@ namespace Universe.ClientStack
                 handlerStartAuction(this, aPacket.ParcelData.LocalID, aPacket.ParcelData.SnapshotID);
                 return true;
             }
-
             return false;
         }
 
         bool HandleParcelDisableObjects(IClientAPI client, Packet packet)
         {
-            ParcelDisableObjectsPacket aPacket = (ParcelDisableObjectsPacket)packet;
+            ParcelDisableObjectsPacket aPacket = (ParcelDisableObjectsPacket) packet;
             ParcelReturnObjectsRequest handlerParcelDisableObjectsRequest = OnParcelDisableObjectsRequest;
 
             if (handlerParcelDisableObjectsRequest != null)
@@ -10719,7 +10900,6 @@ namespace Universe.ClientStack
                                                    aPacket.TaskIDs.Select(block => block.TaskID).ToArray(), this);
                 return true;
             }
-
             return false;
         }
 
@@ -10732,7 +10912,6 @@ namespace Universe.ClientStack
                 handlerVelocityInterpolateChangeRequest(packet is VelocityInterpolateOnPacket, this);
                 return true;
             }
-
             return false;
         }
 
@@ -10745,7 +10924,6 @@ namespace Universe.ClientStack
                 handlerTeleportCancel(this);
                 return true;
             }
-
             return false;
         }
 
@@ -10753,7 +10931,7 @@ namespace Universe.ClientStack
 
         bool HandleDirPlacesQuery(IClientAPI sender, Packet Pack)
         {
-            DirPlacesQueryPacket dirPlacesQueryPacket = (DirPlacesQueryPacket)Pack;
+            DirPlacesQueryPacket dirPlacesQueryPacket = (DirPlacesQueryPacket) Pack;
             //MainConsole.Instance.Debug(dirPlacesQueryPacket.ToString());
 
             #region Packet Session and User Check
@@ -10772,19 +10950,20 @@ namespace Universe.ClientStack
             {
                 handlerDirPlacesQuery(this,
                                       dirPlacesQueryPacket.QueryData.QueryID,
-                                      Utils.BytesToString(dirPlacesQueryPacket.QueryData.QueryText),
-                                      (int)dirPlacesQueryPacket.QueryData.QueryFlags,
+                                      Utils.BytesToString(
+                                          dirPlacesQueryPacket.QueryData.QueryText),
+                                      (int) dirPlacesQueryPacket.QueryData.QueryFlags,
                                       dirPlacesQueryPacket.QueryData.Category,
-                                      Utils.BytesToString(dirPlacesQueryPacket.QueryData.SimName),
+                                      Utils.BytesToString(
+                                          dirPlacesQueryPacket.QueryData.SimName),
                                       dirPlacesQueryPacket.QueryData.QueryStart);
             }
-
             return true;
         }
 
         bool HandleDirFindQuery(IClientAPI sender, Packet Pack)
         {
-            DirFindQueryPacket dirFindQueryPacket = (DirFindQueryPacket)Pack;
+            DirFindQueryPacket dirFindQueryPacket = (DirFindQueryPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -10802,17 +10981,17 @@ namespace Universe.ClientStack
             {
                 handlerDirFindQuery(this,
                                     dirFindQueryPacket.QueryData.QueryID,
-                                    Utils.BytesToString(dirFindQueryPacket.QueryData.QueryText),
+                                    Utils.BytesToString(
+                                        dirFindQueryPacket.QueryData.QueryText),
                                     dirFindQueryPacket.QueryData.QueryFlags,
                                     dirFindQueryPacket.QueryData.QueryStart);
             }
-
             return true;
         }
 
         bool HandleDirLandQuery(IClientAPI sender, Packet Pack)
         {
-            DirLandQueryPacket dirLandQueryPacket = (DirLandQueryPacket)Pack;
+            DirLandQueryPacket dirLandQueryPacket = (DirLandQueryPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -10832,17 +11011,16 @@ namespace Universe.ClientStack
                                     dirLandQueryPacket.QueryData.QueryID,
                                     dirLandQueryPacket.QueryData.QueryFlags,
                                     dirLandQueryPacket.QueryData.SearchType,
-                                    (uint)dirLandQueryPacket.QueryData.Price,
-                                    (uint)dirLandQueryPacket.QueryData.Area,
+                                    (uint) dirLandQueryPacket.QueryData.Price,
+                                    (uint) dirLandQueryPacket.QueryData.Area,
                                     dirLandQueryPacket.QueryData.QueryStart);
             }
-
             return true;
         }
 
         bool HandleDirPopularQuery(IClientAPI sender, Packet Pack)
         {
-            DirPopularQueryPacket dirPopularQueryPacket = (DirPopularQueryPacket)Pack;
+            DirPopularQueryPacket dirPopularQueryPacket = (DirPopularQueryPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -10862,13 +11040,12 @@ namespace Universe.ClientStack
                                        dirPopularQueryPacket.QueryData.QueryID,
                                        dirPopularQueryPacket.QueryData.QueryFlags);
             }
-
             return true;
         }
 
         bool HandleDirClassifiedQuery(IClientAPI sender, Packet Pack)
         {
-            DirClassifiedQueryPacket dirClassifiedQueryPacket = (DirClassifiedQueryPacket)Pack;
+            DirClassifiedQueryPacket dirClassifiedQueryPacket = (DirClassifiedQueryPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -10886,18 +11063,18 @@ namespace Universe.ClientStack
             {
                 handlerDirClassifiedQuery(this,
                                           dirClassifiedQueryPacket.QueryData.QueryID,
-                                          Utils.BytesToString(dirClassifiedQueryPacket.QueryData.QueryText),
+                                          Utils.BytesToString(
+                                              dirClassifiedQueryPacket.QueryData.QueryText),
                                           dirClassifiedQueryPacket.QueryData.QueryFlags,
                                           dirClassifiedQueryPacket.QueryData.Category,
                                           dirClassifiedQueryPacket.QueryData.QueryStart);
             }
-
             return true;
         }
 
         bool HandleEventInfoRequest(IClientAPI sender, Packet Pack)
         {
-            EventInfoRequestPacket eventInfoRequestPacket = (EventInfoRequestPacket)Pack;
+            EventInfoRequestPacket eventInfoRequestPacket = (EventInfoRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -10914,7 +11091,6 @@ namespace Universe.ClientStack
             {
                 OnEventInfoRequest(this, eventInfoRequestPacket.EventData.EventID);
             }
-
             return true;
         }
 
@@ -10924,7 +11100,7 @@ namespace Universe.ClientStack
 
         bool HandleOfferCallingCard(IClientAPI sender, Packet Pack)
         {
-            OfferCallingCardPacket offerCallingCardPacket = (OfferCallingCardPacket)Pack;
+            OfferCallingCardPacket offerCallingCardPacket = (OfferCallingCardPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -10943,13 +11119,12 @@ namespace Universe.ClientStack
                                    offerCallingCardPacket.AgentBlock.DestID,
                                    offerCallingCardPacket.AgentBlock.TransactionID);
             }
-
             return true;
         }
 
         bool HandleAcceptCallingCard(IClientAPI sender, Packet Pack)
         {
-            AcceptCallingCardPacket acceptCallingCardPacket = (AcceptCallingCardPacket)Pack;
+            AcceptCallingCardPacket acceptCallingCardPacket = (AcceptCallingCardPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -10970,13 +11145,12 @@ namespace Universe.ClientStack
                                     acceptCallingCardPacket.TransactionBlock.TransactionID,
                                     acceptCallingCardPacket.FolderData[0].FolderID);
             }
-
             return true;
         }
 
         bool HandleDeclineCallingCard(IClientAPI sender, Packet Pack)
         {
-            DeclineCallingCardPacket declineCallingCardPacket = (DeclineCallingCardPacket)Pack;
+            DeclineCallingCardPacket declineCallingCardPacket = (DeclineCallingCardPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -10991,9 +11165,9 @@ namespace Universe.ClientStack
 
             if (OnDeclineCallingCard != null)
             {
-                OnDeclineCallingCard(this, declineCallingCardPacket.TransactionBlock.TransactionID);
+                OnDeclineCallingCard(this,
+                                     declineCallingCardPacket.TransactionBlock.TransactionID);
             }
-
             return true;
         }
 
@@ -11003,7 +11177,7 @@ namespace Universe.ClientStack
 
         bool HandleActivateGroup(IClientAPI sender, Packet Pack)
         {
-            ActivateGroupPacket activateGroupPacket = (ActivateGroupPacket)Pack;
+            ActivateGroupPacket activateGroupPacket = (ActivateGroupPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -11020,13 +11194,13 @@ namespace Universe.ClientStack
             {
                 m_GroupsModule.ActivateGroup(this, activateGroupPacket.AgentData.GroupID);
             }
-
             return true;
         }
 
         bool HandleGroupVoteHistoryRequest(IClientAPI client, Packet Packet)
         {
-            GroupVoteHistoryRequestPacket GroupVoteHistoryRequest = (GroupVoteHistoryRequestPacket)Packet;
+            GroupVoteHistoryRequestPacket GroupVoteHistoryRequest =
+                (GroupVoteHistoryRequestPacket) Packet;
             GroupVoteHistoryRequest handlerGroupVoteHistoryRequest = OnGroupVoteHistoryRequest;
             if (handlerGroupVoteHistoryRequest != null)
             {
@@ -11034,16 +11208,15 @@ namespace Universe.ClientStack
                                                GroupVoteHistoryRequest.AgentData.SessionID,
                                                GroupVoteHistoryRequest.GroupData.GroupID,
                                                GroupVoteHistoryRequest.TransactionData.TransactionID);
-
                 return true;
             }
-
             return false;
         }
 
         bool HandleGroupProposalBallot(IClientAPI client, Packet Packet)
         {
-            GroupProposalBallotPacket GroupProposalBallotRequest = (GroupProposalBallotPacket)Packet;
+            GroupProposalBallotPacket GroupProposalBallotRequest =
+                (GroupProposalBallotPacket) Packet;
             GroupProposalBallotRequest handlerGroupActiveProposalsRequest = OnGroupProposalBallotRequest;
             if (handlerGroupActiveProposalsRequest != null)
             {
@@ -11052,16 +11225,15 @@ namespace Universe.ClientStack
                                                    GroupProposalBallotRequest.ProposalData.GroupID,
                                                    GroupProposalBallotRequest.ProposalData.ProposalID,
                                                    Utils.BytesToString(GroupProposalBallotRequest.ProposalData.VoteCast));
-
                 return true;
             }
-
             return false;
         }
 
         bool HandleGroupActiveProposalsRequest(IClientAPI client, Packet Packet)
         {
-            GroupActiveProposalsRequestPacket GroupActiveProposalsRequest = (GroupActiveProposalsRequestPacket)Packet;
+            GroupActiveProposalsRequestPacket GroupActiveProposalsRequest =
+                (GroupActiveProposalsRequestPacket) Packet;
             GroupActiveProposalsRequest handlerGroupActiveProposalsRequest = OnGroupActiveProposalsRequest;
             if (handlerGroupActiveProposalsRequest != null)
             {
@@ -11069,16 +11241,15 @@ namespace Universe.ClientStack
                                                    GroupActiveProposalsRequest.AgentData.SessionID,
                                                    GroupActiveProposalsRequest.GroupData.GroupID,
                                                    GroupActiveProposalsRequest.TransactionData.TransactionID);
-
                 return true;
             }
-
             return false;
         }
 
         bool HandleGroupAccountDetailsRequest(IClientAPI client, Packet Packet)
         {
-            GroupAccountDetailsRequestPacket GroupAccountDetailsRequest = (GroupAccountDetailsRequestPacket)Packet;
+            GroupAccountDetailsRequestPacket GroupAccountDetailsRequest =
+                (GroupAccountDetailsRequestPacket) Packet;
             GroupAccountDetailsRequest handlerGroupAccountDetailsRequest = OnGroupAccountDetailsRequest;
             if (handlerGroupAccountDetailsRequest != null)
             {
@@ -11088,16 +11259,15 @@ namespace Universe.ClientStack
                                                   GroupAccountDetailsRequest.AgentData.SessionID,
                                                   GroupAccountDetailsRequest.MoneyData.CurrentInterval,
                                                   GroupAccountDetailsRequest.MoneyData.IntervalDays);
-
                 return true;
             }
-
             return false;
         }
 
         bool HandleGroupAccountSummaryRequest(IClientAPI client, Packet Packet)
         {
-            GroupAccountSummaryRequestPacket GroupAccountSummaryRequest = (GroupAccountSummaryRequestPacket)Packet;
+            GroupAccountSummaryRequestPacket GroupAccountSummaryRequest =
+                (GroupAccountSummaryRequestPacket) Packet;
             GroupAccountSummaryRequest handlerGroupAccountSummaryRequest = OnGroupAccountSummaryRequest;
             if (handlerGroupAccountSummaryRequest != null)
             {
@@ -11106,16 +11276,15 @@ namespace Universe.ClientStack
                                                   GroupAccountSummaryRequest.MoneyData.RequestID,
                                                   GroupAccountSummaryRequest.MoneyData.CurrentInterval,
                                                   GroupAccountSummaryRequest.MoneyData.IntervalDays);
-
                 return true;
             }
-
             return false;
         }
 
         bool HandleGroupTransactionsDetailsRequest(IClientAPI client, Packet Packet)
         {
-            GroupAccountTransactionsRequestPacket GroupAccountTransactionsRequest = (GroupAccountTransactionsRequestPacket)Packet;
+            GroupAccountTransactionsRequestPacket GroupAccountTransactionsRequest =
+                (GroupAccountTransactionsRequestPacket) Packet;
             GroupAccountTransactionsRequest handlerGroupAccountTransactionsRequest = OnGroupAccountTransactionsRequest;
             if (handlerGroupAccountTransactionsRequest != null)
             {
@@ -11125,16 +11294,15 @@ namespace Universe.ClientStack
                                                        GroupAccountTransactionsRequest.AgentData.SessionID,
                                                        GroupAccountTransactionsRequest.MoneyData.CurrentInterval,
                                                        GroupAccountTransactionsRequest.MoneyData.IntervalDays);
-
                 return true;
             }
-
             return false;
         }
 
         bool HandleGroupTitlesRequest(IClientAPI sender, Packet Pack)
         {
-            GroupTitlesRequestPacket groupTitlesRequest = (GroupTitlesRequestPacket)Pack;
+            GroupTitlesRequestPacket groupTitlesRequest =
+                (GroupTitlesRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -11150,39 +11318,39 @@ namespace Universe.ClientStack
             if (m_GroupsModule != null)
             {
                 GroupTitlesReplyPacket groupTitlesReply =
-                    (GroupTitlesReplyPacket)PacketPool.Instance.GetPacket(PacketType.GroupTitlesReply);
+                    (GroupTitlesReplyPacket) PacketPool.Instance.GetPacket(PacketType.GroupTitlesReply);
 
-                groupTitlesReply.AgentData = new GroupTitlesReplyPacket.AgentDataBlock
-                {
-                    AgentID = AgentId,
-                    GroupID = groupTitlesRequest.AgentData.GroupID,
-                    RequestID = groupTitlesRequest.AgentData.RequestID
-                };
+                groupTitlesReply.AgentData =
+                    new GroupTitlesReplyPacket.AgentDataBlock
+                        {
+                            AgentID = AgentId,
+                            GroupID = groupTitlesRequest.AgentData.GroupID,
+                            RequestID = groupTitlesRequest.AgentData.RequestID
+                        };
 
-                List<GroupTitlesData> titles = m_GroupsModule.GroupTitlesRequest(this, groupTitlesRequest.AgentData.GroupID);
-                if (titles != null)
-                {
-                    groupTitlesReply.GroupData = new GroupTitlesReplyPacket.GroupDataBlock[titles.Count];
+                List<GroupTitlesData> titles =
+                    m_GroupsModule.GroupTitlesRequest(this, groupTitlesRequest.AgentData.GroupID);
+                if (titles != null) {
+                    groupTitlesReply.GroupData =
+                        new GroupTitlesReplyPacket.GroupDataBlock [titles.Count];
 
                     int i = 0;
-                    foreach (GroupTitlesData d in titles)
-                    {
-                        groupTitlesReply.GroupData[i] =
-                            new GroupTitlesReplyPacket.GroupDataBlock { Title = Util.StringToBytes256(d.Name), RoleID = d.UUID, Selected = d.Selected };
+                    foreach (GroupTitlesData d in titles) {
+                        groupTitlesReply.GroupData [i] =
+                            new GroupTitlesReplyPacket.GroupDataBlock { Title = Util.StringToBytes256 (d.Name), RoleID = d.UUID, Selected = d.Selected };
 
                         i++;
                     }
                 }
-
                 OutPacket(groupTitlesReply, ThrottleOutPacketType.Asset);
             }
-
             return true;
         }
 
         bool HandleGroupProfileRequest(IClientAPI sender, Packet Pack)
         {
-            GroupProfileRequestPacket groupProfileRequest = (GroupProfileRequestPacket)Pack;
+            GroupProfileRequestPacket groupProfileRequest =
+                (GroupProfileRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -11198,13 +11366,14 @@ namespace Universe.ClientStack
             if (m_GroupsModule != null)
             {
                 GroupProfileReplyPacket groupProfileReply =
-                    (GroupProfileReplyPacket)PacketPool.Instance.GetPacket(PacketType.GroupProfileReply);
+                    (GroupProfileReplyPacket) PacketPool.Instance.GetPacket(PacketType.GroupProfileReply);
 
                 groupProfileReply.AgentData = new GroupProfileReplyPacket.AgentDataBlock();
                 groupProfileReply.GroupData = new GroupProfileReplyPacket.GroupDataBlock();
                 groupProfileReply.AgentData.AgentID = AgentId;
 
-                GroupProfileData d = m_GroupsModule.GroupProfileRequest(this, groupProfileRequest.GroupData.GroupID);
+                GroupProfileData d = m_GroupsModule.GroupProfileRequest(this,
+                                                                        groupProfileRequest.GroupData.GroupID);
 
                 groupProfileReply.GroupData.GroupID = d.GroupID;
                 groupProfileReply.GroupData.Name = Util.StringToBytes256(d.Name);
@@ -11225,13 +11394,13 @@ namespace Universe.ClientStack
 
                 OutPacket(groupProfileReply, ThrottleOutPacketType.Asset);
             }
-
             return true;
         }
 
         bool HandleGroupMembersRequest(IClientAPI sender, Packet Pack)
         {
-            GroupMembersRequestPacket groupMembersRequestPacket = (GroupMembersRequestPacket)Pack;
+            GroupMembersRequestPacket groupMembersRequestPacket =
+                (GroupMembersRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -11258,15 +11427,21 @@ namespace Universe.ClientStack
                         blockCount = 40;
 
                     GroupMembersReplyPacket groupMembersReply =
-                        (GroupMembersReplyPacket)PacketPool.Instance.GetPacket(PacketType.GroupMembersReply);
+                        (GroupMembersReplyPacket) PacketPool.Instance.GetPacket(PacketType.GroupMembersReply);
 
-                    groupMembersReply.AgentData = new GroupMembersReplyPacket.AgentDataBlock();
-                    groupMembersReply.GroupData = new GroupMembersReplyPacket.GroupDataBlock();
-                    groupMembersReply.MemberData = new GroupMembersReplyPacket.MemberDataBlock[blockCount];
+                    groupMembersReply.AgentData =
+                        new GroupMembersReplyPacket.AgentDataBlock();
+                    groupMembersReply.GroupData =
+                        new GroupMembersReplyPacket.GroupDataBlock();
+                    groupMembersReply.MemberData =
+                        new GroupMembersReplyPacket.MemberDataBlock[
+                            blockCount];
 
                     groupMembersReply.AgentData.AgentID = AgentId;
-                    groupMembersReply.GroupData.GroupID = groupMembersRequestPacket.GroupData.GroupID;
-                    groupMembersReply.GroupData.RequestID = groupMembersRequestPacket.GroupData.RequestID;
+                    groupMembersReply.GroupData.GroupID =
+                        groupMembersRequestPacket.GroupData.GroupID;
+                    groupMembersReply.GroupData.RequestID =
+                        groupMembersRequestPacket.GroupData.RequestID;
                     groupMembersReply.GroupData.MemberCount = memberCount;
 
                     for (int i = 0; i < blockCount; i++)
@@ -11274,29 +11449,29 @@ namespace Universe.ClientStack
                         GroupMembersData m = members[0];
                         members.RemoveAt(0);
 
-                        groupMembersReply.MemberData[i] = new GroupMembersReplyPacket.MemberDataBlock
-                        {
-                            AgentID = m.AgentID,
-                            Contribution = m.Contribution,
-                            OnlineStatus = Util.StringToBytes256(m.OnlineStatus),
-                            AgentPowers = m.AgentPowers,
-                            Title = Util.StringToBytes256(m.Title),
-                            IsOwner = m.IsOwner
-                        };
+                        groupMembersReply.MemberData[i] =
+                            new GroupMembersReplyPacket.MemberDataBlock
+                                {
+                                    AgentID = m.AgentID,
+                                    Contribution = m.Contribution,
+                                    OnlineStatus = Util.StringToBytes256(m.OnlineStatus),
+                                    AgentPowers = m.AgentPowers,
+                                    Title = Util.StringToBytes256(m.Title),
+                                    IsOwner = m.IsOwner
+                                };
                     }
-
                     OutPacket(groupMembersReply, ThrottleOutPacketType.Asset);
                     if (members.Count == 0)
                         return true;
                 }
             }
-
             return true;
         }
 
         bool HandleGroupRoleDataRequest(IClientAPI sender, Packet Pack)
         {
-            GroupRoleDataRequestPacket groupRolesRequest = (GroupRoleDataRequestPacket)Pack;
+            GroupRoleDataRequestPacket groupRolesRequest =
+                (GroupRoleDataRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -11312,49 +11487,57 @@ namespace Universe.ClientStack
             if (m_GroupsModule != null)
             {
                 GroupRoleDataReplyPacket groupRolesReply =
-                    (GroupRoleDataReplyPacket)PacketPool.Instance.GetPacket(PacketType.GroupRoleDataReply);
+                    (GroupRoleDataReplyPacket) PacketPool.Instance.GetPacket(PacketType.GroupRoleDataReply);
 
                 groupRolesReply.AgentData =
-                    new GroupRoleDataReplyPacket.AgentDataBlock { AgentID = AgentId };
+                    new GroupRoleDataReplyPacket.AgentDataBlock {AgentID = AgentId};
 
-                groupRolesReply.GroupData = new GroupRoleDataReplyPacket.GroupDataBlock
-                {
-                    GroupID = groupRolesRequest.GroupData.GroupID,
-                    RequestID = groupRolesRequest.GroupData.RequestID
-                };
+
+                groupRolesReply.GroupData =
+                    new GroupRoleDataReplyPacket.GroupDataBlock
+                        {
+                            GroupID = groupRolesRequest.GroupData.GroupID,
+                            RequestID = groupRolesRequest.GroupData.RequestID
+                        };
+
 
                 List<GroupRolesData> titles =
-                    m_GroupsModule.GroupRoleDataRequest(this, groupRolesRequest.GroupData.GroupID);
+                    m_GroupsModule.GroupRoleDataRequest(this,
+                                                        groupRolesRequest.GroupData.GroupID);
 
-                groupRolesReply.GroupData.RoleCount = titles.Count;
+                groupRolesReply.GroupData.RoleCount =
+                    titles.Count;
 
-                groupRolesReply.RoleData = new GroupRoleDataReplyPacket.RoleDataBlock[titles.Count];
+                groupRolesReply.RoleData =
+                    new GroupRoleDataReplyPacket.RoleDataBlock[titles.Count];
 
                 int i = 0;
                 foreach (GroupRolesData d in titles)
                 {
-                    groupRolesReply.RoleData[i] = new GroupRoleDataReplyPacket.RoleDataBlock
-                    {
-                        RoleID = d.RoleID,
-                        Name = Util.StringToBytes256(d.Name),
-                        Title = Util.StringToBytes256(d.Title),
-                        Description = Util.StringToBytes1024(d.Description),
-                        Powers = d.Powers,
-                        Members = (uint)d.Members
-                    };
+                    groupRolesReply.RoleData[i] =
+                        new GroupRoleDataReplyPacket.RoleDataBlock
+                            {
+                                RoleID = d.RoleID,
+                                Name = Util.StringToBytes256(d.Name),
+                                Title = Util.StringToBytes256(d.Title),
+                                Description = Util.StringToBytes1024(d.Description),
+                                Powers = d.Powers,
+                                Members = (uint) d.Members
+                            };
+
 
                     i++;
                 }
 
                 OutPacket(groupRolesReply, ThrottleOutPacketType.Asset);
             }
-
             return true;
         }
 
         bool HandleGroupRoleMembersRequest(IClientAPI sender, Packet Pack)
         {
-            GroupRoleMembersRequestPacket groupRoleMembersRequest = (GroupRoleMembersRequestPacket)Pack;
+            GroupRoleMembersRequestPacket groupRoleMembersRequest =
+                (GroupRoleMembersRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -11370,7 +11553,8 @@ namespace Universe.ClientStack
             if (m_GroupsModule != null)
             {
                 List<GroupRoleMembersData> mappings =
-                    m_GroupsModule.GroupRoleMembersRequest(this, groupRoleMembersRequest.GroupData.GroupID);
+                    m_GroupsModule.GroupRoleMembersRequest(this,
+                                                           groupRoleMembersRequest.GroupData.GroupID);
 
                 int mappingsCount = mappings.Count;
 
@@ -11381,17 +11565,19 @@ namespace Universe.ClientStack
                         pairs = 32;
 
                     GroupRoleMembersReplyPacket groupRoleMembersReply =
-                        (GroupRoleMembersReplyPacket)PacketPool.Instance.GetPacket(PacketType.GroupRoleMembersReply);
+                        (GroupRoleMembersReplyPacket) PacketPool.Instance.GetPacket(PacketType.GroupRoleMembersReply);
                     groupRoleMembersReply.AgentData =
                         new GroupRoleMembersReplyPacket.AgentDataBlock
-                        {
-                            AgentID = AgentId,
-                            GroupID = groupRoleMembersRequest.GroupData.GroupID,
-                            RequestID = groupRoleMembersRequest.GroupData.RequestID,
-                            TotalPairs = (uint)mappingsCount
-                        };
+                            {
+                                AgentID = AgentId,
+                                GroupID = groupRoleMembersRequest.GroupData.GroupID,
+                                RequestID = groupRoleMembersRequest.GroupData.RequestID,
+                                TotalPairs = (uint) mappingsCount
+                            };
 
-                    groupRoleMembersReply.MemberData = new GroupRoleMembersReplyPacket.MemberDataBlock[pairs];
+
+                    groupRoleMembersReply.MemberData =
+                        new GroupRoleMembersReplyPacket.MemberDataBlock[pairs];
 
                     for (int i = 0; i < pairs; i++)
                     {
@@ -11399,19 +11585,19 @@ namespace Universe.ClientStack
                         mappings.RemoveAt(0);
 
                         groupRoleMembersReply.MemberData[i] =
-                            new GroupRoleMembersReplyPacket.MemberDataBlock { RoleID = d.RoleID, MemberID = d.MemberID };
+                            new GroupRoleMembersReplyPacket.MemberDataBlock {RoleID = d.RoleID, MemberID = d.MemberID};
                     }
 
                     OutPacket(groupRoleMembersReply, ThrottleOutPacketType.Asset);
                 }
             }
-
             return true;
         }
 
         bool HandleCreateGroupRequest(IClientAPI sender, Packet Pack)
         {
-            CreateGroupRequestPacket createGroupRequest = (CreateGroupRequestPacket)Pack;
+            CreateGroupRequestPacket createGroupRequest =
+                (CreateGroupRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -11426,12 +11612,12 @@ namespace Universe.ClientStack
 
             if (m_GroupsModule != null)
             {
-                if (Utilities.IsSystemUser(AgentId))
+                if (Utilities.IsSystemUser (AgentId))
                 {
-                    SendAgentAlertMessage("System users are for mainteneace tasks only!", false);
+                    SendAgentAlertMessage ("System users are for mainteneace tasks only!", false);
                     return false;
                 }
-
+               
                 m_GroupsModule.CreateGroup(this,
                                            Utils.BytesToString(createGroupRequest.GroupData.Name),
                                            Utils.BytesToString(createGroupRequest.GroupData.Charter),
@@ -11442,13 +11628,13 @@ namespace Universe.ClientStack
                                            createGroupRequest.GroupData.AllowPublish,
                                            createGroupRequest.GroupData.MaturePublish);
             }
-
             return true;
         }
 
         bool HandleUpdateGroupInfo(IClientAPI sender, Packet Pack)
         {
-            UpdateGroupInfoPacket updateGroupInfo = (UpdateGroupInfoPacket)Pack;
+            UpdateGroupInfoPacket updateGroupInfo =
+                (UpdateGroupInfoPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -11479,7 +11665,8 @@ namespace Universe.ClientStack
 
         bool HandleSetGroupAcceptNotices(IClientAPI sender, Packet Pack)
         {
-            SetGroupAcceptNoticesPacket setGroupAcceptNotices = (SetGroupAcceptNoticesPacket)Pack;
+            SetGroupAcceptNoticesPacket setGroupAcceptNotices =
+                (SetGroupAcceptNoticesPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -11505,7 +11692,8 @@ namespace Universe.ClientStack
 
         bool HandleGroupTitleUpdate(IClientAPI sender, Packet Pack)
         {
-            GroupTitleUpdatePacket groupTitleUpdate = (GroupTitleUpdatePacket)Pack;
+            GroupTitleUpdatePacket groupTitleUpdate =
+                (GroupTitleUpdatePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -11530,7 +11718,7 @@ namespace Universe.ClientStack
 
         bool HandleParcelDeedToGroup(IClientAPI sender, Packet Pack)
         {
-            ParcelDeedToGroupPacket parcelDeedToGroup = (ParcelDeedToGroupPacket)Pack;
+            ParcelDeedToGroupPacket parcelDeedToGroup = (ParcelDeedToGroupPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -11557,7 +11745,8 @@ namespace Universe.ClientStack
 
         bool HandleGroupNoticesListRequest(IClientAPI sender, Packet Pack)
         {
-            GroupNoticesListRequestPacket groupNoticesListRequest = (GroupNoticesListRequestPacket)Pack;
+            GroupNoticesListRequestPacket groupNoticesListRequest =
+                (GroupNoticesListRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -11573,13 +11762,14 @@ namespace Universe.ClientStack
             if (m_GroupsModule != null)
             {
                 GroupNoticeData[] gn =
-                    m_GroupsModule.GroupNoticesListRequest(this, groupNoticesListRequest.Data.GroupID);
+                    m_GroupsModule.GroupNoticesListRequest(this,
+                                                           groupNoticesListRequest.Data.GroupID);
 
                 GroupNoticesListReplyPacket groupNoticesListReply =
-                    (GroupNoticesListReplyPacket)PacketPool.Instance.GetPacket(PacketType.GroupNoticesListReply);
+                    (GroupNoticesListReplyPacket) PacketPool.Instance.GetPacket(PacketType.GroupNoticesListReply);
                 groupNoticesListReply.AgentData =
                     new GroupNoticesListReplyPacket.AgentDataBlock
-                    { AgentID = AgentId, GroupID = groupNoticesListRequest.Data.GroupID };
+                        {AgentID = AgentId, GroupID = groupNoticesListRequest.Data.GroupID};
 
                 groupNoticesListReply.Data = new GroupNoticesListReplyPacket.DataBlock[gn.Length];
 
@@ -11587,15 +11777,14 @@ namespace Universe.ClientStack
                 foreach (GroupNoticeData g in gn)
                 {
                     groupNoticesListReply.Data[i] = new GroupNoticesListReplyPacket.DataBlock
-                    {
-                        NoticeID = g.NoticeID,
-                        Timestamp = g.Timestamp,
-                        FromName = Util.StringToBytes256(g.FromName),
-                        Subject = Util.StringToBytes256(g.Subject),
-                        HasAttachment = g.HasAttachment,
-                        AssetType = g.AssetType
-                    };
-
+                                                        {
+                                                            NoticeID = g.NoticeID,
+                                                            Timestamp = g.Timestamp,
+                                                            FromName = Util.StringToBytes256(g.FromName),
+                                                            Subject = Util.StringToBytes256(g.Subject),
+                                                            HasAttachment = g.HasAttachment,
+                                                            AssetType = g.AssetType
+                                                        };
                     i++;
                 }
 
@@ -11607,7 +11796,8 @@ namespace Universe.ClientStack
 
         bool HandleGroupNoticeRequest(IClientAPI sender, Packet Pack)
         {
-            GroupNoticeRequestPacket groupNoticeRequest = (GroupNoticeRequestPacket)Pack;
+            GroupNoticeRequestPacket groupNoticeRequest =
+                (GroupNoticeRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -11622,15 +11812,16 @@ namespace Universe.ClientStack
 
             if (m_GroupsModule != null)
             {
-                m_GroupsModule.GroupNoticeRequest(this, groupNoticeRequest.Data.GroupNoticeID);
+                m_GroupsModule.GroupNoticeRequest(this,
+                                                  groupNoticeRequest.Data.GroupNoticeID);
             }
-
             return true;
         }
 
         bool HandleGroupRoleUpdate(IClientAPI sender, Packet Pack)
         {
-            GroupRoleUpdatePacket groupRoleUpdate = (GroupRoleUpdatePacket)Pack;
+            GroupRoleUpdatePacket groupRoleUpdate =
+                (GroupRoleUpdatePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -11645,7 +11836,8 @@ namespace Universe.ClientStack
 
             if (m_GroupsModule != null)
             {
-                foreach (GroupRoleUpdatePacket.RoleDataBlock d in groupRoleUpdate.RoleData)
+                foreach (GroupRoleUpdatePacket.RoleDataBlock d in
+                    groupRoleUpdate.RoleData)
                 {
                     m_GroupsModule.GroupRoleUpdate(this,
                                                    groupRoleUpdate.AgentData.GroupID,
@@ -11656,16 +11848,15 @@ namespace Universe.ClientStack
                                                    d.Powers,
                                                    d.UpdateType);
                 }
-
                 m_GroupsModule.NotifyChange(groupRoleUpdate.AgentData.GroupID);
             }
-
             return true;
         }
 
         bool HandleGroupRoleChanges(IClientAPI sender, Packet Pack)
         {
-            GroupRoleChangesPacket groupRoleChanges = (GroupRoleChangesPacket)Pack;
+            GroupRoleChangesPacket groupRoleChanges =
+                (GroupRoleChangesPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -11680,7 +11871,8 @@ namespace Universe.ClientStack
 
             if (m_GroupsModule != null)
             {
-                foreach (GroupRoleChangesPacket.RoleChangeBlock d in groupRoleChanges.RoleChange)
+                foreach (GroupRoleChangesPacket.RoleChangeBlock d in
+                    groupRoleChanges.RoleChange)
                 {
                     m_GroupsModule.GroupRoleChanges(this,
                                                     groupRoleChanges.AgentData.GroupID,
@@ -11688,16 +11880,15 @@ namespace Universe.ClientStack
                                                     d.MemberID,
                                                     d.Change);
                 }
-
                 m_GroupsModule.NotifyChange(groupRoleChanges.AgentData.GroupID);
             }
-
             return true;
         }
 
         bool HandleJoinGroupRequest(IClientAPI sender, Packet Pack)
         {
-            JoinGroupRequestPacket joinGroupRequest = (JoinGroupRequestPacket)Pack;
+            JoinGroupRequestPacket joinGroupRequest =
+                (JoinGroupRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -11712,15 +11903,16 @@ namespace Universe.ClientStack
 
             if (m_GroupsModule != null)
             {
-                m_GroupsModule.JoinGroupRequest(this, joinGroupRequest.GroupData.GroupID);
+                m_GroupsModule.JoinGroupRequest(this,
+                                                joinGroupRequest.GroupData.GroupID);
             }
-
             return true;
         }
 
         bool HandleLeaveGroupRequest(IClientAPI sender, Packet Pack)
         {
-            LeaveGroupRequestPacket leaveGroupRequest = (LeaveGroupRequestPacket)Pack;
+            LeaveGroupRequestPacket leaveGroupRequest =
+                (LeaveGroupRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -11735,15 +11927,16 @@ namespace Universe.ClientStack
 
             if (m_GroupsModule != null)
             {
-                m_GroupsModule.LeaveGroupRequest(this, leaveGroupRequest.GroupData.GroupID);
+                m_GroupsModule.LeaveGroupRequest(this,
+                                                 leaveGroupRequest.GroupData.GroupID);
             }
-
             return true;
         }
 
         bool HandleEjectGroupMemberRequest(IClientAPI sender, Packet Pack)
         {
-            EjectGroupMemberRequestPacket ejectGroupMemberRequest = (EjectGroupMemberRequestPacket)Pack;
+            EjectGroupMemberRequestPacket ejectGroupMemberRequest =
+                (EjectGroupMemberRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -11766,13 +11959,13 @@ namespace Universe.ClientStack
                                                            e.EjecteeID);
                 }
             }
-
             return true;
         }
 
         bool HandleInviteGroupRequest(IClientAPI sender, Packet Pack)
         {
-            InviteGroupRequestPacket inviteGroupRequest = (InviteGroupRequestPacket)Pack;
+            InviteGroupRequestPacket inviteGroupRequest =
+                (InviteGroupRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -11787,7 +11980,8 @@ namespace Universe.ClientStack
 
             if (m_GroupsModule != null)
             {
-                foreach (InviteGroupRequestPacket.InviteDataBlock b in inviteGroupRequest.InviteData)
+                foreach (InviteGroupRequestPacket.InviteDataBlock b in
+                    inviteGroupRequest.InviteData)
                 {
                     m_GroupsModule.InviteGroupRequest(this,
                                                       inviteGroupRequest.GroupData.GroupID,
@@ -11795,7 +11989,6 @@ namespace Universe.ClientStack
                                                       b.RoleID);
                 }
             }
-
             return true;
         }
 
@@ -11803,7 +11996,7 @@ namespace Universe.ClientStack
 
         bool HandleStartLure(IClientAPI sender, Packet Pack)
         {
-            StartLurePacket startLureRequest = (StartLurePacket)Pack;
+            StartLurePacket startLureRequest = (StartLurePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -11817,20 +12010,19 @@ namespace Universe.ClientStack
             #endregion
 
             StartLure handlerStartLure = OnStartLure;
-
             if (handlerStartLure != null)
                 handlerStartLure(startLureRequest.Info.LureType,
                                  Utils.BytesToString(
                                      startLureRequest.Info.Message),
                                  startLureRequest.TargetData[0].TargetID,
                                  this);
-
             return true;
         }
 
         bool HandleTeleportLureRequest(IClientAPI sender, Packet Pack)
         {
-            TeleportLureRequestPacket teleportLureRequest = (TeleportLureRequestPacket)Pack;
+            TeleportLureRequestPacket teleportLureRequest =
+                (TeleportLureRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -11844,19 +12036,18 @@ namespace Universe.ClientStack
             #endregion
 
             TeleportLureRequest handlerTeleportLureRequest = OnTeleportLureRequest;
-
             if (handlerTeleportLureRequest != null)
                 handlerTeleportLureRequest(
                     teleportLureRequest.Info.LureID,
                     teleportLureRequest.Info.TeleportFlags,
                     this);
-
             return true;
         }
 
         bool HandleClassifiedInfoRequest(IClientAPI sender, Packet Pack)
         {
-            ClassifiedInfoRequestPacket classifiedInfoRequest = (ClassifiedInfoRequestPacket)Pack;
+            ClassifiedInfoRequestPacket classifiedInfoRequest =
+                (ClassifiedInfoRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -11870,18 +12061,17 @@ namespace Universe.ClientStack
             #endregion
 
             ClassifiedInfoRequest handlerClassifiedInfoRequest = OnClassifiedInfoRequest;
-
             if (handlerClassifiedInfoRequest != null)
                 handlerClassifiedInfoRequest(
                     classifiedInfoRequest.Data.ClassifiedID,
                     this);
-
             return true;
         }
 
         bool HandleClassifiedInfoUpdate(IClientAPI sender, Packet Pack)
         {
-            ClassifiedInfoUpdatePacket classifiedInfoUpdate = (ClassifiedInfoUpdatePacket)Pack;
+            ClassifiedInfoUpdatePacket classifiedInfoUpdate =
+                (ClassifiedInfoUpdatePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -11895,7 +12085,6 @@ namespace Universe.ClientStack
             #endregion
 
             ClassifiedInfoUpdate handlerClassifiedInfoUpdate = OnClassifiedInfoUpdate;
-
             if (handlerClassifiedInfoUpdate != null)
                 handlerClassifiedInfoUpdate(
                     classifiedInfoUpdate.Data.ClassifiedID,
@@ -11912,13 +12101,13 @@ namespace Universe.ClientStack
                     classifiedInfoUpdate.Data.ClassifiedFlags,
                     classifiedInfoUpdate.Data.PriceForListing,
                     this);
-
             return true;
         }
 
         bool HandleClassifiedDelete(IClientAPI sender, Packet Pack)
         {
-            ClassifiedDeletePacket classifiedDelete = (ClassifiedDeletePacket)Pack;
+            ClassifiedDeletePacket classifiedDelete =
+                (ClassifiedDeletePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -11932,18 +12121,17 @@ namespace Universe.ClientStack
             #endregion
 
             ClassifiedDelete handlerClassifiedDelete = OnClassifiedDelete;
-
             if (handlerClassifiedDelete != null)
                 handlerClassifiedDelete(
                     classifiedDelete.Data.ClassifiedID,
                     this);
-
             return true;
         }
 
         bool HandleClassifiedGodDelete(IClientAPI sender, Packet Pack)
         {
-            ClassifiedGodDeletePacket classifiedGodDelete = (ClassifiedGodDeletePacket)Pack;
+            ClassifiedGodDeletePacket classifiedGodDelete =
+                (ClassifiedGodDeletePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -11957,18 +12145,17 @@ namespace Universe.ClientStack
             #endregion
 
             ClassifiedDelete handlerClassifiedGodDelete = OnClassifiedGodDelete;
-
             if (handlerClassifiedGodDelete != null)
                 handlerClassifiedGodDelete(
                     classifiedGodDelete.Data.ClassifiedID,
                     this);
-
             return true;
         }
 
         bool HandleEventGodDelete(IClientAPI sender, Packet Pack)
         {
-            EventGodDeletePacket eventGodDelete = (EventGodDeletePacket)Pack;
+            EventGodDeletePacket eventGodDelete =
+                (EventGodDeletePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -11982,7 +12169,6 @@ namespace Universe.ClientStack
             #endregion
 
             EventGodDelete handlerEventGodDelete = OnEventGodDelete;
-
             if (handlerEventGodDelete != null)
                 handlerEventGodDelete(
                     eventGodDelete.EventData.EventID,
@@ -11992,13 +12178,13 @@ namespace Universe.ClientStack
                     eventGodDelete.QueryData.QueryFlags,
                     eventGodDelete.QueryData.QueryStart,
                     this);
-
             return true;
         }
 
         bool HandleEventNotificationAddRequest(IClientAPI sender, Packet Pack)
         {
-            EventNotificationAddRequestPacket eventNotificationAdd = (EventNotificationAddRequestPacket)Pack;
+            EventNotificationAddRequestPacket eventNotificationAdd =
+                (EventNotificationAddRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -12012,17 +12198,16 @@ namespace Universe.ClientStack
             #endregion
 
             EventNotificationAddRequest handlerEventNotificationAddRequest = OnEventNotificationAddRequest;
-
             if (handlerEventNotificationAddRequest != null)
-                handlerEventNotificationAddRequest(eventNotificationAdd.EventData.EventID, this);
-
+                handlerEventNotificationAddRequest(
+                    eventNotificationAdd.EventData.EventID, this);
             return true;
         }
 
         bool HandleEventNotificationRemoveRequest(IClientAPI sender, Packet Pack)
         {
             EventNotificationRemoveRequestPacket eventNotificationRemove =
-                (EventNotificationRemoveRequestPacket)Pack;
+                (EventNotificationRemoveRequestPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -12036,16 +12221,15 @@ namespace Universe.ClientStack
             #endregion
 
             EventNotificationRemoveRequest handlerEventNotificationRemoveRequest = OnEventNotificationRemoveRequest;
-
             if (handlerEventNotificationRemoveRequest != null)
-                handlerEventNotificationRemoveRequest(eventNotificationRemove.EventData.EventID, this);
-
+                handlerEventNotificationRemoveRequest(
+                    eventNotificationRemove.EventData.EventID, this);
             return true;
         }
 
         bool HandleRetrieveInstantMessages(IClientAPI sender, Packet Pack)
         {
-            RetrieveInstantMessagesPacket rimpInstantMessagePack = (RetrieveInstantMessagesPacket)Pack;
+            RetrieveInstantMessagesPacket rimpInstantMessagePack = (RetrieveInstantMessagesPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -12059,16 +12243,15 @@ namespace Universe.ClientStack
             #endregion
 
             RetrieveInstantMessages handlerRetrieveInstantMessages = OnRetrieveInstantMessages;
-
             if (handlerRetrieveInstantMessages != null)
                 handlerRetrieveInstantMessages(this);
-
             return true;
         }
 
         bool HandlePickDelete(IClientAPI sender, Packet Pack)
         {
-            PickDeletePacket pickDelete = (PickDeletePacket)Pack;
+            PickDeletePacket pickDelete =
+                (PickDeletePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -12082,16 +12265,15 @@ namespace Universe.ClientStack
             #endregion
 
             PickDelete handlerPickDelete = OnPickDelete;
-
             if (handlerPickDelete != null)
                 handlerPickDelete(this, pickDelete.Data.PickID);
-
             return true;
         }
 
         bool HandlePickGodDelete(IClientAPI sender, Packet Pack)
         {
-            PickGodDeletePacket pickGodDelete = (PickGodDeletePacket)Pack;
+            PickGodDeletePacket pickGodDelete =
+                (PickGodDeletePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -12105,20 +12287,18 @@ namespace Universe.ClientStack
             #endregion
 
             PickGodDelete handlerPickGodDelete = OnPickGodDelete;
-
             if (handlerPickGodDelete != null)
                 handlerPickGodDelete(this,
                                      pickGodDelete.AgentData.AgentID,
                                      pickGodDelete.Data.PickID,
                                      pickGodDelete.Data.QueryID);
-
             return true;
         }
 
         bool HandlePickInfoUpdate(IClientAPI sender, Packet Pack)
         {
             PickInfoUpdatePacket pickInfoUpdate =
-                (PickInfoUpdatePacket)Pack;
+                (PickInfoUpdatePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -12132,7 +12312,6 @@ namespace Universe.ClientStack
             #endregion
 
             PickInfoUpdate handlerPickInfoUpdate = OnPickInfoUpdate;
-
             if (handlerPickInfoUpdate != null)
                 handlerPickInfoUpdate(this,
                                       pickInfoUpdate.Data.PickID,
@@ -12144,14 +12323,13 @@ namespace Universe.ClientStack
                                       pickInfoUpdate.Data.SortOrder,
                                       pickInfoUpdate.Data.Enabled,
                                       pickInfoUpdate.Data.PosGlobal);
-
             return true;
         }
 
         bool HandleAvatarNotesUpdate(IClientAPI sender, Packet Pack)
         {
             AvatarNotesUpdatePacket avatarNotesUpdate =
-                (AvatarNotesUpdatePacket)Pack;
+                (AvatarNotesUpdatePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -12165,19 +12343,17 @@ namespace Universe.ClientStack
             #endregion
 
             AvatarNotesUpdate handlerAvatarNotesUpdate = OnAvatarNotesUpdate;
-
             if (handlerAvatarNotesUpdate != null)
                 handlerAvatarNotesUpdate(this,
                                          avatarNotesUpdate.Data.TargetID,
                                          Utils.BytesToString(avatarNotesUpdate.Data.Notes));
-
             return true;
         }
 
         bool HandleAvatarInterestsUpdate(IClientAPI sender, Packet Pack)
         {
             AvatarInterestsUpdatePacket avatarInterestUpdate =
-                (AvatarInterestsUpdatePacket)Pack;
+                (AvatarInterestsUpdatePacket) Pack;
 
             #region Packet Session and User Check
 
@@ -12191,7 +12367,6 @@ namespace Universe.ClientStack
             #endregion
 
             AvatarInterestUpdate handlerAvatarInterestUpdate = OnAvatarInterestUpdate;
-
             if (handlerAvatarInterestUpdate != null)
                 handlerAvatarInterestUpdate(this,
                                             avatarInterestUpdate.PropertiesData.WantToMask,
@@ -12199,13 +12374,13 @@ namespace Universe.ClientStack
                                             avatarInterestUpdate.PropertiesData.SkillsMask,
                                             Utils.BytesToString(avatarInterestUpdate.PropertiesData.SkillsText),
                                             Utils.BytesToString(avatarInterestUpdate.PropertiesData.LanguagesText));
-
             return true;
         }
 
         bool HandleGrantUserRights(IClientAPI sender, Packet Pack)
         {
-            GrantUserRightsPacket GrantUserRights = (GrantUserRightsPacket)Pack;
+            GrantUserRightsPacket GrantUserRights =
+                (GrantUserRightsPacket) Pack;
 
             #region Packet Session and User Check
 
@@ -12224,14 +12399,13 @@ namespace Universe.ClientStack
                                        GrantUserRights.AgentData.AgentID,
                                        GrantUserRights.Rights[0].AgentRelated,
                                        GrantUserRights.Rights[0].RelatedRights);
-
             return true;
         }
 
         bool HandlePlacesQuery(IClientAPI sender, Packet Pack)
         {
             PlacesQueryPacket placesQueryPacket =
-                (PlacesQueryPacket)Pack;
+                (PlacesQueryPacket) Pack;
 
             PlacesQuery handlerPlacesQuery = OnPlacesQuery;
 
@@ -12241,11 +12415,10 @@ namespace Universe.ClientStack
                                    Utils.BytesToString(
                                        placesQueryPacket.QueryData.QueryText),
                                    placesQueryPacket.QueryData.QueryFlags,
-                                   (byte)placesQueryPacket.QueryData.Category,
+                                   (byte) placesQueryPacket.QueryData.Category,
                                    Utils.BytesToString(
                                        placesQueryPacket.QueryData.SimName),
                                    this);
-
             return true;
         }
 
@@ -12254,17 +12427,15 @@ namespace Universe.ClientStack
         public void SendScriptQuestion(UUID taskID, string taskName, string ownerName, UUID itemID, int question)
         {
             ScriptQuestionPacket scriptQuestion =
-                (ScriptQuestionPacket)PacketPool.Instance.GetPacket(PacketType.ScriptQuestion);
-
+                (ScriptQuestionPacket) PacketPool.Instance.GetPacket(PacketType.ScriptQuestion);
             scriptQuestion.Data = new ScriptQuestionPacket.DataBlock
-            {
-                TaskID = taskID,
-                ItemID = itemID,
-                Questions = question,
-                ObjectName = Util.StringToBytes256(taskName),
-                ObjectOwner = Util.StringToBytes256(ownerName)
-            };
-
+                                      {
+                                          TaskID = taskID,
+                                          ItemID = itemID,
+                                          Questions = question,
+                                          ObjectName = Util.StringToBytes256(taskName),
+                                          ObjectOwner = Util.StringToBytes256(ownerName)
+                                      };
             // TODO: don't create new blocks if recycling an old packet
 
             OutPacket(scriptQuestion, ThrottleOutPacketType.AvatarInfo);
@@ -12283,7 +12454,7 @@ namespace Universe.ClientStack
                         {
                             string name = nod.Attributes["name"].Value.ToLower();
                             string id = nod.InnerText;
-                            m_defaultAnimations.Add(name, (UUID)id);
+                            m_defaultAnimations.Add(name, (UUID) id);
                         }
                     }
             }
@@ -12306,7 +12477,7 @@ namespace Universe.ClientStack
         {
             if (packet.Type == PacketType.LogoutRequest)
             {
-                if (((LogoutRequestPacket)packet).AgentData.SessionID != SessionId) return false;
+                if (((LogoutRequestPacket) packet).AgentData.SessionID != SessionId) return false;
             }
 
             return Logout(client);
@@ -12318,7 +12489,7 @@ namespace Universe.ClientStack
         /// <returns></returns>
         bool Logout(IClientAPI client)
         {
-            //MainConsole.Instance.InfoFormat("[Client]: Got a logout request for {0} in {1}", Name, Scene.RegionInfo.RegionName);
+            //MainConsole.Instance.InfoFormat("[CLIENT]: Got a logout request for {0} in {1}", Name, Scene.RegionInfo.RegionName);
 
             Action<IClientAPI> handlerLogout = OnLogout;
 
@@ -12332,9 +12503,9 @@ namespace Universe.ClientStack
 
         bool HandleMultipleObjUpdate(IClientAPI simClient, Packet packet)
         {
-            MultipleObjectUpdatePacket multipleupdate = (MultipleObjectUpdatePacket)packet;
+            MultipleObjectUpdatePacket multipleupdate = (MultipleObjectUpdatePacket) packet;
             if (multipleupdate.AgentData.SessionID != SessionId) return false;
-            //MainConsole.Instance.Debug("new multi update packet " + multipleupdate.ToString());
+            // MainConsole.Instance.Debug("new multi update packet " + multipleupdate.ToString());
             IScene tScene = m_scene;
 
             foreach (MultipleObjectUpdatePacket.ObjectDataBlock block in multipleupdate.ObjectData)
@@ -12348,10 +12519,13 @@ namespace Universe.ClientStack
                     if (part == null)
                     {
                         // It's a ghost! tell the client to delete it from view.
-                        simClient.SendKillObject(Scene.RegionInfo.RegionHandle, new IEntity[] { null });
+                        simClient.SendKillObject(Scene.RegionInfo.RegionHandle,
+                                                 new IEntity[] {null});
                     }
                     else
                     {
+                        // UUID partId = part.UUID;
+
                         switch (block.Type)
                         {
                             case 1:
@@ -12360,7 +12534,7 @@ namespace Universe.ClientStack
                                 UpdateVectorWithUpdate handlerUpdatePrimSinglePosition = OnUpdatePrimSinglePosition;
                                 if (handlerUpdatePrimSinglePosition != null)
                                 {
-                                    //MainConsole.Instance.Debug("new movement position is " + pos.X + " , " + pos.Y + " , " + pos.Z);
+                                    // MainConsole.Instance.Debug("new movement position is " + pos.X + " , " + pos.Y + " , " + pos.Z);
                                     handlerUpdatePrimSinglePosition(localId, pos1, this, true);
                                 }
                                 break;
@@ -12370,7 +12544,7 @@ namespace Universe.ClientStack
                                 UpdatePrimSingleRotation handlerUpdatePrimSingleRotation = OnUpdatePrimSingleRotation;
                                 if (handlerUpdatePrimSingleRotation != null)
                                 {
-                                    //MainConsole.Instance.Info("new tab rotation is " + rot1.X + " , " + rot1.Y + " , " + rot1.Z + " , " + rot1.W);
+                                    // MainConsole.Instance.Info("new tab rotation is " + rot1.X + " , " + rot1.Y + " , " + rot1.Z + " , " + rot1.W);
                                     handlerUpdatePrimSingleRotation(localId, rot1, this);
                                 }
                                 break;
@@ -12382,8 +12556,8 @@ namespace Universe.ClientStack
                                     OnUpdatePrimSingleRotationPosition;
                                 if (handlerUpdatePrimSingleRotationPosition != null)
                                 {
-                                    //MainConsole.Instance.Debug("new mouse rotation position is " + rotPos.X + " , " + rotPos.Y + " , " + rotPos.Z);
-                                    //MainConsole.Instance.Info("new mouse rotation is " + rot2.X + " , " + rot2.Y + " , " + rot2.Z + " , " + rot2.W);
+                                    // MainConsole.Instance.Debug("new mouse rotation position is " + rotPos.X + " , " + rotPos.Y + " , " + rotPos.Z);
+                                    // MainConsole.Instance.Info("new mouse rotation is " + rot2.X + " , " + rot2.Y + " , " + rot2.Z + " , " + rot2.W);
                                     handlerUpdatePrimSingleRotationPosition(localId, rot2, rotPos, this);
                                 }
                                 break;
@@ -12394,7 +12568,7 @@ namespace Universe.ClientStack
                                 UpdateVector handlerUpdatePrimScale = OnUpdatePrimScale;
                                 if (handlerUpdatePrimScale != null)
                                 {
-                                    //MainConsole.Instance.Debug("new scale is " + scale4.X + " , " + scale4.Y + " , " + scale4.Z);
+                                    //                                     MainConsole.Instance.Debug("new scale is " + scale4.X + " , " + scale4.Y + " , " + scale4.Z);
                                     handlerUpdatePrimScale(localId, scale4, this);
                                 }
                                 break;
@@ -12406,7 +12580,7 @@ namespace Universe.ClientStack
                                 handlerUpdatePrimScale = OnUpdatePrimScale;
                                 if (handlerUpdatePrimScale != null)
                                 {
-                                    //MainConsole.Instance.Debug("new scale is " + scale.X + " , " + scale.Y + " , " + scale.Z);
+                                    // MainConsole.Instance.Debug("new scale is " + scale.X + " , " + scale.Y + " , " + scale.Z);
                                     handlerUpdatePrimScale(localId, scale1, this);
 
                                     handlerUpdatePrimSinglePosition = OnUpdatePrimSinglePosition;
@@ -12432,7 +12606,7 @@ namespace Universe.ClientStack
                                 UpdatePrimRotation handlerUpdatePrimRotation = OnUpdatePrimGroupRotation;
                                 if (handlerUpdatePrimRotation != null)
                                 {
-                                    //Console.WriteLine("new rotation is " + rot3.X + " , " + rot3.Y + " , " + rot3.Z + " , " + rot3.W);
+                                    //  Console.WriteLine("new rotation is " + rot3.X + " , " + rot3.Y + " , " + rot3.Z + " , " + rot3.W);
                                     handlerUpdatePrimRotation(localId, rot3, this);
                                 }
                                 break;
@@ -12443,8 +12617,8 @@ namespace Universe.ClientStack
                                 UpdatePrimGroupRotation handlerUpdatePrimGroupRotation = OnUpdatePrimGroupMouseRotation;
                                 if (handlerUpdatePrimGroupRotation != null)
                                 {
-                                    //MainConsole.Instance.Debug("new rotation position is " + pos.X + " , " + pos.Y + " , " + pos.Z);
-                                    //MainConsole.Instance.Debug("new group mouse rotation is " + rot4.X + " , " + rot4.Y + " , " + rot4.Z + " , " + rot4.W);
+                                    //  MainConsole.Instance.Debug("new rotation position is " + pos.X + " , " + pos.Y + " , " + pos.Z);
+                                    // MainConsole.Instance.Debug("new group mouse rotation is " + rot4.X + " , " + rot4.Y + " , " + rot4.Z + " , " + rot4.W);
                                     handlerUpdatePrimGroupRotation(localId, pos3, rot4, this);
                                 }
                                 break;
@@ -12455,7 +12629,7 @@ namespace Universe.ClientStack
                                 UpdateVector handlerUpdatePrimGroupScale = OnUpdatePrimGroupScale;
                                 if (handlerUpdatePrimGroupScale != null)
                                 {
-                                    //MainConsole.Instance.Debug("new scale is " + scale7.X + " , " + scale7.Y + " , " + scale7.Z);
+                                    //                                     MainConsole.Instance.Debug("new scale is " + scale7.X + " , " + scale7.Y + " , " + scale7.Z);
                                     handlerUpdatePrimGroupScale(localId, scale7, this);
                                 }
                                 break;
@@ -12513,13 +12687,13 @@ namespace Universe.ClientStack
                                 break;
                             default:
                                 MainConsole.Instance.Debug(
-                                    "[Client] MultipleObjUpdate recieved an unknown packet type: " + (block.Type));
+                                    "[CLIENT] MultipleObjUpdate recieved an unknown packet type: " +
+                                    (block.Type));
                                 break;
                         }
                     }
                 }
             }
-
             return true;
         }
 
@@ -12551,7 +12725,7 @@ namespace Universe.ClientStack
         {
             #region BinaryStats
 
-            LLUDPServer.LogPacketHeader(false, m_circuitCode, 0, packet.Type, (ushort)packet.Length);
+            LLUDPServer.LogPacketHeader(false, m_circuitCode, 0, packet.Type, (ushort) packet.Length);
 
             #endregion BinaryStats
 
@@ -12641,7 +12815,8 @@ namespace Universe.ClientStack
                     MainConsole.Instance.DebugFormat("[CLIENT ({1})]: Packet OUT {0}", packet.Type, Name);
             }
 
-            m_udpServer.SendPacket(m_udpClient, packet, throttlePacketType, doAutomaticSplitting, resendMethod, finishedMethod);
+            m_udpServer.SendPacket(m_udpClient, packet, throttlePacketType, doAutomaticSplitting, resendMethod,
+                                   finishedMethod);
         }
 
         /// <summary>
@@ -12650,7 +12825,8 @@ namespace Universe.ClientStack
         /// <param name="gmMethod"></param>
         /// <param name="gmInvoice"></param>
         /// <param name="gmParams"></param>
-        public void DecipherGenericMessage(string gmMethod, UUID gmInvoice, GenericMessagePacket.ParamListBlock[] gmParams)
+        public void DecipherGenericMessage(string gmMethod, UUID gmInvoice,
+                                           GenericMessagePacket.ParamListBlock[] gmParams)
         {
             switch (gmMethod)
             {
@@ -12670,7 +12846,7 @@ namespace Universe.ClientStack
                     }
                     catch (InvalidCastException)
                     {
-                        MainConsole.Instance.Error("[Client]: Invalid autopilot request");
+                        MainConsole.Instance.Error("[CLIENT]: Invalid autopilot request");
                         return;
                     }
 
@@ -12679,18 +12855,20 @@ namespace Universe.ClientStack
                     {
                         handlerAutoPilotGo(0, new Vector3(locx, locy, locz), this);
                     }
-
-                    MainConsole.Instance.InfoFormat("[Client]: Client Requests autopilot to position <{0},{1},{2}>",
+                    MainConsole.Instance.InfoFormat("[CLIENT]: Client Requests autopilot to position <{0},{1},{2}>",
                                                     locx, locy, locz);
+
+
                     break;
                 default:
-                    MainConsole.Instance.Debug("[Client]: Unknown Generic Message, Method: " + gmMethod + ". Invoice: " +
-                                               gmInvoice + ".  Dumping Params:");
+                    MainConsole.Instance.Debug("[CLIENT]: Unknown Generic Message, Method: " + gmMethod + ". Invoice: " +
+                                               gmInvoice +
+                                               ".  Dumping Params:");
                     foreach (GenericMessagePacket.ParamListBlock t in gmParams)
                     {
                         MainConsole.Instance.Debug(t.ToString());
                     }
-
+                    //gmpack.MethodData.
                     break;
             }
         }
@@ -12723,7 +12901,7 @@ namespace Universe.ClientStack
             }
 
             if (!ProcessPacketMethod(packet))
-                MainConsole.Instance.Warn("[Client]: unhandled packet " + packet.Type);
+                MainConsole.Instance.Warn("[CLIENT]: unhandled packet " + packet.Type);
 
             //Give the packet back to the pool now, we've processed it
             PacketPool.Instance.ReturnPacket(packet);
@@ -12732,32 +12910,33 @@ namespace Universe.ClientStack
         static PrimitiveBaseShape GetShapeFromAddPacket(ObjectAddPacket addPacket)
         {
             PrimitiveBaseShape shape = new PrimitiveBaseShape
-            {
-                PCode = addPacket.ObjectData.PCode,
-                State = addPacket.ObjectData.State,
-                PathBegin = addPacket.ObjectData.PathBegin,
-                PathEnd = addPacket.ObjectData.PathEnd,
-                PathScaleX = addPacket.ObjectData.PathScaleX,
-                PathScaleY = addPacket.ObjectData.PathScaleY,
-                PathShearX = addPacket.ObjectData.PathShearX,
-                PathShearY = addPacket.ObjectData.PathShearY,
-                PathSkew = addPacket.ObjectData.PathSkew,
-                ProfileBegin = addPacket.ObjectData.ProfileBegin,
-                ProfileEnd = addPacket.ObjectData.ProfileEnd,
-                Scale = addPacket.ObjectData.Scale,
-                PathCurve = addPacket.ObjectData.PathCurve,
-                ProfileCurve = addPacket.ObjectData.ProfileCurve,
-                ProfileHollow = addPacket.ObjectData.ProfileHollow,
-                PathRadiusOffset = addPacket.ObjectData.PathRadiusOffset,
-                PathRevolutions = addPacket.ObjectData.PathRevolutions,
-                PathTaperX = addPacket.ObjectData.PathTaperX,
-                PathTaperY = addPacket.ObjectData.PathTaperY,
-                PathTwist = addPacket.ObjectData.PathTwist,
-                PathTwistBegin = addPacket.ObjectData.PathTwistBegin
-            };
+                                           {
+                                               PCode = addPacket.ObjectData.PCode,
+                                               State = addPacket.ObjectData.State,
+                                               PathBegin = addPacket.ObjectData.PathBegin,
+                                               PathEnd = addPacket.ObjectData.PathEnd,
+                                               PathScaleX = addPacket.ObjectData.PathScaleX,
+                                               PathScaleY = addPacket.ObjectData.PathScaleY,
+                                               PathShearX = addPacket.ObjectData.PathShearX,
+                                               PathShearY = addPacket.ObjectData.PathShearY,
+                                               PathSkew = addPacket.ObjectData.PathSkew,
+                                               ProfileBegin = addPacket.ObjectData.ProfileBegin,
+                                               ProfileEnd = addPacket.ObjectData.ProfileEnd,
+                                               Scale = addPacket.ObjectData.Scale,
+                                               PathCurve = addPacket.ObjectData.PathCurve,
+                                               ProfileCurve = addPacket.ObjectData.ProfileCurve,
+                                               ProfileHollow = addPacket.ObjectData.ProfileHollow,
+                                               PathRadiusOffset = addPacket.ObjectData.PathRadiusOffset,
+                                               PathRevolutions = addPacket.ObjectData.PathRevolutions,
+                                               PathTaperX = addPacket.ObjectData.PathTaperX,
+                                               PathTaperY = addPacket.ObjectData.PathTaperY,
+                                               PathTwist = addPacket.ObjectData.PathTwist,
+                                               PathTwistBegin = addPacket.ObjectData.PathTwistBegin
+                                           };
 
             Primitive.TextureEntry ntex = new Primitive.TextureEntry(new UUID("89556747-24cb-43ed-920b-47caed15465f"));
             shape.TextureEntry = ntex.GetBytes();
+            //shape.Textures = ntex;
             return shape;
         }
 
@@ -12771,14 +12950,14 @@ namespace Universe.ClientStack
         public void SendParcelMediaCommand(uint flags, ParcelMediaCommandEnum command, float time)
         {
             ParcelMediaCommandMessagePacket commandMessagePacket = new ParcelMediaCommandMessagePacket
-            {
-                CommandBlock =
-                {
-                    Flags = flags,
-                    Command = (uint) command,
-                    Time = time
-                }
-            };
+                                                                       {
+                                                                           CommandBlock =
+                                                                               {
+                                                                                   Flags = flags,
+                                                                                   Command = (uint) command,
+                                                                                   Time = time
+                                                                               }
+                                                                       };
 
             OutPacket(commandMessagePacket, ThrottleOutPacketType.Land);
         }
@@ -12789,22 +12968,23 @@ namespace Universe.ClientStack
                                           byte mediaLoop)
         {
             ParcelMediaUpdatePacket updatePacket = new ParcelMediaUpdatePacket
-            {
-                DataBlock =
-                {
-                    MediaURL = Util.StringToBytes256(mediaUrl),
-                    MediaID = mediaTextureID,
-                    MediaAutoScale = autoScale
-                },
-                DataBlockExtended =
-                {
-                    MediaType = Util.StringToBytes256(mediaType),
-                    MediaDesc = Util.StringToBytes256(mediaDesc),
-                    MediaWidth = mediaWidth,
-                    MediaHeight = mediaHeight,
-                    MediaLoop = mediaLoop
-                }
-            };
+                                                       {
+                                                           DataBlock =
+                                                               {
+                                                                   MediaURL = Util.StringToBytes256(mediaUrl),
+                                                                   MediaID = mediaTextureID,
+                                                                   MediaAutoScale = autoScale
+                                                               },
+                                                           DataBlockExtended =
+                                                               {
+                                                                   MediaType = Util.StringToBytes256(mediaType),
+                                                                   MediaDesc = Util.StringToBytes256(mediaDesc),
+                                                                   MediaWidth = mediaWidth,
+                                                                   MediaHeight = mediaHeight,
+                                                                   MediaLoop = mediaLoop
+                                                               }
+                                                       };
+
 
             OutPacket(updatePacket, ThrottleOutPacketType.Land);
         }
@@ -12816,7 +12996,7 @@ namespace Universe.ClientStack
         public void SendSetFollowCamProperties(UUID objectID, SortedDictionary<int, float> parameters)
         {
             SetFollowCamPropertiesPacket packet =
-                (SetFollowCamPropertiesPacket)PacketPool.Instance.GetPacket(PacketType.SetFollowCamProperties);
+                (SetFollowCamPropertiesPacket) PacketPool.Instance.GetPacket(PacketType.SetFollowCamProperties);
             packet.ObjectData.ObjectID = objectID;
             SetFollowCamPropertiesPacket.CameraPropertyBlock[] camPropBlock =
                 new SetFollowCamPropertiesPacket.CameraPropertyBlock[parameters.Count];
@@ -12826,7 +13006,7 @@ namespace Universe.ClientStack
                 SetFollowCamPropertiesPacket.CameraPropertyBlock block in
                     parameters.Select(
                         pair =>
-                        new SetFollowCamPropertiesPacket.CameraPropertyBlock { Type = pair.Key, Value = pair.Value }))
+                        new SetFollowCamPropertiesPacket.CameraPropertyBlock {Type = pair.Key, Value = pair.Value}))
             {
                 camPropBlock[idx++] = block;
             }
@@ -12838,7 +13018,7 @@ namespace Universe.ClientStack
         public void SendClearFollowCamProperties(UUID objectID)
         {
             ClearFollowCamPropertiesPacket packet =
-                (ClearFollowCamPropertiesPacket)PacketPool.Instance.GetPacket(PacketType.ClearFollowCamProperties);
+                (ClearFollowCamPropertiesPacket) PacketPool.Instance.GetPacket(PacketType.ClearFollowCamProperties);
             packet.ObjectData.ObjectID = objectID;
             OutPacket(packet, ThrottleOutPacketType.AvatarInfo);
         }
@@ -12858,28 +13038,27 @@ namespace Universe.ClientStack
         {
             lock (m_clientInterfaces)
             {
-                if (!m_clientInterfaces.ContainsKey(typeof(T)))
+                if (!m_clientInterfaces.ContainsKey(typeof (T)))
                 {
-                    m_clientInterfaces.Add(typeof(T), iface);
+                    m_clientInterfaces.Add(typeof (T), iface);
                 }
             }
         }
 
         public bool TryGet<T>(out T iface)
         {
-            if (m_clientInterfaces.ContainsKey(typeof(T)))
+            if (m_clientInterfaces.ContainsKey(typeof (T)))
             {
-                iface = (T)m_clientInterfaces[typeof(T)];
+                iface = (T) m_clientInterfaces[typeof (T)];
                 return true;
             }
-
             iface = default(T);
             return false;
         }
 
         public T Get<T>()
         {
-            return (T)m_clientInterfaces[typeof(T)];
+            return (T) m_clientInterfaces[typeof (T)];
         }
 
         #endregion
@@ -12888,7 +13067,7 @@ namespace Universe.ClientStack
 
         bool HandleTransferAbort(IClientAPI sender, Packet Pack)
         {
-            TransferAbortPacket transferAbort = (TransferAbortPacket)Pack;
+            TransferAbortPacket transferAbort = (TransferAbortPacket) Pack;
             m_transfersToAbort.Add(transferAbort.TransferInfo.TransferID);
             return true;
         }
@@ -12903,15 +13082,15 @@ namespace Universe.ClientStack
             UUID requestID = UUID.Zero;
             switch (transferRequest.TransferInfo.SourceType)
             {
-                case (int)SourceType.Asset:
+                case (int) SourceType.Asset:
                     requestID = new UUID(transferRequest.TransferInfo.Params, 0);
                     break;
-                case (int)SourceType.SimInventoryItem:
+                case (int) SourceType.SimInventoryItem:
                     requestID = new UUID(transferRequest.TransferInfo.Params, 80);
                     break;
             }
 
-            //MainConsole.Instance.InfoFormat("[Client]: {0} requesting asset {1}", Name, requestID);
+            //MainConsole.Instance.InfoFormat("[CLIENT]: {0} requesting asset {1}", Name, requestID);
 
             m_assetService.Get(requestID.ToString(), transferRequest, AssetReceived);
         }
@@ -12924,21 +13103,20 @@ namespace Universe.ClientStack
         /// <param name="asset"></param>
         void AssetReceived(string id, Object sender, AssetBase asset)
         {
-            //MainConsole.Instance.InfoFormat("[Client]: {0} found requested asset", Name);
+            //MainConsole.Instance.InfoFormat("[CLIENT]: {0} found requested asset", Name);
 
-            TransferRequestPacket transferRequest = (TransferRequestPacket)sender;
+            TransferRequestPacket transferRequest = (TransferRequestPacket) sender;
 
             UUID requestID = UUID.Zero;
-            byte source = (byte)SourceType.Asset;
-
-            if (transferRequest.TransferInfo.SourceType == (int)SourceType.Asset)
+            byte source = (byte) SourceType.Asset;
+            if (transferRequest.TransferInfo.SourceType == (int) SourceType.Asset)
             {
                 requestID = new UUID(transferRequest.TransferInfo.Params, 0);
             }
-            else if (transferRequest.TransferInfo.SourceType == (int)SourceType.SimInventoryItem)
+            else if (transferRequest.TransferInfo.SourceType == (int) SourceType.SimInventoryItem)
             {
                 requestID = new UUID(transferRequest.TransferInfo.Params, 80);
-                source = (byte)SourceType.SimInventoryItem;
+                source = (byte) SourceType.SimInventoryItem;
             }
 
             if (m_transfersToAbort.Contains(requestID))
@@ -12946,15 +13124,16 @@ namespace Universe.ClientStack
 
             // The asset is known to exist and is in our cache, so add it to the AssetRequests list
             AssetRequestToClient req = new AssetRequestToClient
-            {
-                AssetInf = asset,
-                AssetRequestSource = source,
-                IsTextureRequest = false,
-                NumPackets = asset == null ? 0 : CalculateNumPackets(asset.Data),
-                Params = transferRequest.TransferInfo.Params,
-                RequestAssetID = requestID,
-                TransferRequestID = transferRequest.TransferInfo.TransferID
-            };
+                                           {
+                                               AssetInf = asset,
+                                               AssetRequestSource = source,
+                                               IsTextureRequest = false,
+                                               NumPackets = asset == null ? 0 : CalculateNumPackets(asset.Data),
+                                               Params = transferRequest.TransferInfo.Params,
+                                               RequestAssetID = requestID,
+                                               TransferRequestID = transferRequest.TransferInfo.TransferID
+                                           };
+
 
             if (asset == null)
             {
@@ -12962,7 +13141,7 @@ namespace Universe.ClientStack
                 return;
             }
             // Scripts cannot be retrieved by direct request
-            if (transferRequest.TransferInfo.SourceType == (int)SourceType.Asset && asset.Type == 10)
+            if (transferRequest.TransferInfo.SourceType == (int) SourceType.Asset && asset.Type == 10)
             {
                 SendFailedAsset(req, TransferPacketStatus.InsufficientPermissions);
                 return;
@@ -12989,7 +13168,7 @@ namespace Universe.ClientStack
             {
                 // over max number of bytes so split up file
                 long restData = data.LongLength - m_maxPacketSize;
-                int restPackets = (int)((restData + m_maxPacketSize - 1) / m_maxPacketSize);
+                int restPackets = (int) ((restData + m_maxPacketSize - 1)/m_maxPacketSize);
                 numPackets += restPackets;
             }
 
@@ -13004,11 +13183,10 @@ namespace Universe.ClientStack
             {
                 if (m_userEndPoint is IPEndPoint)
                 {
-                    IPEndPoint ep = (IPEndPoint)m_userEndPoint;
+                    IPEndPoint ep = (IPEndPoint) m_userEndPoint;
 
                     return ep.Address;
                 }
-
                 return null;
             }
         }
@@ -13018,10 +13196,10 @@ namespace Universe.ClientStack
         public void SendRebakeAvatarTextures(UUID textureID)
         {
             RebakeAvatarTexturesPacket pack =
-                (RebakeAvatarTexturesPacket)PacketPool.Instance.GetPacket(PacketType.RebakeAvatarTextures);
+                (RebakeAvatarTexturesPacket) PacketPool.Instance.GetPacket(PacketType.RebakeAvatarTextures);
 
-            pack.TextureData = new RebakeAvatarTexturesPacket.TextureDataBlock { TextureID = textureID };
-
+            pack.TextureData = new RebakeAvatarTexturesPacket.TextureDataBlock {TextureID = textureID};
+            //            OutPacket(pack, ThrottleOutPacketType.Texture);
             OutPacket(pack, ThrottleOutPacketType.AvatarInfo);
         }
 
@@ -13052,7 +13230,7 @@ namespace Universe.ClientStack
 
         public static OSD BuildEvent(string eventName, OSD eventBody)
         {
-            OSDMap osdEvent = new OSDMap(2) { { "message", new OSDString(eventName) }, { "body", eventBody } };
+            OSDMap osdEvent = new OSDMap(2) {{"message", new OSDString(eventName)}, {"body", eventBody}};
 
             return osdEvent;
         }
@@ -13061,30 +13239,30 @@ namespace Universe.ClientStack
                                              string skillsText, string languages)
         {
             AvatarInterestsReplyPacket packet =
-                (AvatarInterestsReplyPacket)PacketPool.Instance.GetPacket(PacketType.AvatarInterestsReply);
+                (AvatarInterestsReplyPacket) PacketPool.Instance.GetPacket(PacketType.AvatarInterestsReply);
 
-            packet.AgentData = new AvatarInterestsReplyPacket.AgentDataBlock { AgentID = AgentId, AvatarID = avatarID };
+            packet.AgentData = new AvatarInterestsReplyPacket.AgentDataBlock {AgentID = AgentId, AvatarID = avatarID};
 
             packet.PropertiesData = new AvatarInterestsReplyPacket.PropertiesDataBlock
-            {
-                WantToMask = wantMask,
-                WantToText = Utils.StringToBytes(wantText),
-                SkillsMask = skillsMask,
-                SkillsText = Utils.StringToBytes(skillsText),
-                LanguagesText = Utils.StringToBytes(languages)
-            };
-
+                                        {
+                                            WantToMask = wantMask,
+                                            WantToText = Utils.StringToBytes(wantText),
+                                            SkillsMask = skillsMask,
+                                            SkillsText = Utils.StringToBytes(skillsText),
+                                            LanguagesText = Utils.StringToBytes(languages)
+                                        };
             OutPacket(packet, ThrottleOutPacketType.AvatarInfo);
         }
 
         public void SendChangeUserRights(UUID agentID, UUID friendID, int rights)
         {
             ChangeUserRightsPacket packet =
-                (ChangeUserRightsPacket)PacketPool.Instance.GetPacket(PacketType.ChangeUserRights);
+                (ChangeUserRightsPacket) PacketPool.Instance.GetPacket(PacketType.ChangeUserRights);
 
-            packet.AgentData = new ChangeUserRightsPacket.AgentDataBlock { AgentID = agentID };
+            packet.AgentData = new ChangeUserRightsPacket.AgentDataBlock {AgentID = agentID};
+
             packet.Rights = new ChangeUserRightsPacket.RightsBlock[1];
-            packet.Rights[0] = new ChangeUserRightsPacket.RightsBlock { AgentRelated = friendID, RelatedRights = rights };
+            packet.Rights[0] = new ChangeUserRightsPacket.RightsBlock {AgentRelated = friendID, RelatedRights = rights};
 
             OutPacket(packet, ThrottleOutPacketType.AvatarInfo);
         }
@@ -13092,7 +13270,7 @@ namespace Universe.ClientStack
         public void SendTextBoxRequest(string message, int chatChannel, string objectname, string ownerFirstName,
                                        string ownerLastName, UUID ownerID, UUID objectId)
         {
-            ScriptDialogPacket dialog = (ScriptDialogPacket)PacketPool.Instance.GetPacket(PacketType.ScriptDialog);
+            ScriptDialogPacket dialog = (ScriptDialogPacket) PacketPool.Instance.GetPacket(PacketType.ScriptDialog);
             dialog.Data.ObjectID = objectId;
             dialog.Data.ChatChannel = chatChannel;
             dialog.Data.ImageID = UUID.Zero;
@@ -13103,7 +13281,7 @@ namespace Universe.ClientStack
             dialog.Data.Message = Util.StringToBytes256(message);
 
             ScriptDialogPacket.ButtonsBlock[] buttons = new ScriptDialogPacket.ButtonsBlock[1];
-            buttons[0] = new ScriptDialogPacket.ButtonsBlock { ButtonLabel = Util.StringToBytes256("!!llTextBox!!") };
+            buttons[0] = new ScriptDialogPacket.ButtonsBlock {ButtonLabel = Util.StringToBytes256("!!llTextBox!!")};
             dialog.OwnerData = new ScriptDialogPacket.OwnerDataBlock[1];
             dialog.OwnerData[0] = new ScriptDialogPacket.OwnerDataBlock();
             dialog.OwnerData[0].OwnerID = ownerID;
@@ -13127,7 +13305,7 @@ namespace Universe.ClientStack
 
                 IAvatarAppearanceModule appearance = presence.RequestModuleInterface<IAvatarAppearanceModule>();
                 if (appearance != null)
-                    pos += new Vector3(0f, 0f, (appearance.Appearance.AvatarHeight / 6f));
+                    pos += new Vector3(0f, 0f, (appearance.Appearance.AvatarHeight/6f));
 
                 presence.AbsolutePosition = pos;
 
@@ -13137,7 +13315,8 @@ namespace Universe.ClientStack
                 // certain amount..   because the LLClient wouldn't land in that situation anyway.
 
                 if (appearance != null)
-                    presence.CollisionPlane = new Vector4(0, 0, 0, pos.Z - appearance.Appearance.AvatarHeight / 6f);
+                    presence.CollisionPlane = new Vector4(0, 0, 0, pos.Z - appearance.Appearance.AvatarHeight/6f);
+
 
                 ImprovedTerseObjectUpdatePacket.ObjectDataBlock block =
                     CreateImprovedTerseBlock(p, false);
@@ -13145,20 +13324,26 @@ namespace Universe.ClientStack
                 float TIME_DILATION = m_scene.TimeDilation;
                 ushort timeDilation = Utils.FloatToUInt16(TIME_DILATION, 0.0f, 1.0f);
 
+
                 ImprovedTerseObjectUpdatePacket packet = new ImprovedTerseObjectUpdatePacket
-                {
-                    RegionData =
-                    {
-                        RegionHandle = m_scene.RegionInfo.RegionHandle,
-                        TimeDilation = timeDilation
-                    },
-                    ObjectData = new ImprovedTerseObjectUpdatePacket.ObjectDataBlock[1]
-                };
+                                                             {
+                                                                 RegionData =
+                                                                     {
+                                                                         RegionHandle = m_scene.RegionInfo.RegionHandle,
+                                                                         TimeDilation = timeDilation
+                                                                     },
+                                                                 ObjectData =
+                                                                     new ImprovedTerseObjectUpdatePacket.ObjectDataBlock
+                                                                     [1]
+                                                             };
 
                 packet.ObjectData[0] = block;
 
                 OutPacket(packet, ThrottleOutPacketType.Task, true);
             }
+
+            //ControllingClient.SendAvatarTerseUpdate(new SendAvatarTerseData(m_rootRegionHandle, (ushort)(m_scene.TimeDilation * ushort.MaxValue), LocalId,
+            //        AbsolutePosition, Velocity, Vector3.Zero, m_bodyRot, new Vector4(0,0,1,AbsolutePosition.Z - 0.5f), m_uuid, null, GetUpdatePriority(ControllingClient)));
         }
 
         public void ForceSendOnAgentUpdate(IClientAPI client, AgentUpdateArgs args)

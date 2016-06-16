@@ -1,8 +1,6 @@
-﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
+/*
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org, http://opensimulator.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,6 +25,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+//#define Debug
+
+
 using System;
 using System.Collections.Concurrent;
 using System.Net;
@@ -39,6 +40,7 @@ using Universe.Framework.Utilities;
 
 namespace Universe.ClientStack
 {
+
     #region Delegates
 
     /// <summary>
@@ -85,24 +87,25 @@ namespace Universe.ClientStack
                 queues[i] = new ConcurrentQueue<object>();
                 promotioncntr[i] = 0;
             }
-
             promotionratemask = PromRateMask;
         }
 
         public bool Enqueue(int prio, object o)
-        // object so it can be a complex info with methods to call etc to get packets on dequeue 
+            // object so it can be a complex info with methods to call etc to get packets on dequeue 
         {
             if (prio < 0 || prio >= nlevels) // safe than sorrow
                 return false;
 
             queues[prio].Enqueue(o); // store it in its level
             Interlocked.Increment(ref Count);
+
             Interlocked.Increment(ref promotioncntr[prio]);
 
+
             if ((promotioncntr[prio] & promotionratemask) == 0)
-            // keep top free of lower priority things
-            // time to move objects up in priority
-            // so they don't get stalled if high traffic on higher levels               
+                // keep top free of lower priority things
+                // time to move objects up in priority
+                // so they don't get stalled if high traffic on higher levels               
             {
                 int i = prio;
 
@@ -126,7 +129,7 @@ namespace Universe.ClientStack
                 object o;
                 if (!queues[i].TryDequeue(out o)) continue;
                 if (!(o is OutgoingPacket)) continue;
-                pack = (OutgoingPacket)o;
+                pack = (OutgoingPacket) o;
                 Interlocked.Decrement(ref Count);
                 return true;
                 // else  do call to a function that will return the packet or whatever
@@ -147,6 +150,7 @@ namespace Universe.ClientStack
         ///     state updates
         /// </summary>
         const float STATE_TASK_PERCENTAGE = 0.3f;
+
         const float TRANSFER_ASSET_PERCENTAGE = 0.9f;
         const float AVATAR_INFO_STATE_PERCENTAGE = 0.5f;
         const int MAXPERCLIENTRATE = 625000;
@@ -174,26 +178,31 @@ namespace Universe.ClientStack
         /// </summary>
         public readonly IncomingPacketHistoryCollection PacketArchive = new IncomingPacketHistoryCollection(200);
 
+        //        private readonly TokenBucket[] m_throttleCategories;
         /// <summary>
         ///     Throttle buckets for each packet category
         /// </summary>
         /// <summary>
         ///     Outgoing queues for throttled packets
         /// </summary>
-        readonly int[] PacketsCounts = new int[(int)ThrottleOutPacketType.Count];
+//        readonly Universe.Framework.LocklessQueue<OutgoingPacket>[] m_packetOutboxes = new Universe.Framework.LocklessQueue<OutgoingPacket>[(int)ThrottleOutPacketType.Count];
+        readonly int[] PacketsCounts = new int[(int) ThrottleOutPacketType.Count];
 
         /// <summary>
         ///     ACKs that are queued up, waiting to be sent to the client
         /// </summary>
         public readonly ConcurrentQueue<uint> PendingAcks = new ConcurrentQueue<uint>();
+
         readonly int[] Rates;
 
         /// <summary>
         ///     The remote address of the connected client
         /// </summary>
         public readonly IPEndPoint RemoteEndPoint;
+
         readonly int m_defaultRTO = 1000;
         readonly int m_maxRTO = 20000;
+
         readonly UDPprioQueue m_outbox = new UDPprioQueue(8, 0x01);
         // 8  priority levels (7 max , 0 lowest), auto-promotion on every 2 enqueues
 
@@ -232,7 +241,8 @@ namespace Universe.ClientStack
         ///     True when this connection is paused, otherwise false
         /// </summary>
         public bool IsPaused;
-        public int[] MapCatsToPriority = new int[(int)ThrottleOutPacketType.Count];
+
+        public int[] MapCatsToPriority = new int[(int) ThrottleOutPacketType.Count];
 
         /// <summary>
         ///     Number of packets received from this client
@@ -274,6 +284,7 @@ namespace Universe.ClientStack
         ///     Environment.TickCount when the last packet was received for this client
         /// </summary>
         public int TickLastPacketReceived;
+
         int TotalRateMin;
         int TotalRateRequested;
 
@@ -286,6 +297,8 @@ namespace Universe.ClientStack
         ///     Holds the Environment.TickCount value of when the next OnQueueEmpty can be fired
         /// </summary>
         int m_nextOnQueueEmpty = 1;
+
+
         OutgoingPacket m_nextOutPacket;
 
         /// <summary>
@@ -333,26 +346,26 @@ namespace Universe.ClientStack
             m_throttle = new TokenBucket(parentThrottle, rates.TotalLimit, 0);
 
             // remember the rates the client requested
-            Rates = new int[(int)ThrottleOutPacketType.Count];
+            Rates = new int[(int) ThrottleOutPacketType.Count];
 
-            for (int i = 0; i < (int)ThrottleOutPacketType.Count; i++)
+            for (int i = 0; i < (int) ThrottleOutPacketType.Count; i++)
             {
                 PacketsCounts[i] = 0;
             }
 
             //Set the priorities for the different packet types
             //Higher is more important
-            MapCatsToPriority[(int)ThrottleOutPacketType.Resend] = 7;
-            MapCatsToPriority[(int)ThrottleOutPacketType.Land] = 1;
-            MapCatsToPriority[(int)ThrottleOutPacketType.Wind] = 0;
-            MapCatsToPriority[(int)ThrottleOutPacketType.Cloud] = 0;
-            MapCatsToPriority[(int)ThrottleOutPacketType.Task] = 4;
-            MapCatsToPriority[(int)ThrottleOutPacketType.Texture] = 2;
-            MapCatsToPriority[(int)ThrottleOutPacketType.Asset] = 3;
-            MapCatsToPriority[(int)ThrottleOutPacketType.Transfer] = 5;
-            MapCatsToPriority[(int)ThrottleOutPacketType.State] = 5;
-            MapCatsToPriority[(int)ThrottleOutPacketType.AvatarInfo] = 6;
-            MapCatsToPriority[(int)ThrottleOutPacketType.OutBand] = 7;
+            MapCatsToPriority[(int) ThrottleOutPacketType.Resend] = 7;
+            MapCatsToPriority[(int) ThrottleOutPacketType.Land] = 1;
+            MapCatsToPriority[(int) ThrottleOutPacketType.Wind] = 0;
+            MapCatsToPriority[(int) ThrottleOutPacketType.Cloud] = 0;
+            MapCatsToPriority[(int) ThrottleOutPacketType.Task] = 4;
+            MapCatsToPriority[(int) ThrottleOutPacketType.Texture] = 2;
+            MapCatsToPriority[(int) ThrottleOutPacketType.Asset] = 3;
+            MapCatsToPriority[(int) ThrottleOutPacketType.Transfer] = 5;
+            MapCatsToPriority[(int) ThrottleOutPacketType.State] = 5;
+            MapCatsToPriority[(int) ThrottleOutPacketType.AvatarInfo] = 6;
+            MapCatsToPriority[(int) ThrottleOutPacketType.OutBand] = 7;
 
             // Default the retransmission timeout to one second
             RTO = m_defaultRTO;
@@ -379,11 +392,10 @@ namespace Universe.ClientStack
         {
             IsConnected = false;
 
-            for (int i = 0; i < (int)ThrottleOutPacketType.Count; i++)
+            for (int i = 0; i < (int) ThrottleOutPacketType.Count; i++)
             {
                 PacketsCounts[i] = 0;
             }
-
             OnPacketStats = null;
             OnQueueEmpty = null;
         }
@@ -405,11 +417,11 @@ namespace Universe.ClientStack
 
         public void SlowDownSend()
         {
-            float tmp = m_throttle.MaxBurst * 0.95f;
+            float tmp = m_throttle.MaxBurst*0.95f;
             if (tmp < TotalRateMin)
                 tmp = TotalRateMin;
-            m_throttle.MaxBurst = (int)tmp;
-            m_throttle.DripRate = (int)tmp;
+            m_throttle.MaxBurst = (int) tmp;
+            m_throttle.DripRate = (int) tmp;
         }
 
         public void SetThrottles(byte[] throttleData)
@@ -419,11 +431,11 @@ namespace Universe.ClientStack
 
             if (!BitConverter.IsLittleEndian)
             {
-                byte[] newData = new byte[7 * 4];
-                Buffer.BlockCopy(throttleData, 0, newData, 0, 7 * 4);
+                byte[] newData = new byte[7*4];
+                Buffer.BlockCopy(throttleData, 0, newData, 0, 7*4);
 
                 for (int i = 0; i < 7; i++)
-                    Array.Reverse(newData, i * 4, 4);
+                    Array.Reverse(newData, i*4, 4);
 
                 adjData = newData;
             }
@@ -433,52 +445,56 @@ namespace Universe.ClientStack
             }
 
             // 0.125f converts from bits to bytes
-            int resend = (int)(BitConverter.ToSingle(adjData, pos) * 0.125f);
+            int resend = (int) (BitConverter.ToSingle(adjData, pos)*0.125f);
             pos += 4;
-            int land = (int)(BitConverter.ToSingle(adjData, pos) * 0.125f);
+            int land = (int) (BitConverter.ToSingle(adjData, pos)*0.125f);
             pos += 4;
-            int wind = (int)(BitConverter.ToSingle(adjData, pos) * 0.125f);
+            int wind = (int) (BitConverter.ToSingle(adjData, pos)*0.125f);
             pos += 4;
-            int cloud = (int)(BitConverter.ToSingle(adjData, pos) * 0.125f);
+            int cloud = (int) (BitConverter.ToSingle(adjData, pos)*0.125f);
             pos += 4;
-            int task = (int)(BitConverter.ToSingle(adjData, pos) * 0.125f);
+            int task = (int) (BitConverter.ToSingle(adjData, pos)*0.125f);
             pos += 4;
-            int texture = (int)(BitConverter.ToSingle(adjData, pos) * 0.125f);
+            int texture = (int) (BitConverter.ToSingle(adjData, pos)*0.125f);
             pos += 4;
-            int asset = (int)(BitConverter.ToSingle(adjData, pos) * 0.125f);
+            int asset = (int) (BitConverter.ToSingle(adjData, pos)*0.125f);
 
             int total = resend + land + wind + cloud + task + texture + asset;
 
             // These are subcategories of task that we allocate a percentage to
-            int state = (int)(task * STATE_TASK_PERCENTAGE);
+            int state = (int) (task*STATE_TASK_PERCENTAGE);
             task -= state;
 
-            int transfer = (int)(asset * TRANSFER_ASSET_PERCENTAGE);
+            int transfer = (int) (asset*TRANSFER_ASSET_PERCENTAGE);
             asset -= transfer;
 
             // avatar info comes out from state
-            int avatarinfo = (int)(state * AVATAR_INFO_STATE_PERCENTAGE);
+            int avatarinfo = (int) (state*AVATAR_INFO_STATE_PERCENTAGE);
             state -= avatarinfo;
+
+//            int total = resend + land + wind + cloud + task + texture + asset + state + avatarinfo;
 
             // Make sure none of the throttles are set below our packet MTU,
             // otherwise a throttle could become permanently clogged
 
-            Rates[(int)ThrottleOutPacketType.Resend] = resend;
-            Rates[(int)ThrottleOutPacketType.Land] = land;
-            Rates[(int)ThrottleOutPacketType.Wind] = wind;
-            Rates[(int)ThrottleOutPacketType.Cloud] = cloud;
-            Rates[(int)ThrottleOutPacketType.Task] = task + state + avatarinfo;
-            Rates[(int)ThrottleOutPacketType.Texture] = texture;
-            Rates[(int)ThrottleOutPacketType.Asset] = asset + transfer;
-            Rates[(int)ThrottleOutPacketType.State] = state;
+
+            Rates[(int) ThrottleOutPacketType.Resend] = resend;
+            Rates[(int) ThrottleOutPacketType.Land] = land;
+            Rates[(int) ThrottleOutPacketType.Wind] = wind;
+            Rates[(int) ThrottleOutPacketType.Cloud] = cloud;
+            Rates[(int) ThrottleOutPacketType.Task] = task + state + avatarinfo;
+            Rates[(int) ThrottleOutPacketType.Texture] = texture;
+            Rates[(int) ThrottleOutPacketType.Asset] = asset + transfer;
+            Rates[(int) ThrottleOutPacketType.State] = state;
 
             TotalRateRequested = total;
-            TotalRateMin = (int)(total * 0.1);
+            TotalRateMin = (int) (total*0.1);
             if (TotalRateMin < MINPERCLIENTRATE)
                 TotalRateMin = MINPERCLIENTRATE;
             total = TotalRateMin; // let it grow slowly
 
-            //MainConsole.Instance.WarnFormat("[LLUDP Client]: {0} is setting throttles. Resend={1}, Land={2}, Wind={3}, Cloud={4}, Task={5}, Texture={6}, Asset={7}, State={8}, AvatarInfo={9}, Transfer={10}, TaskFull={11}, Total={12}",
+
+            //MainConsole.Instance.WarnFormat("[LLUDPCLIENT]: {0} is setting throttles. Resend={1}, Land={2}, Wind={3}, Cloud={4}, Task={5}, Texture={6}, Asset={7}, State={8}, AvatarInfo={9}, Transfer={10}, TaskFull={11}, Total={12}",
             //    AgentID, resend, land, wind, cloud, task, texture, asset, state, avatarinfo, transfer, task + state + avatarinfo, total);
 
             // Update the token buckets with new throttle values
@@ -496,22 +512,29 @@ namespace Universe.ClientStack
 
             if (data == null)
             {
-                data = new byte[7 * 4];
+                data = new byte[7*4];
                 int i = 0;
 
-                Buffer.BlockCopy(Utils.FloatToBytes((float)Rates[(int)ThrottleOutPacketType.Resend] * 8 * multiplier), 0, data, i, 4);
+                Buffer.BlockCopy(Utils.FloatToBytes((float) Rates[(int) ThrottleOutPacketType.Resend]*8*multiplier), 0,
+                                 data, i, 4);
                 i += 4;
-                Buffer.BlockCopy(Utils.FloatToBytes((float)Rates[(int)ThrottleOutPacketType.Land] * 8 * multiplier), 0, data, i, 4);
+                Buffer.BlockCopy(Utils.FloatToBytes((float) Rates[(int) ThrottleOutPacketType.Land]*8*multiplier), 0,
+                                 data, i, 4);
                 i += 4;
-                Buffer.BlockCopy(Utils.FloatToBytes((float)Rates[(int)ThrottleOutPacketType.Wind] * 8 * multiplier), 0, data, i, 4);
+                Buffer.BlockCopy(Utils.FloatToBytes((float) Rates[(int) ThrottleOutPacketType.Wind]*8*multiplier), 0,
+                                 data, i, 4);
                 i += 4;
-                Buffer.BlockCopy(Utils.FloatToBytes((float)Rates[(int)ThrottleOutPacketType.Cloud] * 8 * multiplier), 0, data, i, 4);
+                Buffer.BlockCopy(Utils.FloatToBytes((float) Rates[(int) ThrottleOutPacketType.Cloud]*8*multiplier), 0,
+                                 data, i, 4);
                 i += 4;
-                Buffer.BlockCopy(Utils.FloatToBytes((float)Rates[(int)ThrottleOutPacketType.Task] * 8 * multiplier), 0, data, i, 4);
+                Buffer.BlockCopy(Utils.FloatToBytes((float) Rates[(int) ThrottleOutPacketType.Task]*8*multiplier), 0,
+                                 data, i, 4);
                 i += 4;
-                Buffer.BlockCopy(Utils.FloatToBytes((float)Rates[(int)ThrottleOutPacketType.Texture] * 8 * multiplier), 0, data, i, 4);
+                Buffer.BlockCopy(Utils.FloatToBytes((float) Rates[(int) ThrottleOutPacketType.Texture]*8*multiplier), 0,
+                                 data, i, 4);
                 i += 4;
-                Buffer.BlockCopy(Utils.FloatToBytes((float)Rates[(int)ThrottleOutPacketType.Asset] * 8 * multiplier), 0, data, i, 4);
+                Buffer.BlockCopy(Utils.FloatToBytes((float) Rates[(int) ThrottleOutPacketType.Asset]*8*multiplier), 0,
+                                 data, i, 4);
 
                 m_packedThrottles = data;
             }
@@ -521,16 +544,15 @@ namespace Universe.ClientStack
 
         public bool EnqueueOutgoing(OutgoingPacket packet)
         {
-            int category = (int)packet.Category;
+            int category = (int) packet.Category;
 
-            if (category >= 0 && category < (int)ThrottleOutPacketType.Count)
+            if (category >= 0 && category < (int) ThrottleOutPacketType.Count)
             {
                 //All packets are enqueued, except those that don't have a queue
                 int prio = MapCatsToPriority[category];
                 m_outbox.Enqueue(prio, packet);
                 return true;
             }
-
             // We don't have a token bucket for this category,
             //  so it will not be queued and sent immediately
             return false;
@@ -562,9 +584,8 @@ namespace Universe.ClientStack
                         packetSent = true;
                     }
                 }
-
-                // No dequeued packet waiting to be sent, try to pull one off
-                // this queue
+                    // No dequeued packet waiting to be sent, try to pull one off
+                    // this queue
                 else if (m_outbox.Dequeue(out packet))
                 {
                     MainConsole.Instance.Format(Level.All, AgentID + " - " + packet.Packet.Type);
@@ -575,7 +596,7 @@ namespace Universe.ClientStack
                     {
                         packetSent = true;
                         //Send the packet
-                        PacketsCounts[(int)packet.Category] += packet.Packet.Length;
+                        PacketsCounts[(int) packet.Category] += packet.Packet.Length;
                         m_udpServer.SendPacketFinal(packet);
                         PacketsSent++;
                     }
@@ -593,21 +614,22 @@ namespace Universe.ClientStack
             {
                 if (m_throttle.MaxBurst < TotalRateRequested)
                 {
-                    float tmp = m_throttle.MaxBurst * 1.005f;
-                    m_throttle.DripRate = (int)tmp;
-                    m_throttle.MaxBurst = (int)tmp;
+                    float tmp = m_throttle.MaxBurst*1.005f;
+                    m_throttle.DripRate = (int) tmp;
+                    m_throttle.MaxBurst = (int) tmp;
                 }
             }
+
 
             if (m_nextOnQueueEmpty != 0 && Util.EnvironmentTickCountSubtract(m_nextOnQueueEmpty) >= 0)
             {
                 // Use a value of 0 to signal that FireQueueEmpty is running
                 m_nextOnQueueEmpty = 0;
                 // Asynchronously run the callback
-                int ptmp = m_outbox.queues[MapCatsToPriority[(int)ThrottleOutPacketType.Task]].Count;
-                int atmp = m_outbox.queues[MapCatsToPriority[(int)ThrottleOutPacketType.AvatarInfo]].Count;
-                int ttmp = m_outbox.queues[MapCatsToPriority[(int)ThrottleOutPacketType.Texture]].Count;
-                int[] arg = { ptmp, atmp, ttmp };
+                int ptmp = m_outbox.queues[MapCatsToPriority[(int) ThrottleOutPacketType.Task]].Count;
+                int atmp = m_outbox.queues[MapCatsToPriority[(int) ThrottleOutPacketType.AvatarInfo]].Count;
+                int ttmp = m_outbox.queues[MapCatsToPriority[(int) ThrottleOutPacketType.Texture]].Count;
+                int[] arg = {ptmp, atmp, ttmp};
                 Util.FireAndForget(FireQueueEmpty, arg);
             }
 
@@ -616,12 +638,12 @@ namespace Universe.ClientStack
 
         public int GetCurTexPacksInQueue()
         {
-            return m_outbox.queues[MapCatsToPriority[(int)ThrottleOutPacketType.Texture]].Count;
+            return m_outbox.queues[MapCatsToPriority[(int) ThrottleOutPacketType.Texture]].Count;
         }
 
         public int GetCurTaskPacksInQueue()
         {
-            return m_outbox.queues[MapCatsToPriority[(int)ThrottleOutPacketType.Task]].Count;
+            return m_outbox.queues[MapCatsToPriority[(int) ThrottleOutPacketType.Task]].Count;
         }
 
         /// <summary>
@@ -644,23 +666,23 @@ namespace Universe.ClientStack
             {
                 // First RTT measurement
                 SRTT = r;
-                RTTVAR = r * 0.5f;
+                RTTVAR = r*0.5f;
             }
             else
             {
                 // Subsequence RTT measurement
-                RTTVAR = (1.0f - BETA) * RTTVAR + BETA * Math.Abs(SRTT - r);
-                SRTT = (1.0f - ALPHA) * SRTT + ALPHA * r;
+                RTTVAR = (1.0f - BETA)*RTTVAR + BETA*Math.Abs(SRTT - r);
+                SRTT = (1.0f - ALPHA)*SRTT + ALPHA*r;
             }
 
-            int rto = (int)(SRTT + Math.Max(m_udpServer.TickCountResolution, K * RTTVAR));
+            int rto = (int) (SRTT + Math.Max(m_udpServer.TickCountResolution, K*RTTVAR));
 
             // Clamp the retransmission timeout to manageable values
             rto = Utils.Clamp(rto, m_defaultRTO, m_maxRTO);
 
             RTO = rto;
 
-            //MainConsole.Instance.Debug("[LLUDP Client]: Setting agent " + this.Agent.FullName + "'s RTO to " + RTO + "ms with an RTTVAR of " +
+            //MainConsole.Instance.Debug("[LLUDPCLIENT]: Setting agent " + this.Agent.FullName + "'s RTO to " + RTO + "ms with an RTTVAR of " +
             //    RTTVAR + " based on new RTT of " + r + "ms");
         }
 
@@ -676,7 +698,7 @@ namespace Universe.ClientStack
             RTTVAR = 0.0f;
 
             // Double the retransmission timeout
-            RTO = Math.Min(RTO * 2, m_maxRTO);
+            RTO = Math.Min(RTO*2, m_maxRTO);
         }
 
         /// <summary>
@@ -704,11 +726,13 @@ namespace Universe.ClientStack
                 }
                 catch (Exception e)
                 {
-                    MainConsole.Instance.ErrorFormat("[LLUDP Client]: OnQueueEmpty() threw an exception: {0}", e.ToString());
+                    MainConsole.Instance.ErrorFormat("[LLUDPCLIENT]: OnQueueEmpty() threw an exception: {0}", e.ToString());
                 }
             }
 
             m_nextOnQueueEmpty = start + MIN_CALLBACK_MS;
+//            if (m_nextOnQueueEmpty == 0)
+//                m_nextOnQueueEmpty = 1;
         }
     }
 }

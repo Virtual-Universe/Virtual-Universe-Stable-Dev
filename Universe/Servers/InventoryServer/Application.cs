@@ -1,8 +1,6 @@
-﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
+/*
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -27,44 +25,47 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using System;
-using System.Collections.Generic;
+
 using Universe.Framework.Modules;
 using Universe.Framework.Services;
 using Universe.Simulation.Base;
+using System;
+using System.Collections.Generic;
 
 namespace Universe.Servers.InventoryServer
 {
-	/// <summary>
-	/// 	Starting class for the Virtual Universe Server
-	/// </summary>
-	public class Application
-	{
-		public static void Main(string[] args)
-		{
-			BaseApplication.BaseMain (args, "Universe.InventoryServer.ini",
-				new MinimalSimulationBase ("Universe.InventoryServer",
-					new List<Type> {
-						typeof(IInventoryData),
-						typeof(IUserAccountData),
-						typeof(IAssetDataPlugin),
-						typeof(IBaseCurrencyConnector),
-						typeof(IAgentInfoConnector)
-					},
-					new List<Type> {
-						typeof(IInventoryService),
-						typeof(ILibraryService),
-						typeof(IUserAccountService),
-						typeof(IAssetService),
-						typeof(IMoneyModule),
-						typeof(ISyncMessagePosterService),
-						typeof(ISyncMessageRecievedService),
-						typeof(IAgentInfoService),
-						typeof(IExternalCapsHandler),
-						typeof(IConfigurationService),
-						typeof(IGridServerInfoService),
-						typeof(IJ2kDecoder)
-					}));
-		}
-	}
+    /// <summary>
+    ///     Starting class for the Universe Server
+    /// </summary>
+    public class Application
+    {
+        public static void Main(string[] args)
+        {
+            BaseApplication.BaseMain(args, "Universe.InventoryServer.ini",
+                                     new MinimalSimulationBase("Universe.InventoryServer ",
+                                                               new List<Type>
+                                                                   {
+                                                                       typeof (IInventoryData),
+                                                                       typeof (IUserAccountData),
+                                                                       typeof (IAssetDataPlugin),
+                                                                       typeof (IBaseCurrencyConnector),
+                                                                       typeof (IAgentInfoConnector)
+                                                                   },
+                                                               new List<Type>
+                                                                   {
+                                                                       typeof (IInventoryService),
+                                                                       typeof (ILibraryService),
+                                                                       typeof (IUserAccountService),
+                                                                       typeof (IAssetService),
+                                                                       typeof (IMoneyModule),
+                                                                       typeof (ISyncMessagePosterService),
+                                                                       typeof (ISyncMessageRecievedService),
+                                                                       typeof (IAgentInfoService),
+                                                                       typeof (IExternalCapsHandler),
+                                                                       typeof (IConfigurationService),
+                                                                       typeof (IGridServerInfoService),
+                                                                       typeof (IJ2KDecoder)
+                                                                   }));
+        }
+    }
 }

@@ -1,8 +1,6 @@
-﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
+/*
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -42,55 +40,66 @@ namespace Universe.DataManager.MySQL
     public class MySQLDataLoader : DataManagerBase
     {
         string m_connectionString = "";
-        public override string Identifier
-        {
+
+        public override string Identifier {
             get { return "MySQLData"; }
         }
 
         #region Database
 
-        public override void ConnectToDatabase(string connectionString, string migratorName, bool validateTables)
+        public override void ConnectToDatabase (string connectionString, string migratorName, bool validateTables)
         {
             m_connectionString = connectionString;
-            MySqlConnection c = new MySQLConnection(connectionString);
-            int subStrA = connectionString.IndexOf("Database=");
-            int subStrB = connectionString.IndexOf(";", subStrA);
-            string noDatabaseConnector = m_connectionString.Substring(0, subStrA) +
-                m_connectionString.Substring(subStrB + 1);
+            MySqlConnection c = new MySqlConnection (connectionString);
+            int subStrA = connectionString.IndexOf ("Database=", StringComparison.Ordinal);
+            int subStrB = connectionString.IndexOf (";", subStrA, StringComparison.Ordinal);
+            string noDatabaseConnector = m_connectionString.Substring (0, subStrA) +
+                                         m_connectionString.Substring (subStrB + 1);
 
         retry:
-            try
-            {
-                ExecuteNonQuery(noDatabaseConnector, "create schema IF NOT EXISTS " + c.Database,
-                                new Dictionary<string, object>(), false);
-            }
-            catch
-            {
-                MainConsole.Instance.Error(
-                    "[MySQL Database]: We cannot connect to the MySQL instance you have provided. Please make sure it is online, and then press enter to try again.");
-                try
-                {
-                    Console.Read();
-                }
-                catch
-                {
+            try {
+                ExecuteNonQuery (noDatabaseConnector, "create schema IF NOT EXISTS " + c.Database,
+                                new Dictionary<string, object> (), false);
+            } catch {
+                MainConsole.Instance.Error (
+                    "[MySQL]: We cannot connect to the MySQL instance you have provided. Please make sure it is online, and then press enter to try again.");
+                try {
+                    Console.Read ();
+                } catch {
                 }
                 goto retry;
             }
+            c.Close ();
 
             var migrationManager = new MigrationManager(this, migratorName, validateTables);
-            migrationManager.DetermineOperation();
-            migrationManager.ExecuteOperation();
-            c.Close();
+            try {
+                migrationManager.DetermineOperation ();
+                migrationManager.ExecuteOperation ();
+            } catch {
+                MainConsole.Instance.Error ("[MySQL]: Unable to determine migration requirements.");
+
+            }
+        }
+
+        public void CloseDatabase(MySqlConnection connection)
+        {
+            //Interlocked.Decrement (ref m_locked);
+            //connection.Close();
+            //connection.Dispose();
         }
 
         public override void CloseDatabase(DataReaderConnection connection)
         {
-            if (connection != null && connection.DataReader != null)
-            {
-                connection.DataReader.Close();
-                connection.Dispose();
+            if (connection != null) {
+                //if (connection.DataReader != null)
+                //    connection.DataReader.Close ();
+                    
+                connection.Dispose ();
             }
+
+            //Interlocked.Decrement (ref m_locked);
+            //m_connection.Close();
+            //m_connection.Dispose();
         }
 
         #endregion
@@ -112,7 +121,7 @@ namespace Universe.DataManager.MySQL
             }
             catch (Exception e)
             {
-                MainConsole.Instance.Error("[MySQL Data Loader] Query(" + sql + "), " + e);
+                MainConsole.Instance.Error("[MySQL]: Query(" + sql + "), " + e);
                 return null;
             }
         }
@@ -143,7 +152,7 @@ namespace Universe.DataManager.MySQL
             catch (Exception e)
             {
                 if (spamConsole)
-                    MainConsole.Instance.ErrorFormat("[MySQL Data Loader] ExecuteNonQuery({0}), {1}", sql, e);
+                    MainConsole.Instance.ErrorFormat("[MySQL]: ExecuteNonQuery({0}), {1}", sql, e);
                 else
                     throw e;
             }
@@ -151,7 +160,7 @@ namespace Universe.DataManager.MySQL
 
         public override List<string> QueryFullData(string whereClause, string table, string wantedValue)
         {
-            string query = String.Format("select {0} from {1} {2}", wantedValue, table, whereClause);
+            string query = string.Format("select {0} from {1} {2}", wantedValue, table, whereClause);
             return QueryFullData2(query);
         }
 
@@ -181,21 +190,21 @@ namespace Universe.DataManager.MySQL
             }
             catch (Exception e)
             {
-                MainConsole.Instance.Error("[MySQL Data Loader] QueryFullData(" + query + "), " + e);
+                MainConsole.Instance.Error("[MySQL]: QueryFullData(" + query + "), " + e);
                 return null;
             }
         }
 
         public override DataReaderConnection QueryData(string whereClause, string table, string wantedValue)
         {
-            string query = String.Format("select {0} from {1} {2}", wantedValue, table, whereClause);
-            return new DataReaderConnection { DataReader = QueryData2(query) };
+            string query = string.Format("select {0} from {1} {2}", wantedValue, table, whereClause);
+            return new DataReaderConnection {DataReader = QueryData2(query)};
         }
 
         public override DataReaderConnection QueryData(string whereClause, QueryTables tables, string wantedValue)
         {
             string query = string.Format("SELECT {0} FROM {1} {2}", wantedValue, tables.ToSQL(), whereClause);
-            return new DataReaderConnection { DataReader = QueryData2(query) };
+            return new DataReaderConnection {DataReader = QueryData2(query)};
         }
 
         private IDataReader QueryData2(string query)
@@ -260,7 +269,7 @@ namespace Universe.DataManager.MySQL
                         for (i = 0; i < reader.FieldCount; i++)
                         {
                             Type r = reader[i].GetType();
-                            retVal.Add(r == typeof(DBNull) ? null : reader.GetString(i));
+                            retVal.Add(r == typeof (DBNull) ? null : reader.GetString(i));
                         }
                     }
                     return retVal;
@@ -268,15 +277,19 @@ namespace Universe.DataManager.MySQL
             }
             catch (Exception e)
             {
-                MainConsole.Instance.Error("[MySQL Data Loader] Query(" + query + "), " + e);
+                MainConsole.Instance.Error("[MySQL]: Query(" + query + "), " + e);
                 return null;
             }
         }
 
+        /*public override Dictionary<string, List<string>> QueryNames(string[] wantedValue, string table, QueryFilter queryFilter, Dictionary<string, bool> sort, uint? start, uint? count)
+        {
+        }*/
+
         public override Dictionary<string, List<string>> QueryNames(string[] keyRow, object[] keyValue, string table,
                                                                     string wantedValue)
         {
-            string query = String.Format("select {0} from {1} where ", wantedValue, table);
+            string query = string.Format("select {0} from {1} where ", wantedValue, table);
             return QueryNames2(keyRow, keyValue, query);
         }
 
@@ -295,11 +308,10 @@ namespace Universe.DataManager.MySQL
             int i = 0;
             foreach (object value in keyValue)
             {
-                query += String.Format("{0} = ?{1} and ", keyRow[i], keyRow[i]);
+                query += string.Format("{0} = ?{1} and ", keyRow[i], keyRow[i]);
                 ps["?" + keyRow[i]] = value;
                 i++;
             }
-
             query = query.Remove(query.Length - 5);
 
             try
@@ -312,7 +324,7 @@ namespace Universe.DataManager.MySQL
                         {
                             Type r = reader[i].GetType();
                             AddValueToList(ref retVal, reader.GetName(i),
-                                           r == typeof(DBNull) ? null : reader[i].ToString());
+                                           r == typeof (DBNull) ? null : reader[i].ToString());
                         }
                     }
                     return retVal;
@@ -320,7 +332,7 @@ namespace Universe.DataManager.MySQL
             }
             catch (Exception e)
             {
-                MainConsole.Instance.Error("[MySQL Data Loader] QueryNames(" + query + "), " + e);
+                MainConsole.Instance.Error("[MySQL]: QueryNames(" + query + "), " + e);
                 return null;
             }
         }
@@ -345,7 +357,7 @@ namespace Universe.DataManager.MySQL
         {
             if ((values == null || values.Count < 1) && (incrementValue == null || incrementValue.Count < 1))
             {
-                MainConsole.Instance.Warn("[MySQL Data Loader]: Update attempted with no values");
+                MainConsole.Instance.Warn("Update attempted with no values");
                 return false;
             }
 
@@ -368,7 +380,6 @@ namespace Universe.DataManager.MySQL
                     parts.Add(string.Format("{0} = {1}", value.Key, key));
                 }
             }
-
             if (incrementValue != null)
             {
                 foreach (KeyValuePair<string, int> value in incrementValue)
@@ -396,7 +407,7 @@ namespace Universe.DataManager.MySQL
             }
             catch (MySqlException e)
             {
-                MainConsole.Instance.Error("[MySQL Data Loader] Update(" + query + "), " + e);
+                MainConsole.Instance.Error("[MySQL]: Update(" + query + "), " + e);
             }
             return true;
         }
@@ -407,7 +418,7 @@ namespace Universe.DataManager.MySQL
 
         public override bool InsertMultiple(string table, List<object[]> values)
         {
-            string query = String.Format("insert into {0} select ", table);
+            string query = string.Format("insert into {0} select ", table);
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             int i = 0;
             foreach (object[] value in values)
@@ -428,15 +439,14 @@ namespace Universe.DataManager.MySQL
             }
             catch (Exception e)
             {
-                MainConsole.Instance.Error("[MySQL Data Loader] Insert(" + query + "), " + e);
+                MainConsole.Instance.Error("[MySQL]: Insert(" + query + "), " + e);
             }
-
             return true;
         }
 
         public override bool Insert(string table, object[] values)
         {
-            string query = String.Format("insert into {0} values (", table);
+            string query = string.Format("insert into {0} values (", table);
             Dictionary<string, object> parameters = new Dictionary<string, object>();
             int i = 0;
             foreach (object o in values)
@@ -453,16 +463,15 @@ namespace Universe.DataManager.MySQL
             }
             catch (Exception e)
             {
-                MainConsole.Instance.Error("[MySQL Data Loader] Insert(" + query + "), " + e);
+                MainConsole.Instance.Error("[MySQL]: Insert(" + query + "), " + e);
             }
-
             return true;
         }
 
         bool InsertOrReplace(string table, Dictionary<string, object> row, bool insert)
         {
             string query = (insert ? "INSERT" : "REPLACE") + " INTO " + table + " (" +
-                           string.Join(", ", row.Keys.ToArray<string>()) + ")";
+                           string.Join(", ", row.Keys.ToArray()) + ")";
             Dictionary<string, object> ps = new Dictionary<string, object>();
             foreach (KeyValuePair<string, object> field in row)
             {
@@ -477,7 +486,7 @@ namespace Universe.DataManager.MySQL
                                   .Replace("*", "multiply");
                 ps[key] = field.Value;
             }
-            query += " VALUES( " + string.Join(", ", ps.Keys.ToArray<string>()) + " )";
+            query += " VALUES( " + string.Join(", ", ps.Keys.ToArray()) + " )";
 
             try
             {
@@ -485,9 +494,9 @@ namespace Universe.DataManager.MySQL
             }
             catch (Exception e)
             {
-                MainConsole.Instance.Error("[MySQL Data Loader] " + (insert ? "Insert" : "Replace") + "(" + query + "), " + e);
+                MainConsole.Instance.Error("[MySQL]: " + (insert ? "Insert" : "Replace") + "(" + query + "), " +
+                                           e);
             }
-
             return true;
         }
 
@@ -498,7 +507,7 @@ namespace Universe.DataManager.MySQL
 
         public override bool Insert(string table, object[] values, string updateKey, object updateValue)
         {
-            string query = String.Format("insert into {0} VALUES(", table);
+            string query = string.Format("insert into {0} VALUES(", table);
             Dictionary<string, object> param = new Dictionary<string, object>();
             int i = 0;
             foreach (object o in values)
@@ -508,14 +517,14 @@ namespace Universe.DataManager.MySQL
             }
             param["?update"] = updateValue;
             query = query.Remove(query.Length - 1);
-            query += String.Format(") ON DUPLICATE KEY UPDATE {0} = ?update", updateKey);
+            query += string.Format(") ON DUPLICATE KEY UPDATE {0} = ?update", updateKey);
             try
             {
                 ExecuteNonQuery(query, param);
             }
             catch (Exception e)
             {
-                MainConsole.Instance.Error("[MySQL Data Loader] Insert(" + query + "), " + e);
+                MainConsole.Instance.Error("[MySQL]: Insert(" + query + "), " + e);
                 return false;
             }
             return true;
@@ -536,7 +545,7 @@ namespace Universe.DataManager.MySQL
             }
             catch (Exception e)
             {
-                MainConsole.Instance.Error("[MySQL Data Loader] INSERT .. SELECT (" + query + "), " + e);
+                MainConsole.Instance.Error("[MySQL]: INSERT .. SELECT (" + query + "), " + e);
             }
             return true;
         }
@@ -574,7 +583,7 @@ namespace Universe.DataManager.MySQL
             }
             catch (Exception e)
             {
-                MainConsole.Instance.Error("[MySQL Data Loader] Delete(" + query + "), " + e);
+                MainConsole.Instance.Error("[MySQL]: Delete(" + query + "), " + e);
                 return false;
             }
             return true;
@@ -639,7 +648,7 @@ namespace Universe.DataManager.MySQL
                 if (index.IndexSize == 0)
                     indicesQuery.Add(string.Format("{0}( {1} )", type, "`" + string.Join("`, `", index.Fields) + "`"));
                 else
-                    indicesQuery.Add(string.Format("{0}( {1} )", type, "`" + string.Join("`, `", index.Fields) + "`" + "(" + index.IndexSize + ")"));
+                    indicesQuery.Add(string.Format("{0}( {1} )", type, "`" + string.Join("`, `", index.Fields) + "`"+"("+index.IndexSize+")"));
 
             }
 
@@ -655,7 +664,7 @@ namespace Universe.DataManager.MySQL
             }
             catch (Exception e)
             {
-                MainConsole.Instance.ErrorFormat("[MySQL Data Loader] CreateTable: {0}", e);
+                MainConsole.Instance.ErrorFormat("[MySQL]: CreateTable: {0}", e);
             }
         }
 
@@ -727,7 +736,7 @@ namespace Universe.DataManager.MySQL
             }
             catch (Exception e)
             {
-                MainConsole.Instance.ErrorFormat("[MySQL Data Loader] UpdateTable: {0}", e);
+                MainConsole.Instance.ErrorFormat("[MySQL]: UpdateTable: {0}", e);
             }
 
             Dictionary<string, IndexDefinition> oldIndicesDict = ExtractIndicesFromTable(table);
@@ -742,7 +751,6 @@ namespace Universe.DataManager.MySQL
                 oldIndexNames.Add(oldIndex.Key);
                 oldIndices.Add(oldIndex.Value);
             }
-
             int i = 0;
             foreach (IndexDefinition oldIndex in oldIndices)
             {
@@ -755,12 +763,10 @@ namespace Universe.DataManager.MySQL
                         break;
                     }
                 }
-
                 if (!found)
                 {
                     removeIndices.Add(oldIndexNames[i]);
                 }
-
                 ++i;
             }
 
@@ -973,7 +979,7 @@ namespace Universe.DataManager.MySQL
             }
             catch (Exception e)
             {
-                MainConsole.Instance.ErrorFormat("[MySQL Data Loader] DropTable {0}", e);
+                MainConsole.Instance.ErrorFormat("[MySQL]: DropTable {0}", e);
             }
         }
 
@@ -987,7 +993,7 @@ namespace Universe.DataManager.MySQL
             }
             catch (Exception e)
             {
-                MainConsole.Instance.ErrorFormat("[MySQL Data Loader] ForceRenameTable {0}", e);
+                MainConsole.Instance.ErrorFormat("[MySQL]: ForceRenameTable {0}", e);
             }
         }
 
@@ -1005,7 +1011,7 @@ namespace Universe.DataManager.MySQL
             }
             catch (Exception e)
             {
-                MainConsole.Instance.ErrorFormat("[MySQL Data Loader] CopyAllDataBetweenMatchingTables {0}", e);
+                MainConsole.Instance.ErrorFormat("[MySQL]: CopyAllDataBetweenMatchingTables {0}", e);
             }
         }
 
@@ -1028,7 +1034,7 @@ namespace Universe.DataManager.MySQL
             }
             catch (Exception e)
             {
-                MainConsole.Instance.ErrorFormat("[MySQL Data Loader] TableExists: {0}", e);
+                MainConsole.Instance.ErrorFormat("[MySQL]: TableExists: {0}", e);
             }
             return retVal.Contains(table.ToLower());
         }
@@ -1044,25 +1050,27 @@ namespace Universe.DataManager.MySQL
                 while (rdr.Read())
                 {
                     var name = rdr["Field"];
+                    //var pk = rdr["Key"];
                     var type = rdr["Type"];
+                    //var extra = rdr["Extra"];
                     object defaultValue = rdr["Default"];
 
                     ColumnTypeDef typeDef = ConvertTypeToColumnType(type.ToString());
                     typeDef.isNull = rdr["Null"].ToString() == "YES";
-                    typeDef.auto_increment = rdr["Extra"].ToString().IndexOf("auto_increment") >= 0;
+                    typeDef.auto_increment = rdr ["Extra"].ToString ().IndexOf ("auto_increment", StringComparison.Ordinal) >= 0;
                     typeDef.defaultValue = defaultValue is DBNull
                                                ? null
-                                               : defaultValue.ToString();
+                                               : defaultValue.ToString ();
                     defs.Add(new ColumnDefinition
-                    {
-                        Name = name.ToString(),
-                        Type = typeDef,
-                    });
+                                 {
+                                     Name = name.ToString(),
+                                     Type = typeDef,
+                                 });
                 }
             }
             catch (Exception e)
             {
-                MainConsole.Instance.ErrorFormat("[MySQL Data Loader] ExtractColumnsFromTable: {0}", e);
+                MainConsole.Instance.ErrorFormat("[MySQL]: ExtractColumnsFromTable: {0}", e);
             }
             finally
             {
@@ -1071,11 +1079,12 @@ namespace Universe.DataManager.MySQL
                     if (rdr != null)
                     {
                         rdr.Close();
+                        //rdr.Dispose ();
                     }
                 }
                 catch (Exception e)
                 {
-                    MainConsole.Instance.DebugFormat("[MySQL Data Loader] ExtractColumnsFromTable: {0}", e);
+                    MainConsole.Instance.DebugFormat("[MySQL]: ExtractColumnsFromTable: {0}", e);
                 }
             }
             return defs;
@@ -1103,14 +1112,13 @@ namespace Universe.DataManager.MySQL
                     {
                         indexLookup[index] = new Dictionary<uint, string>();
                     }
-
                     indexIsUnique[index] = unique;
                     indexLookup[index][sequence - 1] = name;
                 }
             }
             catch (Exception e)
             {
-                MainConsole.Instance.ErrorFormat("[MySQL Data Loader] ExtractIndicesFromTable: {0}", e);
+                MainConsole.Instance.ErrorFormat("[MySQL]: ExtractIndicesFromTable: {0}", e);
             }
             finally
             {
@@ -1123,20 +1131,21 @@ namespace Universe.DataManager.MySQL
                 }
                 catch (Exception e)
                 {
-                    MainConsole.Instance.DebugFormat("[MySQL Data Loader] ExtractIndicesFromTable: {0}", e);
+                    MainConsole.Instance.DebugFormat("[MySQL]: ExtractIndicesFromTable: {0}", e);
                 }
             }
 
             foreach (KeyValuePair<string, Dictionary<uint, string>> index in indexLookup)
             {
+                //index.Value.OrderBy(x => x.Key);
                 defs[index.Key] = new IndexDefinition
-                {
-                    Fields = index.Value.Values.ToArray<string>(),
-                    Type =
+                                      {
+                                          Fields = index.Value.Values.ToArray (),
+                                          Type =
                                               (indexIsUnique[index.Key]
                                                    ? (index.Key == "PRIMARY" ? IndexType.Primary : IndexType.Unique)
                                                    : IndexType.Index)
-                };
+                                      };
             }
 
             return defs;

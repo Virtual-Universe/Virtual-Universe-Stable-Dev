@@ -1,8 +1,6 @@
 ﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -69,6 +67,7 @@ namespace Universe.Modules.Web
         internal GridPage webPages;
         internal WebUISettings webUISettings;
         public GridSettings gridSettings;
+
 
         #endregion
 
@@ -146,7 +145,6 @@ namespace Universe.Modules.Web
                 if (_defaultTranslator == null)
                     _defaultTranslator = _translators [0];
             }
-
             if (_enabled) {
                 Registry.RegisterModuleInterface<IWebInterfaceModule> (this);
                 var server = registry.RequestModuleInterface<ISimulationBase> ().GetHttpServer (_port);
@@ -299,7 +297,6 @@ namespace Universe.Modules.Web
                                   translator, out response);
                 return vars;
             }
-
             return null;
         }
 
@@ -323,14 +320,12 @@ namespace Universe.Modules.Web
                             return null;
                     }
                 }
-
                 string response;
                 var pageVars = page.Fill (this, filename, httpRequest, httpResponse, requestParameters,
                                           translator, out response);
                 if (pageVars != null)
                     return (UniverseXmlDocument)pageVars ["xml"];
             }
-
             return null;
         }
 
@@ -549,7 +544,6 @@ namespace Universe.Modules.Web
                         file = _pages ["html/" + query ["page"] + ".html"].FilePath [0];
                     }
                 }
-
                 if (!File.Exists (file)) {
                     MainConsole.Instance.DebugFormat ("WebInterface]: Unknown page request, {0}", file);
                     return "html/http_404.html";
@@ -560,6 +554,7 @@ namespace Universe.Modules.Web
                 return "html/http_404.html";
             }
         }
+
 
         public static Dictionary<string, object> ParseQueryString (string query)
         {
@@ -674,6 +669,7 @@ namespace Universe.Modules.Web
             }
         }
 
+
         public List<Dictionary<string, object>> RegionTypeArgs (ITranslator translator)
         {
             var args = new List<Dictionary<string, object>> ();
@@ -776,7 +772,9 @@ namespace Universe.Modules.Web
             // change what's appropriate...
             ILoginService loginService = Registry.RequestModuleInterface<ILoginService> ();
             loginService.WelcomeMessage = settings.WelcomeMessage;
+
         }
+
 
         #endregion
 
@@ -905,6 +903,7 @@ namespace Universe.Modules.Web
             AdminRequired = mp ["AdminRequired"];
             AdminLevelRequired = mp ["AdminLevelRequired"];
             Children = ((OSDArray)mp ["Children"]).ConvertAll (o => new GridPage (o));
+
         }
 
         public override void FromOSD (OSDMap map)
@@ -959,7 +958,6 @@ namespace Universe.Modules.Web
                         return p;
                 }
             }
-
             return null;
         }
 
@@ -982,7 +980,6 @@ namespace Universe.Modules.Web
                         return p;
                 }
             }
-
             return null;
         }
 
@@ -1021,7 +1018,6 @@ namespace Universe.Modules.Web
                     }
                 }
             }
-
             if (foundPage != null)
                 Children.Remove (foundPage);
         }
@@ -1043,7 +1039,6 @@ namespace Universe.Modules.Web
                     }
                 }
             }
-
             if (foundPage != null)
                 Children.Remove (foundPage);
         }
@@ -1067,7 +1062,6 @@ namespace Universe.Modules.Web
                         return pp;
                 }
             }
-
             return null;
         }
     }
@@ -1133,6 +1127,8 @@ namespace Universe.Modules.Web
 
         public WebUISettings ()
         {
+            MapCenter.X = 1000;     // TODO:  Maybe this should be larger? eg 5000,5000
+            MapCenter.Y = 1000;
         }
 
         public WebUISettings (OSD map)
@@ -1183,4 +1179,5 @@ namespace Universe.Modules.Web
             return map;
         }
     }
+
 }

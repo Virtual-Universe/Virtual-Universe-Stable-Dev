@@ -1,8 +1,6 @@
 ﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -93,7 +91,7 @@ namespace Universe.Modules.Web
 
             vars.Add("UserName", account.Name);
             //  TODO: User Profile inworld shows this as the standard mm/dd/yyyy
-            //  Do we want this to be localized into the users Location or keep it as standard ?
+            //  Do we want this to be localised into the users Localisation or keep it as standard ?
             //
             // greythane, Oct 2014 - Not sure why we need to keep the US format here?  A lot of us don't live there :)  
             //  vars.Add("UserBorn", Culture.LocaleDate(Util.ToDateTime(account.Created)));
@@ -164,6 +162,7 @@ namespace Universe.Modules.Web
                 vars.Add("UserIsOnline", false);
                 vars.Add("IsOnline", translator.GetTranslatedString("Offline"));
             }
+
 
             vars.Add("UserProfileFor", translator.GetTranslatedString("UserProfileFor"));
             vars.Add("ResidentSince", translator.GetTranslatedString("ResidentSince"));

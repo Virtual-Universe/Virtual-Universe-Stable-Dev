@@ -1,8 +1,6 @@
 ﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -71,6 +69,9 @@ namespace Universe.Modules.Web
                 settings.SystemEstateOwnerName = requestParameters["SystemEstateOwnerName"].ToString();
                 settings.SystemEstateName = requestParameters["SystemEstateName"].ToString();
 
+
+
+
                 // update main grid setup
                 webInterface.SaveGridSettings (settings);
                 response = "Successfully updated grid settings.";
@@ -84,12 +85,17 @@ namespace Universe.Modules.Web
             vars.Add("SystemEstateOwnerName", settings.SystemEstateOwnerName);
             vars.Add("SystemEstateName", settings.SystemEstateName);
 
+
+ 
+
             vars.Add("GridSettingsManager", translator.GetTranslatedString("GridSettingsManager"));
             vars.Add("GridnameText", translator.GetTranslatedString("GridnameText"));
             vars.Add("GridnickText", translator.GetTranslatedString("GridnickText"));
             vars.Add("WelcomeMessageText", translator.GetTranslatedString("WelcomeMessageText"));
             vars.Add("SystemEstateNameText", translator.GetTranslatedString("SystemEstateNameText"));
             vars.Add("SystemEstateOwnerText", translator.GetTranslatedString("SystemEstateOwnerText"));
+
+
 
             vars.Add("Save", translator.GetTranslatedString("Save"));
             vars.Add("No", translator.GetTranslatedString("No"));

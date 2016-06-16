@@ -1,8 +1,6 @@
-﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
+/*
+ * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -53,6 +51,31 @@ namespace Universe.BotManager.AStar
                 {1, 1, 1, -1, 1, 1, 2, 3, 2, 1}
             };
 
+        //		static int[,] Map = {
+        //			{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+        //			{ 1, 1, 1, 1, 1, 1, 1, 1,-1, 1 },
+        //			{ 1, 1, 1, 1, 1, 1, 1, 1,-1, 1 },
+        //			{ 1, 1, 1, 1, 1, 1, 1, 1,-1, 1 },
+        //			{ 1, 1, 1, 1, 1, 1, 1, 1,-1, 1 },
+        //			{ 1, 1, 1, 1, 1, 1, 1, 1,-1, 1 },
+        //			{ 1, 1, 1, 1, 1, 1, 1, 1,-1, 1 },
+        //			{ 1, 1, 1, 1, 1, 1, 1, 1,-1, 1 },
+        //			{ 1,-1,-1,-1,-1,-1,-1,-1,-1, 1 },
+        //			{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
+        //		};
+        //		static int[,] Map = {
+        //			{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+        //			{ 1, 1, 1, 1, 1, 2, 1, 1, 1, 1 },
+        //			{ 1, 1, 1, 1, 2, 3, 2, 1, 1, 1 },
+        //			{ 1, 1, 1, 2, 3, 4, 3, 2, 1, 1 },
+        //			{ 1, 1, 2, 3, 4, 5, 4, 3, 2, 1 },
+        //			{ 1, 1, 1, 2, 3, 4, 3, 2, 1, 1 },
+        //			{ 1, 1, 1, 1, 2, 3, 2, 1, 1, 1 },
+        //			{ 1, 1, 1, 1, 1, 2, 1, 1, 1, 1 },
+        //			{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+        //			{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
+        //		};
+
         #endregion
 
         #region Public Methods
@@ -67,10 +90,8 @@ namespace Universe.BotManager.AStar
         {
             if ((x < 0) || (x > 9))
                 return (-1);
-
             if ((y < 0) || (y > 9))
                 return (-1);
-
             return (Map[y, x]);
         }
 
@@ -89,21 +110,16 @@ namespace Universe.BotManager.AStar
                     {
                         AStarNode2D tmp = new AStarNode2D(null, null, 0, i, j);
                         solution = n.IsSameState(tmp);
-
                         if (solution)
                             break;
                     }
-
                     if (solution)
                         Console.Write("S ");
-
                     else if (GetMap(i, j) == -1)
                         Console.Write("X ");
-
                     else
                         Console.Write(". ");
                 }
-
                 Console.WriteLine("");
             }
         }
@@ -119,7 +135,7 @@ namespace Universe.BotManager.AStar
             AStar astar = new AStar();
 
             AStarNode2D GoalNode = new AStarNode2D(null, null, 0, 9, 9);
-            AStarNode2D StartNode = new AStarNode2D(null, GoalNode, 0, 0, 0) { GoalNode = GoalNode };
+            AStarNode2D StartNode = new AStarNode2D(null, GoalNode, 0, 0, 0) {GoalNode = GoalNode};
             astar.FindPath(StartNode, GoalNode);
 
             PrintSolution(astar.Solution);
