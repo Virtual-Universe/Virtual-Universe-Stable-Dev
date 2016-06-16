@@ -1,6 +1,8 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org, http://opensimulator.org/
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,7 +30,7 @@
 // to build without references to System.Drawing, comment this out
 
 #define SYSTEM_DRAWING
-#undef FASTBMP                     // expiremental. Advise if problems are seen <greythane@gmail.com>
+#undef FASTBMP                     // experimental. Advise if problems are seen <greythane@gmail.com>
 
 using System;
 using System.Collections.Generic;
