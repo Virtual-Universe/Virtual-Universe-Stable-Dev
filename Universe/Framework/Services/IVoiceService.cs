@@ -1,6 +1,8 @@
 ﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/, http://whitecore-sim.org/, http://aurora-sim.org
+ * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * For an explanation of the license of each contributor and the content it 
+ * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -32,8 +34,7 @@ namespace Universe.Framework.Services
 {
     public interface IVoiceService
     {
-        void VoiceAccountRequest(IRegionClientCapsService regionClient, out string agentname, out string password,
-                                 out string vivoxSipUri, out string vivoxVoiceAccountApi);
+        void VoiceAccountRequest(IRegionClientCapsService regionClient, out string agentname, out string password, out string vivoxSipUri, out string vivoxVoiceAccountApi);
 
         void ParcelVoiceRequest(IRegionClientCapsService regionClient, out string channel_uri, out int localID);
 
