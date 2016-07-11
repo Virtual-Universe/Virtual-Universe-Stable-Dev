@@ -41,11 +41,14 @@ namespace Universe.ScriptEngine.VirtualScript.MiniModule
 
         readonly ISecurityCredential m_security;
 
-        public SPAvatarAttachment(IScene rootScene, IAvatar self, int location, UUID itemId, UUID assetId, ISecurityCredential security)
+        public SPAvatarAttachment(IScene rootScene, IAvatar self, int location, UUID itemId, UUID assetId,
+                                  ISecurityCredential security)
         {
             m_rootScene = rootScene;
             m_security = security;
+            //m_parent = self;
             m_location = location;
+            //m_itemId = itemId;
             m_assetId = assetId;
         }
 

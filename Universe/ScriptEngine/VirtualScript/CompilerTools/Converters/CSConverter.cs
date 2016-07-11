@@ -49,7 +49,7 @@ namespace Universe.ScriptEngine.VirtualScript.CompilerTools
             get { return ""; }
         }
 
-        public void Initialize(Compiler compiler)
+        public void Initialise(Compiler compiler)
         {
         }
 
@@ -183,7 +183,7 @@ namespace Universe.ScriptEngine.VirtualScript.CompilerTools
             get { return ""; }
         }
 
-        public void Initialize(Compiler compiler)
+        public void Initialise(Compiler compiler)
         {
             m_compiler = compiler;
         }

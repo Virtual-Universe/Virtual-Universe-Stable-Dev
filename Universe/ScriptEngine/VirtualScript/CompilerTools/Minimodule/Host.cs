@@ -38,6 +38,7 @@ namespace Universe.ScriptEngine.VirtualScript.MiniModule
         readonly IGraphics m_graphics;
         readonly IObject m_obj;
         readonly MicroScheduler m_threader = new MicroScheduler();
+        // Scene m_scene;
 
         public Host(IObject m_obj, IScene m_scene, IExtension m_extend)
         {

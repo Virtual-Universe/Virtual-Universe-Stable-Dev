@@ -61,6 +61,7 @@ namespace Universe.ScriptEngine.VirtualScript.MiniModule
 
                     bool running = m_threads[i%m_threads.Count].MoveNext();
 
+
                     if (!running)
                         m_threads.Remove(m_threads[i%m_threads.Count]);
                 }
