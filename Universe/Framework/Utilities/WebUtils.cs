@@ -170,6 +170,8 @@ namespace Universe.Framework.Utilities
                         MainConsole.Instance.WarnFormat ("[WebUtils] Request timed out - (URI:{0}, METHOD:{1}) : {2}", url, method, ex.Message);
                     string bufdata;
                     bufdata = buffer.Length > 0 ? Encoding.UTF8.GetString (buffer) : "null";
+					if (bufdata.Length > 255)
+						bufdata = bufdata.Substring (0, 250) + "...";
                     MainConsole.Instance.WarnFormat ("[WebUtils] Request - {0}", bufdata);
                 }
             } catch (Exception ex) {
@@ -177,6 +179,8 @@ namespace Universe.Framework.Utilities
                     MainConsole.Instance.WarnFormat ("[WebUtils] Request failed - (URI:{0}, METHOD:{1}) : {2}", url, method, ex.Message);
                     string bufdata;
                     bufdata = buffer.Length > 0 ? Encoding.UTF8.GetString (buffer) : "null";
+					if (bufdata.Length > 255)
+						bufdata = bufdata.Substring (0, 250) + "...";
                     MainConsole.Instance.WarnFormat ("[WebUtils] Request - {0}", bufdata);
                 }
             }
