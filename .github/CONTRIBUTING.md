@@ -1,4 +1,4 @@
-### COntributing to Virtual Universe
+### Contributing to Virtual Universe
 
 **The Virtual Universe project is an open source project.  We welcome and encourage those who
  want to contribute code to do so.  By working together we all can bring a virtual planetary grid

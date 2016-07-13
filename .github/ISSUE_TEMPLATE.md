@@ -1,8 +1,8 @@
+### Notice
+
+**If you are using WhiteCore-Sim please do not submit an issue report to Virtual Universe as we are unable to assist you.  Any issues reported to Virtual Universe which involve your use of WhiteCore-Sim will immediately be closed and you will be referred to WhiteCore Sim.**
+
 ### Issue Type
-
-**NOTICE!
-
-If you are using WhiteCore-Sim please do not submit an issue report to Virtual Universe as we are unable to assist you.  Any issues reported to Virtual Universe which involve your use of WhiteCore-Sim will immediately be closed and you will be referred to WhiteCore Sim.**
 
 | Question      | Answer
 | ------------- | ---------
