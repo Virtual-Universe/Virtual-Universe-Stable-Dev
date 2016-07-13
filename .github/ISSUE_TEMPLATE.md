@@ -2,7 +2,7 @@
 
 **If you are using WhiteCore-Sim please do not submit an issue report to Virtual Universe as we are unable to assist you.  Any issues reported to Virtual Universe which involve your use of WhiteCore-Sim will immediately be closed and you will be referred to WhiteCore-Sim.**
 
-**In addition please to not submit issue reports regarding VIrtual Universe to the WhiteCore-Sim issues tracker as they cannot help you and they will be immediately closed and you will be referred to Virtual Universe**
+**In addition please do not submit issue reports regarding Virtual Universe to the WhiteCore-Sim issues tracker as they cannot help you and they will be immediately closed and you will be referred to Virtual Universe**
 
 ### Issue Type
 
