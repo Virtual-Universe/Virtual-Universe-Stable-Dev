@@ -44,7 +44,8 @@ namespace Universe.Services.DataService
 
         #region IRegionConnector Members
 
-        public void Initialize(IGenericData GenericData, IConfigSource source, IRegistryCore simBase, string defaultConnectionString)
+        public void Initialize(IGenericData GenericData, IConfigSource source, IRegistryCore simBase,
+                               string defaultConnectionString)
         {
             GD = GenericData;
 
@@ -52,7 +53,8 @@ namespace Universe.Services.DataService
                 defaultConnectionString = source.Configs[Name].GetString("ConnectionString", defaultConnectionString);
 
             if (GD != null)
-                GD.ConnectToDatabase(defaultConnectionString, "Region", source.Configs["UniverseConnectors"].GetBoolean("ValidateTables", true));
+                GD.ConnectToDatabase(defaultConnectionString, "Region",
+                                     source.Configs["UniverseConnectors"].GetBoolean("ValidateTables", true));
 
             Framework.Utilities.DataManager.RegisterPlugin(Name + "Local", this);
 
@@ -136,6 +138,7 @@ namespace Universe.Services.DataService
             }
 
             //Look for a telehub first.
+            // Why? ~ SignpostMarv
             if (FindTelehub(regionID, 0) != null)
             {
                 QueryFilter filter = new QueryFilter();

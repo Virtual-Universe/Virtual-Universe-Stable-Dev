@@ -126,7 +126,6 @@ namespace Universe.Modules.Web
                 vars.Add ("UserPartner", "Not specified yet");
                 vars.Add ("UserAboutMe", "Nothing here yet");
                 vars.Add("UserPictureURL", "../images/icons/no_avatar.jpg");
-
             }
 
             vars.Add("UsersGroupsText", translator.GetTranslatedString("UsersGroupsText"));
@@ -147,7 +146,6 @@ namespace Universe.Modules.Web
                         { "GroupPictureURL", url },
                         { "GroupName", grp.GroupName }
                     });
-
                 }
 
                 if (groups.Count == 0)
@@ -156,9 +154,7 @@ namespace Universe.Modules.Web
                         { "GroupPictureURL", "../images/icons/no_groups.jpg" },
                         { "GroupName", "None yet" }
                     });
-
                 }
-
             }
 
             vars.Add("GroupNameText", translator.GetTranslatedString("GroupNameText"));

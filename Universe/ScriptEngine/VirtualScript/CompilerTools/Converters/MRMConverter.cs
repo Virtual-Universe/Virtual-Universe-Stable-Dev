@@ -32,10 +32,9 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.CSharp;
+//using Microsoft.JScript;
 using OpenMetaverse;
 using Universe.ScriptEngine.VirtualScript.MiniModule;
-
-//using Microsoft.JScript;
 
 namespace Universe.ScriptEngine.VirtualScript.CompilerTools
 {
@@ -50,7 +49,7 @@ namespace Universe.ScriptEngine.VirtualScript.CompilerTools
             get { return ""; }
         }
 
-        public void Initialise(Compiler compiler)
+        public void Initialize(Compiler compiler)
         {
         }
 

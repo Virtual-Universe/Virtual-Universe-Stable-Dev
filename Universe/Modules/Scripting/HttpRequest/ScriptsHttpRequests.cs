@@ -36,12 +36,11 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
+using Nini.Config;
+using OpenMetaverse;
 using Universe.Framework.Modules;
 using Universe.Framework.SceneInfo;
 using Universe.Framework.Utilities;
-using Nini.Config;
-using OpenMetaverse;
-
 
 /*****************************************************
  *

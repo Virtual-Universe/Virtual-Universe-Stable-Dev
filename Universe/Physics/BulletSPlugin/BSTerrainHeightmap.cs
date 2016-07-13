@@ -88,7 +88,6 @@ namespace Universe.Physics.BulletSPlugin
                 new Vector3(m_mapInfo.sizeX, m_mapInfo.sizeY, 0), m_mapInfo.minZ, m_mapInfo.maxZ,
                 m_mapInfo.heightMap, 1f, BSParam.TerrainCollisionMargin);
 
-
             // The terrain object initial position is at the center of the object
             Vector3 centerPos;
             centerPos.X = m_mapInfo.minCoords.X + (m_mapInfo.sizeX / 2f);

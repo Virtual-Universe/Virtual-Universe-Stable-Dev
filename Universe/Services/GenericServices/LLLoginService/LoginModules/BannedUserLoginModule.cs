@@ -77,12 +77,12 @@ namespace Universe.Services
                     m_UseTOS = false;
 
             }
-
             m_AuthenticationService = registry.RequestModuleInterface<IAuthenticationService> ();
             m_LoginService = service;
         }
 
-        public LoginResponse Login (Hashtable request, UserAccount account, IAgentInfo agentInfo, string authType, string password, out object data)
+        public LoginResponse Login (Hashtable request, UserAccount account, IAgentInfo agentInfo, string authType,
+                                   string password, out object data)
         {
             IAgentConnector agentData = Framework.Utilities.DataManager.RequestPlugin<IAgentConnector> ();
             data = null;
@@ -127,7 +127,6 @@ namespace Universe.Services
                     agentData.UpdateAgent (agentInfo);
                 }
             }
-
             if (!AcceptedNewTOS && !agentInfo.AcceptTOS && m_UseTOS) {
                 data = "TOS not accepted";
                 if (m_TOSLocation.ToLower ().StartsWith ("http://", StringComparison.Ordinal))
@@ -137,9 +136,9 @@ namespace Universe.Services
                 var ToSText = File.ReadAllText (Path.Combine (Environment.CurrentDirectory, m_TOSLocation));
                 return new LLFailedLoginResponse (LoginResponseEnum.ToSNeedsSent, ToSText, false);
             }
-
             if ((agentInfo.Flags & IAgentFlags.PermBan) == IAgentFlags.PermBan) {
-                MainConsole.Instance.InfoFormat ("[LLogin service]: Login failed for user {0}, reason: user is permanently banned.", account.Name);
+                MainConsole.Instance.InfoFormat (
+                    "[LLogin service]: Login failed for user {0}, reason: user is permanently banned.", account.Name);
                 data = "Permanently banned";
                 return LLFailedLoginResponse.PermanentBannedProblem;
             }
@@ -150,7 +149,8 @@ namespace Universe.Services
 
                 if (agentInfo.OtherAgentInformation.ContainsKey ("TemperaryBanInfo")) {
                     DateTime bannedTime = agentInfo.OtherAgentInformation ["TemperaryBanInfo"].AsDate ();
-                    until = string.Format (" until {0} {1}", bannedTime.ToLocalTime ().ToShortDateString (), bannedTime.ToLocalTime ().ToLongTimeString ());
+                    until = string.Format (" until {0} {1}", bannedTime.ToLocalTime ().ToShortDateString (),
+                                          bannedTime.ToLocalTime ().ToLongTimeString ());
 
                     //Check to make sure the time hasn't expired
                     if (bannedTime.Ticks < DateTime.Now.ToUniversalTime ().Ticks) {
@@ -160,9 +160,12 @@ namespace Universe.Services
                 }
 
                 if (IsBanned) {
-                    MainConsole.Instance.InfoFormat ("[LLogin service]: Login failed for user {0}, reason: user is temporarily banned {1}.", account.Name, until);
+                    MainConsole.Instance.InfoFormat (
+                        "[LLogin service]: Login failed for user {0}, reason: user is temporarily banned {1}.",
+                        account.Name, until);
                     data = string.Format ("You are blocked from connecting to this service{0}.", until);
-                    return new LLFailedLoginResponse (LoginResponseEnum.Indeterminant, data.ToString (), false);
+                    return new LLFailedLoginResponse (LoginResponseEnum.Indeterminant,
+                                                    data.ToString (), false);
                 }
             }
 

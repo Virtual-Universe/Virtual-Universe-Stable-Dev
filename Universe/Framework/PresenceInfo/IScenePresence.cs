@@ -29,12 +29,12 @@
 
 using System;
 using System.Collections.Generic;
+using OpenMetaverse;
 using Universe.Framework.ClientInterfaces;
 using Universe.Framework.Modules;
 using Universe.Framework.Physics;
 using Universe.Framework.SceneInfo;
 using Universe.Framework.SceneInfo.Entities;
-using OpenMetaverse;
 using GridRegion = Universe.Framework.Services.GridRegion;
 
 namespace Universe.Framework.PresenceInfo

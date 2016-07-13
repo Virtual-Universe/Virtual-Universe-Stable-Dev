@@ -45,7 +45,8 @@ namespace Universe.Services.DataService
 
         #region IAuthenticationData Members
 
-        public void Initialize (IGenericData genericData, IConfigSource source, IRegistryCore simBase, string defaultConnectionString)
+        public void Initialize (IGenericData genericData, IConfigSource source, IRegistryCore simBase,
+                               string defaultConnectionString)
         {
             if (source.Configs ["UniverseConnectors"].GetString ("AuthConnector", "LocalConnector") != "LocalConnector")
                 return;
@@ -101,6 +102,7 @@ namespace Universe.Services.DataService
             return GD.Insert (m_realm, row);
         }
 
+        // I don't think this is used anywhere (don't know who wrote this comment ~ SignpostMarv)
         public bool SetDataItem (UUID principalID, string item, string value)
         {
             Dictionary<string, object> values = new Dictionary<string, object> (1);

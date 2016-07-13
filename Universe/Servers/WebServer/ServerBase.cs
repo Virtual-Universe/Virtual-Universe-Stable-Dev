@@ -37,7 +37,7 @@ namespace Universe.Server
     public class UniverseBase : SimulationBase
     {
         /// <summary>
-        ///     Performs initialization of the scene, such as loading configuration from disk.
+        ///     Performs initialisation of the scene, such as loading configuration from disk.
         /// </summary>
         public override void Startup()
         {
@@ -47,7 +47,8 @@ namespace Universe.Server
             if (MainConsole.Instance != null)
             {
                 MainConsole.Instance.DefaultPrompt = "Universe.WebServer ";
-                MainConsole.Instance.Info("[Virtual Universe Startup]: Startup completed in " + (DateTime.Now - this.StartupTime).TotalSeconds);
+                MainConsole.Instance.Info("[Virtual Universe Startup]: Startup completed in " +
+                                          (DateTime.Now - this.StartupTime).TotalSeconds);
             }
         }
 

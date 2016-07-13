@@ -28,9 +28,9 @@
  */
 
 using System.Collections.Generic;
-using Universe.Framework.SceneInfo;
 using Nini.Config;
 using OpenMetaverse;
+using Universe.Framework.SceneInfo;
 
 namespace Universe.Framework.Modules
 {

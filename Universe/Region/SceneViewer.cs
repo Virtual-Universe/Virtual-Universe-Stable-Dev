@@ -28,7 +28,6 @@
  */
 
 //#define UseRemovingEntityUpdates
-
 #define UseDictionaryForEntityUpdates
 
 using System;

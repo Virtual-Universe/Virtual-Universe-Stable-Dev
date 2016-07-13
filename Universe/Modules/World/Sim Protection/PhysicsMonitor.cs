@@ -336,26 +336,16 @@ namespace Universe.Modules.SimProtection
                     m_lastPhysicsStats [kvp.Key].StatCollisionAccountingTime /= 10;
                     //Add the stats to the profiler
                     Profiler p = ProfilerManager.GetProfiler ();
-                    p.AddStat ("StatAvatarUpdatePosAndVelocity " + kvp.Key,
-                              m_lastPhysicsStats [kvp.Key].StatAvatarUpdatePosAndVelocity);
-                    p.AddStat ("StatCollisionOptimizedTime " + kvp.Key,
-                              m_lastPhysicsStats [kvp.Key].StatCollisionOptimizedTime);
-                    p.AddStat ("StatPhysicsMoveTime " + kvp.Key,
-                              m_lastPhysicsStats [kvp.Key].StatPhysicsMoveTime);
-                    p.AddStat ("StatPhysicsTaintTime " + kvp.Key,
-                              m_lastPhysicsStats [kvp.Key].StatPhysicsTaintTime);
-                    p.AddStat ("StatPrimUpdatePosAndVelocity " + kvp.Key,
-                              m_lastPhysicsStats [kvp.Key].StatPrimUpdatePosAndVelocity);
-                    p.AddStat ("StatSendCollisionsTime " + kvp.Key,
-                              m_lastPhysicsStats [kvp.Key].StatSendCollisionsTime);
-                    p.AddStat ("StatUnlockedArea " + kvp.Key,
-                              m_lastPhysicsStats [kvp.Key].StatUnlockedArea);
-                    p.AddStat ("StatFindContactsTime " + kvp.Key,
-                              m_lastPhysicsStats [kvp.Key].StatFindContactsTime);
-                    p.AddStat ("StatContactLoopTime " + kvp.Key,
-                              m_lastPhysicsStats [kvp.Key].StatContactLoopTime);
-                    p.AddStat ("StatCollisionAccountingTime " + kvp.Key,
-                              m_lastPhysicsStats [kvp.Key].StatCollisionAccountingTime);
+                    p.AddStat ("StatAvatarUpdatePosAndVelocity " + kvp.Key, m_lastPhysicsStats [kvp.Key].StatAvatarUpdatePosAndVelocity);
+                    p.AddStat ("StatCollisionOptimizedTime " + kvp.Key, m_lastPhysicsStats [kvp.Key].StatCollisionOptimizedTime);
+                    p.AddStat ("StatPhysicsMoveTime " + kvp.Key, m_lastPhysicsStats [kvp.Key].StatPhysicsMoveTime);
+                    p.AddStat ("StatPhysicsTaintTime " + kvp.Key, m_lastPhysicsStats [kvp.Key].StatPhysicsTaintTime);
+                    p.AddStat ("StatPrimUpdatePosAndVelocity " + kvp.Key, m_lastPhysicsStats [kvp.Key].StatPrimUpdatePosAndVelocity);
+                    p.AddStat ("StatSendCollisionsTime " + kvp.Key, m_lastPhysicsStats [kvp.Key].StatSendCollisionsTime);
+                    p.AddStat ("StatUnlockedArea " + kvp.Key, m_lastPhysicsStats [kvp.Key].StatUnlockedArea);
+                    p.AddStat ("StatFindContactsTime " + kvp.Key, m_lastPhysicsStats [kvp.Key].StatFindContactsTime);
+                    p.AddStat ("StatContactLoopTime " + kvp.Key, m_lastPhysicsStats [kvp.Key].StatContactLoopTime);
+                    p.AddStat ("StatCollisionAccountingTime " + kvp.Key, m_lastPhysicsStats [kvp.Key].StatCollisionAccountingTime);
                 }
                 m_currentPhysicsStats.Clear ();
             }

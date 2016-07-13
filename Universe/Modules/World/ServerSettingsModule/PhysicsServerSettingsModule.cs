@@ -27,10 +27,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+using System;
+using Nini.Config;
 using Universe.Framework.Modules;
 using Universe.Framework.SceneInfo;
-using Nini.Config;
-using System;
 
 namespace Universe.Modules.World.ServerSettingsModule
 {

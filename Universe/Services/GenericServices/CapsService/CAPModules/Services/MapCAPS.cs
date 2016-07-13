@@ -121,12 +121,10 @@ namespace Universe.Services
                     }
                 }
             }
-
             foreach (MapBlockData block in m_mapLayer) {
                 //Add to the array
                 mapBlocksData.Add (block.ToOSD ());
             }
-
             OSDMap response = MapLayerResponce (layerData, mapBlocksData, flags);
             return OSDParser.SerializeLLSDXmlBytes (response);
         }

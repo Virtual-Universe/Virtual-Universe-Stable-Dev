@@ -64,7 +64,8 @@ namespace Universe.Services.SQLServices.AvatarService
 
             IConfig avatarConfig = config.Configs["AvatarService"];
             if (avatarConfig != null)
-                m_enableCacheBakedTextures = avatarConfig.GetBoolean("EnableBakedTextureCaching", m_enableCacheBakedTextures);
+                m_enableCacheBakedTextures = avatarConfig.GetBoolean("EnableBakedTextureCaching",
+                                                                     m_enableCacheBakedTextures);
 
             IConfig handlerConfig = config.Configs["Handlers"];
             if (handlerConfig.GetString("AvatarHandler", "") != Name)
@@ -86,7 +87,8 @@ namespace Universe.Services.SQLServices.AvatarService
         {
             m_Database = Framework.Utilities.DataManager.RequestPlugin<IAvatarData>();
             m_ArchiveService = registry.RequestModuleInterface<IAvatarAppearanceArchiver>();
-            registry.RequestModuleInterface<ISimulationBase>().EventManager.RegisterEventHandler("DeleteUserInformation", DeleteUserInformation);
+            registry.RequestModuleInterface<ISimulationBase>()
+                    .EventManager.RegisterEventHandler("DeleteUserInformation", DeleteUserInformation);
         }
 
         public void FinishedStartup()
@@ -132,14 +134,12 @@ namespace Universe.Services.SQLServices.AvatarService
                         loadedArchive = true;
                     }
                 }
-
                 if(avappearance == null)//Set as Ruth
                 {
                     avappearance = new AvatarAppearance(principalID);
                     SetAppearance(principalID, avappearance);
                 }
             }
-
             return avappearance;
         }
 
@@ -188,13 +188,11 @@ namespace Universe.Services.SQLServices.AvatarService
                 ? MainConsole.Instance.Prompt("Avatar Name") 
                 : Util.CombineParams(cmd, 3);
             UserAccount acc = m_registry.RequestModuleInterface<IUserAccountService>().GetUserAccount(null, name);
-
             if (acc == null)
             {
                 MainConsole.Instance.Format(Level.Off, "No known avatar with that name.");
                 return;
             }
-
             ResetAvatar(acc.PrincipalID);
             InventoryFolderBase folder = m_invService.GetFolderForType(acc.PrincipalID, 0, FolderType.CurrentOutfit);
             if (folder != null)

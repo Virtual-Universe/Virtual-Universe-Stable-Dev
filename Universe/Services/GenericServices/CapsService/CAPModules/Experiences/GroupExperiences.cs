@@ -44,7 +44,8 @@ namespace Universe.Services
         {
             m_service = service;
             
-            service.AddStreamHandler ("GroupExperiences", new GenericStreamHandler ("GET", service.CreateCAPS ("GroupExperiences", ""), GroupExperiences));
+            service.AddStreamHandler ("GroupExperiences",
+                new GenericStreamHandler ("GET", service.CreateCAPS ("GroupExperiences", ""), GroupExperiences));
         }
 
         public void EnteringRegion ()
@@ -56,7 +57,8 @@ namespace Universe.Services
             m_service.RemoveStreamHandler ("GroupExperiences", "GET");
         }
         
-        public byte[] GroupExperiences (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+        public byte[] GroupExperiences (string path, Stream request, OSHttpRequest httpRequest,
+                                      OSHttpResponse httpResponse)
         {
             MainConsole.Instance.DebugFormat("[GroupExperiences] Call = {0}", httpRequest);
             var groupExp = new OSDMap();

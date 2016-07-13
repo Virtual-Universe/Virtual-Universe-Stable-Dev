@@ -57,12 +57,8 @@ namespace Universe.Modules.WorldMap
 
         protected IScene m_scene;
         protected bool m_Enabled;
-
-        readonly ExpiringCache<ulong, List<mapItemReply>> m_mapItemCache =
-            new ExpiringCache<ulong, List<mapItemReply>> ();
-
-        readonly ConcurrentQueue<MapItemRequester> m_itemsToRequest = 
-            new ConcurrentQueue<MapItemRequester> ();
+        readonly ExpiringCache<ulong, List<mapItemReply>> m_mapItemCache = new ExpiringCache<ulong, List<mapItemReply>> ();
+        readonly ConcurrentQueue<MapItemRequester> m_itemsToRequest =  new ConcurrentQueue<MapItemRequester> ();
         bool itemRequesterIsRunning;
         static UniverseThreadPool threadpool;
         static UniverseThreadPool blockthreadpool;
@@ -170,8 +166,7 @@ namespace Universe.Modules.WorldMap
 
         #endregion
 
-        public virtual void HandleMapItemRequest (IClientAPI remoteClient, uint flags,
-                                                 uint EstateID, bool godlike, uint itemtype, ulong regionhandle)
+        public virtual void HandleMapItemRequest (IClientAPI remoteClient, uint flags, uint EstateID, bool godlike, uint itemtype, ulong regionhandle)
         {
             IScenePresence presence = remoteClient.Scene.GetScenePresence (remoteClient.AgentId);
             if (presence == null || presence.IsChildAgent)
@@ -315,8 +310,7 @@ namespace Universe.Modules.WorldMap
                 blockthreadpool.QueueEvent (GetMapBlocks, 3);
         }
 
-        protected virtual void GetAndSendMapBlocks (IClientAPI remoteClient, int minX, int minY, int maxX, int maxY,
-                                                   uint flag)
+        protected virtual void GetAndSendMapBlocks (IClientAPI remoteClient, int minX, int minY, int maxX, int maxY, uint flag)
         {
             m_blockitemsToRequest.Enqueue (new MapBlockRequester {
                 maxX = maxX,
@@ -330,8 +324,7 @@ namespace Universe.Modules.WorldMap
                 blockthreadpool.QueueEvent (GetMapBlocks, 3);
         }
 
-        protected virtual void GetAndSendTerrainBlocks (IClientAPI remoteClient, int minX, int minY, int maxX, int maxY,
-                                                       uint flag)
+        protected virtual void GetAndSendTerrainBlocks (IClientAPI remoteClient, int minX, int minY, int maxX, int maxY, uint flag)
         {
             m_blockitemsToRequest.Enqueue (new MapBlockRequester {
                 maxX = maxX,
@@ -347,8 +340,7 @@ namespace Universe.Modules.WorldMap
 
         bool blockRequesterIsRunning;
 
-        readonly ConcurrentQueue<MapBlockRequester> m_blockitemsToRequest =
-            new ConcurrentQueue<MapBlockRequester> ();
+        readonly ConcurrentQueue<MapBlockRequester> m_blockitemsToRequest = new ConcurrentQueue<MapBlockRequester> ();
 
         class MapBlockRequester
         {
@@ -616,8 +608,7 @@ namespace Universe.Modules.WorldMap
             return block;
         }
 
-        public byte [] OnHTTPGetMapImage (string path, Stream request, OSHttpRequest httpRequest,
-                                        OSHttpResponse httpResponse)
+        public byte [] OnHTTPGetMapImage (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
             MainConsole.Instance.Debug ("[World map]: Sending map image jpeg");
             byte [] jpeg = new byte [0];

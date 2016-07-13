@@ -92,6 +92,7 @@ namespace Universe.Services.SQLServices.AssetService
                     "get asset <ID>",
                     "Gets info about asset from database",
                     HandleGetAsset, false, true);
+
             }
 
             MainConsole.Instance.Debug ("[Asset service]: Local asset service enabled");
@@ -145,7 +146,6 @@ namespace Universe.Services.SQLServices.AssetService
                         cache.Cache (id, (AssetBase)remoteValue);
                     return (AssetBase)remoteValue;
                 }
-
                 return null;
             }
 
@@ -183,7 +183,6 @@ namespace Universe.Services.SQLServices.AssetService
                         cache.CacheData (id, data);
                     return data;
                 }
-
                 return null;
             }
 
@@ -218,6 +217,7 @@ namespace Universe.Services.SQLServices.AssetService
             var asset = Get (id);
             if (asset != null) {
                 Util.FireAndForget ((o) => { handler (id, sender, asset); });
+                // asset.Dispose ();
             }
         }
 
@@ -247,7 +247,7 @@ namespace Universe.Services.SQLServices.AssetService
                 return asset.ID;
             }
 
-            MainConsole.Instance.Error ("[Asset Service]: Trying to store a null asset!");
+            MainConsole.Instance.Error ("[Asset service]: Trying to store a null asset!");
             return UUID.Zero;
         }
 
@@ -333,7 +333,6 @@ namespace Universe.Services.SQLServices.AssetService
                 string text = BitConverter.ToString(line);
                 MainConsole.Instance.Info(string.Format("{0:x4}: {1}", off, text));
             }
-
             asset.Dispose ();
         }
 
@@ -398,7 +397,6 @@ namespace Universe.Services.SQLServices.AssetService
                         account = accountService.GetUserAccount (null, asset.CreatorID);
                     } catch {
                     }
-
                     if (account != null)
                         creatorName = account.Name;
                 }
@@ -417,6 +415,7 @@ namespace Universe.Services.SQLServices.AssetService
 
             asset.Dispose ();
         }
+
 
         #endregion
     }

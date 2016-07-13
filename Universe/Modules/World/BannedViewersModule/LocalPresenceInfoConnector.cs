@@ -83,8 +83,7 @@ namespace Universe.Modules.Ban
          
             agent.AgentID = agentID;
             if (query [1] != "") {
-                agent.Flags =
-                    (PresenceInfo.PresenceInfoFlags)Enum.Parse (typeof (PresenceInfo.PresenceInfoFlags), query [1]);
+                agent.Flags = (PresenceInfo.PresenceInfoFlags)Enum.Parse (typeof (PresenceInfo.PresenceInfoFlags), query [1]);
             }
 
             agent.KnownAlts = Util.ConvertToList (query [2], false);

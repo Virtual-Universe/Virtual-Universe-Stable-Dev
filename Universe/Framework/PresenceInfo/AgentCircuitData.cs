@@ -28,11 +28,11 @@
  */
 
 using System;
-using Universe.Framework.Modules;
 using OpenMetaverse;
 using OpenMetaverse.StructuredData;
-using Universe.Framework.Services;
 using ProtoBuf;
+using Universe.Framework.Modules;
+using Universe.Framework.Services;
 
 namespace Universe.Framework.PresenceInfo
 {

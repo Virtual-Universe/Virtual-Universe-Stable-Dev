@@ -255,7 +255,6 @@ namespace Universe.Physics.BulletSPlugin
                     }
                 }
             
-
                 m_physicsScene.DetailLog("{0},BSCharacter.MoveMotor,taint,stopping,target={1},colliding={2}",
                     m_controllingPrim.LocalID, m_velocityMotor.TargetValue, m_controllingPrim.IsColliding);
             }
@@ -385,10 +384,7 @@ namespace Universe.Physics.BulletSPlugin
                 m_jumpStart = 0;
                 m_preJumpStart = 0;
             }
-
         }
-
-  
 
         // Called just as the property update is received from the physics engine.
         // Do any mode necessary for avatar movement.
@@ -471,7 +467,6 @@ namespace Universe.Physics.BulletSPlugin
                     }
                 }
         
-
                 m_walkingUpStairs = 0;
                 // If there is a good step sensing, move the avatar over the step.
                 if (highestTouchPosition != OMV.Vector3.Zero)
@@ -528,9 +523,9 @@ namespace Universe.Physics.BulletSPlugin
                         m_controllingPrim.ForcePosition = m_controllingPrim.RawPosition + displacement;
                     }
                 }
+
                 m_physicsScene.DetailLog("{0},BSCharacter.WalkUpStairs.ComputeStairCorrection,stepUp={1},isp={2},force={3}",
                                             m_controllingPrim.LocalID, stepUp, displacement, ret);
-
             }
 
             return ret;

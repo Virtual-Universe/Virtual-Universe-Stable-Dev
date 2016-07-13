@@ -200,8 +200,6 @@ namespace Universe.Physics.BulletSPlugin
                         });
                     }
                 }
-
-
             }
             return true;
         }
@@ -474,13 +472,13 @@ namespace Universe.Physics.BulletSPlugin
         {
             bool ret = false;
 
-            // There have been instances of objects getting thrown way out of bounds and crashing
-            //    the border crossing code.
-//            uint wayOutThere = Constants.RegionSize * Constants.RegionSize;
-//            if (_position.X < -Constants.RegionSize || _position.X > wayOutThere
-//                || _position.Y < -Constants.RegionSize || _position.Y > wayOutThere
-//                || _position.Z < -Constants.RegionSize || _position.Z > wayOutThere)
-//            {
+          // There have been instances of objects getting thrown way out of bounds and crashing
+          //    the border crossing code.
+          //uint wayOutThere = Constants.RegionSize * Constants.RegionSize;
+          //if (_position.X < -Constants.RegionSize || _position.X > wayOutThere
+          //    || _position.Y < -Constants.RegionSize || _position.Y > wayOutThere
+          //    || _position.Z < -Constants.RegionSize || _position.Z > wayOutThere)
+          //  {
             int wayOutThere = 10000;
             int wayUnderThere = -10000;
             if (_position.X < wayUnderThere || _position.X > wayOutThere
@@ -491,7 +489,7 @@ namespace Universe.Physics.BulletSPlugin
                 ZeroMotion(inTaintTime);
                 ret = true;
             }
-//            if (RawVelocity.LengthSquared() > BSParam.MaxLinearVelocity)
+            //if (RawVelocity.LengthSquared() > BSParam.MaxLinearVelocity)
             if (RawVelocity.LengthSquared() > BSParam.MaxLinearVelocitySquared)
             {
                 RawVelocity = Util.ClampV(RawVelocity, BSParam.MaxLinearVelocity);

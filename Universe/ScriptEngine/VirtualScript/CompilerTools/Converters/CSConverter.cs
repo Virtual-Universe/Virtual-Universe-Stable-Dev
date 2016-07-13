@@ -33,7 +33,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.CSharp;
-
 //using Microsoft.JScript;
 
 namespace Universe.ScriptEngine.VirtualScript.CompilerTools
@@ -49,7 +48,7 @@ namespace Universe.ScriptEngine.VirtualScript.CompilerTools
             get { return ""; }
         }
 
-        public void Initialise(Compiler compiler)
+        public void Initialize(Compiler compiler)
         {
         }
 
@@ -183,7 +182,7 @@ namespace Universe.ScriptEngine.VirtualScript.CompilerTools
             get { return ""; }
         }
 
-        public void Initialise(Compiler compiler)
+        public void Initialize(Compiler compiler)
         {
             m_compiler = compiler;
         }

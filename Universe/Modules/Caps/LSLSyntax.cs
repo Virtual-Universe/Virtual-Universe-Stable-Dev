@@ -27,11 +27,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+using System;
+using System.IO;
 using Nini.Config;
 using OpenMetaverse;
 using OpenMetaverse.StructuredData;
-using System;
-using System.IO;
 using Universe.Framework.Modules;
 using Universe.Framework.SceneInfo;
 using Universe.Framework.Servers.HttpServer;

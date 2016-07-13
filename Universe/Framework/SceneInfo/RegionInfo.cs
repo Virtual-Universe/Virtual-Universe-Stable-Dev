@@ -53,9 +53,9 @@ namespace Universe.Framework.SceneInfo
         bool m_seeIntoThisSimFromNeighbor = true;
 
         protected int m_objectCapacity = 0;
-        protected string m_regionType = String.Empty;
+        protected string m_regionType = string.Empty;
         protected uint m_httpPort;
-        protected string m_regionName = String.Empty;
+        protected string m_regionName = string.Empty;
         protected int m_regionLocX;
         protected int m_regionLocY;
         protected int m_regionLocZ;
@@ -79,11 +79,11 @@ namespace Universe.Framework.SceneInfo
         public StartupType Startup = StartupType.Normal;
 
         [ProtoMember(3)]
-        [XmlIgnore]
+        //[XmlIgnore]
         public OpenRegionSettings OpenRegionSettings = new OpenRegionSettings();
 
         [ProtoMember(4)]
-        [XmlIgnore]
+        //[XmlIgnore]
         public OSD EnvironmentSettings = null;
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace Universe.Framework.SceneInfo
         public EstateSettings EstateSettings { get; set; }
 
         [ProtoMember(10)]
-        [XmlIgnore]
+        //[XmlIgnore]
         public RegionSettings RegionSettings
         {
             get { return m_regionSettings ?? (m_regionSettings = new RegionSettings()); }
@@ -223,7 +223,7 @@ namespace Universe.Framework.SceneInfo
                 args["region_name"] = OSD.FromString(RegionName);
             args["region_xloc"] = OSD.FromString(RegionLocX.ToString());
             args["region_yloc"] = OSD.FromString(RegionLocY.ToString());
-            if (RegionType != String.Empty)
+            if (RegionType != string.Empty)
                 args["region_type"] = OSD.FromString(RegionType);
             args["region_size_x"] = OSD.FromInteger(RegionSizeX);
             args["region_size_y"] = OSD.FromInteger(RegionSizeY);
@@ -240,7 +240,7 @@ namespace Universe.Framework.SceneInfo
             if (EnvironmentSettings != null)
                 args["EnvironmentSettings"] = EnvironmentSettings;
             args["OpenRegionSettings"] = OpenRegionSettings.ToOSD();
-            if (RegionTerrain != String.Empty)
+            if (RegionTerrain != string.Empty)
                 args["region_terrain"] = OSD.FromString(RegionTerrain);
             args["region_area"] = OSD.FromInteger(RegionArea);
 
@@ -254,17 +254,17 @@ namespace Universe.Framework.SceneInfo
             if (args.ContainsKey("region_name"))
                 RegionName = args["region_name"].AsString();
             if (args.ContainsKey("http_port"))
-                UInt32.TryParse(args["http_port"].AsString(), out m_httpPort);
+                uint.TryParse(args["http_port"].AsString(), out m_httpPort);
             if (args.ContainsKey("region_xloc"))
             {
                 int locx;
-                Int32.TryParse(args["region_xloc"].AsString(), out locx);
+                int.TryParse(args["region_xloc"].AsString(), out locx);
                 RegionLocX = locx;
             }
             if (args.ContainsKey("region_yloc"))
             {
                 int locy;
-                Int32.TryParse(args["region_yloc"].AsString(), out locy);
+                int.TryParse(args["region_yloc"].AsString(), out locy);
                 RegionLocY = locy;
             }
             if (args.ContainsKey("region_type"))
@@ -336,7 +336,6 @@ namespace Universe.Framework.SceneInfo
         {
             RegionInfo ri = (RegionInfo)DeserializeObject(fileName);
 
-
             RegionID = ri.RegionID;
             RegionName = ri.RegionName;
             RegionPort = ri.RegionPort;
@@ -350,10 +349,10 @@ namespace Universe.Framework.SceneInfo
             SeeIntoThisSimFromNeighbor = ri.SeeIntoThisSimFromNeighbor;
             InfiniteRegion = ri.InfiniteRegion;
             EstateSettings = ri.EstateSettings;
-            //RegionSettings = ri.RegionSettings;
+            RegionSettings = ri.RegionSettings;
             //GridSecureSessionID = ri.GridSecureSessionID;
-            //OpenRegionSettings = ri.OpenRegionSettings;
-            //EnvironmentSettings =  ri.EnvironmentSettings;
+            OpenRegionSettings = ri.OpenRegionSettings;
+            EnvironmentSettings =  ri.EnvironmentSettings;
             RegionTerrain = ri.RegionTerrain;
             RegionArea = ri.RegionArea;
 
@@ -370,7 +369,7 @@ namespace Universe.Framework.SceneInfo
         /// </summary>
         /// <param name="fileName">File name.</param>
         /// <param name="obj">Object.</param>
-        static void SerializeObject(string fileName, Object obj)
+        static void SerializeObject(string fileName, object obj)
         {
             try
             {

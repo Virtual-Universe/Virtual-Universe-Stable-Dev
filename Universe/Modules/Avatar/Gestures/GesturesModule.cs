@@ -27,6 +27,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+using System;
+using Nini.Config;
+using OpenMetaverse;
 using Universe.Framework.ConsoleFramework;
 using Universe.Framework.Modules;
 using Universe.Framework.PresenceInfo;
@@ -34,9 +37,6 @@ using Universe.Framework.SceneInfo;
 using Universe.Framework.Services;
 using Universe.Framework.Services.ClassHelpers.Inventory;
 using Universe.Framework.Utilities;
-using Nini.Config;
-using OpenMetaverse;
-using System;
 
 namespace Universe.Modules.Gestures
 {
@@ -109,8 +109,7 @@ namespace Universe.Modules.Gestures
             }
             else {
 				if(invService.GetItem(libOwner, gestureId) == null) {
-					MainConsole.Instance.WarnFormat(
-						"[GESTURES]: Unable to find gesture {0} to activate for {1}", gestureId, client.Name);
+					MainConsole.Instance.WarnFormat("[GESTURES]: Unable to find gesture {0} to activate for {1}", gestureId, client.Name);
 				}
 			}
         }
@@ -128,8 +127,7 @@ namespace Universe.Modules.Gestures
             }
             else
 				if(invService.GetItem(libOwner, gestureId) == null) {
-					MainConsole.Instance.ErrorFormat(
-						"[GESTURES]: Unable to find gesture to deactivate {0} for {1}", gestureId, client.Name);
+					MainConsole.Instance.ErrorFormat("[GESTURES]: Unable to find gesture to deactivate {0} for {1}", gestureId, client.Name);
 				}
         }
     }

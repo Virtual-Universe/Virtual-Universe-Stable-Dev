@@ -28,7 +28,6 @@
  */
 
 using System.Linq;
-
 using Universe.Framework.Modules;
 using Universe.Framework.SceneInfo;
 

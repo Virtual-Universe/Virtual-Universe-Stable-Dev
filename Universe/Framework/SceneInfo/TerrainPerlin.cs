@@ -27,7 +27,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* 
+/*
 * Adapted for Virtual Universe from an article in gamedev magazine, with some additional ideas
 * from Christopher Breinholt: http://breinygames.blogspot.com.au
 * Rowan D <greythane@gmail.com> , Oct 2013

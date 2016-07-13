@@ -29,11 +29,11 @@
 
 using System;
 using System.Linq;
-using Universe.Framework.ConsoleFramework;
-using Universe.Framework.Modules;
 using OpenMetaverse;
 using OpenMetaverse.StructuredData;
 using ProtoBuf;
+using Universe.Framework.ConsoleFramework;
+using Universe.Framework.Modules;
 
 namespace Universe.Framework.ClientInterfaces
 {

@@ -57,8 +57,13 @@ namespace Universe.Services
                 conn.AddAbuseReport (abuse_report);
         }
 
+        //[CanBeReflected(ThreatLevel = ThreatLevel.Full)]
         public AbuseReport GetAbuseReport (int Number, string Password)
         {
+            /*object remoteValue = DoRemote(Number, Password);
+            if (remoteValue != null || m_doRemoteOnly)
+                return (AbuseReport)remoteValue;*/
+
             IAbuseReportsConnector conn = Framework.Utilities.DataManager.RequestPlugin<IAbuseReportsConnector> ();
             return (conn != null) ? conn.GetAbuseReport (Number, Password) : null;
         }
@@ -75,8 +80,13 @@ namespace Universe.Services
             return (conn != null) ? conn.GetAbuseReport (Number) : null;
         }
 
+        //[CanBeReflected(ThreatLevel = ThreatLevel.Full)]
         public void UpdateAbuseReport (AbuseReport report, string Password)
         {
+            /*object remoteValue = DoRemote(report, Password);
+            if (remoteValue != null || m_doRemoteOnly)
+                return;*/
+
             IAbuseReportsConnector conn = Framework.Utilities.DataManager.RequestPlugin<IAbuseReportsConnector> ();
             if (conn != null)
                 conn.UpdateAbuseReport (report, Password);

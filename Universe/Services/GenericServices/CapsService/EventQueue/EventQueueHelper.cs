@@ -107,7 +107,6 @@ namespace Universe.Services
                     PhysicsShapeType = (PhysicsShapeType)entity.PhysicsType,
                     Restitution = entity.Restitution
                 };
-
                 i++;
             }
 
@@ -124,9 +123,11 @@ namespace Universe.Services
         }
 
         public static OSD CrossRegion (ulong handle, Vector3 pos, Vector3 lookAt,
-                                       IPAddress address, int port, string capsURL, UUID agentID, UUID sessionID, int RegionSizeX, int RegionSizeY)
+                                       IPAddress address, int port,
+                                       string capsURL, UUID agentID, UUID sessionID, int RegionSizeX, int RegionSizeY)
         {
-            OSDArray lookAtArr = new OSDArray (3) { OSD.FromReal (lookAt.X), OSD.FromReal (lookAt.Y), OSD.FromReal (lookAt.Z) };
+            OSDArray lookAtArr = new OSDArray (3)
+                                     { OSD.FromReal (lookAt.X), OSD.FromReal (lookAt.Y), OSD.FromReal (lookAt.Z) };
 
             OSDArray positionArr = new OSDArray (3) {
                 OSD.FromReal (pos.X),
@@ -205,7 +206,8 @@ namespace Universe.Services
             return buildEvent ("ScriptRunningReply", body);
         }
 
-        public static OSD EstablishAgentCommunication (UUID agentID, ulong regionhandle, string simIpAndPort, string seedcap, int RegionSizeX, int RegionSizeY)
+        public static OSD EstablishAgentCommunication (UUID agentID, ulong regionhandle, string simIpAndPort,
+                                                       string seedcap, int RegionSizeX, int RegionSizeY)
         {
             OSDMap body = new OSDMap (3) {
                 { "agent-id", new OSDUUID (agentID) },
@@ -244,12 +246,11 @@ namespace Universe.Services
                 OSD.FromReal (position.Y),
                 OSD.FromReal (position.Z)
             };
-            messageParams.Add ("position", positionArray);
 
+            messageParams.Add ("position", positionArray);
             messageParams.Add ("region_id", new OSDUUID (UUID.Zero));
             messageParams.Add ("to_id", new OSDUUID (toAgent));
             messageParams.Add ("source", new OSDInteger (0));
-
             OSDMap data = new OSDMap (1) { { "binary_bucket", OSD.FromBinary (binaryBucket) } };
             messageParams.Add ("data", data);
             messageParams.Add ("message", new OSDString (message));
@@ -330,10 +331,13 @@ namespace Universe.Services
                 { "message", new OSDString ("ChatterBoxInvitation") },
                 { "body", body }
             };
+
             return chatterboxInvitation;
         }
 
-        public static OSD ChatterBoxSessionAgentListUpdates (UUID sessionID, UUID agentID, bool canVoiceChat, bool isModerator, bool textMute)
+        public static OSD ChatterBoxSessionAgentListUpdates (UUID sessionID,
+                                                            UUID agentID, bool canVoiceChat, bool isModerator,
+                                                            bool textMute)
         {
             OSDMap body = new OSDMap ();
             OSDMap agentUpdates = new OSDMap ();
@@ -357,7 +361,9 @@ namespace Universe.Services
             return chatterBoxSessionAgentListUpdates;
         }
 
-        internal static OSD ChatterBoxSessionAgentListUpdates (UUID sessionID, ChatterBoxSessionAgentListUpdatesMessage.AgentUpdatesBlock [] agentUpdatesBlock, string Transition)
+        internal static OSD ChatterBoxSessionAgentListUpdates (UUID sessionID,
+                                                              ChatterBoxSessionAgentListUpdatesMessage.AgentUpdatesBlock
+                                                                  [] agentUpdatesBlock, string Transition)
         {
             OSDMap body = new OSDMap ();
             OSDMap agentUpdates = new OSDMap ();
@@ -476,7 +482,8 @@ namespace Universe.Services
                 int num = 0;
                 foreach (OSDMap innerMap in m.Cast<OSDMap>())
                 {
-                    innerMap ["TimeStamp"] = OSD.FromUInteger ((uint)Util.ToUnixTime (parcelPropertiesMessage.PrimOwnersBlock [num].TimeStamp));
+                    innerMap ["TimeStamp"] =
+                        OSD.FromUInteger ((uint)Util.ToUnixTime (parcelPropertiesMessage.PrimOwnersBlock [num].TimeStamp));
                     num++;
                 }
             }
@@ -493,7 +500,8 @@ namespace Universe.Services
             int num = 0;
             foreach (OSDMap innerMap in m.Cast<OSDMap>())
             {
-                innerMap ["TimeStamp"] = OSD.FromUInteger ((uint)Util.ToUnixTime (statReplyMessage.ReportDataBlocks [num].TimeStamp));
+                innerMap ["TimeStamp"] =
+                    OSD.FromUInteger ((uint)Util.ToUnixTime (statReplyMessage.ReportDataBlocks [num].TimeStamp));
                 num++;
             }
 

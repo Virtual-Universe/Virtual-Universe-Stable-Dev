@@ -107,8 +107,7 @@ namespace Universe.Modules.Archivers
             try {
                 var stream = ArchiveHelpers.GetStream (loadPath);
                 if (stream == null) {
-                    MainConsole.Instance.Error (
-                        "[Archiver]: We could not find the file specified, or the file was invalid: " + loadPath);
+                    MainConsole.Instance.Error ("[Archiver]: We could not find the file specified, or the file was invalid: " + loadPath);
                     return;
                 }
                 m_loadStream = new GZipStream (stream, CompressionMode.Decompress);

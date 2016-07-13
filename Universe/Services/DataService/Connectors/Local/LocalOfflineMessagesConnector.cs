@@ -45,7 +45,8 @@ namespace Universe.Services.DataService
 
         #region IOfflineMessagesConnector Members
 
-        public void Initialize(IGenericData GenericData, IConfigSource source, IRegistryCore simBase, string defaultConnectionString)
+        public void Initialize(IGenericData GenericData, IConfigSource source, IRegistryCore simBase,
+                               string defaultConnectionString)
         {
             GD = GenericData;
 
@@ -53,7 +54,8 @@ namespace Universe.Services.DataService
                 defaultConnectionString = source.Configs[Name].GetString("ConnectionString", defaultConnectionString);
 
             if (GD != null)
-                GD.ConnectToDatabase(defaultConnectionString, "Generics", source.Configs["UniverseConnectors"].GetBoolean("ValidateTables", true));
+                GD.ConnectToDatabase(defaultConnectionString, "Generics",
+                                     source.Configs["UniverseConnectors"].GetBoolean("ValidateTables", true));
 
             Framework.Utilities.DataManager.RegisterPlugin(Name + "Local", this);
 
@@ -63,7 +65,6 @@ namespace Universe.Services.DataService
             {
                 Framework.Utilities.DataManager.RegisterPlugin(this);
             }
-
             Init(simBase, Name);
         }
 
@@ -109,7 +110,8 @@ namespace Universe.Services.DataService
             if (m_maxOfflineMessages <= 0 ||
                 GenericUtils.GetGenericCount(message.ToAgentID, "OfflineMessages", GD) < m_maxOfflineMessages)
             {
-                GenericUtils.AddGeneric(message.ToAgentID, "OfflineMessages", UUID.Random().ToString(), message.ToOSD(), GD);
+                GenericUtils.AddGeneric(message.ToAgentID, "OfflineMessages", UUID.Random().ToString(),
+                                        message.ToOSD(), GD);
                 return true;
             }
             return false;

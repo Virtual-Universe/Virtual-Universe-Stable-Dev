@@ -120,7 +120,6 @@ namespace Universe.Services
             try {
                 MainConsole.Instance.Threshold = (Level)Enum.Parse (typeof (Level), rawLevel, true);
             } catch { }
-
             MainConsole.Instance.Format (Level.Off, "Console log level is {0}", MainConsole.Instance.Threshold);
         }
 

@@ -27,6 +27,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+using Nini.Config;
+using Universe.Framework.Modules;
 using Universe.Framework.Services;
 
 namespace Universe.Services.API.WorldAPI
@@ -35,12 +37,12 @@ namespace Universe.Services.API.WorldAPI
 	{
 		#region IService implementation
 
-		public void Initialize(Nini.Config.IConfigSource config, Universe.Framework.Modules.IRegistryCore registry)
+		public void Initialize(IConfigSource config, IRegistryCore registry)
 		{
 			throw new System.NotImplementedException();
 		}
 		
-		public void Start(Nini.Config.IConfigSource config, Universe.Framework.Modules.IRegistryCore registry)
+		public void Start(IConfigSource config, IRegistryCore registry)
 		{
 			throw new System.NotImplementedException();
 		}

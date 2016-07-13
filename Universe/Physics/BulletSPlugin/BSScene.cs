@@ -1024,4 +1024,3 @@ namespace Universe.Physics.BulletSPlugin
         public const string DetailLogZero = "0000000000";
     }
 }
-

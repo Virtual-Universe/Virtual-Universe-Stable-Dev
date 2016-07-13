@@ -40,7 +40,6 @@ namespace Universe.Modules.Web.Translators
         {
             switch (key)
             {
-
                 // Generic
                 case "No": return "No";
                 case "Yes": return "Yes";
@@ -54,17 +53,18 @@ namespace Universe.Modules.Web.Translators
                 case "CurrentPageText": return "Current Page";
                 case "MoreInfoText": return "More Info";
                 case "NoDetailsText": return "No details found...";
-            case "ObjectNameText": return "Object";
-            case "LocationText": return "Location";
-            case "UUIDText": return "UUID";
-            case "DetailsText": return "Description";
-            case "NotesText": return "Notes";
-            case "SaveUpdates": return "Save updates";
-            case "ActiveText": return "Active";
-            case "CheckedText": return "Checked";
-            case "CategoryText": return "Category";
-            case "SummaryText": return "Summary";
-                
+                case "MoreInfo": return "More Information";
+
+                case "ObjectNameText": return "Object";
+                case "LocationText": return "Location";
+                case "UUIDText": return "UUID";
+                case "DetailsText": return "Description";
+                case "NotesText": return "Notes";
+                case "SaveUpdates": return "Save updates";
+                case "ActiveText": return "Active";
+                case "CheckedText": return "Checked";
+                case "CategoryText": return "Category";
+                case "SummaryText": return "Summary";
 
                 // Status information
                 case "GridStatus": return "Grid Status";
@@ -84,9 +84,9 @@ namespace Universe.Modules.Web.Translators
 
                 // User login
                 case "Login": return "Login";
-                case "UserName":
+                case "UserName": return "User Name";
                 case "UserNameText": return "User Name";
-                case "Password":
+                case "Password": return "Password";
                 case "PasswordText": return "Password";
                 case "PasswordConfirmation": return "Password Confirmation";
                 case "ForgotPassword": return "Forgot Password?";
@@ -226,6 +226,7 @@ namespace Universe.Modules.Web.Translators
                 case "MenuMyPurchases": return "My Purchases";
                 case "MenuTransactions": return "User Transactions";
                 case "MenuMyTransactions": return "My Transactions";
+                case "MenuMyClassifieds": return "My Classifieds";
                 case "MenuStatistics": return "Viewer Statistics";
                 case "MenuGridSettings": return "Grid Settings";
 
@@ -309,8 +310,8 @@ namespace Universe.Modules.Web.Translators
                 case "nl": return "Nederlands";
                 case "ru": return "Русский";
 
-            // Index Page
-            case "HomeText": return "Home";
+                // Index Page
+                case "HomeText": return "Home";
                 case "HomeTextWelcome": return "This is our New Virtual World! Join us now, and make a difference!";
                 case "HomeTextTips": return "New presentations";
                 case "WelcomeToText": return "Welcome to";
@@ -325,6 +326,7 @@ namespace Universe.Modules.Web.Translators
                 // Help Page
                 case "HelpText": return "Help";
                 case "HelpViewersConfigText": return "Viewer Configuration";
+
                 case "AngstromViewer": return "Angstrom Viewer";
                 case "AstraViewer": return "Astra Viewer";
                 case "FirestormViewer": return "Firestorm Viewer";
@@ -348,8 +350,8 @@ namespace Universe.Modules.Web.Translators
                 case "NewEmailText": return "New Email Address";
                 case "DeleteUserText": return "Delete My Account";
                 case "DeleteText": return "Delete";
-                case "DeleteUserInfoText": return
-               "This will remove all information about you in the grid and remove your access to this service. If you wish to continue, enter your name and password and click Delete.";
+                case "DeleteUserInfoText":
+                    return "This will remove all information about you in the grid and remove your access to this service. If you wish to continue, enter your name and password and click Delete.";
                 case "EditText": return "Edit";
                 case "EditUserAccountText": return "Edit User Account";
 
@@ -391,8 +393,8 @@ namespace Universe.Modules.Web.Translators
                 case "AdminUnbanUserText": return "Unban User";
                 case "AdminUnbanUserInfoText": return "Removes temporary and permanent bans on the user.";
                 case "AdminLoginInAsUserText": return "Login as User";
-                case "AdminLoginInAsUserInfoText": return
-                       "You will be logged out of your admin account, and logged in as this user, and will see everything as they see it.";
+                case "AdminLoginInAsUserInfoText":
+                    return "You will be logged out of your admin account, and logged in as this user, and will see everything as they see it.";
                 case "TimeUntilUnbannedText": return "Time until user is unbanned";
                 case "DaysText": return "Days";
                 case "HoursText": return "Hours";
@@ -424,6 +426,9 @@ namespace Universe.Modules.Web.Translators
                 case "LoggedIPText": return "Logged IP address";
                 case "NoPurchasesText": return "No purchases found...";
                 case "PurchaseCostText": return "Cost";
+
+                // Classifieds
+                case "ClassifiedsText": return "Classifieds";
 
                 // Sim Console
                 case "SimConsoleText": return "Sim Command Console";
@@ -459,8 +464,12 @@ namespace Universe.Modules.Web.Translators
                 case "GridnameText": return "Grid name";
                 case "GridnickText": return "Grid nickname";
                 case "WelcomeMessageText": return "Login welcome message";
-                case "SystemEstateNameText": return "System estate name";
-                case "SystemEstateOwnerText": return "System estate owner name";
+                case "GovernorNameText": return "System Governor";
+                case "MainlandEstateNameText": return "Mainland estate";
+                case "RealEstateOwnerNameText": return "System estate owner";
+                case "SystemEstateNameText": return "System estate";
+                case "BankerNameText": return "System banker";
+                case "MarketPlaceOwnerNameText": return "System marketplace owner";
 
                 //settings manager page
                 case "WebRegistrationText": return "Web registrations allowed";
@@ -489,141 +498,83 @@ namespace Universe.Modules.Web.Translators
                 case "ClearStatsText": return "Clear statistics data";
 
                 // abuse reports
-            case "MenuAbuse": return "Abuse Reports";
-            case "TooltipsMenuAbuse": return "User abuse reports";
-            case "AbuseReportText": return "Abuse Report";
-            case "AbuserNameText": return "Abuser";
-            case "AbuseReporterNameText": return "Reporter";
-            case "AssignedToText": return "Assigned to";
- 
-
+                case "MenuAbuse": return "Abuse Reports";
+                case "TooltipsMenuAbuse": return "User abuse reports";
+                case "AbuseReportText": return "Abuse Report";
+                case "AbuserNameText": return "Abuser";
+                case "AbuseReporterNameText": return "Reporter";
+                case "AssignedToText": return "Assigned to";
 
                 //Times
-                case "Sun":
-                    return "Sun";
-                case "Mon":
-                    return "Mon";
-                case "Tue":
-                    return "Tue";
-                case "Wed":
-                    return "Wed";
-                case "Thu":
-                    return "Thu";
-                case "Fri":
-                    return "Fri";
-                case "Sat":
-                    return "Sat";
-                case "Sunday":
-                    return "Sunday";
-                case "Monday":
-                    return "Monday";
-                case "Tuesday":
-                    return "Tuesday";
-                case "Wednesday":
-                    return "Wednesday";
-                case "Thursday":
-                    return "Thursday";
-                case "Friday":
-                    return "Friday";
-                case "Saturday":
-                    return "Saturday";
+                case "Sun": return "Sun";
+                case "Mon": return "Mon";
+                case "Tue": return "Tue";
+                case "Wed": return "Wed";
+                case "Thu": return "Thu";
+                case "Fri": return "Fri";
+                case "Sat": return "Sat";
+                case "Sunday": return "Sunday";
+                case "Monday": return "Monday";
+                case "Tuesday": return "Tuesday";
+                case "Wednesday": return "Wednesday";
+                case "Thursday": return "Thursday";
+                case "Friday": return "Friday";
+                case "Saturday": return "Saturday";
 
-                case "Jan_Short":
-                    return "Jan";
-                case "Feb_Short":
-                    return "Feb";
-                case "Mar_Short":
-                    return "Mar";
-                case "Apr_Short":
-                    return "Apr";
-                case "May_Short":
-                    return "May";
-                case "Jun_Short":
-                    return "Jun";
-                case "Jul_Short":
-                    return "Jul";
-                case "Aug_Short":
-                    return "Aug";
-                case "Sep_Short":
-                    return "Sep";
-                case "Oct_Short":
-                    return "Oct";
-                case "Nov_Short":
-                    return "Nov";
-                case "Dec_Short":
-                    return "Dec";
+                // Short months
+                case "Jan_Short": return "Jan";
+                case "Feb_Short": return "Feb";
+                case "Mar_Short": return "Mar";
+                case "Apr_Short": return "Apr";
+                case "May_Short": return "May";
+                case "Jun_Short": return "Jun";
+                case "Jul_Short": return "Jul";
+                case "Aug_Short": return "Aug";
+                case "Sep_Short": return "Sep";
+                case "Oct_Short": return "Oct";
+                case "Nov_Short": return "Nov";
+                case "Dec_Short": return "Dec";
 
-                case "January":
-                    return "January";
-                case "February":
-                    return "February";
-                case "March":
-                    return "March";
-                case "April":
-                    return "April";
-                case "May":
-                    return "May";
-                case "June":
-                    return "June";
-                case "July":
-                    return "July";
-                case "August":
-                    return "August";
-                case "September":
-                    return "September";
-                case "October":
-                    return "October";
-                case "November":
-                    return "November";
-                case "December":
-                    return "December";
+                // Months
+                case "January": return "January";
+                case "February": return "February";
+                case "March": return "March";
+                case "April": return "April";
+                case "May": return "May";
+                case "June": return "June";
+                case "July": return "July";
+                case "August": return "August";
+                case "September": return "September";
+                case "October": return "October";
+                case "November": return "November";
+                case "December": return "December";
 
                 // User types
-                case "UserTypeText":
-                    return "User type";
-                case "AdminUserTypeInfoText":
-                    return "The type of user (Currently used for periodical stipend payments).";
-                case "Guest":
-                    return "Guest";
-                case "Resident":
-                    return "Resident";
-                case "Member":
-                    return "Member";
-                case "Contractor":
-                    return "Contractor";
-                case "Charter_Member":
-                    return "Charter Member";
-
+                case "UserTypeText": return "User type";
+                case "AdminUserTypeInfoText": return "The type of user (Currently used for periodical stipend payments).";
+                case "Guest": return "Guest";
+                case "Resident": return "Resident";
+                case "Member": return "Member";
+                case "Contractor": return "Contractor";
+                case "Charter_Member": return "Charter Member";
 
                 // ColorBox
-                case "ColorBoxImageText":
-                    return "Image";
-                case "ColorBoxOfText":
-                    return "of";
-                case "ColorBoxPreviousText":
-                    return "Previous";
-                case "ColorBoxNextText":
-                    return "Next";
-                case "ColorBoxCloseText":
-                    return "Close";
-                case "ColorBoxStartSlideshowText":
-                    return "Start Slide Show";
-                case "ColorBoxStopSlideshowText":
-                    return "Stop Slide Show";
-
+                case "ColorBoxImageText": return "Image";
+                case "ColorBoxOfText": return "of";
+                case "ColorBoxPreviousText": return "Previous";
+                case "ColorBoxNextText": return "Next";
+                case "ColorBoxCloseText": return "Close";
+                case "ColorBoxStartSlideshowText": return "Start Slide Show";
+                case "ColorBoxStopSlideshowText": return "Stop Slide Show";
 
                 // Maintenance
-                case "NoAccountFound":
-                    return "No account found";
-                case "DisplayInMenu":
-                    return "Display In Menu";
-                case "ParentText":
-                    return "Menu Parent";
-                case "CannotSetParentToChild":
-                    return "Cannot set menu item as a child to itself.";
-                case "TopLevel":
-                    return "Top Level";
+                case "NoAccountFound": return "No account found";
+                case "DisplayInMenu": return "Display In Menu";
+                case "ParentText": return "Menu Parent";
+                case "CannotSetParentToChild": return "Cannot set menu item as a child to itself.";
+                case "TopLevel": return "Top Level";
             }
+
             return "UNKNOWN CHARACTER";
         }
     }

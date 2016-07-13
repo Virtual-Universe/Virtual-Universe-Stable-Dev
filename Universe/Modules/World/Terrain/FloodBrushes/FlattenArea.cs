@@ -30,7 +30,6 @@
 using OpenMetaverse;
 using Universe.Framework.Modules;
 
-
 namespace Universe.Modules.Terrain.FloodBrushes
 {
     public class FlattenArea : ITerrainFloodEffect

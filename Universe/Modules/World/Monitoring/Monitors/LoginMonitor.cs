@@ -28,7 +28,6 @@
  */
 
 using System;
-
 using Universe.Framework.Modules;
 
 namespace Universe.Modules.Monitoring.Monitors

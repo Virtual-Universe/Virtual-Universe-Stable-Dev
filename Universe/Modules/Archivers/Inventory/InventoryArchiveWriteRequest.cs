@@ -153,7 +153,6 @@ namespace Universe.Modules.Archivers
 
             // lastly as it is dependant       
             m_assetGatherer = new UuidGatherer(m_assetService);
-
         }
 
         protected void ReceivedAllAssets(ICollection<UUID> assetsFoundUuids, ICollection<UUID> assetsNotFoundUuids)
@@ -209,14 +208,12 @@ namespace Universe.Modules.Archivers
 
             string serialization = UserInventoryItemSerializer.Serialize(saveItem);
             m_archiveWriter.WriteFile(filename, serialization);
-
-    //        m_assetGatherer.GatherAssetUuids(saveItem.AssetID, (AssetType) saveItem.AssetType, m_assetUuids);
+            //m_assetGatherer.GatherAssetUuids(saveItem.AssetID, (AssetType) saveItem.AssetType, m_assetUuids);
             AssetType itemAssetType = (AssetType)inventoryItem.AssetType;
 
             // Don't chase down link asset items as they actually point to their target item IDs rather than an asset
             if (m_saveAssets && itemAssetType != AssetType.Link && itemAssetType != AssetType.LinkFolder)
                 m_assetGatherer.GatherAssetUuids(saveItem.AssetID, (AssetType) inventoryItem.AssetType, m_assetUuids);
-
         }
 
         /// <summary>
@@ -230,7 +227,6 @@ namespace Universe.Modules.Archivers
             // ignore viewer folders (special folders?)
             if (inventoryFolder.Name.StartsWith ("#", StringComparison.Ordinal))
                 return;
-
 
             if (saveThisFolderItself)
             {
@@ -433,8 +429,7 @@ namespace Universe.Modules.Archivers
                 }
                 else
                 {
-                    MainConsole.Instance.WarnFormat("[Inventory Archiver]: Failed to get creator profile for {0}",
-                                                    creatorId);
+                    MainConsole.Instance.WarnFormat("[Inventory Archiver]: Failed to get creator profile for {0}", creatorId);
                 }
             }
         }

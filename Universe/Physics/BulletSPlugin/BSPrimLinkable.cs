@@ -232,8 +232,8 @@ namespace Universe.Physics.BulletSPlugin
                     base.IsColliding = value;
             }
         }
-
- /* not sure what this is for yet - 20150925 -
+        
+        /* not sure what this is for yet - 20150925 -
         // Convert the existing linkset of this prim into a new type.
         public bool ConvertLinkset(BSLinkset.LinksetImplementation newType)
         {
@@ -279,7 +279,7 @@ namespace Universe.Physics.BulletSPlugin
             }
             return ret;
         }
-*/
+        */
         /* not ported yet - 20150925
         #region Extension
         public override object Extension(string pFunct, params object[] pParams)

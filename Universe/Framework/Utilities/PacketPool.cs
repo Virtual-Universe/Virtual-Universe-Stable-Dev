@@ -31,9 +31,9 @@
 
 using System;
 using System.Collections.Generic;
-using Universe.Framework.ConsoleFramework;
 using OpenMetaverse;
 using OpenMetaverse.Packets;
+using Universe.Framework.ConsoleFramework;
 
 namespace Universe.Framework.Utilities
 {

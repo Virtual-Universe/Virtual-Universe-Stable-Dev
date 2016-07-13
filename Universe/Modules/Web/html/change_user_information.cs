@@ -100,8 +100,7 @@ namespace Universe.Modules.Web
             }
 
             // email change
-            if (requestParameters.ContainsKey("Submit") &&
-                     requestParameters["Submit"].ToString() == "SubmitEmailChange")
+            if (requestParameters.ContainsKey("Submit") && requestParameters["Submit"].ToString() == "SubmitEmailChange")
             {
                 string email = requestParameters["email"].ToString();
 
@@ -118,8 +117,7 @@ namespace Universe.Modules.Web
             }
 
             // Delete User
-            if (requestParameters.ContainsKey("Submit") &&
-                     requestParameters["Submit"].ToString() == "SubmitDeleteUser")
+            if (requestParameters.ContainsKey("Submit") && requestParameters["Submit"].ToString() == "SubmitDeleteUser")
             {
                 string username = requestParameters["username"].ToString();
                 string password = requestParameters["password"].ToString();

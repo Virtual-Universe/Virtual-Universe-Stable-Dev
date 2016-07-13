@@ -38,7 +38,6 @@ using Universe.Framework.PresenceInfo;
 using Universe.Framework.SceneInfo;
 using Universe.Framework.SceneInfo.Entities;
 
-
 namespace Universe.Modules.Combat
 {
     public class CombatModule : INonSharedRegionModule, ICombatModule

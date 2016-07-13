@@ -147,7 +147,6 @@ namespace Universe.Services
                         OnlineFriends.Add (FriendToInform);
                 }
             }
-
             return OnlineFriends;
         }
 
@@ -169,7 +168,8 @@ namespace Universe.Services
                     //Now find their caps service so that we can find where they are root (and if they are logged in)
                     if (friendToInformUser != null && friendToInformUser.IsOnline) {
                         //Post!
-                        asyncPoster.Post (friendToInformUser.CurrentRegionURI, SyncMessageHelper.AgentStatusChange (user, FriendToInform, isOnline));
+                        asyncPoster.Post (friendToInformUser.CurrentRegionURI,
+                                         SyncMessageHelper.AgentStatusChange (user, FriendToInform, isOnline));
                     }
                 }
             }

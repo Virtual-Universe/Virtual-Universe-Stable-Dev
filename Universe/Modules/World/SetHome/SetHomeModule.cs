@@ -27,6 +27,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+using System;
+using System.IO;
+using System.Linq;
+using Nini.Config;
+using OpenMetaverse;
+using OpenMetaverse.Assets;
+using OpenMetaverse.StructuredData;
 using Universe.Framework.Modules;
 using Universe.Framework.PresenceInfo;
 using Universe.Framework.SceneInfo;
@@ -35,13 +42,6 @@ using Universe.Framework.Servers.HttpServer.Implementation;
 using Universe.Framework.Servers.HttpServer.Interfaces;
 using Universe.Framework.Services;
 using Universe.Framework.Utilities;
-using Nini.Config;
-using OpenMetaverse;
-using OpenMetaverse.Assets;
-using OpenMetaverse.StructuredData;
-using System;
-using System.IO;
-using System.Linq;
 
 namespace Universe.Modules.SetHome
 {

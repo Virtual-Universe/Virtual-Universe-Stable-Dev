@@ -338,8 +338,7 @@ namespace Universe.Modules.Startup
                                 return true;
                             return false;
                         }) == null)
-                            m_knownNeighbors [targetregionID].Add (m_scene.GridService.GetRegionByUUID (null,
-                                regionID));
+                            m_knownNeighbors [targetregionID].Add (m_scene.GridService.GetRegionByUUID (null, regionID));
                     }
                 }
             }

@@ -56,7 +56,7 @@ namespace Universe.Framework.Serialization.External
             xtw.WriteElementString ("about", "");
 
             // Not sure if we're storing this yet, need to take a look
-            //            xtw.WriteElementString("Url", profile.Url);
+            //xtw.WriteElementString("Url", profile.Url);
             // or, indeed, interests
 
             xtw.WriteEndElement ();

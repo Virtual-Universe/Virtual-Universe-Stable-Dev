@@ -130,8 +130,7 @@ namespace Universe.Modules.DefaultInventoryIARLoader
             bool alreadyExists = rootFolders.Any (folder => folder.Name == iarFileName);
 
             if (alreadyExists) {
-                MainConsole.Instance.InfoFormat ("[Library Inventory]: Found previously loaded IAR file {0}, ignoring.",
-                                                iarFileName);
+                MainConsole.Instance.InfoFormat ("[Library Inventory]: Found previously loaded IAR file {0}, ignoring.", iarFileName);
                 return;
             }
 

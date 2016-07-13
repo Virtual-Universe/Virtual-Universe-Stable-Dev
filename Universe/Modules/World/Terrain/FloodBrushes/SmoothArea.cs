@@ -31,7 +31,6 @@ using OpenMetaverse;
 using Universe.Framework.Modules;
 using Universe.Framework.SceneInfo;
 
-
 namespace Universe.Modules.Terrain.FloodBrushes
 {
     public class SmoothArea : ITerrainFloodEffect

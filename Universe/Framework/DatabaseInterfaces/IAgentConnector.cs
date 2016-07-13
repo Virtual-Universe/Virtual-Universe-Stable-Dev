@@ -27,9 +27,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+using OpenMetaverse;
 using Universe.Framework.Services;
 using Universe.Framework.Services.ClassHelpers.Profile;
-using OpenMetaverse;
 
 namespace Universe.Framework.DatabaseInterfaces
 {

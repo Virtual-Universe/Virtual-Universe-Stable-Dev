@@ -27,6 +27,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Nini.Config;
+using OpenMetaverse;
 using Universe.Framework.ClientInterfaces;
 using Universe.Framework.ConsoleFramework;
 using Universe.Framework.Modules;
@@ -37,11 +42,6 @@ using Universe.Framework.Serialization;
 using Universe.Framework.Services.ClassHelpers.Assets;
 using Universe.Framework.Services.ClassHelpers.Inventory;
 using Universe.Framework.Utilities;
-using Nini.Config;
-using OpenMetaverse;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using GridRegion = Universe.Framework.Services.GridRegion;
 
 namespace Universe.Modules.Attachments

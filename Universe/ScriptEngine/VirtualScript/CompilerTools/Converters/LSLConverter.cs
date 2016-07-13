@@ -30,7 +30,6 @@
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using Microsoft.CSharp;
-
 //using Microsoft.JScript;
 
 namespace Universe.ScriptEngine.VirtualScript.CompilerTools
@@ -48,7 +47,7 @@ namespace Universe.ScriptEngine.VirtualScript.CompilerTools
             get { return "default"; }
         }
 
-        public void Initialise(Compiler compiler)
+        public void Initialize(Compiler compiler)
         {
             m_compiler = compiler;
             //? // new CSCodeGenerator(compiler);

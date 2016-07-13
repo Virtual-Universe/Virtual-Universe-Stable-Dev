@@ -177,7 +177,6 @@ namespace Universe.Services
                     asyncPost.Post (info.CurrentRegionURI, message);
                 }
             }
-
             return null;
         }
     }

@@ -66,10 +66,7 @@ namespace Universe.Modules.Web
             var vars = new Dictionary<string, object>();
             var usersList = new List<Dictionary<string, object>>();
             var agentInfo = Framework.Utilities.DataManager.RequestPlugin<IAgentInfoConnector> ();
-
             var IsAdmin = Authenticator.CheckAdminAuthentication (httpRequest);
-
-            //var activeUsers = agentInfo.RecentlyOnline(15*60, true, new Dictionary<string, bool>());
             var activeUsers = agentInfo.CurrentlyOnline(0, new Dictionary<string, bool>());
 
             if (activeUsers.Count > 0)
@@ -99,7 +96,6 @@ namespace Universe.Modules.Web
                                 UUID.TryParse (friend.Friend, out friendID);
 
                                 if (friendID != UUID.Zero) 
-                                // if ( (friendID != UUID.Zero) && (friendID == ourAccount.PrincipalID)) 
                                 activeUsersList.Add (friendID);
                             }
                         }
@@ -158,14 +154,12 @@ namespace Universe.Modules.Web
                     usersList.Sort((a, b) => a["UserName"].ToString().CompareTo(b["UserName"].ToString()));
             }
 
-
             vars.Add("UsersOnlineList", usersList);
             vars.Add("OnlineUsersText", translator.GetTranslatedString("OnlineUsersText"));
             vars.Add("UserNameText", translator.GetTranslatedString("UserNameText"));
             vars.Add("OnlineLocationText", translator.GetTranslatedString("OnlineLocationText"));
             vars.Add("RegionNameText", translator.GetTranslatedString("RegionNameText"));
             vars.Add("MoreInfoText", translator.GetTranslatedString("MoreInfoText"));
-
             vars.Add("FirstText", translator.GetTranslatedString("FirstText"));
             vars.Add("BackText", translator.GetTranslatedString("BackText"));
             vars.Add("NextText", translator.GetTranslatedString("NextText"));

@@ -58,9 +58,9 @@ using System.Runtime.InteropServices;
 //      Major Version
 //      Minor Version 
 //      Build Number
-//      Reuniverse
+//      Revision
 //
-// You can specify all the values or you can default the Build and Reuniverse Numbers 
+// You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 

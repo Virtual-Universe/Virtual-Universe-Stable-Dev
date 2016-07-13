@@ -55,7 +55,6 @@ namespace Universe.ScriptEngine.VirtualScript.MiniModule
         IHeightmap Terrain { get; }
         IWorldAudio Audio { get; }
 
-
         event OnChatDelegate OnChat;
         event OnNewUserDelegate OnNewUser;
     }

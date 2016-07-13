@@ -169,11 +169,9 @@ namespace Universe.Modules.Web
                 vars.Add ("NumberOfUsersInRegionText", translator.GetTranslatedString ("NumberOfUsersInRegionText"));
                 vars.Add ("ParcelsInRegionText", translator.GetTranslatedString ("ParcelsInRegionText"));
                 vars.Add ("MainServerURL", webInterface.GridURL);
-
             }
 
             return vars;
-
         }
 
         public bool AttemptFindPage (string filename, ref OSHttpResponse httpResponse, out string text)

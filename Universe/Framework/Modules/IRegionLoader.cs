@@ -27,8 +27,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using Universe.Framework.SceneInfo;
 using Nini.Config;
+using Universe.Framework.SceneInfo;
 
 namespace Universe.Framework.Modules
 {

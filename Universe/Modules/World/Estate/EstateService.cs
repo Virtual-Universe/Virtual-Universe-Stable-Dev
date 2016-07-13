@@ -1013,6 +1013,5 @@ namespace Universe.Modules.Estate
         }
 
         #endregion
-
     }
 }

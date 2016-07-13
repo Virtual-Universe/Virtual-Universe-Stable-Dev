@@ -51,11 +51,8 @@ namespace Universe.Modules.Scripting
         public const int DISP_TEMP = 2;
 
         IScene m_scene;
-        readonly Dictionary<string, IDynamicTextureRender> RenderPlugins =
-            new Dictionary<string, IDynamicTextureRender> ();
-
-        readonly Dictionary<UUID, DynamicTextureUpdater> Updaters =
-            new Dictionary<UUID, DynamicTextureUpdater> ();
+        readonly Dictionary<string, IDynamicTextureRender> RenderPlugins = new Dictionary<string, IDynamicTextureRender> ();
+        readonly Dictionary<UUID, DynamicTextureUpdater> Updaters = new Dictionary<UUID, DynamicTextureUpdater> ();
 
         #region IDynamicTextureManager Members
 

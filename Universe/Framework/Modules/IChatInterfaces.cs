@@ -28,11 +28,11 @@
  */
 
 using System;
+using Nini.Config;
+using OpenMetaverse;
 using Universe.Framework.ClientInterfaces;
 using Universe.Framework.PresenceInfo;
 using Universe.Framework.SceneInfo;
-using Nini.Config;
-using OpenMetaverse;
 
 namespace Universe.Framework.Modules
 {

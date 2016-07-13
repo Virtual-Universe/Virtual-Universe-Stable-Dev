@@ -67,12 +67,8 @@ namespace Universe.Modules.Scripting
 
     public class UrlModule : INonSharedRegionModule, IUrlModule
     {
-        readonly Dictionary<UUID, UrlData> m_RequestMap =
-            new Dictionary<UUID, UrlData> ();
-
-        readonly Dictionary<string, UrlData> m_UrlMap =
-            new Dictionary<string, UrlData> ();
-
+        readonly Dictionary<UUID, UrlData> m_RequestMap = new Dictionary<UUID, UrlData> ();
+        readonly Dictionary<string, UrlData> m_UrlMap = new Dictionary<string, UrlData> ();
 
         const int m_TotalUrls = 100;
 
@@ -115,8 +111,7 @@ namespace Universe.Modules.Scripting
 
             lock (m_UrlMap) {
                 if (m_UrlMap.Count >= m_TotalUrls) {
-                    engine.PostScriptEvent (itemID, host.UUID, "http_request",
-                                           new object [] { urlcode.ToString (), "URL_REQUEST_DENIED", "" });
+                    engine.PostScriptEvent (itemID, host.UUID, "http_request", new object [] { urlcode.ToString (), "URL_REQUEST_DENIED", "" });
                     return urlcode;
                 }
                 string url = MainServer.Instance.ServerURI + "/lslhttp/" + urlcode + "/";
@@ -138,8 +133,7 @@ namespace Universe.Modules.Scripting
                                                                                        GetEvents, NoEvents,
                                                                                        urlcode));
 
-                engine.PostScriptEvent (itemID, host.UUID, "http_request",
-                                       new object [] { urlcode.ToString (), "URL_REQUEST_GRANTED", url });
+                engine.PostScriptEvent (itemID, host.UUID, "http_request", new object [] { urlcode.ToString (), "URL_REQUEST_GRANTED", url });
             }
 
             return urlcode;
@@ -149,8 +143,7 @@ namespace Universe.Modules.Scripting
         {
             UUID urlcode = UUID.Random ();
 
-            engine.PostScriptEvent (itemID, host.UUID, "http_request",
-                                   new object [] { urlcode.ToString (), "URL_REQUEST_DENIED", "" });
+            engine.PostScriptEvent (itemID, host.UUID, "http_request", new object [] { urlcode.ToString (), "URL_REQUEST_DENIED", "" });
 
             return urlcode;
         }
@@ -189,8 +182,7 @@ namespace Universe.Modules.Scripting
                 //urlData.requests[request].ev.Set();
                 urlData.requests [request].requestDone = true;
             } else {
-                MainConsole.Instance.Info ("[HttpRequestHandler] There is no http-in request with id " +
-                                          request);
+                MainConsole.Instance.Info ("[HttpRequestHandler] There is no http-in request with id " + request);
             }
         }
 
@@ -278,7 +270,6 @@ namespace Universe.Modules.Scripting
 
                 return Encoding.UTF8.GetBytes ("Script timeout");
             }
-
 
             return MainServer.BlankResponse;
         }

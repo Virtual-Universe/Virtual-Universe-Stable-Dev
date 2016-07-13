@@ -27,8 +27,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using Universe.Framework.SceneInfo.Entities;
 using OpenMetaverse;
+using Universe.Framework.SceneInfo.Entities;
 
 namespace Universe.Framework.SceneInfo
 {
@@ -53,7 +53,6 @@ namespace Universe.Framework.SceneInfo
         /// <param name="rot"></param>
         /// <param name="shape"></param>
         /// <returns>The entity created, or null if the creation failed</returns>
-        ISceneEntity CreateEntity(ISceneEntity baseEntity, UUID ownerID, UUID groupID, Vector3 pos, Quaternion rot,
-                                  PrimitiveBaseShape shape);
+        ISceneEntity CreateEntity(ISceneEntity baseEntity, UUID ownerID, UUID groupID, Vector3 pos, Quaternion rot, PrimitiveBaseShape shape);
     }
 }

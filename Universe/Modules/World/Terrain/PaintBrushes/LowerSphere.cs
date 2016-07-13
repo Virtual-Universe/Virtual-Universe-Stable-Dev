@@ -31,7 +31,6 @@ using System;
 using OpenMetaverse;
 using Universe.Framework.Modules;
 
-
 namespace Universe.Modules.Terrain.PaintBrushes
 {
     public class LowerSphere : ITerrainPaintableEffect

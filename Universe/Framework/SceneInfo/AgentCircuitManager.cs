@@ -30,8 +30,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using Universe.Framework.PresenceInfo;
 using OpenMetaverse;
+using Universe.Framework.PresenceInfo;
 
 namespace Universe.Framework.SceneInfo
 {

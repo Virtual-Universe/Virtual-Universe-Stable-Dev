@@ -36,12 +36,16 @@ using Universe.Framework.PresenceInfo;
 using Universe.Framework.Servers.HttpServer.Interfaces;
 using Universe.Framework.Services;
 
+
 namespace Universe.Services
 {
     public class PerClientBasedCapsService : IClientCapsService
     {
         protected ICapsService m_CapsService;
-        protected Dictionary<UUID, IRegionClientCapsService> m_RegionCapsServices = new Dictionary<UUID, IRegionClientCapsService> ();
+
+        protected Dictionary<UUID, IRegionClientCapsService> m_RegionCapsServices =
+            new Dictionary<UUID, IRegionClientCapsService> ();
+
         protected UserAccount m_account;
         protected UUID m_agentID;
         protected bool m_callbackHasCome;
@@ -110,7 +114,6 @@ namespace Universe.Services
             {
                 RemoveCAPS (regionID);
             }
-
             m_RegionCapsServices.Clear ();
         }
 
@@ -148,7 +151,8 @@ namespace Universe.Services
         /// <param name="circuitData"></param>
         /// <param name="port"></param>
         /// <returns></returns>
-        public IRegionClientCapsService GetOrCreateCapsService (UUID regionID, string capsBase, AgentCircuitData circuitData, uint port)
+        public IRegionClientCapsService GetOrCreateCapsService (UUID regionID, string capsBase,
+                                                               AgentCircuitData circuitData, uint port)
         {
             //If one already exists, don't add a new one
             if (m_RegionCapsServices.ContainsKey (regionID))

@@ -154,7 +154,8 @@ namespace Universe.Services
 
         #region FillOutData
 
-        void FillOutInventoryData(List<InventoryFolderBase> invSkel, ILibraryService libService, IInventoryService invService)
+        void FillOutInventoryData(List<InventoryFolderBase> invSkel, ILibraryService libService,
+                                          IInventoryService invService)
         {
             InventoryData inventData = null;
 
@@ -164,7 +165,9 @@ namespace Universe.Services
             }
             catch (Exception e)
             {
-                MainConsole.Instance.WarnFormat("[LLogin service]: Error processing inventory skeleton of agent {0} - {1}", agentID, e);
+                MainConsole.Instance.WarnFormat(
+                    "[LLogin service]: Error processing inventory skeleton of agent {0} - {1}",
+                    agentID, e);
 
                 // ignore and continue
             }
@@ -208,7 +211,6 @@ namespace Universe.Services
                     list.Add(item);
                 }
             }
-
             ActiveGestures = list;
         }
 
@@ -232,6 +234,8 @@ namespace Universe.Services
         void FillOutRegionData(AgentCircuitData circuitData, GridRegion destination)
         {
             IPEndPoint endPoint = destination.ExternalEndPoint;
+            //We don't need this anymore, we set this from what we get from the region
+            //endPoint = Util.ResolveAddressForClient (endPoint, circuitData.ClientIPEndPoint);
             SimAddress = endPoint.Address.ToString();
             SimPort = (uint) circuitData.RegionUDPPort;
             RegionX = (uint) destination.RegionLocX;
@@ -311,7 +315,7 @@ namespace Universe.Services
                 responseData["seed_capability"] = seedCapability;
 
                 responseData["event_categories"] = eventCategories;
-                responseData["event_notifications"] = eventNotifications; // This is the Notifications of Events that you "subscribed" to
+                responseData["event_notifications"] = eventNotifications; // Fly-Man- This is the Notifications of Events that you "subscribed" to
                 responseData["classified_categories"] = classifiedCategories;
                 responseData["ui-config"] = uiConfig;
                 responseData["export"] = AllowExportPermission ? "flag" : "";
@@ -323,7 +327,6 @@ namespace Universe.Services
                     responseData["inventory-skeleton"] = agentInventory;
                     responseData["inventory-root"] = inventoryRoot;
                 }
-
                 responseData["inventory-skel-lib"] = InventoryLibrary;
                 responseData["inventory-lib-root"] = InventoryLibRoot;
                 responseData["gestures"] = activeGestures;
@@ -493,7 +496,8 @@ namespace Universe.Services
             return buddylistreturn;
         }
 
-        InventoryData GetInventorySkeleton(ILibraryService library, IInventoryService inventoryService, List<InventoryFolderBase> folders)
+        InventoryData GetInventorySkeleton(ILibraryService library, IInventoryService inventoryService,
+                                                   List<InventoryFolderBase> folders)
         {
             UUID rootID = UUID.Zero;
             ArrayList AgentInventoryArray = new ArrayList();
@@ -510,7 +514,6 @@ namespace Universe.Services
                 TempHash["folder_id"] = InvFolder.ID.ToString();
                 AgentInventoryArray.Add(TempHash);
             }
-
             return new InventoryData(AgentInventoryArray, rootID);
         }
 
@@ -539,14 +542,15 @@ namespace Universe.Services
             {
                 foreach (UUID rootfolderID in rootFolderUUIDs)
                 {
-                    TraverseFolder(library.LibraryOwner, rootfolderID, inventoryService, library, true, ref AgentInventoryArray);
+                    TraverseFolder(library.LibraryOwner, rootfolderID, inventoryService, library, true,
+                                   ref AgentInventoryArray);
                 }
             }
-
             return AgentInventoryArray;
         }
 
-        void TraverseFolder(UUID agentIDreq, UUID folderID, IInventoryService invService, ILibraryService library, bool rootFolder, ref ArrayList table)
+        void TraverseFolder(UUID agentIDreq, UUID folderID, IInventoryService invService, ILibraryService library,
+                                    bool rootFolder, ref ArrayList table)
         {
             List<InventoryFolderBase> folders = invService.GetFolderFolders(agentIDreq, folderID);
             foreach (InventoryFolderBase folder in folders)
@@ -594,8 +598,11 @@ namespace Universe.Services
         #region Properties
 
         public static ArrayList InventoryLibrary;
+
         public static ArrayList InventoryLibraryOwner;
+
         public static ArrayList InventoryLibRoot;
+
         public string Login
         {
             get { return login; }
@@ -603,12 +610,19 @@ namespace Universe.Services
         }
 
         public string DST { get; set; }
-        public string StipendSinceLogin { get; set; 
+
+        public string StipendSinceLogin { get; set; }
+
         public string Gendered { get; set; }
+
         public string EverLoggedIn { get; set; }
+
         public uint SimPort { get; set; }
+
         public uint SimHttpPort { get; set; }
+
         public string SimAddress { get; set; }
+
         public UUID AgentID
         {
             get { return agentID; }
@@ -616,12 +630,19 @@ namespace Universe.Services
         }
 
         public UUID SessionID { get; set; }
+
         public UUID SecureSessionID { get; set; }
+
         public int CircuitCode { get; set; }
+
         public uint RegionX { get; set; }
+
         public uint RegionY { get; set; }
+
         public int RegionSizeX { get; set; }
+
         public int RegionSizeY { get; set; }
+
         public string Firstname
         {
             get { return firstname; }
@@ -629,6 +650,7 @@ namespace Universe.Services
         }
 
         public string DisplayName { get; set; }
+
         public string Lastname
         {
             get { return lastname; }
@@ -684,7 +706,9 @@ namespace Universe.Services
         }
 
         public string ErrorReason { get; set; }
+
         public string ErrorMessage { get; set; }
+
         public ArrayList InventoryRoot
         {
             get { return inventoryRoot; }
@@ -805,7 +829,6 @@ namespace Universe.Services
                         ? retVal.Replace ("<USERNAME>", DisplayName) 
                         : retVal.Replace ("<USERNAME>", firstname + " " + lastname);
                 }
-
                 return retVal;
             }
         }

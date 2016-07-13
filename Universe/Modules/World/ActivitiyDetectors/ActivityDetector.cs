@@ -182,8 +182,7 @@ namespace Universe.Modules.ActivityDetectors
                 //Send the child agent data update
                 ISyncMessagePosterService syncPoster = sp.Scene.RequestModuleInterface<ISyncMessagePosterService> ();
                 if (syncPoster != null)
-                    syncPoster.PostToServer (SyncMessageHelper.AgentLoggedOut (client.AgentId,
-                                                                             client.Scene.RegionInfo.RegionID, agentpos));
+                    syncPoster.PostToServer (SyncMessageHelper.AgentLoggedOut (client.AgentId, client.Scene.RegionInfo.RegionID, agentpos));
             }
         }
     }

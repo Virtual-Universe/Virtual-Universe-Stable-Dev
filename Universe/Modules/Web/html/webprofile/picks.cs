@@ -142,7 +142,6 @@ namespace Universe.Modules.Web
                                       {"PickLocation", pickLoc}
                                   });
                 }
-
             }
 
             if (picks.Count == 0)

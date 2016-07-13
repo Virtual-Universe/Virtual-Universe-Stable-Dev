@@ -105,7 +105,6 @@ namespace Universe.Services
                 if (userInfo != null)
                     infos.Add (userInfo);
             }
-
             return infos;
         }
 
@@ -143,7 +142,6 @@ namespace Universe.Services
                 else
                     infos [i] = "NotOnline";
             }
-
             return new List<string> (infos);
         }
 
@@ -160,7 +158,8 @@ namespace Universe.Services
         }
 
         [CanBeReflected (ThreatLevel = ThreatLevel.Low)]
-        public virtual void SetLastPosition (string userID, UUID regionID, Vector3 lastPosition, Vector3 lastLookAt, string regionURI)
+        public virtual void SetLastPosition (string userID, UUID regionID, Vector3 lastPosition, Vector3 lastLookAt,
+                                            string regionURI)
         {
             if (m_doRemoteOnly) {
                 DoRemote (userID, regionID, lastPosition, lastLookAt);
@@ -222,7 +221,8 @@ namespace Universe.Services
             bool changed = false;
             UserInfo info = m_agentInfoConnector.Get (userID, checkForOfflineStatus, out changed);
             if (changed)
-                m_registry.RequestModuleInterface<ISimulationBase> ().EventManager.FireGenericEventHandler ("UserStatusChange", new object [] { userID, false, UUID.Zero });
+                m_registry.RequestModuleInterface<ISimulationBase> ().EventManager.FireGenericEventHandler (
+                    "UserStatusChange", new object [] { userID, false, UUID.Zero });
             return info;
         }
 

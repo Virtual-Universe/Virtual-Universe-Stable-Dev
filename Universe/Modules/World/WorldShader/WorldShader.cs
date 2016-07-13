@@ -41,7 +41,6 @@ using Universe.Framework.SceneInfo.Entities;
 using Universe.Framework.Services.ClassHelpers.Assets;
 using Universe.Framework.Utilities;
 
-
 namespace Universe.Modules.WorldShader
 {
     public class WorldShader : INonSharedRegionModule
@@ -162,7 +161,13 @@ namespace Universe.Modules.WorldShader
                                 }
 
                                 asset.ID = UUID.Random ();
-                                texture = Shade (texture, shader, percent, greyScale);
+                                try {
+                                    texture = Shade (texture, shader, percent, greyScale);
+                                } catch {
+                                    asset.Dispose ();
+                                    continue;   // cannot convert this one...
+                                }
+
                                 asset.Data = OpenJPEG.EncodeFromImage (texture, false);
                                 asset.Description = t.ToString ();
                                 texture.Dispose ();
@@ -212,10 +217,6 @@ namespace Universe.Modules.WorldShader
         {
             Primitive.TextureEntry Textures = new Primitive.TextureEntry (id);
             Textures.DefaultTexture = CopyFace (c.DefaultTexture, Textures.DefaultTexture);
-            //for(int i = 0; i < c.FaceTextures.Length; i++)
-            //{
-            //    Textures.FaceTextures[i] = c.FaceTextures[i];
-            //}
             return Textures;
         }
 

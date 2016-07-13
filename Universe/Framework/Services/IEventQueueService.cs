@@ -28,11 +28,11 @@
  */
 
 using System.Net;
-using Universe.Framework.SceneInfo;
 using OpenMetaverse;
 using OpenMetaverse.Messages.Linden;
 using OpenMetaverse.Packets;
 using OpenMetaverse.StructuredData;
+using Universe.Framework.SceneInfo;
 
 namespace Universe.Framework.Services
 {

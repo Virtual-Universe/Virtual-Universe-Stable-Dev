@@ -77,9 +77,9 @@ namespace Universe.Services.GenericServices
             var uris = new Dictionary<string, string>();
             foreach (ConnectorBase connector in ConnectorRegistry.ServerHandlerConnectors)
             {
-                uris.Add(connector.ServerHandlerName, MainServer.Instance.FullHostName + ":" + connector.ServerHandlerPort + connector.ServerHandlerPath);
+                uris.Add(connector.ServerHandlerName, MainServer.Instance.FullHostName + ":" +
+                    connector.ServerHandlerPort + connector.ServerHandlerPath);
             }
-
             gridTimer = new Timer(SendGridURIsAsync, uris, 3000, Timeout.Infinite);
         }
 
@@ -140,8 +140,7 @@ namespace Universe.Services.GenericServices
             {
                 if (!m_gridURIs.ContainsKey(kvp.Key))
                     m_gridURIs.Add(kvp.Key, new List<string>());
-
-                if (!m_gridURIs[kvp.Key].Contains(kvp.Value))
+                if(!m_gridURIs[kvp.Key].Contains(kvp.Value))
                     m_gridURIs[kvp.Key].Add(kvp.Value);
             }
 

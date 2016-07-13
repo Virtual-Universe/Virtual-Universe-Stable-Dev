@@ -64,7 +64,8 @@ namespace Universe.Services.DataService
 
         #region IUniverseDataPlugin members
 
-        public void Initialize(IGenericData genericData, IConfigSource source, IRegistryCore simBase, string defaultConnectionString)
+        public void Initialize(IGenericData genericData, IConfigSource source, IRegistryCore simBase,
+                               string defaultConnectionString)
         {
             GD = genericData;
 
@@ -79,7 +80,8 @@ namespace Universe.Services.DataService
             }
 
             if (GD != null)
-                GD.ConnectToDatabase (defaultConnectionString, "Groups", source.Configs ["UniverseConnectors"].GetBoolean ("ValidateTables", true));
+                GD.ConnectToDatabase (defaultConnectionString, "Groups",
+                    source.Configs ["UniverseConnectors"].GetBoolean ("ValidateTables", true));
 
             Framework.Utilities.DataManager.RegisterPlugin (Name + "Local", this);
 
@@ -236,7 +238,8 @@ namespace Universe.Services.DataService
                 GroupPowers.HostEvent |
                 GroupPowers.RemoveMember
             );
-            
+
+                
             Dictionary<string, object> row = new Dictionary<string, object>(11);
             row["GroupID"] = groupID;
             row["Name"] = name;
@@ -251,13 +254,26 @@ namespace Universe.Services.DataService
             row["OwnerRoleID"] = ownerRoleID;
 
             GD.Insert(_DATAREALM, row);
+
+            // const ulong EveryonePowers = 8796495740928;             // >> 0x80018010000
+            //
+            // 03-07-2015 Fly-Man- Removed this part in favor of using the real values
+            //
             
             //Add everyone role to group
-            AddRoleToGroup(founderID, groupID, UUID.Zero, "Everyone", "Everyone in the group is in the everyone role.", "Member of " + name, EveryonePowers);
+            AddRoleToGroup(founderID, groupID, UUID.Zero, "Everyone", "Everyone in the group is in the everyone role.",
+                           "Member of " + name, EveryonePowers);
+
+            // const ulong OfficersPowers = 436506116225230;           // >> 0x 18cfffffff8ce
+            //
+            // 03-07-2015 Fly-Man- Removed this part in favor of using the real values
+            //
 
             UUID officersRole = UUID.Random();
             //Add officers role to group
-            AddRoleToGroup(founderID, groupID, officersRole, "Officers", "The officers of the group, with more powers than regular members.", "Officer of " + name, OfficersPowers);
+            AddRoleToGroup(founderID, groupID, officersRole, "Officers",
+                           "The officers of the group, with more powers than regular members.", "Officer of " + name,
+                           OfficersPowers);
 
             // replaced with above //const ulong OwnerPowers = 18446744073709551615;
             // this is the uint maxvalue
@@ -276,8 +292,13 @@ namespace Universe.Services.DataService
             SetAgentActiveGroup(founderID, groupID);
         }
 
+        //[CanBeReflected(ThreatLevel = ThreatLevel.Full)]
         public void UpdateGroupFounder(UUID groupID, UUID newOwner, bool keepOldOwnerInGroup)
         {
+            /*object remoteValue = DoRemote(groupID, newOwner, keepOldOwnerInGroup);
+            if (remoteValue != null || m_doRemoteOnly)
+                return;*/
+
             GroupRecord record = GetGroupRecord(UUID.Zero, groupID, "");
             bool newUserExists = GetAgentGroupMemberData(newOwner, groupID, newOwner) != null;
 
@@ -298,14 +319,17 @@ namespace Universe.Services.DataService
         }
 
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
-        public void UpdateGroup(UUID requestingAgentID, UUID groupID, string charter, int showInList, UUID insigniaID, int membershipFee, int openEnrollment, int allowPublish, int maturePublish)
+        public void UpdateGroup(UUID requestingAgentID, UUID groupID, string charter, int showInList, UUID insigniaID,
+                                int membershipFee, int openEnrollment, int allowPublish, int maturePublish)
         {
             if (m_doRemoteOnly) {
-                DoRemote (requestingAgentID, groupID, charter, showInList, insigniaID, membershipFee, openEnrollment, allowPublish, maturePublish);
+                DoRemote (requestingAgentID, groupID, charter, showInList, insigniaID, membershipFee,
+                         openEnrollment, allowPublish, maturePublish);
                 return;
             }
 
-            if (CheckGroupPermissions(requestingAgentID, groupID, (ulong) (GroupPowers.ChangeOptions | GroupPowers.ChangeIdentity)))
+            if (CheckGroupPermissions(requestingAgentID, groupID,
+                                      (ulong) (GroupPowers.ChangeOptions | GroupPowers.ChangeIdentity)))
             {
                 Dictionary<string, object> values = new Dictionary<string, object>(6);
                 values["Charter"] = charter;
@@ -324,10 +348,12 @@ namespace Universe.Services.DataService
         }
 
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
-        public void AddGroupNotice(UUID requestingAgentID, UUID groupID, UUID noticeID, string fromName, string subject, string message, UUID itemID, int assetType, string itemName)
+        public void AddGroupNotice(UUID requestingAgentID, UUID groupID, UUID noticeID, string fromName, string subject,
+                                   string message, UUID itemID, int assetType, string itemName)
         {
             if (m_doRemoteOnly) {
-                DoRemote (requestingAgentID, groupID, noticeID, fromName, subject, message, itemID, assetType, itemName);
+                DoRemote (requestingAgentID, groupID, noticeID, fromName, subject, message, itemID,
+                         assetType, itemName);
                 return;
             }
 
@@ -360,7 +386,8 @@ namespace Universe.Services.DataService
             if (!agentsCanBypassGroupNoticePermsCheck.Contains(requestingAgentID) &&
                 !CheckGroupPermissions(requestingAgentID, groupID, (ulong) GroupPowers.SendNotices))
             {
-                MainConsole.Instance.TraceFormat("Permission check failed when trying to edit group notice {0}.", noticeID);
+                MainConsole.Instance.TraceFormat("Permission check failed when trying to edit group notice {0}.",
+                                                 noticeID);
                 return false;
             }
 
@@ -371,12 +398,14 @@ namespace Universe.Services.DataService
             }
 
             if (GNI.GroupID != groupID) {
-                MainConsole.Instance.TraceFormat("Group notice {0} group ID {1} does not match supplied group ID {2}", noticeID, GNI.GroupID, groupID);
+                MainConsole.Instance.TraceFormat("Group notice {0} group ID {1} does not match supplied group ID {2}",
+                                                 noticeID, GNI.GroupID, groupID);
                 return false;
             }
 
             if (subject.Trim() == string.Empty || message.Trim() == string.Empty) {
-                MainConsole.Instance.TraceFormat("Could not edit group notice {0}, message or subject was empty", noticeID);
+                MainConsole.Instance.TraceFormat("Could not edit group notice {0}, message or subject was empty",
+                                                 noticeID);
                 return false;
             }
 
@@ -402,7 +431,8 @@ namespace Universe.Services.DataService
             if (!agentsCanBypassGroupNoticePermsCheck.Contains(requestingAgentID) &&
                 !CheckGroupPermissions(requestingAgentID, groupID, (ulong) GroupPowers.SendNotices))
             {
-                MainConsole.Instance.TraceFormat("Permission check failed when trying to edit group notice {0}.", noticeID);
+                MainConsole.Instance.TraceFormat("Permission check failed when trying to edit group notice {0}.",
+                                                 noticeID);
                 return false;
             }
 
@@ -413,7 +443,8 @@ namespace Universe.Services.DataService
             }
 
             if (GNI.GroupID != groupID) {
-                MainConsole.Instance.TraceFormat("Group notice {0} group ID {1} does not match supplied group ID {2}", noticeID, GNI.GroupID, groupID);
+                MainConsole.Instance.TraceFormat("Group notice {0} group ID {1} does not match supplied group ID {2}",
+                                                 noticeID, GNI.GroupID, groupID);
                 return false;
             }
 
@@ -500,12 +531,12 @@ namespace Universe.Services.DataService
             where["AgentID"] = agentID;
             where["GroupID"] = groupID;
 
-            if (GD.Query(new[] {"*"}, _MEMBERSHIPREALM, new QueryFilter {andFilters = where}, null, null, null).Count != 0)
+            if (GD.Query(new[] {"*"}, _MEMBERSHIPREALM, 
+                new QueryFilter {andFilters = where}, null, null, null).Count != 0)
             {
                 MainConsole.Instance.Error("[AGM]: Agent " + agentID + " is already in " + groupID);
                 return;
             }
-
             Dictionary<string, object> row = new Dictionary<string, object>(6);
             row["GroupID"] = groupID;
             row["AgentID"] = agentID;
@@ -534,7 +565,8 @@ namespace Universe.Services.DataService
                 return remoteValue != null ? (bool)remoteValue : false;
             }
 
-            if ((CheckGroupPermissions(requestingAgentID, groupID, (ulong) GroupPowers.RemoveMember)) || (requestingAgentID == agentID))
+            if ((CheckGroupPermissions(requestingAgentID, groupID, (ulong) GroupPowers.RemoveMember)) ||
+                (requestingAgentID == agentID))
             {
                 QueryFilter filter = new QueryFilter();
                 filter.andFilters["AgentID"] = agentID;
@@ -557,12 +589,12 @@ namespace Universe.Services.DataService
 
                 return true;
             }
-
             return false;
         }
 
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
-        public void AddRoleToGroup(UUID requestingAgentID, UUID groupID, UUID roleID, string nameOf, string description, string title, ulong powers)
+        public void AddRoleToGroup(UUID requestingAgentID, UUID groupID, UUID roleID, string nameOf, string description,
+                                   string title, ulong powers)
         {
             if (m_doRemoteOnly) {
                 DoRemote (requestingAgentID, groupID, roleID, nameOf, description, title, powers);
@@ -583,7 +615,8 @@ namespace Universe.Services.DataService
         }
 
         [CanBeReflected (ThreatLevel = ThreatLevel.Low)]
-        public void UpdateRole (UUID requestingAgentID, UUID groupID, UUID roleID, string nameOf, string desc, string roleTitle, ulong powers)
+        public void UpdateRole (UUID requestingAgentID, UUID groupID, UUID roleID, string nameOf, string desc,
+                               string roleTitle, ulong powers)
         {
             if (m_doRemoteOnly) {
                 DoRemote (requestingAgentID, groupID, roleID, nameOf, desc, roleTitle, powers);
@@ -598,7 +631,6 @@ namespace Universe.Services.DataService
                 {
                     values["Name"] = nameOf;
                 }
-
                 if (desc != null)
                     values["Description"] = desc;
 
@@ -606,7 +638,6 @@ namespace Universe.Services.DataService
                 {
                     values["Title"] = roleTitle;
                 }
-
                 values["Powers"] = powers.ToString();
 
                 QueryFilter filter = new QueryFilter();
@@ -660,7 +691,8 @@ namespace Universe.Services.DataService
                     GroupProfileData profile = GetGroupProfile(requestingAgentID, groupID);
                     if (profile == null || !profile.OpenEnrollment || roleID != UUID.Zero) //For open enrollment adding
                     {
-                        MainConsole.Instance.Warn("[AGM]: User " + requestingAgentID + " attempted to add user " + agentID + " to group " + groupID + ", but did not have permissions to do so!");
+                        MainConsole.Instance.Warn("[AGM]: User " + requestingAgentID + " attempted to add user " +
+                                                  agentID + " to group " + groupID + ", but did not have permissions to do so!");
                         return;
                     }
                 }
@@ -709,7 +741,8 @@ namespace Universe.Services.DataService
         }
 
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
-        public void SetAgentGroupInfo(UUID requestingAgentID, UUID agentID, UUID groupID, int acceptNotices, int listInProfile)
+        public void SetAgentGroupInfo(UUID requestingAgentID, UUID agentID, UUID groupID, int acceptNotices,
+                                      int listInProfile)
         {
             if (m_doRemoteOnly) {
                 DoRemote (requestingAgentID, agentID, groupID, acceptNotices, listInProfile);
@@ -733,7 +766,8 @@ namespace Universe.Services.DataService
         }
 
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
-        public void AddAgentGroupInvite(UUID requestingAgentID, UUID inviteID, UUID groupID, UUID roleID, UUID agentID, string fromAgentName)
+        public void AddAgentGroupInvite(UUID requestingAgentID, UUID inviteID, UUID groupID, UUID roleID, UUID agentID,
+                                        string fromAgentName)
         {
             object remoteValue = DoRemote(requestingAgentID, inviteID, groupID, roleID, agentID, fromAgentName);
             if (remoteValue != null || m_doRemoteOnly)
@@ -818,7 +852,8 @@ namespace Universe.Services.DataService
                 (from p in proposals where !p.HasCalculatedResult select p).ToList();
             foreach (GroupProposalInfo p in proposalsNeedingResults)
             {
-                List<OpenMetaverse.StructuredData.OSDMap> maps = GenericUtils.GetGenerics(p.GroupID, p.VoteID.ToString(), GD);
+                List<OpenMetaverse.StructuredData.OSDMap> maps = GenericUtils.GetGenerics(p.GroupID, p.VoteID.ToString(),
+                                                                                          GD);
                 int yes = 0;
                 int no = 0;
                 foreach (OpenMetaverse.StructuredData.OSDMap vote in maps) {
@@ -829,11 +864,13 @@ namespace Universe.Services.DataService
                 }
                 if (yes + no < p.Quorum)
                     p.Result = false;
-
+                /*if (yes > no)
+                    p.Result = true;
+                else
+                    p.Result = false;*/
                 p.HasCalculatedResult = true;
                 GenericUtils.AddGeneric(p.GroupID, "Proposal", p.VoteID.ToString(), p.ToOSD(), GD);
             }
-
             foreach (GroupProposalInfo p in proposals)
                 p.VoteCast = GetHasVoted(agentID, p);
 
@@ -842,7 +879,8 @@ namespace Universe.Services.DataService
 
         string GetHasVoted(UUID agentID, GroupProposalInfo p)
         {
-            OpenMetaverse.StructuredData.OSDMap map = GenericUtils.GetGeneric(p.GroupID, p.VoteID.ToString(), agentID.ToString(), GD);
+            OpenMetaverse.StructuredData.OSDMap map = GenericUtils.GetGeneric(p.GroupID, p.VoteID.ToString(),
+                                                                              agentID.ToString(), GD);
             if (map != null)
                 return map["Vote"];
             return "";
@@ -889,7 +927,8 @@ namespace Universe.Services.DataService
             List<UUID> groupIDs = new List<UUID>();
             if (!agentsCanBypassGroupNoticePermsCheck.Contains(requestingAgentID)) {
                 groupIDs.AddRange(
-                    groupIDs.Where(GroupID => CheckGroupPermissions(requestingAgentID, GroupID, (ulong) GroupPowers.ReceiveNotices)));
+                    groupIDs.Where(
+                        GroupID => CheckGroupPermissions(requestingAgentID, GroupID, (ulong) GroupPowers.ReceiveNotices)));
             }
             else {
                 groupIDs = groupIDList;
@@ -955,7 +994,7 @@ namespace Universe.Services.DataService
                 return remoteValue != null ? (List<UUID>)remoteValue : new List<UUID> ();
             }
 
-            // maybe check for system user?
+            // maybe check for system user??
             if (!Utilities.IsSystemUser(requestingAgentID))
                 return new List<UUID>();
 
@@ -1009,7 +1048,8 @@ namespace Universe.Services.DataService
         }
 
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
-        public List<GroupRecord> GetGroupRecords(UUID requestingAgentID, uint start, uint count, Dictionary<string, bool> sort, Dictionary<string, bool> boolFields)
+        public List<GroupRecord> GetGroupRecords(UUID requestingAgentID, uint start, uint count,
+                                                 Dictionary<string, bool> sort, Dictionary<string, bool> boolFields)
         {
             if (m_doRemoteOnly) {
                 object remoteValue = DoRemote (requestingAgentID, start, count, boolFields);
@@ -1051,11 +1091,9 @@ namespace Universe.Services.DataService
             if (osgroupsData.Count < 11) {
                 return Reply;
             }
-
             for (int i = 0; i < osgroupsData.Count; i += 11) {
                 Reply.Add(GroupRecordQueryResult2GroupRecord(osgroupsData.GetRange(i, 11)));
             }
-
             return Reply;
         }
 
@@ -1182,7 +1220,8 @@ namespace Universe.Services.DataService
             QueryTables tables = new QueryTables();
             tables.AddTable(_DATAREALM, "osg");
             tables.AddTable(_MEMBERSHIPREALM, "osgm", JoinType.Inner, new[,] {{"osg.GroupID", "osgm.GroupID"}});
-            tables.AddTable(_ROLEREALM, "osr", JoinType.Inner, new[,] {{"osgm.SelectedRoleID", "osr.RoleID"}, {"osr.GroupID", "osg.GroupID"}});
+            tables.AddTable(_ROLEREALM, "osr", JoinType.Inner,
+                            new[,] {{"osgm.SelectedRoleID", "osr.RoleID"}, {"osr.GroupID", "osg.GroupID"}});
 
             QueryFilter filter = new QueryFilter();
             filter.andFilters["osg.GroupID"] = groupID;
@@ -1232,8 +1271,10 @@ namespace Universe.Services.DataService
                                               ShowInList = int.Parse(Membership[14]) == 1
                                           };
 
+
             return GMD;
         }
+
 
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
         public List<GroupTitlesData> GetGroupTitles(UUID requestingAgentID, UUID groupID)
@@ -1245,8 +1286,10 @@ namespace Universe.Services.DataService
 
             QueryTables tables = new QueryTables();
             tables.AddTable(_MEMBERSHIPREALM, "osgm");
-            tables.AddTable(_MEMBERSHIPROLEREALM, "osgrm", JoinType.Inner, new[,] {{"osgm.AgentID", "osgrm.AgentID"}, {"osgm.GroupID", "osgrm.GroupID"}});
-            tables.AddTable(_ROLEREALM, "osr", JoinType.Inner, new[,] {{"osgrm.RoleID", "osr.RoleID"}, {"osgm.GroupID", "osr.GroupID"}});
+            tables.AddTable(_MEMBERSHIPROLEREALM, "osgrm", JoinType.Inner,
+                            new[,] {{"osgm.AgentID", "osgrm.AgentID"}, {"osgm.GroupID", "osgrm.GroupID"}});
+            tables.AddTable(_ROLEREALM, "osr", JoinType.Inner,
+                            new[,] {{"osgrm.RoleID", "osr.RoleID"}, {"osgm.GroupID", "osr.GroupID"}});
 
 
             QueryFilter filter = new QueryFilter();
@@ -1271,7 +1314,6 @@ namespace Universe.Services.DataService
                                    Selected = Membership[loop + 0] == Membership[loop + 1]
                                });
             }
-
             return titles;
         }
 
@@ -1336,9 +1378,10 @@ namespace Universe.Services.DataService
                                     ShowInList = int.Parse(Membership[loop + 14]) == 1
                                 });
             }
-
             return results;
         }
+
+
 
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
         public GroupInviteInfo GetAgentToGroupInvite(UUID requestingAgentID, UUID inviteID)
@@ -1354,13 +1397,13 @@ namespace Universe.Services.DataService
             where["AgentID"] = requestingAgentID;
             where["InviteID"] = inviteID;
 
-            List<string> groupInvite = GD.Query(new[] {"*"}, _INVITEREALM, new QueryFilter{ andFilters = where }, null, null, null);
+            List<string> groupInvite = GD.Query(new[] {"*"}, _INVITEREALM,
+                new QueryFilter{ andFilters = where }, null, null, null);
 
             if (groupInvite.Count == 0)
             {
                 return null;
             }
-
             invite.AgentID = UUID.Parse(groupInvite[3]);
             invite.GroupID = UUID.Parse(groupInvite[1]);
             invite.InviteID = UUID.Parse(groupInvite[0]);
@@ -1438,12 +1481,14 @@ namespace Universe.Services.DataService
 
             filter.andFilters.Remove("RoleID");
 
-            List<string> OwnerRoleID = GD.Query(new string[1] { "OwnerRoleID"}, _DATAREALM, filter, null, null, null);
+            List<string> OwnerRoleID = GD.Query(new string[1] { "OwnerRoleID"},
+                                                _DATAREALM, filter, null, null, null);
 
             filter.andFilters["RoleID"] = OwnerRoleID[0];
             filter.andFilters["AgentID"] = agentID;
 
-            bool IsOwner = uint.Parse(GD.Query(new string[1] {"COUNT(AgentID)"}, _MEMBERSHIPROLEREALM, filter, null, null, null)[0]) == 1;
+            bool IsOwner = uint.Parse(GD.Query(new string[1] {"COUNT(AgentID)"},
+                                               _MEMBERSHIPROLEREALM, filter, null, null, null)[0]) == 1;
 
             return new GroupMembersData
                        {
@@ -1476,7 +1521,8 @@ namespace Universe.Services.DataService
                 GroupMembersData d = GetAgentGroupMemberData(requestingAgentID, groupID, UUID.Parse(agent));
                 if (d == null) continue;
                 UserInfo info =
-                    m_registry.RequestModuleInterface<IAgentInfoService>().GetUserInfo(d.AgentID.ToString());
+                    m_registry.RequestModuleInterface<IAgentInfoService>().GetUserInfo(
+                        d.AgentID.ToString());
                 if (info != null && !info.IsOnline)
                     d.OnlineStatus = info.LastLogin.ToShortDateString();
                 else if (info == null)
@@ -1485,9 +1531,9 @@ namespace Universe.Services.DataService
                     d.OnlineStatus = "Online";
                 list.Add(d);
             }
-
             return list;
         }
+
 
         // Banned users
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
@@ -1513,7 +1559,6 @@ namespace Universe.Services.DataService
 
                 userList.Add(banUser);
             }
-
             return userList;
         }
 
@@ -1538,6 +1583,7 @@ namespace Universe.Services.DataService
                 }
             }
         }
+
 
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
         public void RemoveGroupBannedAgent(UUID requestingAgentID, UUID groupID, List<UUID> bannedUserID)
@@ -1584,6 +1630,7 @@ namespace Universe.Services.DataService
             return bannedUser;
         }
 
+
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
         public bool IsGroupBannedUser(UUID groupID, UUID agentID)
         {
@@ -1604,7 +1651,8 @@ namespace Universe.Services.DataService
 
         // Search
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
-        public List<DirGroupsReplyData> FindGroups(UUID requestingAgentID, string search, uint? start, uint? count, uint queryflags)
+        public List<DirGroupsReplyData> FindGroups(UUID requestingAgentID, string search, uint? start, uint? count,
+                                                   uint queryflags)
         {
             if (m_doRemoteOnly) {
                 object remoteValue = DoRemote (requestingAgentID, search, start, count, queryflags);
@@ -1649,7 +1697,6 @@ namespace Universe.Services.DataService
 
                 Reply.Add(dirgroup);
             }
-
             return Reply;
         }
 
@@ -1746,7 +1793,6 @@ namespace Universe.Services.DataService
                                        Title = Roles[i + 2]
                                    });
             }
-
             return GroupRoles;
         }
 
@@ -1913,7 +1959,6 @@ namespace Universe.Services.DataService
                 GND.AssetType = (byte) int.Parse(result[8]);
                 GND.ItemName = result[9];
             }
-
             return GND;
         }
 
@@ -2020,7 +2065,9 @@ namespace Universe.Services.DataService
                 profile.ShowInList = groupInfo.ShowInList;
             }
 
-            GroupMembershipData memberInfo = GetGroupMembershipData(requestingAgentID, groupID, requestingAgentID);
+            GroupMembershipData memberInfo = GetGroupMembershipData(requestingAgentID,
+                                                                    groupID,
+                                                                    requestingAgentID);
             if (memberInfo != null)
             {
                 profile.MemberTitle = memberInfo.GroupTitle;

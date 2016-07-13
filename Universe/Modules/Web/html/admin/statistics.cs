@@ -69,7 +69,6 @@ namespace Universe.Modules.Web
             {
                 response = "Sorry... Statistics information is not available";
                 return null;
-
             }
 
             // Clear statistics
@@ -111,8 +110,6 @@ namespace Universe.Modules.Web
             var pingTime = dc.Get ("ping").ConvertAll<float> ((s) => float.Parse (s));
             var agentsInView = dc.Get ("agents_in_view").ConvertAll<int> ((s) => int.Parse (s));
 
-
-
             // data
             vars.Add("ViewersList",viewerList);
             vars.Add("GPUList",gpuList);
@@ -134,10 +131,8 @@ namespace Universe.Modules.Web
             vars.Add("MemoryUseageText", translator.GetTranslatedString("MemoryUseageText"));
             vars.Add("PingTimeText", translator.GetTranslatedString("PingTimeText"));
             vars.Add("AgentsInViewText", translator.GetTranslatedString("AgentsInViewText"));
-
             vars.Add("ClearStatsText", translator.GetTranslatedString("ClearStatsText"));
-
-                    
+                  
             return vars;
         }
 

@@ -54,17 +54,10 @@ namespace Universe.Modules.Land
 
     public class PrimCountModule : IPrimCountModule, INonSharedRegionModule
     {
-        readonly Dictionary<UUID, UUID> m_OwnerMap =
-            new Dictionary<UUID, UUID>();
-
-        readonly Dictionary<UUID, ParcelCounts> m_ParcelCounts =
-            new Dictionary<UUID, ParcelCounts>();
-
-        readonly Dictionary<UUID, PrimCounts> m_PrimCounts =
-            new Dictionary<UUID, PrimCounts>();
-
-        readonly Dictionary<UUID, int> m_SimwideCounts =
-            new Dictionary<UUID, int>();
+        readonly Dictionary<UUID, UUID> m_OwnerMap = new Dictionary<UUID, UUID>();
+        readonly Dictionary<UUID, ParcelCounts> m_ParcelCounts = new Dictionary<UUID, ParcelCounts>();
+        readonly Dictionary<UUID, PrimCounts> m_PrimCounts = new Dictionary<UUID, PrimCounts>();
+        readonly Dictionary<UUID, int> m_SimwideCounts = new Dictionary<UUID, int>();
 
         // For now, a simple sim-wide taint to get this up. Later parcel based
         // taint to allow recounting a parcel if only ownership has changed
@@ -503,8 +496,7 @@ namespace Universe.Modules.Land
                 catch (Exception e)
                 {
                     // Catch it and move on. This includes situations where splist has inconsistent info
-                    MainConsole.Instance.WarnFormat(
-                        "[ParcelPrimCountModule]: Problem processing action in Recount: {0}", e);
+                    MainConsole.Instance.WarnFormat("[ParcelPrimCountModule]: Problem processing action in Recount: {0}", e);
                 }
             }
 
@@ -540,13 +532,10 @@ namespace Universe.Modules.Land
             else if (FunctionName == "ObjectEnteringNewParcel")
             {
                 //Taint the parcels
-                //SceneObjectGroup grp = (((Object[])parameters)[0]) as SceneObjectGroup;
                 UUID newParcel = (UUID) (((Object[]) parameters)[1]);
                 UUID oldParcel = (UUID) (((Object[]) parameters)[2]);
-                ILandObject oldlandObject =
-                    m_Scene.RequestModuleInterface<IParcelManagementModule>().GetLandObject(oldParcel);
-                ILandObject newlandObject =
-                    m_Scene.RequestModuleInterface<IParcelManagementModule>().GetLandObject(newParcel);
+                ILandObject oldlandObject = m_Scene.RequestModuleInterface<IParcelManagementModule>().GetLandObject(oldParcel);
+                ILandObject newlandObject = m_Scene.RequestModuleInterface<IParcelManagementModule>().GetLandObject(newParcel);
 
                 TaintPrimCount(oldlandObject);
                 TaintPrimCount(newlandObject);

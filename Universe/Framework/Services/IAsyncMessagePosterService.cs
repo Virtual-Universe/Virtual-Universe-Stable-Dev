@@ -27,12 +27,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+using System.Collections.Generic;
+using OpenMetaverse;
+using OpenMetaverse.StructuredData;
 using Universe.Framework.ClientInterfaces;
 using Universe.Framework.Modules;
 using Universe.Framework.PresenceInfo;
-using OpenMetaverse;
-using OpenMetaverse.StructuredData;
-using System.Collections.Generic;
 
 namespace Universe.Framework.Services
 {

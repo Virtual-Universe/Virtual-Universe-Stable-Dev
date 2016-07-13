@@ -32,7 +32,6 @@ using OpenMetaverse;
 using Universe.Framework.Modules;
 using Universe.Framework.SceneInfo;
 
-
 namespace Universe.Modules.Terrain.PaintBrushes
 {
     public class FlattenSphere : ITerrainPaintableEffect

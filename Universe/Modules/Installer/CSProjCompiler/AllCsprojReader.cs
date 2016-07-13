@@ -28,9 +28,9 @@
  */
 
 /*
-* No license given,
-* taken from http://csharper.fairblog.ro/2010/05/compiling-c-projects-at-runtime-parsing-the-csproj-file 
-*/
+ * No license given,
+ * taken from http://csharper.fairblog.ro/2010/05/compiling-c-projects-at-runtime-parsing-the-csproj-file 
+ */
 
 using System.Collections.Generic;
 using System.IO;

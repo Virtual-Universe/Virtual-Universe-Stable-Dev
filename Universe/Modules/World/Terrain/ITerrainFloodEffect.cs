@@ -30,12 +30,10 @@
 using OpenMetaverse;
 using Universe.Framework.Modules;
 
-
 namespace Universe.Modules.Terrain
 {
     public interface ITerrainFloodEffect
     {
-        void FloodEffect(ITerrainChannel map, UUID userID, float north,
-                         float west, float south, float east, float strength);
+        void FloodEffect(ITerrainChannel map, UUID userID, float north, float west, float south, float east, float strength);
     }
 }

@@ -29,9 +29,9 @@
 
 using System;
 using System.Collections.Generic;
+using OpenMetaverse;
 using Universe.Framework.PresenceInfo;
 using Universe.Framework.SceneInfo.Entities;
-using OpenMetaverse;
 
 namespace Universe.Framework.SceneInfo
 {

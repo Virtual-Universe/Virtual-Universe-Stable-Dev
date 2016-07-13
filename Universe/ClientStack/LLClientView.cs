@@ -4776,6 +4776,9 @@ namespace Universe.ClientStack
             updateMessage.MediaLoop = landData.MediaLoop;
             updateMessage.ObscureMusic = landData.ObscureMusic;
             updateMessage.ObscureMedia = landData.ObscureMedia;
+            updateMessage.SeeAVs = landData.SeeAVS;
+            updateMessage.AnyAVSounds = landData.AnyAVSounds;
+            updateMessage.GroupAVSounds = landData.GroupAVSounds;
 
             try
             {

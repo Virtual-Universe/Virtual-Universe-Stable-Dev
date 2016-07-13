@@ -54,9 +54,14 @@ namespace Universe.Services
                 return ProcessUpdateAgentPreferences (request, m_service.AgentID);
             };
 
-            service.AddStreamHandler ("AgentPreferences", new GenericStreamHandler ("POST", service.CreateCAPS ("AgentPreferences", ""), method));
-            service.AddStreamHandler ("UpdateAgentLanguage", new GenericStreamHandler ("POST", service.CreateCAPS ("UpdateAgentLanguage", ""), method));
-            service.AddStreamHandler ("UpdateAgentInformation", new GenericStreamHandler ("POST", service.CreateCAPS ("UpdateAgentInformation", ""), method));
+            service.AddStreamHandler ("AgentPreferences",
+                new GenericStreamHandler ("POST", service.CreateCAPS ("AgentPreferences", ""), method));
+			
+            service.AddStreamHandler ("UpdateAgentLanguage",
+                new GenericStreamHandler ("POST", service.CreateCAPS ("UpdateAgentLanguage", ""), method));
+			
+            service.AddStreamHandler ("UpdateAgentInformation",
+                new GenericStreamHandler ("POST", service.CreateCAPS ("UpdateAgentInformation", ""), method));
         }
 
         public void DeregisterCaps ()
@@ -89,16 +94,12 @@ namespace Universe.Services
                     OSDMap accessPrefs = (OSDMap)rm ["access_prefs"];
                     string Level = accessPrefs ["max"].AsString ();
                     int maxLevel = 0;
-
                     if (Level == "PG")
                         maxLevel = 0;
-
                     if (Level == "M")
                         maxLevel = 1;
-
                     if (Level == "A")
                         maxLevel = 2;
-
                     agent.MaturityRating = maxLevel;
                 }
                 // Next permissions
@@ -109,27 +110,22 @@ namespace Universe.Services
                     agent.PermGroup = permsMap ["Group"].AsInteger ();
                     agent.PermNextOwner = permsMap ["NextOwner"].AsInteger ();
                 }
-
                 // Hoverheight
                 if (rm.ContainsKey ("hover_height"))
                 {
                     agent.HoverHeight = rm ["hover_height"].AsReal ();
                 }
-
                 // Language
                 if (rm.ContainsKey ("language"))
                 {
                     agent.Language = rm ["language"].AsString ();
                 }
-
                 // Show Language to others / objects
                 if (rm.ContainsKey ("language_is_public"))
                 {
                     agent.LanguageIsPublic = rm ["language_is_public"].AsBoolean ();
                 }
-
                 data.UpdateAgent (agent);
-                
                 // Build a response that can be send back to the viewer
                 OSDMap resp = new OSDMap ();
                 OSDMap respAccessPrefs = new OSDMap ();
@@ -147,7 +143,6 @@ namespace Universe.Services
             	
                 return OSDParser.SerializeLLSDXmlBytes (resp);
             }
-
             return MainServer.BlankResponse;
         }
     }

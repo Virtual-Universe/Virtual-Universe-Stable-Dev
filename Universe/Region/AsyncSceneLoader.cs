@@ -28,7 +28,6 @@
  */
 
 using System.Collections.Generic;
-
 using Nini.Config;
 using Universe.Framework.ModuleLoader;
 using Universe.Framework.Modules;

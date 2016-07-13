@@ -43,9 +43,11 @@ namespace Universe.Services.DataService
         IGenericData GD;
         const string m_realm = "statsdata";
 
-        public void Initialize(IGenericData GenericData, IConfigSource source, IRegistryCore simBase, string defaultConnectionString)
+        public void Initialize(IGenericData GenericData, IConfigSource source, IRegistryCore simBase,
+                               string defaultConnectionString)
         {
-            if (source.Configs["UniverseConnectors"].GetString("WebStatsDataConnector", "LocalConnector") == "LocalConnector")
+            if (source.Configs["UniverseConnectors"].GetString("WebStatsDataConnector", "LocalConnector") ==
+                "LocalConnector")
             {
                 GD = GenericData;
 
@@ -54,7 +56,8 @@ namespace Universe.Services.DataService
 
                 if (GD != null)
                 {
-                    GD.ConnectToDatabase (defaultConnectionString, "Stats", source.Configs ["UniverseConnectors"].GetBoolean ("ValidateTables", true));
+                    GD.ConnectToDatabase (defaultConnectionString, "Stats",
+                        source.Configs ["UniverseConnectors"].GetBoolean ("ValidateTables", true));
 
                     Framework.Utilities.DataManager.RegisterPlugin (Name, this);
                 }
@@ -150,6 +153,7 @@ namespace Universe.Services.DataService
             List<string> client_viewers = GD.Query(new string[1] {"client_version"}, m_realm, filter, null, null, null);
             client_viewers.Sort ();
 
+            //List<string> client_viewers = Get ("client_version");
             Dictionary<string, int> viewers = new Dictionary<string, int>();
             foreach( var cli in client_viewers)
                 if (viewers.ContainsKey(cli))

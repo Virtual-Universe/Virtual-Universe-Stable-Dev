@@ -37,7 +37,6 @@ namespace Universe.Framework.Utilities
         // some predefined folders
         public const string DEFAULT_CONFIG_DIR = "../Config";
         public const string DEFAULT_DATA_DIR = "../Data";
-        public const string DEFAULT_CRASH_DIR = "../Data/Crashes";
 
         // all these are relative to the default data directory,
         // set either as above or via configuration
@@ -81,7 +80,7 @@ namespace Universe.Framework.Utilities
 
         // System Real Estate Maintenance Group
 		public const string RealEstateGroupUUID = "dc7b21cd-3c89-fcaa-31c8-25f9ffd224cd";
-		public const string RealEstateGroupName = "Maintenance";
+		public const string RealEstateGroupName = "Virtual Universe Maintenance";
 
         // System Banker Avatar
         public const string BankerUUID = "f4261829-2796-4688-bfe2-085190cb639b";

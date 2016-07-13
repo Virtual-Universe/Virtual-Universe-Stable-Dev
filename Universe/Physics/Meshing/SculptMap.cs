@@ -30,7 +30,7 @@
 // to build without references to System.Drawing, comment this out
 
 #define SYSTEM_DRAWING
-#undef FASTBMP                     // experimental. Advise if problems are seen <greythane@gmail.com>
+#undef FASTBMP                     // expiremental. Advise if problems are seen <greythane@gmail.com>
 
 using System;
 using System.Collections.Generic;

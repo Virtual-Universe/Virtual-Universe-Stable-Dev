@@ -28,10 +28,10 @@
  */
 
 using System.Collections.Generic;
+using OpenMetaverse;
 using Universe.Framework.ClientInterfaces;
 using Universe.Framework.SceneInfo;
 using Universe.Framework.SceneInfo.Entities;
-using OpenMetaverse;
 
 namespace Universe.Framework.PresenceInfo
 {

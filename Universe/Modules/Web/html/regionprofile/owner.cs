@@ -130,7 +130,6 @@ namespace Universe.Modules.Web
                 vars.Add ("UserPictureURL", "../images/icons/no_avatar.jpg");
             }
 
-
             UserAccount ourAccount = Authenticator.GetAuthentication(httpRequest);
             if (ourAccount != null)
             {
@@ -164,7 +163,6 @@ namespace Universe.Modules.Web
                 vars.Add("UserIsOnline", false);
                 vars.Add("IsOnline", translator.GetTranslatedString("Offline"));
             }
-
 
             vars.Add("UserProfileFor", translator.GetTranslatedString("UserProfileFor"));
             vars.Add("ResidentSince", translator.GetTranslatedString("ResidentSince"));

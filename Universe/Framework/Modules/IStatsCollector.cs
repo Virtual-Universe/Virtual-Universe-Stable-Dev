@@ -28,9 +28,9 @@
  */
 
 using System;
+using OpenMetaverse;
 using Universe.Framework.ClientInterfaces;
 using Universe.Framework.Services.ClassHelpers.Assets;
-using OpenMetaverse;
 using Universe.Framework.SceneInfo;
 
 namespace Universe.Framework.Modules

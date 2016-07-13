@@ -169,7 +169,6 @@ namespace Universe.Modules.Estate
                     "show estate regions",
                     "Show information about all regions belonging to an estate",
                     ShowEstateRegionsCommand, false, true);
-
             }
         }
 

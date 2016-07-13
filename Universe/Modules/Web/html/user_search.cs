@@ -106,7 +106,6 @@ namespace Universe.Modules.Web
 
                     } else             // only show the users friends
                     {
-
                         UserAccount ourAccount = Authenticator.GetAuthentication (httpRequest);
                         if (ourAccount != null)
                         {
@@ -167,7 +166,6 @@ namespace Universe.Modules.Web
             vars.Add("SearchResultForUserText", translator.GetTranslatedString("SearchResultForUserText"));
             vars.Add("EditText", translator.GetTranslatedString("EditText"));
             vars.Add("EditUserAccountText", translator.GetTranslatedString("EditUserAccountText"));
-
             vars.Add("FirstText", translator.GetTranslatedString("FirstText"));
             vars.Add("BackText", translator.GetTranslatedString("BackText"));
             vars.Add("NextText", translator.GetTranslatedString("NextText"));

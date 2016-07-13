@@ -1190,7 +1190,7 @@ namespace Universe.Modules.Estate
         {
             client.OnDetailedEstateDataRequest += sendDetailedEstateData;
             client.OnSetEstateFlagsRequest += estateSetRegionInfoHandler;
-//            client.OnSetEstateTerrainBaseTexture += setEstateTerrainBaseTexture;
+            //client.OnSetEstateTerrainBaseTexture += setEstateTerrainBaseTexture;
             client.OnSetEstateTerrainDetailTexture += setEstateTerrainBaseTexture;
             client.OnSetEstateTerrainTextureHeights += setEstateTerrainTextureHeights;
             client.OnCommitEstateTerrainTextureRequest += handleCommitEstateTerrainTextureRequest;
@@ -1217,7 +1217,7 @@ namespace Universe.Modules.Estate
         {
             client.OnDetailedEstateDataRequest -= sendDetailedEstateData;
             client.OnSetEstateFlagsRequest -= estateSetRegionInfoHandler;
-            //            client.OnSetEstateTerrainBaseTexture -= setEstateTerrainBaseTexture;
+            //client.OnSetEstateTerrainBaseTexture -= setEstateTerrainBaseTexture;
             client.OnSetEstateTerrainDetailTexture -= setEstateTerrainBaseTexture;
             client.OnSetEstateTerrainTextureHeights -= setEstateTerrainTextureHeights;
             client.OnCommitEstateTerrainTextureRequest -= handleCommitEstateTerrainTextureRequest;
@@ -1244,7 +1244,6 @@ namespace Universe.Modules.Estate
             RegionFlags flags = RegionFlags.None;
 
             // Fully implemented
-            //
             if (m_scene.RegionInfo.RegionSettings.AllowDamage)
                 flags |= RegionFlags.AllowDamage;
             if (m_scene.RegionInfo.RegionSettings.BlockTerraform)
@@ -1283,7 +1282,6 @@ namespace Universe.Modules.Estate
                 if (m_scene.RegionInfo.EstateSettings.AllowVoice)
                     flags |= RegionFlags.AllowVoice;
             }
-
 
             // Omitted
             // update - greythane -July 2014
@@ -1400,7 +1398,6 @@ namespace Universe.Modules.Estate
                         sun = sunModule.GetCurrentSunHour ();
                 }
 
-                // 
                 m_scene.EventManager.TriggerEstateToolsSunUpdate (
                     m_scene.RegionInfo.RegionHandle,
                     m_scene.RegionInfo.EstateSettings.FixedSun,

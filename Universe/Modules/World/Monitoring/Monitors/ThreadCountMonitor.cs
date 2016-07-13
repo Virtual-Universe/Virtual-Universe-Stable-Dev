@@ -28,7 +28,6 @@
  */
 
 using System.Diagnostics;
-
 using Universe.Framework.Modules;
 
 namespace Universe.Modules.Monitoring.Monitors

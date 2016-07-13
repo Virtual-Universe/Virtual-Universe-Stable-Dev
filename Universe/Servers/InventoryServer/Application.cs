@@ -36,7 +36,7 @@ using Universe.Simulation.Base;
 namespace Universe.Servers.InventoryServer
 {
     /// <summary>
-    ///     Starting class for the Virtual Universe Server
+    ///     Starting class for the Universe Server
     /// </summary>
     public class Application
     {

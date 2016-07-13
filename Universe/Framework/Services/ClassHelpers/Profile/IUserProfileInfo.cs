@@ -28,10 +28,10 @@
  */
 
 using System;
-using Universe.Framework.Modules;
-using Universe.Framework.Utilities;
 using OpenMetaverse;
 using OpenMetaverse.StructuredData;
+using Universe.Framework.Modules;
+using Universe.Framework.Utilities;
 
 namespace Universe.Framework.Services.ClassHelpers.Profile
 {

@@ -40,6 +40,7 @@ namespace Universe.Services
     // Principals may be clients acting on users' behalf,
     // or any other components that need 
     // verifiable identification.
+    //
     public class AuthenticationServiceBase
     {
         protected IAuthenticationData m_Database;
@@ -70,7 +71,6 @@ namespace Universe.Services
             {
                 auth = new AuthData {PrincipalID = principalID, AccountType = authType};
             }
-
             auth.PasswordHash = md5PasswdHash;
             auth.PasswordSalt = passwordSalt;
             return SaveAuth (auth, principalID);
@@ -101,7 +101,6 @@ namespace Universe.Services
             {
                 auth = new AuthData {PrincipalID = principalID, AccountType = authType};
             }
-
             auth.PasswordHash = md5PasswdHash;
             auth.PasswordSalt = passwordSalt;
             return SaveAuth (auth, principalID);
@@ -114,7 +113,6 @@ namespace Universe.Services
             {
                 auth = new AuthData {PrincipalID = principalID, AccountType = authType};
             }
-
             auth.PasswordHash = pass;
             auth.PasswordSalt = "";
             return SaveAuth (auth, principalID);
@@ -126,7 +124,6 @@ namespace Universe.Services
             if (auth == null) {
                 auth = new AuthData { PrincipalID = principalID, AccountType = authType };
             }
-
             auth.PasswordHash = pass;
             auth.PasswordSalt = salt;
             return SaveAuth (auth, principalID);

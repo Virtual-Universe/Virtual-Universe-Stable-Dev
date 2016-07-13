@@ -28,8 +28,8 @@
  */
 
 using System.Collections.Generic;
-using Universe.Framework.SceneInfo.Entities;
 using OpenMetaverse;
+using Universe.Framework.SceneInfo.Entities;
 
 namespace Universe.Framework.SceneInfo
 {

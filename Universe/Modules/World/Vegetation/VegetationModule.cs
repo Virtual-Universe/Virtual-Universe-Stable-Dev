@@ -27,14 +27,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+using System;
+using Nini.Config;
+using OpenMetaverse;
 using Universe.Framework.ConsoleFramework;
 using Universe.Framework.Modules;
 using Universe.Framework.PresenceInfo;
 using Universe.Framework.SceneInfo;
 using Universe.Framework.SceneInfo.Entities;
-using Nini.Config;
-using OpenMetaverse;
-using System;
 
 namespace Universe.Modules.Vegetation
 {

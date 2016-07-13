@@ -58,8 +58,7 @@ namespace Universe.Modules.Entities.ObjectDelete
     /// </summary>
     public class AsyncSceneObjectGroupDeleter : INonSharedRegionModule, IAsyncSceneObjectGroupDeleter
     {
-        readonly ConcurrentQueue<DeleteToInventoryHolder> m_removeFromSimQueue =
-            new ConcurrentQueue<DeleteToInventoryHolder> ();
+        readonly ConcurrentQueue<DeleteToInventoryHolder> m_removeFromSimQueue = new ConcurrentQueue<DeleteToInventoryHolder> ();
 
         bool DeleteLoopInUse;
 

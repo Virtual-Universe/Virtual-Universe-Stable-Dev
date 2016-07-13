@@ -78,12 +78,21 @@ namespace Universe.Services.SQLServices.GridService
                     loc.RegionLocX == RegionLocX &&
                     loc.RegionLocY == RegionLocY;
                 }
-
                 return false;
             }
 
             public static bool operator == (NeighborLocation a, NeighborLocation b)
             {
+                // 20160407 - greythane - Null checks are invalid as NeighbourLocation is never null
+                /*
+                // If both are null, or both are same instance, return true.
+                if (Object.ReferenceEquals (a, b))
+                    return true;
+
+                // If one is null, but not both, return false.
+                if (((object)a == null) || ((object)b == null))
+                    return false;
+                */
                 // Return true if the fields match:
                 return a.Equals (b);
             }
@@ -102,6 +111,7 @@ namespace Universe.Services.SQLServices.GridService
 	
                 return hash;
             }
+
         }
 
         class NeighborLocationEqualityComparer : IEqualityComparer<NeighborLocation>
@@ -115,9 +125,11 @@ namespace Universe.Services.SQLServices.GridService
             {
                 return bx.GetHashCode ();
             }
+
         }
 
-        readonly Dictionary<NeighborLocation, List<GridRegion>> m_KnownNeighbors = new Dictionary<NeighborLocation, List<GridRegion>> (new NeighborLocationEqualityComparer ());
+        readonly Dictionary<NeighborLocation, List<GridRegion>> m_KnownNeighbors = 
+            new Dictionary<NeighborLocation, List<GridRegion>> (new NeighborLocationEqualityComparer ());
 
         #endregion
 
@@ -141,8 +153,10 @@ namespace Universe.Services.SQLServices.GridService
             {
                 m_DisableRegistrations = gridConfig.GetBoolean ("DisableRegistrations", m_DisableRegistrations);
                 m_AllowNewRegistrations = gridConfig.GetBoolean ("AllowNewRegistrations", m_AllowNewRegistrations);
-                m_AllowNewRegistrationsWithPass = gridConfig.GetBoolean ("AllowNewRegistrationsWithPass", m_AllowNewRegistrationsWithPass);
-                m_RegisterRegionPassword = Util.Md5Hash (gridConfig.GetString ("RegisterRegionPassword", m_RegisterRegionPassword));
+                m_AllowNewRegistrationsWithPass = gridConfig.GetBoolean ("AllowNewRegistrationsWithPass",
+                    m_AllowNewRegistrationsWithPass);
+                m_RegisterRegionPassword =
+                    Util.Md5Hash (gridConfig.GetString ("RegisterRegionPassword", m_RegisterRegionPassword));
                 m_maxRegionSize = gridConfig.GetInt ("MaxRegionSize", m_maxRegionSize);
                 m_cachedRegionViewSize = gridConfig.GetInt ("RegionSightSize", m_cachedRegionViewSize);
                 m_UseSessionID = !gridConfig.GetBoolean ("DisableSessionID", !m_UseSessionID);
@@ -208,6 +222,7 @@ namespace Universe.Services.SQLServices.GridService
                     "Show details of the grid regions",
                     HandleShowFullGrid, false, true);
             }
+
         }
 
         public virtual void Start (IConfigSource config, IRegistryCore registry)
@@ -220,6 +235,7 @@ namespace Universe.Services.SQLServices.GridService
         public virtual void FinishedStartup ()
         {
             m_gridServerInfo = m_registry.RequestModuleInterface<IGridServerInfoService> ();
+
         }
 
         public virtual string Name
@@ -259,7 +275,6 @@ namespace Universe.Services.SQLServices.GridService
                 object remoteValue = DoRemoteByURL ("GridServerURI");
                 m_cachedRegionViewSize = remoteValue != null ? (int)remoteValue : 1;
             }
-
             return m_cachedRegionViewSize;
         }
 
@@ -312,8 +327,13 @@ namespace Universe.Services.SQLServices.GridService
         ///     This updates the down flag in the map and blocks it from becoming a 'safe' region fallback
         ///     Only called by LLLoginService
         /// </summary>
+        //[CanBeReflected(ThreatLevel = ThreatLevel.Full)]
         public virtual void SetRegionUnsafe (UUID id)
         {
+            /*object remoteValue = DoRemoteByURL("GridServerURI", id);
+            if (remoteValue != null || m_doRemoteOnly)
+                return;*/
+
             GridRegion data = m_Database.Get (id, null);
             if (data == null)
                 return;
@@ -329,8 +349,13 @@ namespace Universe.Services.SQLServices.GridService
         ///     This updates the down flag in the map and allows it to become a 'safe' region fallback
         ///     Only called by LLLoginService
         /// </summary>
+        //[CanBeReflected(ThreatLevel = ThreatLevel.Full)]
         public virtual void SetRegionSafe (UUID id)
         {
+            /*object remoteValue = DoRemoteByURL("GridServerURI", id);
+            if (remoteValue != null || m_doRemoteOnly)
+                return;*/
+
             GridRegion data = m_Database.Get (id, null);
             if (data == null)
                 return;
@@ -388,16 +413,17 @@ namespace Universe.Services.SQLServices.GridService
                 //Get the items and send them back
                 allItems.items [regionHandle] = GetItems (scopeIDs, X, Y, regionHandle);
             }
-
             return allItems;
         }
 
         [CanBeReflected (ThreatLevel = ThreatLevel.None)]
-        public virtual RegisterRegion RegisterRegion (GridRegion regionInfos, UUID oldSessionID, string password, int majorProtocolVersion, int minorProtocolVersion)
+        public virtual RegisterRegion RegisterRegion (GridRegion regionInfos, UUID oldSessionID, string password,
+                                                     int majorProtocolVersion, int minorProtocolVersion)
         {
             RegisterRegion rr;
             if (m_doRemoteOnly) {
-                object remoteValue = DoRemoteByURL ("GridServerURI", regionInfos, oldSessionID, password, majorProtocolVersion, minorProtocolVersion);
+                object remoteValue = DoRemoteByURL ("GridServerURI", regionInfos, oldSessionID, password,
+                                     majorProtocolVersion, minorProtocolVersion);
                 if (remoteValue != null)
                     return (RegisterRegion)remoteValue;
             
@@ -492,7 +518,8 @@ namespace Universe.Services.SQLServices.GridService
             {
                 if ((region.Flags & (int)RegionFlags.NoMove) != 0)
                     return new RegisterRegion {
-                        Error = "Can't move this region," + region.RegionLocX / Constants.RegionSize + "," + region.RegionLocY / Constants.RegionSize
+                        Error = "Can't move this region," + region.RegionLocX / Constants.RegionSize +
+                            "," + region.RegionLocY / Constants.RegionSize
                     };
 
                 // Region reregistering in other coordinates. Delete the old entry
@@ -510,10 +537,13 @@ namespace Universe.Services.SQLServices.GridService
             if (region != null)
             {
                 // There is a preexisting record
+                //
                 // Get it's flags
+                //
                 RegionFlags rflags = (RegionFlags)region.Flags;
 
                 // Is this a reservation?
+                //
                 if ((rflags & RegionFlags.Reservation) != 0)
                 {
                     // Regions reserved for the null key cannot be taken.
@@ -696,7 +726,8 @@ namespace Universe.Services.SQLServices.GridService
 
             if (!VerifyRegionSessionID (region, gregion.SessionID))
             {
-                MainConsole.Instance.Warn ("[Grid service]: Region called deregister, but provided incorrect SessionID! Possible attempt to disable a region!!");
+                MainConsole.Instance.Warn (
+                    "[Grid service]: Region called deregister, but provided incorrect SessionID! Possible attempt to disable a region!!");
                 return false;
             }
 
@@ -812,10 +843,12 @@ namespace Universe.Services.SQLServices.GridService
         }
 
         [CanBeReflected (ThreatLevel = ThreatLevel.Low)]
-        public virtual List<GridRegion> GetRegionRange (List<UUID> scopeIDs, float centerX, float centerY, uint squareRangeFromCenterInMeters)
+        public virtual List<GridRegion> GetRegionRange (List<UUID> scopeIDs, float centerX, float centerY,
+                                                       uint squareRangeFromCenterInMeters)
         {
             if (m_doRemoteOnly) {
-                object remoteValue = DoRemoteByURL ("GridServerURI", scopeIDs, centerX, centerY, squareRangeFromCenterInMeters);
+                object remoteValue = DoRemoteByURL ("GridServerURI", scopeIDs, centerX, centerY,
+                                     squareRangeFromCenterInMeters);
                 return remoteValue != null ? (List<GridRegion>)remoteValue : new List<GridRegion> ();
             }
              
@@ -837,13 +870,14 @@ namespace Universe.Services.SQLServices.GridService
             }
 
             NeighborLocation currentLoc = BuildNeighborLocation (region);
+            //List<GridRegion> neighbors = m_KnownNeighbors.FirstOrDefault((loc)=>loc.Key == currentLoc).Value;
             List<GridRegion> neighbors;
+            //if (neighbors == null)
             if (!m_KnownNeighbors.TryGetValue (currentLoc, out neighbors))
             {
                 neighbors = FindNewNeighbors (region);
                 m_KnownNeighbors [BuildNeighborLocation (region)] = neighbors;
             }
-
             GridRegion[] regions = new GridRegion[neighbors.Count];
             neighbors.CopyTo (regions);
             return AllScopeIDImpl.CheckScopeIDs (scopeIDs, new List<GridRegion> (regions));
@@ -884,7 +918,6 @@ namespace Universe.Services.SQLServices.GridService
                 MainConsole.Instance.Warn ("[GridService]: Region was not found");
                 return;
             }
-
             m_Database.Delete (r.RegionID);
             MainConsole.Instance.Warn ("[GridService]: Region was removed");
         }
@@ -896,7 +929,8 @@ namespace Universe.Services.SQLServices.GridService
             IConfig gridConfig = m_config.Configs ["GridService"];
             if (gridConfig != null)
                 gridConfig.Set ("AllowNewRegistrations", enabled);
-            MainConsole.Instance.Info ("[GridService]: Registrations have been " + (enabled ? "enabled" : "disabled") + " for new regions");
+            MainConsole.Instance.Info ("[GridService]: Registrations have been " + (enabled ? "enabled" : "disabled") +
+            " for new regions");
         }
 
         void HandleClearAllDownRegions (IScene scene, string[] cmd)
@@ -913,7 +947,6 @@ namespace Universe.Services.SQLServices.GridService
                 MainConsole.Instance.Info ("Syntax: show region <region name>");
                 return;
             }
-
             string regionname = cmd [2];
             if (cmd.Length > 3)
             {
@@ -922,6 +955,7 @@ namespace Universe.Services.SQLServices.GridService
                     regionname += " " + cmd [ii];
                 }
             }
+
 
             List<GridRegion> regions = GetRegionsByName (null, regionname, null, null);
             if (regions == null || regions.Count < 1)
@@ -1013,6 +1047,7 @@ namespace Universe.Services.SQLServices.GridService
             MainConsole.Instance.CleanInfo (
                 "----------------------------------------------------------------------------------------------------");
 
+
             foreach (GridRegion region in regions)
             {
                 string rType = region.RegionType;
@@ -1046,7 +1081,6 @@ namespace Universe.Services.SQLServices.GridService
 
                 MainConsole.Instance.CleanInfo (regionInfo);
             }
-
             MainConsole.Instance.CleanInfo ("");
             MainConsole.Instance.CleanInfo (
                 "----------------------------------------------------------------------------------------------------");
@@ -1110,7 +1144,6 @@ namespace Universe.Services.SQLServices.GridService
                     regionname += " " + cmd [ii];
                 }
             }
-
             List<GridRegion> regions = m_Database.Get (regionname, null, null, null);
             if (regions == null || regions.Count < 1)
             {
@@ -1146,7 +1179,6 @@ namespace Universe.Services.SQLServices.GridService
                     regionname += " " + cmd [ii];
                 }
             }
-
             List<GridRegion> regions = m_Database.Get (regionname, null, null, null);
             if (regions == null || regions.Count < 1)
             {
@@ -1267,10 +1299,8 @@ namespace Universe.Services.SQLServices.GridService
                     Extra = 0,
                     Extra2 = 0
                 };
-
                 mapItems.Add (mapitem);
             }
-
             return mapItems;
         }
 
@@ -1294,7 +1324,8 @@ namespace Universe.Services.SQLServices.GridService
                 }
 
                 if (m_syncPosterService != null)
-                    m_syncPosterService.Post (r.ServerURI, SyncMessageHelper.NeighborChange (r.RegionID, regionInfos.RegionID, down));
+                    m_syncPosterService.Post (r.ServerURI,
+                        SyncMessageHelper.NeighborChange (r.RegionID, regionInfos.RegionID, down));
             }
 
             if (down)

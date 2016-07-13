@@ -36,10 +36,10 @@ using System.Runtime.InteropServices;
 // change them to the information which is associated with the assembly
 // you compile.
 
-[assembly: AssemblyTitle("BasicPhysicsPlugin")]
+[assembly: AssemblyTitle("Universe.Physics.BasicPhysicsPlugin")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("http://Universe-sim.org")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyCopyright("Copyright © 2016-2025")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

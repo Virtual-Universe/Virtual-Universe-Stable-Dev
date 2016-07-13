@@ -130,14 +130,17 @@ namespace Universe.Services
                                                                        m_DefaultUserAvatarArchive);
             m_AllowAnonymousLogin = m_loginServerConfig.GetBoolean("AllowAnonymousLogin", false);
             m_AllowDuplicateLogin = m_loginServerConfig.GetBoolean("AllowDuplicateLogin", false);
-            LLLoginResponseRegister.RegisterValue("AllowFirstLife", m_loginServerConfig.GetBoolean("AllowFirstLifeInProfile", true)
+            LLLoginResponseRegister.RegisterValue("AllowFirstLife",
+                                                  m_loginServerConfig.GetBoolean("AllowFirstLifeInProfile", true)
                                                       ? "Y"
                                                       : "N");
             LLLoginResponseRegister.RegisterValue("MaxAgentGroups", m_loginServerConfig.GetInt("MaxAgentGroups", 100));
-            LLLoginResponseRegister.RegisterValue("VoiceServerType", m_loginServerConfig.GetString("VoiceServerType", "vivox"));
+            LLLoginResponseRegister.RegisterValue("VoiceServerType",
+                                                  m_loginServerConfig.GetString("VoiceServerType", "vivox"));
             ReadEventValues(m_loginServerConfig);
             ReadClassifiedValues(m_loginServerConfig);
-            LLLoginResponseRegister.RegisterValue("AllowExportPermission", m_loginServerConfig.GetBoolean("AllowUsageOfExportPermissions", true));
+            LLLoginResponseRegister.RegisterValue("AllowExportPermission",
+                                                  m_loginServerConfig.GetBoolean("AllowUsageOfExportPermissions", true));
 
             m_DefaultRegionName = m_loginServerConfig.GetString("DefaultRegion", string.Empty);
             m_WelcomeMessage = m_loginServerConfig.GetString("WelcomeMessage", "");
@@ -151,7 +154,6 @@ namespace Universe.Services
                 } catch {
                     MainConsole.Instance.Error ("[LLogin service]: Error obtaining welcome message from " + m_WelcomeMessageURL);
                 }
-
                 client.Dispose ();
             }
             // load web settings overrides (if any)
@@ -165,8 +167,11 @@ namespace Universe.Services
             m_AllowRemoteSetLoginLevel = m_loginServerConfig.GetBoolean("AllowRemoteSetLoginLevel", false);
             m_MinLoginLevel = m_loginServerConfig.GetInt("MinLoginLevel", 0);
             LLLoginResponseRegister.RegisterValue("SunTexture", m_loginServerConfig.GetString("SunTexture", sunTexture));
-            LLLoginResponseRegister.RegisterValue("MoonTexture", m_loginServerConfig.GetString("MoonTexture", moonTexture));
-            LLLoginResponseRegister.RegisterValue("CloudTexture", m_loginServerConfig.GetString("CloudTexture", cloudTexture));
+            LLLoginResponseRegister.RegisterValue("MoonTexture",
+                                                  m_loginServerConfig.GetString("MoonTexture", moonTexture));
+            LLLoginResponseRegister.RegisterValue("CloudTexture",
+                                                  m_loginServerConfig.GetString("CloudTexture", cloudTexture));
+
 
             registry.RegisterModuleInterface<ILoginService>(this);
             m_registry = registry;
@@ -263,7 +268,8 @@ namespace Universe.Services
                 UserAccount account = m_UserAccountService.GetUserAccount(null, firstName, lastName);
                 if (account == null)
                 {
-                    MainConsole.Instance.InfoFormat("[LLogin service]: Set Level failed, user {0} {1} not found", firstName, lastName);
+                    MainConsole.Instance.InfoFormat("[LLogin service]: Set Level failed, user {0} {1} not found",
+                                                    firstName, lastName);
                     return response;
                 }
 
@@ -273,8 +279,11 @@ namespace Universe.Services
                     return response;
                 }
 
+                //
                 // Authenticate this user
+                //
                 // We don't support clear passwords here
+                //
                 string token = m_AuthenticationService.Authenticate(account.PrincipalID, "UserAccount", passwd, 30);
                 UUID secureSession = UUID.Zero;
                 if ((token == string.Empty) || (token != string.Empty && !UUID.TryParse(token, out secureSession)))
@@ -290,7 +299,8 @@ namespace Universe.Services
             }
 
             m_MinLoginLevel = level;
-            MainConsole.Instance.InfoFormat("[LLogin service]: Login level set to {0} by {1} {2}", level, firstName, lastName);
+            MainConsole.Instance.InfoFormat("[LLogin service]: Login level set to {0} by {1} {2}", level, firstName,
+                                            lastName);
 
             response["success"] = true;
             return response;
@@ -303,7 +313,9 @@ namespace Universe.Services
                                                 ? name
                                                 : AgentID.ToString());
 
+            //
             // Get the account and check that it exists
+            //
             UserAccount account = AgentID != UUID.Zero
                                       ? m_UserAccountService.GetUserAccount(null, AgentID)
                                       : m_UserAccountService.GetUserAccount(null, name);
@@ -337,7 +349,8 @@ namespace Universe.Services
         }
 
         public LoginResponse Login(UUID AgentID, string Name, string authType, string passwd, string startLocation,
-                                   string clientVersion, string channel, string mac, string id0, IPEndPoint clientIP, Hashtable requestData)
+                                   string clientVersion, string channel, string mac, string id0, IPEndPoint clientIP,
+                                   Hashtable requestData)
         {
             LoginResponse response;
             UUID session = UUID.Random();
@@ -360,7 +373,8 @@ namespace Universe.Services
             }
 
             MainConsole.Instance.InfoFormat(
-                "[LLogin service]: Login request for {0} from {1} with user agent {2} starting in {3}", Name, clientIP.Address, realViewer, startLocation);
+                "[LLogin service]: Login request for {0} from {1} with user agent {2} starting in {3}",
+                Name, clientIP.Address, realViewer, startLocation);
 
             UserAccount account = AgentID != UUID.Zero
                                       ? m_UserAccountService.GetUserAccount(null, AgentID)
@@ -378,13 +392,17 @@ namespace Universe.Services
 
             if (account.UserLevel < 0) //No allowing anyone less than 0
             {
-                MainConsole.Instance.InfoFormat("[LLogin service]: Login failed for user {0}, reason: user is banned", account.Name);
+                MainConsole.Instance.InfoFormat(
+                    "[LLogin service]: Login failed for user {0}, reason: user is banned",
+                    account.Name);
                 return LLFailedLoginResponse.PermanentBannedProblem;
             }
 
             if (account.UserLevel < m_MinLoginLevel)
             {
-                MainConsole.Instance.InfoFormat("[LLogin service]: Login failed for user {1}, reason: login is blocked for user level {0}", account.UserLevel, account.Name);
+                MainConsole.Instance.InfoFormat(
+                    "[LLogin service]: Login failed for user {1}, reason: login is blocked for user level {0}",
+                    account.UserLevel, account.Name);
                 return LLFailedLoginResponse.LoginBlockedProblem;
             }
 
@@ -397,7 +415,8 @@ namespace Universe.Services
                     agent = agentData.GetAgent (account.PrincipalID);
                 }
             } else {
-                MainConsole.Instance.ErrorFormat ("[LLogin service]: Login failed for user {1}, reason: {0}", account.Name, "Unable to retrieve agen connector");
+                MainConsole.Instance.ErrorFormat ("[LLogin service]: Login failed for user {1}, reason: {0}",
+                                                 account.Name, "Unable to retrieve agen connector");
                 return LLFailedLoginResponse.GridProblem;
             }
                            
@@ -407,11 +426,11 @@ namespace Universe.Services
                 object data;
                 if ((response = module.Login(requestData, account, agent, authType, passwd, out data)) != null)
                 {
-                    MainConsole.Instance.InfoFormat("[LLogin service]: Login failed for user {1}, reason: {0}",
+                    MainConsole.Instance.InfoFormat(
+                        "[LLogin service]: Login failed for user {1}, reason: {0}",
                         (data != null ? data.ToString() : (response is LLFailedLoginResponse) ? (response as LLFailedLoginResponse).Value : "Unknown"), account.Name);
                     return response;
                 }
-
                 if (data != null)
                     secureSession = (UUID) data; //TODO: NEED TO FIND BETTER WAY TO GET THIS DATA
             }
@@ -422,33 +441,45 @@ namespace Universe.Services
                 AvatarAppearance avappearance = null;
                 IProfileConnector profileData = Framework.Utilities.DataManager.RequestPlugin<IProfileConnector>();
 
+                //
                 // Get the user's inventory
+                //
                 if (m_RequireInventory && m_InventoryService == null)
                 {
-                    MainConsole.Instance.WarnFormat("[LLogin service]: Login failed for user {0}, reason: inventory service not set up", account.Name);
+                    MainConsole.Instance.WarnFormat(
+                        "[LLogin service]: Login failed for user {0}, reason: inventory service not set up",
+                        account.Name);
                     return LLFailedLoginResponse.InventoryProblem;
                 }
                 List<InventoryFolderBase> inventorySkel = m_InventoryService.GetInventorySkeleton(account.PrincipalID);
                 if (m_RequireInventory && ((inventorySkel == null) || (inventorySkel.Count == 0)))
                 {
                     List<InventoryItemBase> defaultItems;
-                    m_InventoryService.CreateUserInventory(account.PrincipalID, m_DefaultUserAvatarArchive == "", out defaultItems);
+                    m_InventoryService.CreateUserInventory(account.PrincipalID, m_DefaultUserAvatarArchive == "",
+                                                           out defaultItems);
                     inventorySkel = m_InventoryService.GetInventorySkeleton(account.PrincipalID);
                     if (m_RequireInventory && ((inventorySkel == null) || (inventorySkel.Count == 0)))
                     {
-                        MainConsole.Instance.InfoFormat("[LLogin service]: Login failed for user {0}, reason: unable to retrieve user inventory", account.Name);
+                        MainConsole.Instance.InfoFormat(
+                            "[LLogin service]: Login failed for user {0}, reason: unable to retrieve user inventory",
+                            account.Name);
                         return LLFailedLoginResponse.InventoryProblem;
                     }
-
                     if (defaultItems.Count > 0)
                     {
                         avappearance = new AvatarAppearance(account.PrincipalID);
-                        avappearance.SetWearable((int)WearableType.Shape, new AvatarWearable(defaultItems[0].ID, defaultItems[0].AssetID));
-                        avappearance.SetWearable((int)WearableType.Skin, new AvatarWearable(defaultItems[1].ID, defaultItems[1].AssetID));
-                        avappearance.SetWearable((int)WearableType.Hair, new AvatarWearable(defaultItems[2].ID, defaultItems[2].AssetID));
-                        avappearance.SetWearable((int)WearableType.Eyes, new AvatarWearable(defaultItems[3].ID, defaultItems[3].AssetID));
-                        avappearance.SetWearable((int)WearableType.Shirt, new AvatarWearable(defaultItems[4].ID, defaultItems[4].AssetID));
-                        avappearance.SetWearable((int)WearableType.Pants, new AvatarWearable(defaultItems[5].ID, defaultItems[5].AssetID));
+                        avappearance.SetWearable((int)WearableType.Shape,
+                                                 new AvatarWearable(defaultItems[0].ID, defaultItems[0].AssetID));
+                        avappearance.SetWearable((int)WearableType.Skin,
+                                                 new AvatarWearable(defaultItems[1].ID, defaultItems[1].AssetID));
+                        avappearance.SetWearable((int)WearableType.Hair,
+                                                 new AvatarWearable(defaultItems[2].ID, defaultItems[2].AssetID));
+                        avappearance.SetWearable((int)WearableType.Eyes,
+                                                 new AvatarWearable(defaultItems[3].ID, defaultItems[3].AssetID));
+                        avappearance.SetWearable((int)WearableType.Shirt,
+                                                 new AvatarWearable(defaultItems[4].ID, defaultItems[4].AssetID));
+                        avappearance.SetWearable((int)WearableType.Pants,
+                                                 new AvatarWearable(defaultItems[5].ID, defaultItems[5].AssetID));
                         m_AvatarService.SetAppearance(account.PrincipalID, avappearance);
                     }
                 }
@@ -462,13 +493,12 @@ namespace Universe.Services
                         UPI = profileData.GetUserProfile(account.PrincipalID);
                         UPI.AArchiveName = m_DefaultUserAvatarArchive;
                         UPI.IsNewUser = true;
+                        //profileData.UpdateUserProfile(UPI); //It gets hit later by the next thing
                     }
-
                     //Find which is set, if any
                     string archiveName = (UPI.AArchiveName != "" && UPI.AArchiveName != " ")
                                              ? UPI.AArchiveName
                                              : m_DefaultUserAvatarArchive;
-
                     if (UPI.IsNewUser && archiveName != "")
                     {
                         AvatarArchive arch = m_ArchiveService.LoadAvatarArchive(archiveName, account.PrincipalID);
@@ -481,13 +511,11 @@ namespace Universe.Services
                             inventorySkel = m_InventoryService.GetInventorySkeleton(account.PrincipalID);
                         }
                     }
-
                     if (UPI.IsNewUser)
                     {
                         UPI.IsNewUser = false;
                         profileData.UpdateUserProfile(UPI);
                     }
-
                     if (UPI.DisplayName != "")
                         DisplayName = UPI.DisplayName;
                 }
@@ -498,8 +526,9 @@ namespace Universe.Services
 
                 //Now get the logged in status, then below make sure to kill the previous agent if we crashed before
                 UserInfo guinfo = m_agentInfoService.GetUserInfo(account.PrincipalID.ToString());
-
+                //
                 // Clear out any existing CAPS the user may have
+                //
                 if (m_CapsService != null)
                 {
                     IAgentProcessing agentProcessor = m_registry.RequestModuleInterface<IAgentProcessing>();
@@ -517,7 +546,9 @@ namespace Universe.Services
                         m_CapsService.RemoveCAPS(account.PrincipalID);
                 }
 
+                //
                 // Change Online status and get the home region
+                //
                 GridRegion home = null;
                 if (guinfo != null && (guinfo.HomeRegionID != UUID.Zero) && m_GridService != null)
                     home = m_GridService.GetRegionByUUID(account.AllScopeIDs, guinfo.HomeRegionID);
@@ -538,7 +569,6 @@ namespace Universe.Services
                             guinfo.HomePosition = guinfo.CurrentPosition = m_DefaultHomeRegionPos;
                             positionSet = true;
                         }
-
                         if (guinfo.HomeRegionID == UUID.Zero)
                         {
                             List<GridRegion> DefaultRegions = m_GridService.GetDefaultRegions(account.AllScopeIDs);
@@ -571,26 +601,34 @@ namespace Universe.Services
                         guinfo.CurrentPosition = guinfo.HomePosition = new Vector3(128, 128, 25);
                     guinfo.HomeLookAt = guinfo.CurrentLookAt = new Vector3(0, 0, 0);
 
-                    m_agentInfoService.SetHomePosition(guinfo.UserID, guinfo.HomeRegionID, guinfo.HomePosition, guinfo.HomeLookAt);
+                    m_agentInfoService.SetHomePosition(guinfo.UserID, guinfo.HomeRegionID, guinfo.HomePosition,
+                                                       guinfo.HomeLookAt);
 
-                    MainConsole.Instance.Info("[LLLogin Service]: User did not have a home, set to " + (guinfo.HomeRegionID == UUID.Zero ? "(no region found)" : guinfo.HomeRegionID.ToString()));
+                    MainConsole.Instance.Info("[LLLoginService]: User did not have a home, set to " +
+                                              (guinfo.HomeRegionID == UUID.Zero ? "(no region found)" : guinfo.HomeRegionID.ToString()));
                 }
 
+                //
                 // Find the destination region/grid
+                //
                 string where = string.Empty;
                 Vector3 position = Vector3.Zero;
                 Vector3 lookAt = Vector3.Zero;
                 TeleportFlags tpFlags = TeleportFlags.ViaLogin;
-                GridRegion destination = FindDestination(account, guinfo, session, startLocation, home, out tpFlags, out where, out position, out lookAt);
+                GridRegion destination = FindDestination(account, guinfo, session, startLocation, home, out tpFlags,
+                                                         out where, out position, out lookAt);
                 if (destination == null)
                 {
-                    MainConsole.Instance.InfoFormat("[LLogin service]: Login failed for user {0}, reason: destination not found", account.Name);
+                    MainConsole.Instance.InfoFormat(
+                        "[LLogin service]: Login failed for user {0}, reason: destination not found", account.Name);
                     return LLFailedLoginResponse.DeadRegionProblem;
                 }
 
                 #region Appearance
 
+                //
                 // Get the avatar
+                //
                 if (m_AvatarService != null)
                 {
                     bool loadedArchive;
@@ -620,7 +658,9 @@ namespace Universe.Services
                 if (m_FriendsService != null)
                     friendsToInform = m_FriendsService.GetFriendOnlineStatuses(account.PrincipalID, true);
 
+                //
                 // Instantiate/get the simulation interface and launch an agent at the destination
+                //
                 string reason = "", seedCap = "";
                 AgentCircuitData aCircuit = LaunchAgentAtGrid(destination, tpFlags, account, session,
                                                               secureSession, position, where,
@@ -629,7 +669,8 @@ namespace Universe.Services
 
                 if (aCircuit == null)
                 {
-                    MainConsole.Instance.InfoFormat("[LLogin Service]: Login failed for user {1}, reason: {0}", reason, account.Name);
+                    MainConsole.Instance.InfoFormat("[LLogin service]: Login failed for user {1}, reason: {0}", reason,
+                                                    account.Name);
                     return new LLFailedLoginResponse(LoginResponseEnum.InternalError, reason, false);
                 }
 
@@ -639,11 +680,15 @@ namespace Universe.Services
                     friendsList = m_FriendsService.GetFriends(account.PrincipalID);
 
                 //Set them as logged in now, they are ready, and fire the logged in event now, as we're all done
-                m_agentInfoService.SetLastPosition(account.PrincipalID.ToString(), destination.RegionID, position, lookAt, destination.ServerURI);
-                m_agentInfoService.SetLoggedIn(account.PrincipalID.ToString(), true, destination.RegionID, destination.ServerURI);
+                m_agentInfoService.SetLastPosition(account.PrincipalID.ToString(), destination.RegionID, position,
+                                                   lookAt, destination.ServerURI);
+                m_agentInfoService.SetLoggedIn(account.PrincipalID.ToString(), true, destination.RegionID,
+                                               destination.ServerURI);
                 m_agentInfoService.FireUserStatusChangeEvent(account.PrincipalID.ToString(), true, destination.RegionID);
 
+                //
                 // Finally, fill out the response and return it
+                //
                 string MaturityRating = "A";
                 string MaxMaturity = "A";
                 if (agent != null)
@@ -655,6 +700,7 @@ namespace Universe.Services
                                       ? "P"
                                       : agent.MaxMaturity == 1 ? "M" : "A";
                 }
+
 
                 ArrayList eventNotifications = new ArrayList();
                 BuildEventNotifications(account.PrincipalID, ref eventNotifications);
@@ -670,13 +716,14 @@ namespace Universe.Services
                                                m_config, DisplayName, avappearance.Serial.ToString(), m_registry.RequestModuleInterface<IGridInfo>());
 
                 MainConsole.Instance.InfoFormat(
-                    "[LLogin Service]: All clear. Sending login response to client to login to region " + destination.RegionName + ", tried to login to " + startLocation + " at " + position + ".");
+                    "[LLogin service]: All clear. Sending login response to client to login to region " +
+                    destination.RegionName + ", tried to login to " + startLocation + " at " + position + ".");
 
                 return response;
             }
             catch (Exception e)
             {
-                MainConsole.Instance.WarnFormat("[LLogin Service]: Exception processing login for {0} : {1}", Name, e);
+                MainConsole.Instance.WarnFormat("[LLogin service]: Exception processing login for {0} : {1}", Name, e);
                 if (account != null)
                 {
                     //Revert their logged in status if we got that far
@@ -710,7 +757,8 @@ namespace Universe.Services
         }
 
         protected GridRegion FindDestination(UserAccount account, UserInfo pinfo, UUID sessionID, string startLocation,
-                                             GridRegion home, out TeleportFlags tpFlags, out string where, out Vector3 position, out Vector3 lookAt)
+                                             GridRegion home, out TeleportFlags tpFlags, out string where,
+                                             out Vector3 position, out Vector3 lookAt)
         {
             where = "home";
             position = new Vector3(128, 128, 25);
@@ -734,7 +782,8 @@ namespace Universe.Services
                 if (home == null)
                 {
                     MainConsole.Instance.WarnFormat(
-                        "[LLogin Service]: User {0} {1} tried to login to a 'home' start location but they have none set", account.FirstName, account.LastName);
+                        "[LLogin service]: User {0} {1} tried to login to a 'home' start location but they have none set",
+                        account.FirstName, account.LastName);
 
                     tryDefaults = true;
                 }
@@ -775,7 +824,8 @@ namespace Universe.Services
                             else
                             {
                                 MainConsole.Instance.WarnFormat(
-                                    "[LLogin Service]: User {0} {1} does not have a valid home and this grid does not have default locations. Attempting to find random region", account.FirstName, account.LastName);
+                                    "[LLogin service]: User {0} {1} does not have a valid home and this grid does not have default locations. Attempting to find random region",
+                                    account.FirstName, account.LastName);
                                 defaults = m_GridService.GetRegionsByName(account.AllScopeIDs, "", 0, 1);
                                 if (defaults != null && defaults.Count > 0)
                                 {
@@ -789,7 +839,6 @@ namespace Universe.Services
 
                 return region;
             }
-
             if (startLocation.Equals("last"))
             {
                 tpFlags |= TeleportFlags.ViaLandmark;
@@ -844,6 +893,7 @@ namespace Universe.Services
                     if (position.Y > region.RegionSizeY)
                         position.Y = region.RegionSizeY;
 
+
                     lookAt = pinfo.CurrentLookAt;
                 }
 
@@ -867,7 +917,8 @@ namespace Universe.Services
                     if ((regions == null) || (regions.Count == 0))
                     {
                         MainConsole.Instance.InfoFormat(
-                            "[LLLogin Service]: Got Custom Login URI {0}, can't locate region {1}. Trying defaults.", startLocation, regionName);
+                            "[LLLOGIN SERVICE]: Got Custom Login URI {0}, can't locate region {1}. Trying defaults.",
+                            startLocation, regionName);
                         regions = m_GridService.GetDefaultRegions(account.AllScopeIDs);
                         if (regions != null && regions.Count > 0)
                         {
@@ -887,18 +938,20 @@ namespace Universe.Services
                             where = "safe";
                             return safeRegions[0];
                         }
-
-                        MainConsole.Instance.InfoFormat("[LLLogin Service]: Got Custom Login URI {0}, Grid does not have any available regions.", startLocation);
+                        MainConsole.Instance.InfoFormat(
+                            "[LLLOGIN SERVICE]: Got Custom Login URI {0}, Grid does not have any available regions.",
+                            startLocation);
                         return null;
                     }
-
                     return regions[0];
                 }
                 //This is so that you can login to other grids via IWC (or HG), example"RegionTest@testingserver.com:8002". All this really needs to do is inform the other grid that we have a user who wants to connect. IWC allows users to login by default to other regions (without the host names), but if one is provided and we don't have a link, we need to create one here.
                 string[] parts = regionName.Split(new char[] {'@'});
                 if (parts.Length < 2)
                 {
-                    MainConsole.Instance.InfoFormat("[LLLogin Service]: Got Custom Login URI {0}, can't locate region {1}", startLocation, regionName);
+                    MainConsole.Instance.InfoFormat(
+                        "[LLLOGIN SERVICE]: Got Custom Login URI {0}, can't locate region {1}",
+                        startLocation, regionName);
                     return null;
                 }
                 // Valid specification of a remote grid
@@ -933,7 +986,9 @@ namespace Universe.Services
                             where = "safe";
                             return safeRegions[0];
                         }
-                        MainConsole.Instance.InfoFormat("[LLLogin Service]: Got Custom Login URI {0}, Grid does not have any available regions.", startLocation);
+                        MainConsole.Instance.InfoFormat(
+                            "[LLLOGIN SERVICE]: Got Custom Login URI {0}, Grid does not have any available regions.",
+                            startLocation);
                         return null;
                     }
                 }
@@ -955,9 +1010,10 @@ namespace Universe.Services
             #region Launch Agent
 
             circuitCode = (uint) Util.RandomClass.Next();
-            aCircuit = MakeAgent(destination, account, session, secureSession, circuitCode, position, clientIP);
+            aCircuit = MakeAgent(destination, account, session, secureSession, circuitCode, position,
+                                 clientIP);
             aCircuit.TeleportFlags = (uint) tpFlags;
-            MainConsole.Instance.DebugFormat("[Login Service]: Attempting to log {0} into {1} at {2}...", account.Name, destination.RegionName, destination.ServerURI);
+            MainConsole.Instance.DebugFormat("[LoginService]: Attempting to log {0} into {1} at {2}...", account.Name, destination.RegionName, destination.ServerURI);
             LoginAgentArgs args = m_registry.RequestModuleInterface<IAgentProcessing>().LoginAgent(destination, aCircuit, friendsToInform);
             aCircuit.CachedUserInfo = args.CircuitData.CachedUserInfo;
             aCircuit.RegionUDPPort = args.CircuitData.RegionUDPPort;
@@ -967,7 +1023,7 @@ namespace Universe.Services
             bool success = args.Success;
             if (!success && m_GridService != null)
             {
-                MainConsole.Instance.DebugFormat("[Login Service]: Failed to log {0} into {1} at {2}...", account.Name, destination.RegionName, destination.ServerURI);
+                MainConsole.Instance.DebugFormat("[LoginService]: Failed to log {0} into {1} at {2}...", account.Name, destination.RegionName, destination.ServerURI);
                 //Remove the landmark flag (landmark is used for ignoring the landing points in the region)
                 aCircuit.TeleportFlags &= ~(uint) TeleportFlags.ViaLandmark;
                 m_GridService.SetRegionUnsafe(destination.RegionID);
@@ -979,24 +1035,37 @@ namespace Universe.Services
                 List<GridRegion> defaultRegions = m_GridService.GetDefaultRegions(account.AllScopeIDs);
                 if (defaultRegions != null)
                 {
-                    success = TryFindGridRegionForAgentLogin(defaultRegions, account, session, secureSession, circuitCode, position, clientIP, aCircuit, friendsToInform, out seedCap, out reason, out dest);
+                    success = TryFindGridRegionForAgentLogin(defaultRegions, account,
+                                                             session, secureSession, circuitCode, position,
+                                                             clientIP, aCircuit, friendsToInform, 
+                                                             out seedCap, out reason, out dest);
                 }
-
                 if (!success)
                 {
                     // Try the fallback regions
-                    List<GridRegion> fallbacks = m_GridService.GetFallbackRegions(account.AllScopeIDs, destination.RegionLocX, destination.RegionLocY);
+                    List<GridRegion> fallbacks = m_GridService.GetFallbackRegions(account.AllScopeIDs,
+                                                                                  destination.RegionLocX,
+                                                                                  destination.RegionLocY);
                     if (fallbacks != null)
                     {
-                        success = TryFindGridRegionForAgentLogin(fallbacks, account, session, secureSession, circuitCode, position, clientIP, aCircuit, friendsToInform, out seedCap, out reason, out dest);
+                        success = TryFindGridRegionForAgentLogin(fallbacks, account,
+                                                                 session, secureSession, circuitCode,
+                                                                 position,
+                                                                 clientIP, aCircuit, friendsToInform,
+                                                                 out seedCap, out reason, out dest);
                     }
                     if (!success)
                     {
                         //Try to find any safe region
-                        List<GridRegion> safeRegions = m_GridService.GetSafeRegions(account.AllScopeIDs, destination.RegionLocX, destination.RegionLocY);
+                        List<GridRegion> safeRegions = m_GridService.GetSafeRegions(account.AllScopeIDs,
+                                                                                    destination.RegionLocX,
+                                                                                    destination.RegionLocY);
                         if (safeRegions != null)
                         {
-                            success = TryFindGridRegionForAgentLogin(safeRegions, account, session, secureSession, circuitCode, position, clientIP, aCircuit, friendsToInform, out seedCap, out reason, out dest);
+                            success = TryFindGridRegionForAgentLogin(safeRegions, account,
+                                                                     session, secureSession, circuitCode,
+                                                                     position, clientIP, aCircuit, friendsToInform,
+                                                                     out seedCap, out reason, out dest);
                             if (!success)
                                 reason = "No Region Found";
                         }
@@ -1008,7 +1077,7 @@ namespace Universe.Services
 
             if (success)
             {
-                MainConsole.Instance.DebugFormat("[Login Service]: Successfully logged {0} into {1} at {2}...", account.Name, destination.RegionName, destination.ServerURI);
+                MainConsole.Instance.DebugFormat("[LoginService]: Successfully logged {0} into {1} at {2}...", account.Name, destination.RegionName, destination.ServerURI);
                 //Set the region to safe since we got there
                 m_GridService.SetRegionSafe(destination.RegionID);
                 return aCircuit;
@@ -1016,28 +1085,31 @@ namespace Universe.Services
             return null;
         }
 
-        protected bool TryFindGridRegionForAgentLogin(List<GridRegion> regions, UserAccount account, UUID session, UUID secureSession, uint circuitCode, Vector3 position,
-                                                      IPEndPoint clientIP, AgentCircuitData aCircuit, List<UUID> friendsToInform, out string seedCap, out string reason, out GridRegion destination)
+        protected bool TryFindGridRegionForAgentLogin(List<GridRegion> regions, UserAccount account,
+                                                      UUID session, UUID secureSession,
+                                                      uint circuitCode, Vector3 position,
+                                                      IPEndPoint clientIP, AgentCircuitData aCircuit, List<UUID> friendsToInform,
+                                                      out string seedCap, out string reason, out GridRegion destination)
         {
             LoginAgentArgs args = null;
             foreach (GridRegion r in regions)
             {
                 if (r == null)
                     continue;
-                MainConsole.Instance.DebugFormat("[Login Service]: Attempting to log {0} into {1} at {2}...", account.Name, r.RegionName, r.ServerURI);
-                args = m_registry.RequestModuleInterface<IAgentProcessing>(). LoginAgent(r, aCircuit, friendsToInform);
+                MainConsole.Instance.DebugFormat("[LoginService]: Attempting to log {0} into {1} at {2}...", account.Name, r.RegionName, r.ServerURI);
+                args = m_registry.RequestModuleInterface<IAgentProcessing>().
+                                  LoginAgent(r, aCircuit, friendsToInform);
                 if (args.Success)
                 {
+                    //aCircuit = MakeAgent(r, account, session, secureSession, circuitCode, position, clientIP);
                     MakeAgent(r, account, session, secureSession, circuitCode, position, clientIP);
                     destination = r;
                     reason = args.Reason;
                     seedCap = args.SeedCap;
                     return true;
                 }
-
                 m_GridService.SetRegionUnsafe(r.RegionID);
             }
-
             if (args != null)
             {
                 seedCap = args.SeedCap;
@@ -1048,12 +1120,13 @@ namespace Universe.Services
                 seedCap = "";
                 reason = "";
             }
-
             destination = null;
             return false;
         }
 
-        protected AgentCircuitData MakeAgent(GridRegion region, UserAccount account, UUID session, UUID secureSession, uint circuit, Vector3 position, IPEndPoint clientIP)
+        protected AgentCircuitData MakeAgent(GridRegion region, UserAccount account,
+                                             UUID session, UUID secureSession, uint circuit,
+                                             Vector3 position, IPEndPoint clientIP)
         {
             return new AgentCircuitData
                                             {
@@ -1099,6 +1172,7 @@ namespace Universe.Services
                     // Set the minimum level to allow login 
                     // Useful to allow grid update without worrying about users.
                     // or fixing critical issues
+                    //
                     if (cmd.Length > 2)
                       int.TryParse(cmd[2], out m_MinLoginLevel);
                     break;
@@ -1124,7 +1198,8 @@ namespace Universe.Services
                 List<InventoryItemBase> itemsInFolder = m_InventoryService.GetFolderItems(UUID.Zero, Folder2Wear.ID);
 
                 InventoryFolderBase appearanceFolder = m_InventoryService.GetFolderForType(user, InventoryType.Wearable, FolderType.Clothing);
-                InventoryFolderBase folderForAppearance = new InventoryFolderBase(UUID.Random(), "GridWear", user, -1, appearanceFolder.ID, 1);
+                InventoryFolderBase folderForAppearance = new InventoryFolderBase(UUID.Random(), "GridWear", user, -1,
+                                                                                  appearanceFolder.ID, 1);
                 List<InventoryFolderBase> userFolders = m_InventoryService.GetFolderFolders(user, appearanceFolder.ID);
                 bool alreadyThere = false;
                 List<UUID> items2RemoveFromAppearence = new List<UUID>();
@@ -1141,13 +1216,13 @@ namespace Universe.Services
                             items2RemoveFromAppearence.Add(itemBase.ID);
                             toDelete.Add(itemBase.ID);
                         }
-
                         folderForAppearance = folder;
                         alreadyThere = true;
                         m_InventoryService.DeleteItems(user, toDelete);
                         break;
                     }
                 }
+
 
                 if (!alreadyThere)
                     m_InventoryService.AddFolder(folderForAppearance);
@@ -1181,7 +1256,9 @@ namespace Universe.Services
                 // ok, now we have a empty folder, lets add the items 
                 foreach (InventoryItemBase itemBase in itemsInFolder)
                 {
-                    InventoryItemBase newcopy = m_InventoryService.InnerGiveInventoryItem(user, folderOwnerID, itemBase, folderForAppearance.ID, true, true);
+                    InventoryItemBase newcopy = m_InventoryService.InnerGiveInventoryItem(user, folderOwnerID, itemBase,
+                                                                                          folderForAppearance.ID,
+                                                                                          true, true);
 
                     if (newcopy.InvType == (int) InventoryType.Object)
                     {
@@ -1230,11 +1307,9 @@ namespace Universe.Services
                             }
                         }
                     }
-
                     m_InventoryService.AddItem(newcopy);
                 }
             }
-
             return avappearance;
         }
 
@@ -1317,6 +1392,7 @@ namespace Universe.Services
             {
                 avappearance.DetachAttachment(uuid);
             }
+
 
             if (brokenLinks.Count != 0)
                 m_InventoryService.DeleteItems(user, brokenLinks);

@@ -182,7 +182,6 @@ namespace Universe.Modules.Currency
                     "show user purchases",
                     "Display user purchases for a period.",
                     HandleShowPurchases, false, true);
-
             }
         }
 

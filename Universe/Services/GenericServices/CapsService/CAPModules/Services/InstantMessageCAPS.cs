@@ -49,7 +49,8 @@ namespace Universe.Services
             m_imService = service.Registry.RequestModuleInterface<IInstantMessagingService>();
             if (m_imService != null)
             {
-                service.AddStreamHandler("ChatSessionRequest", new GenericStreamHandler("POST", service.CreateCAPS("ChatSessionRequest", ""), ChatSessionRequest));
+                service.AddStreamHandler("ChatSessionRequest",
+                                         new GenericStreamHandler("POST", service.CreateCAPS("ChatSessionRequest", ""), ChatSessionRequest));
             }
         }
 
@@ -64,7 +65,8 @@ namespace Universe.Services
 
         #region Baked Textures
 
-        public byte[] ChatSessionRequest(string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+        public byte[] ChatSessionRequest(string path, Stream request, OSHttpRequest httpRequest,
+                                         OSHttpResponse httpResponse)
         {
             try
             {

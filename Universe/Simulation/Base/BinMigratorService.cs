@@ -42,7 +42,6 @@ namespace Universe.Simulation.Base
         public void MigrateBin ()
         {
             int currentVersion = GetBinVersion ();
-
             if (currentVersion != _currentBinVersion) {
                 UpgradeToTarget (currentVersion);
                 SetBinVersion (_currentBinVersion);
@@ -67,7 +66,6 @@ namespace Universe.Simulation.Base
             try {
                 while (currentVersion != _currentBinVersion) {
                     MethodInfo info = GetType ().GetMethod ("RunMigration" + ++currentVersion);
-
                     if (info != null)
                         info.Invoke (this, null);
                 }
@@ -75,7 +73,6 @@ namespace Universe.Simulation.Base
                 Console.WriteLine ("Error running bin migration " + currentVersion + ", " + ex);
                 return false;
             }
-
             return true;
         }
 
@@ -103,11 +100,11 @@ namespace Universe.Simulation.Base
 
     public class IniMigrator
     {
-        public static void UpdateIniFile (string fileName, string handler, string [] names, string [] values, MigratorAction [] actions)
+        public static void UpdateIniFile (string fileName, string handler, string [] names, string [] values,
+                                         MigratorAction [] actions)
         {
             if (File.Exists (fileName + ".example")) //Update the .example files too if people haven't
                 UpdateIniFile (fileName + ".example", handler, names, values, actions);
-
             if (File.Exists (fileName)) {
                 IniConfigSource doc = new IniConfigSource (fileName, IniFileType.AuroraStyle);
                 IConfig section = doc.Configs [handler];
@@ -115,13 +112,11 @@ namespace Universe.Simulation.Base
                     string name = names [i];
                     string value = values [i];
                     MigratorAction action = actions [i];
-
                     if (action == MigratorAction.Add)
                         section.Set (name, value);
                     else
                         section.Remove (name);
                 }
-
                 doc.Save ();
             }
         }

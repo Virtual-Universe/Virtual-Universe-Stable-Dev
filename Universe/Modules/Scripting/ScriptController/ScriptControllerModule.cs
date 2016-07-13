@@ -30,12 +30,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Nini.Config;
+using OpenMetaverse;
 using Universe.Framework.ClientInterfaces;
 using Universe.Framework.Modules;
 using Universe.Framework.PresenceInfo;
 using Universe.Framework.SceneInfo;
-using Nini.Config;
-using OpenMetaverse;
 
 using GridRegion = Universe.Framework.Services.GridRegion;
 

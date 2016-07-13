@@ -30,11 +30,11 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using OpenMetaverse;
+using OpenMetaverse.StructuredData;
 using Universe.Framework.Modules;
 using Universe.Framework.PresenceInfo;
 using Universe.Framework.Servers.HttpServer.Interfaces;
-using OpenMetaverse;
-using OpenMetaverse.StructuredData;
 
 namespace Universe.Framework.Services
 {

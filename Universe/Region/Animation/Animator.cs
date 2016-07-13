@@ -37,7 +37,6 @@ using Universe.Framework.PresenceInfo;
 using Universe.Framework.SceneInfo;
 using Universe.Framework.Utilities;
 
-
 namespace Universe.Region.Animation
 {
     /// <summary>

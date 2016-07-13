@@ -27,8 +27,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using Universe.Framework.ClientInterfaces;
 using OpenMetaverse;
+using Universe.Framework.ClientInterfaces;
 
 namespace Universe.Framework.Modules
 {

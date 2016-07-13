@@ -43,7 +43,6 @@ using Universe.Framework.Servers.HttpServer;
 using Universe.Framework.Servers.HttpServer.Implementation;
 using Universe.Framework.Services;
 
-
 namespace Universe.Modules
 {
     public class VivoxVoiceService : IVoiceService, IService

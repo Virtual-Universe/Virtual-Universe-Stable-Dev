@@ -27,8 +27,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using Universe.Framework.Physics;
 using OpenMetaverse;
+using Universe.Framework.Physics;
 
 namespace Universe.Framework.Modules
 {

@@ -28,10 +28,10 @@
  */
 
 using System.Collections.Generic;
+using OpenMetaverse;
 using Universe.Framework.Modules;
 using Universe.Framework.Services;
 using Universe.Framework.Services.ClassHelpers.Profile;
-using OpenMetaverse;
 
 namespace Universe.Framework.DatabaseInterfaces
 {

@@ -119,16 +119,15 @@ namespace Universe.Services
                             //Need to update their title inworld
                             IAgentInfoService agentInfoService = m_registry.RequestModuleInterface<IAgentInfoService> ();
                             UserInfo info;
-                            if (agentInfoService != null && (info = agentInfoService.GetUserInfo (agentID.ToString ())) != null && info.IsOnline) {
+                            if (agentInfoService != null &&
+                                    (info = agentInfoService.GetUserInfo (agentID.ToString ())) != null && info.IsOnline) {
                                 //Forward the message
                                 regionsToBeUpdated.Add (info);
                             }
-
                             break;
                         }
                     }
                 }
-
                 if (regionsToBeUpdated.Count != 0) {
                     ISyncMessagePosterService messagePost = m_registry.RequestModuleInterface<ISyncMessagePosterService> ();
                     if (messagePost != null) {
@@ -151,7 +150,6 @@ namespace Universe.Services
                 if (gm != null)
                     gm.UpdateUsersForExternalRoleUpdate (groupID, roleID, regionID);
             }
-
             return null;
         }
     }

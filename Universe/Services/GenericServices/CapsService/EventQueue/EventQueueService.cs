@@ -148,7 +148,9 @@ namespace Universe.Services
             Enqueue (item, avatarID, regionID);
         }
 
-        public virtual void EnableSimulator (ulong handle, byte[] iPAddress, int port, UUID avatarID, int regionSizeX, int regionSizeY, UUID regionID)
+        public virtual void EnableSimulator (ulong handle, byte[] iPAddress, int port,   
+                                             UUID avatarID, 
+                                             int regionSizeX, int regionSizeY, UUID regionID)
         {
             OSD item = EventQueueHelper.EnableSimulator (handle, iPAddress, port, regionSizeX, regionSizeY);
             Enqueue (item, avatarID, regionID);
@@ -160,10 +162,14 @@ namespace Universe.Services
             Enqueue (item, avatarID, regionID);
         }
 
-        public virtual void EstablishAgentCommunication (UUID avatarID, ulong regionHandle, byte[] iPAddress, int port, string capsUrl, int regionSizeX, int regionSizeY, UUID regionID)
+        public virtual void EstablishAgentCommunication (UUID avatarID, ulong regionHandle,
+                                                         byte[] iPAddress, int port,
+                                                         string capsUrl, int regionSizeX, int regionSizeY,
+                                                         UUID regionID)
         {
             IPEndPoint endPoint = new IPEndPoint (new IPAddress (iPAddress), port);
-            OSD item = EventQueueHelper.EstablishAgentCommunication (avatarID, regionHandle, endPoint.ToString (), capsUrl, regionSizeX, regionSizeY);
+            OSD item = EventQueueHelper.EstablishAgentCommunication (avatarID, regionHandle, endPoint.ToString (), capsUrl,
+                           regionSizeX, regionSizeY);
             Enqueue (item, avatarID, regionID);
         }
 
@@ -185,7 +191,8 @@ namespace Universe.Services
                                          UUID avatarID, UUID sessionID, int regionSizeX, int regionSizeY,
                                          UUID regionID)
         {
-            OSD item = EventQueueHelper.CrossRegion (handle, pos, lookAt, address, port, capsURL, avatarID, sessionID, regionSizeX, regionSizeY);
+            OSD item = EventQueueHelper.CrossRegion (handle, pos, lookAt, address, port,
+                           capsURL, avatarID, sessionID, regionSizeX, regionSizeY);
             Enqueue (item, avatarID, regionID);
         }
 
@@ -211,7 +218,9 @@ namespace Universe.Services
             //MainConsole.Instance.InfoFormat("########### eq ChatterboxInvitation #############\n{0}", item);
         }
 
-        public virtual void ChatterBoxSessionAgentListUpdates (UUID sessionID, UUID fromAgent, UUID toAgent, bool canVoiceChat, bool isModerator, bool textMute, UUID regionID)
+        public virtual void ChatterBoxSessionAgentListUpdates (UUID sessionID, UUID fromAgent, UUID toAgent,
+                                                               bool canVoiceChat, bool isModerator, bool textMute,
+                                                               UUID regionID)
         {
             OSD item = EventQueueHelper.ChatterBoxSessionAgentListUpdates (sessionID, fromAgent, canVoiceChat,
                            isModerator, textMute);
@@ -259,7 +268,8 @@ namespace Universe.Services
             Enqueue (item, avatarID, regionID);
         }
 
-        public virtual void ScriptRunningReply (UUID objectID, UUID itemID, bool running, bool mono, UUID avatarID, UUID regionID)
+        public virtual void ScriptRunningReply (UUID objectID, UUID itemID, bool running, bool mono,
+                                                UUID avatarID, UUID regionID)
         {
             OSD Item = EventQueueHelper.ScriptRunningReplyEvent (objectID, itemID, running, true);
             Enqueue (Item, avatarID, regionID);
@@ -307,7 +317,7 @@ namespace Universe.Services
                     queue.Enqueue (ev);
             } catch (NullReferenceException e)
             {
-                MainConsole.Instance.Error ("[Event Queue] Caught exception: " + e);
+                MainConsole.Instance.Error ("[EVENTQUEUE] Caught exception: " + e);
                 return false;
             }
 

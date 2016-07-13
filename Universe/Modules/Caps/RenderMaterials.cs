@@ -120,8 +120,7 @@ namespace Universe.Modules.Caps
             return retVal;
         }
 
-        public byte[] RenderMaterialsPostCap (string path, Stream request,
-                                             OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+        public byte[] RenderMaterialsPostCap (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
             MainConsole.Instance.Debug ("[Materials]: POST cap handler");
 
@@ -209,7 +208,6 @@ namespace Universe.Modules.Caps
                                             }
                                             // MainConsole.Instance.Debug("[Materials]: matLocalId: " + matLocalID);
 
-
                                             OSDMap mat = null;
                                             if (matsMap.ContainsKey ("Material"))
                                             {
@@ -255,13 +253,7 @@ namespace Universe.Modules.Caps
                                                                 MainConsole.Instance.Debug ("[Materials]: te.DefaultTexture is null");
                                                             else
                                                             {
-//## FixMe ##
-// comparison always results in 'False'                                   if (te.DefaultTexture.MaterialID == null)
-//                                                                    MainConsole.Instance.Debug("[MaterialsDemoModule]: te.DefaultTexture.MaterialID is null");
-//                                                                else
-//                                                                {
                                                                 te.DefaultTexture.MaterialID = id;
-//                                                                }
                                                             }
                                                         } else
                                                         {
@@ -378,14 +370,11 @@ namespace Universe.Modules.Caps
             }
         }
 
-
-        public byte[] RenderMaterialsGetCap (string path, Stream request,
-                                            OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+        public byte[] RenderMaterialsGetCap (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
             MainConsole.Instance.Debug ("[Materials]: GET cap handler");
 
             OSDMap resp = new OSDMap ();
-
 
             int matsCount = 0;
 
@@ -401,7 +390,6 @@ namespace Universe.Modules.Caps
                 allOsd.Add (matMap);
                 matsCount++;
             }
-
 
             resp ["Zipped"] = ZCompressOSD (allOsd, false);
             MainConsole.Instance.Debug ("[Materials]: matsCount: " + matsCount);

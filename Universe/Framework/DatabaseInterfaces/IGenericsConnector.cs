@@ -27,11 +27,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using Universe.Framework.Modules;
-using Universe.Framework.Services;
+using System.Collections.Generic;
 using OpenMetaverse;
 using OpenMetaverse.StructuredData;
-using System.Collections.Generic;
+using Universe.Framework.Modules;
+using Universe.Framework.Services;
 
 namespace Universe.Framework.DatabaseInterfaces
 {

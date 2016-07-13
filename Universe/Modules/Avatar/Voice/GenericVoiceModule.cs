@@ -168,8 +168,6 @@ namespace Universe.Modules.Voice
             return OSDParser.SerializeLLSDXmlBytes(response);
         }
 
-
-
         #region Region-side message sending
 
         OSDMap syncRecievedService_OnMessageReceived(OSDMap message)

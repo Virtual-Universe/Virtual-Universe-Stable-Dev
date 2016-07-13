@@ -55,10 +55,14 @@ namespace Universe.Services
         /// <param name="httpRequest"></param>
         /// <param name="httpResponse"></param>
         /// <returns></returns>
-        public byte[] ViewerStatsReport (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+        public byte[] ViewerStatsReport (string path, Stream request, OSHttpRequest httpRequest,
+                                        OSHttpResponse httpResponse)
         {
-            IUserStatsDataConnector dataConnector = Framework.Utilities.DataManager.RequestPlugin<IUserStatsDataConnector> ();
-            OpenMetaverse.Messages.Linden.ViewerStatsMessage vsm = new OpenMetaverse.Messages.Linden.ViewerStatsMessage ();
+            IUserStatsDataConnector dataConnector =
+                Framework.Utilities.DataManager.RequestPlugin<IUserStatsDataConnector> ();
+
+            OpenMetaverse.Messages.Linden.ViewerStatsMessage vsm =
+                new OpenMetaverse.Messages.Linden.ViewerStatsMessage ();
             vsm.Deserialize ((OSDMap)OSDParser.DeserializeLLSDXml (HttpServerHandlerHelpers.ReadFully (request)));
             dataConnector.UpdateUserStats (vsm, m_service.AgentID, m_service.Region.RegionID);
 
@@ -68,7 +72,8 @@ namespace Universe.Services
         public void RegisterCaps (IRegionClientCapsService service)
         {
             m_service = service;
-            service.AddStreamHandler ("ViewerStats", new GenericStreamHandler ("POST", service.CreateCAPS ("ViewerStats", ""), ViewerStatsReport));
+            service.AddStreamHandler ("ViewerStats",
+                new GenericStreamHandler ("POST", service.CreateCAPS ("ViewerStats", ""), ViewerStatsReport));
         }
 
         public void DeregisterCaps ()
@@ -166,6 +171,7 @@ namespace Universe.Services
                     MainConsole.Instance.CleanInfo (string.Format ("Average agents in view: {0}", agents_in_view.Average ()));
 
                 MainConsole.Instance.CleanInfo ("");
+
             }
         }
     }

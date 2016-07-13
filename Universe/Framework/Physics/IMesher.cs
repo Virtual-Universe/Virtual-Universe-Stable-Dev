@@ -28,8 +28,8 @@
  */
 
 using System;
-using Universe.Framework.SceneInfo;
 using OpenMetaverse;
+using Universe.Framework.SceneInfo;
 
 namespace Universe.Framework.Physics
 {

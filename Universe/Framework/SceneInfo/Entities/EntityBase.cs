@@ -27,8 +27,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using Universe.Framework.Utilities;
 using OpenMetaverse;
+using Universe.Framework.Utilities;
 
 namespace Universe.Framework.SceneInfo.Entities
 {

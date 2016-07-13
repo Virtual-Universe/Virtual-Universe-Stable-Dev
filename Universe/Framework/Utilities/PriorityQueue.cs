@@ -27,6 +27,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+// PriorityQueue.cs
+//
+// Jim Mischel
+
 using System;
 using System.Collections;
 using System.Collections.Generic;

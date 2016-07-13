@@ -27,6 +27,33 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/* The MIT License
+ * 
+ * Copyright (c) 2010 Intel Corporation.
+ * All rights reserved.
+ *
+ * Based on the convexdecomposition library from 
+ * <http://codesuppository.googlecode.com> by John W. Ratcliff and Stan Melax.
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -677,8 +704,8 @@ namespace Universe.Physics.ConvexDecompositionDotNet
             int i;
             int vertcountunder = 0;
             int vertcountover = 0;
-// 20131224 not used            List<int> vertscoplanar = new List<int>(); // existing vertex members of convex that are coplanar
-// 20131224 not used            List<int> edgesplit = new List<int>(); // existing edges that members of convex that cross the splitplane
+            // 20131224 not used            List<int> vertscoplanar = new List<int>(); // existing vertex members of convex that are coplanar
+            // 20131224 not used            List<int> edgesplit = new List<int>(); // existing edges that members of convex that cross the splitplane
 
             Debug.Assert(convex.edges.Count < 480);
 
@@ -1256,7 +1283,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
             vlimit -= 4;
             while (vlimit > 0 && (te = extrudable(epsilon, tris)) != null)
             {
-// 20131224 not used                int3 ti = te;
+                // 20131224 not used                int3 ti = te;
                 int v = te.vmax;
                 Debug.Assert(isextreme[v] == 0); // wtf we've already done this vertex
                 isextreme[v] = 1;

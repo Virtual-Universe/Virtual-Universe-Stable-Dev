@@ -92,11 +92,9 @@ namespace Universe.Modules.Web
                 string RegionLocY = requestParameters["RegionLocY"].ToString();
                 string RegionSizeX = requestParameters["RegionSizeX"].ToString();
                 string RegionSizeY = requestParameters["RegionSizeY"].ToString();
-
                 string RegionType = requestParameters["RegionType"].ToString();
                 string RegionPresetType = requestParameters["RegionPresetType"].ToString();
                 string RegionTerrain = requestParameters["RegionTerrain"].ToString();
-
                 string RegionLoadTerrain = requestParameters.ContainsKey("RegionLoadTerrain")
                     ? requestParameters["RegionLoadTerrain"].ToString()
                     : "";
@@ -106,7 +104,6 @@ namespace Universe.Modules.Web
                // string UserType = requestParameters.ContainsKey("UserType")         // only admins can set membership
                //     ? requestParameters ["UserType"].ToString ()
                //     : "Resident";
-
 
                 // a bit of idiot proofing
                 if (RegionName == "")  {
@@ -131,10 +128,9 @@ namespace Universe.Modules.Web
                 newRegion.RegionLocY = int.Parse (RegionLocY);
                 newRegion.RegionSizeX = int.Parse (RegionSizeX);
                 newRegion.RegionSizeY = int.Parse (RegionSizeY);
-
                 newRegion.RegionPort = RegionPort;
                 newRegion.SeeIntoThisSimFromNeighbor = true;
-                newRegion.InfiniteRegion = false;
+                newRegion.InfiniteRegion = true;
                 newRegion.ObjectCapacity = 50000;
                 newRegion.Startup = StartupType.Normal;
 
@@ -148,7 +144,6 @@ namespace Universe.Modules.Web
 
                     string delayStartup = requestParameters["RegionDelayStartup"].ToString();
                     newRegion.Startup = delayStartup.StartsWith ("n", System.StringComparison.Ordinal) ? StartupType.Normal : StartupType.Medium;
-
                 }
 
                 if (regionPreset.StartsWith ("w", System.StringComparison.Ordinal))
@@ -162,8 +157,6 @@ namespace Universe.Modules.Web
                     newRegion.InfiniteRegion = true;
                     newRegion.ObjectCapacity = 50000;
                     newRegion.RegionPort = RegionPort;
- 
-
                 }
                 if (regionPreset.StartsWith ("o", System.StringComparison.Ordinal))       
                 {
@@ -237,6 +230,7 @@ namespace Universe.Modules.Web
                         }
                     } 
 
+                    //                        response = "<h3>" + error + "</h3>";
                     response = "<h3> Error registering region with grid</h3>";
                 } else
                     response = "<h3>Error creating this region.</h3>";
@@ -265,7 +259,6 @@ namespace Universe.Modules.Web
                 }
                 vars.Add ("OwnerUUID", estateOwner);
                 vars.Add ("OwnerName", estateOwnerAccount != null ? estateOwnerAccount.Name : "No account found");
-
                 vars.Add ("RegionLocX", region.RegionLocX / Constants.RegionSize);
                 vars.Add ("RegionLocY", region.RegionLocY / Constants.RegionSize);
                 vars.Add ("RegionSizeX", region.RegionSizeX);
@@ -309,9 +302,12 @@ namespace Universe.Modules.Web
                 var settings = gconnector.GetGeneric<WebUISettings>(UUID.Zero, "WebUISettings", "Settings");
                 if (settings == null)
                     settings = new WebUISettings ();
+                
+                // get some current details
+                //List<GridRegion> regions = gridService.GetRegionsByName(null, "", null,null);
 
                 var currentInfo = scenemanager.FindCurrentRegionInfo ();
-
+                //Dictionary<string, int> currentInfo = null;
                 if (currentInfo != null)
                 {
                     vars.Add ("RegionLocX", currentInfo ["minX"] > 0 ? currentInfo ["minX"] : settings.MapCenter.X);
@@ -323,15 +319,16 @@ namespace Universe.Modules.Web
                     vars.Add ("RegionLocY", settings.MapCenter.Y);
                     vars.Add("RegionPort", 9000);
                 }
-
+                   
                 vars.Add ("RegionSizeX", Constants.RegionSize);
                 vars.Add ("RegionSizeY", Constants.RegionSize);
                 vars.Add ("RegionType", webInterface.RegionTypeArgs(translator));
                 vars.Add ("RegionPresetType", webInterface.RegionPresetArgs(translator));
-                vars.Add ("RegionTerrain", webInterface.RegionTerrainArgs(translator));
+                vars.Add ("RegionTerrain", webInterface.RegionTerrainArgs(translator));             
             }
 
             // Labels
+            //vars.Add ("RegionInformationText", translator.GetTranslatedString ("RegionInformationText"));
             vars.Add ("RegionNameText", translator.GetTranslatedString ("RegionNameText"));
             vars.Add ("RegionLocationText", translator.GetTranslatedString ("RegionLocationText"));
             vars.Add ("RegionSizeText", translator.GetTranslatedString ("RegionSizeText"));
@@ -350,6 +347,7 @@ namespace Universe.Modules.Web
             vars.Add("Submit", translator.GetTranslatedString("Submit"));
             vars.Add("SubmitURL", "home.html");
             vars.Add("ErrorMessage", "");
+
             return vars;
         }
 

@@ -27,11 +27,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using Universe.Framework.PresenceInfo;
-using Universe.Framework.SceneInfo;
+using System.Net;
 using Nini.Config;
 using OpenMetaverse;
-using System.Net;
+using Universe.Framework.PresenceInfo;
+using Universe.Framework.SceneInfo;
 
 namespace Universe.Framework.Modules
 {

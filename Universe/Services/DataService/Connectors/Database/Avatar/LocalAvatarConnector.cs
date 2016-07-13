@@ -45,7 +45,8 @@ namespace Universe.Services.DataService
 
         #region IAvatarData Members
 
-        public void Initialize (IGenericData GenericData, IConfigSource source, IRegistryCore simBase, string defaultConnectionString)
+        public void Initialize (IGenericData GenericData, IConfigSource source, IRegistryCore simBase,
+                               string defaultConnectionString)
         {
             if (source.Configs ["UniverseConnectors"].GetString ("AvatarConnector", "LocalConnector") != "LocalConnector")
                 return;

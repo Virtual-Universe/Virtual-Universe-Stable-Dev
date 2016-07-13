@@ -28,9 +28,9 @@
  */
 
 using System.Collections.Generic;
-using Universe.Framework.Services;
 using OpenMetaverse;
 using OpenMetaverse.Messages.Linden;
+using Universe.Framework.Services;
 
 namespace Universe.Framework.DatabaseInterfaces
 {

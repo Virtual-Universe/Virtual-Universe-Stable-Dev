@@ -61,19 +61,26 @@ namespace Universe.Services
             
             HttpServerHandle method;
 
-            service.AddStreamHandler ("AvatarPickerSearch", new GenericStreamHandler ("GET", service.CreateCAPS ("AvatarPickerSearch", ""), ProcessAvatarPickerSearch));
+            service.AddStreamHandler ("AvatarPickerSearch",
+                new GenericStreamHandler ("GET", service.CreateCAPS ("AvatarPickerSearch", ""),
+                    ProcessAvatarPickerSearch));
 
-            method = delegate(string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse) {
+            method = delegate(string path, Stream request,
+                              OSHttpRequest httpRequest, OSHttpResponse httpResponse) {
                 return HomeLocation (request, m_service.AgentID);
             };
+            service.AddStreamHandler ("HomeLocation",
+                new GenericStreamHandler ("POST", service.CreateCAPS ("HomeLocation", ""),
+                    method));
 
-            service.AddStreamHandler ("HomeLocation", new GenericStreamHandler ("POST", service.CreateCAPS ("HomeLocation", ""), method));
-
-            method = delegate(string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse) {
+            method = delegate(string path, Stream request,
+                              OSHttpRequest httpRequest, OSHttpResponse httpResponse) {
                 return TeleportLocation (request, m_service.AgentID);
             };
 
-            service.AddStreamHandler ("TeleportLocation", new GenericStreamHandler ("POST", service.CreateCAPS ("TeleportLocation", ""), method));
+            service.AddStreamHandler ("TeleportLocation",
+                new GenericStreamHandler ("POST", service.CreateCAPS ("TeleportLocation", ""),
+                    method));
         }
 
         public void EnteringRegion ()
@@ -86,7 +93,6 @@ namespace Universe.Services
             m_service.RemoveStreamHandler ("HomeLocation", "POST");
             m_service.RemoveStreamHandler ("TeleportLocation", "POST");
         }
-
         #endregion
 
         #region Other CAPS
@@ -107,6 +113,7 @@ namespace Universe.Services
                                      (float)lookat ["X"].AsReal (),
                                      (float)lookat ["Y"].AsReal (),
                                      (float)lookat ["Z"].AsReal ());
+                //int locationID = HomeLocation["LocationId"].AsInteger();
 
                 m_agentInfoService.SetHomePosition (agentID.ToString (), m_service.Region.RegionID, position, lookAt);
             }
@@ -115,7 +122,8 @@ namespace Universe.Services
             return OSDParser.SerializeLLSDXmlBytes (rm);
         }
 
-        byte[] ProcessAvatarPickerSearch (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+        byte[] ProcessAvatarPickerSearch (string path, Stream request, OSHttpRequest httpRequest,
+                                          OSHttpResponse httpResponse)
         {
             NameValueCollection query = HttpUtility.ParseQueryString (httpRequest.Url.Query);
             string amt = query.GetOne ("page-size");
@@ -123,7 +131,8 @@ namespace Universe.Services
                 amt = query.GetOne ("page_size");
             string name = query.GetOne ("names");
             List<UserAccount> accounts =
-                m_service.Registry.RequestModuleInterface<IUserAccountService> ().GetUserAccounts (m_service.ClientCaps.AccountInfo.AllScopeIDs, name, 0, uint.Parse (amt)) ??
+                m_service.Registry.RequestModuleInterface<IUserAccountService> ()
+                         .GetUserAccounts (m_service.ClientCaps.AccountInfo.AllScopeIDs, name, 0, uint.Parse (amt)) ??
                 new List<UserAccount> (0);
 
             OSDMap body = new OSDMap ();
@@ -133,7 +142,8 @@ namespace Universe.Services
                 OSDMap map = new OSDMap ();
                 map ["agent_id"] = account.PrincipalID;
                 IUserProfileInfo profileInfo =
-                    Framework.Utilities.DataManager.RequestPlugin<IProfileConnector> ().GetUserProfile (account.PrincipalID);
+                    Framework.Utilities.DataManager.RequestPlugin<IProfileConnector> ()
+                          .GetUserProfile (account.PrincipalID);
                 map ["display_name"] = (profileInfo == null || profileInfo.DisplayName == "")
                                           ? account.Name
                                           : profileInfo.DisplayName;
@@ -167,6 +177,10 @@ namespace Universe.Services
                                    (float)pos ["Y"].AsReal (),
                                    (float)pos ["Z"].AsReal ());
             
+            /*OSDMap lookat = rm["LocationLookAt"] as OSDMap;
+            Vector3 lookAt = new Vector3((float)lookat["X"].AsReal(),
+                (float)lookat["Y"].AsReal(),
+                (float)lookat["Z"].AsReal());*/
             ulong RegionHandle = rm ["RegionHandle"].AsULong ();
             const uint tpFlags = 16;
 
@@ -180,7 +194,8 @@ namespace Universe.Services
             string reason = "";
             int x, y;
             Util.UlongToInts (RegionHandle, out x, out y);
-            GridRegion destination = m_service.Registry.RequestModuleInterface<IGridService> ().GetRegionByPosition (m_service.ClientCaps.AccountInfo.AllScopeIDs, x, y);
+            GridRegion destination = m_service.Registry.RequestModuleInterface<IGridService> ().GetRegionByPosition (
+                                         m_service.ClientCaps.AccountInfo.AllScopeIDs, x, y);
             ISimulationService simService = m_service.Registry.RequestModuleInterface<ISimulationService> ();
             AgentData ad = new AgentData ();
             AgentCircuitData circuitData = null;
@@ -202,7 +217,8 @@ namespace Universe.Services
             }
             circuitData.IsChildAgent = false;
 
-            if (m_agentProcessing.TeleportAgent (ref destination, tpFlags, circuitData, ad, m_service.AgentID, m_service.RegionID, out reason) || reason == "")
+            if (m_agentProcessing.TeleportAgent (ref destination, tpFlags, circuitData, ad,
+                    m_service.AgentID, m_service.RegionID, out reason) || reason == "")
             {
                 retVal.Add ("success", OSD.FromBoolean (true));
             } else
@@ -218,7 +234,6 @@ namespace Universe.Services
             _isInTeleportCurrently = false;
             return OSDParser.SerializeLLSDXmlBytes (retVal);
         }
-
         #endregion
     }
 }

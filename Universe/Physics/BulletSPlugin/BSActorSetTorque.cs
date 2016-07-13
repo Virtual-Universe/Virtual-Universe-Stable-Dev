@@ -128,8 +128,6 @@ namespace Universe.Physics.BulletSPlugin
                 m_controllingPrim.AddAngularForce(m_controllingPrim.RawTorque, false, true);
                 m_controllingPrim.ActivateIfPhysical(false);
             }
-
-            // TODO:
         }
     }
 }

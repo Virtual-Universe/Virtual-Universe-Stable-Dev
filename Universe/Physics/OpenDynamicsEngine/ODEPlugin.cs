@@ -32,7 +32,6 @@
 using System;
 using Universe.Framework.Physics;
 
-
 namespace Universe.Physics.OpenDynamicsEngine
 {
     /// <summary>

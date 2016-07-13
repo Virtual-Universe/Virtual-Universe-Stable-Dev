@@ -110,7 +110,6 @@ namespace Universe.Modules.Web
 
                     infoMessage = translator.GetTranslatedString ("ChangesSavedSuccessfully");
                 }
-
             }
 
             // get admin users
@@ -187,4 +186,3 @@ namespace Universe.Modules.Web
         }
     }
 }
-

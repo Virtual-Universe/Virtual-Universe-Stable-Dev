@@ -45,7 +45,8 @@ namespace Universe.Services
         UUID m_RegionID;
         GridRegion m_cachedRegion;
 
-        protected Dictionary<UUID, IRegionClientCapsService> m_clientsInThisRegion = new Dictionary<UUID, IRegionClientCapsService> ();
+        protected Dictionary<UUID, IRegionClientCapsService> m_clientsInThisRegion =
+            new Dictionary<UUID, IRegionClientCapsService> ();
 
         IRegistryCore m_registry;
 
@@ -102,7 +103,6 @@ namespace Universe.Services
             {
                 regionC.ClientCaps.RemoveCAPS (m_RegionID);
             }
-
             m_clientsInThisRegion.Clear ();
         }
 

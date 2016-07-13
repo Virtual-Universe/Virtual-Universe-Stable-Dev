@@ -63,6 +63,5 @@ namespace Universe.Framework.Modules
         /// </summary>
         /// <returns>The avatar archive images.</returns>
         List<string> GetAvatarArchiveImages ();
-
     }
 }

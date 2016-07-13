@@ -49,8 +49,8 @@ namespace Universe.Framework.ClientInterfaces
         {
             GlobalPosX = (float)Convert.ToDecimal (map ["GlobalPosX"].AsString (), Culture.NumberFormatInfo);
             GlobalPosY = (float)Convert.ToDecimal (map ["GlobalPosY"].AsString (), Culture.NumberFormatInfo);
-//            GlobalPosX = map["GlobalPosX"];
-//            GlobalPosY = map["GlobalPosY"];
+            //GlobalPosX = map["GlobalPosX"];
+            //GlobalPosY = map["GlobalPosY"];
             LandData = new LandData();
             LandData.FromOSD((OSDMap) map["LandData"]);
             RegionName = map["RegionName"];

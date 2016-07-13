@@ -28,18 +28,17 @@
  */
 
 using System.Collections.Generic;
+using OpenMetaverse;
+using OpenMetaverse.StructuredData;
 using Universe.Framework.ClientInterfaces;
 using Universe.Framework.PresenceInfo;
 using Universe.Framework.Utilities;
-using OpenMetaverse;
-using OpenMetaverse.StructuredData;
 
 namespace Universe.Framework.Services.ClassHelpers.Other
 {
     public class SyncMessageHelper
     {
-        public static OSDMap ArrivedAtDestination(UUID AgentID, int DrawDistance, AgentCircuitData circuit,
-                                                  UUID requestingRegion)
+        public static OSDMap ArrivedAtDestination(UUID AgentID, int DrawDistance, AgentCircuitData circuit, UUID requestingRegion)
         {
             OSDMap llsdBody = new OSDMap
                                   {

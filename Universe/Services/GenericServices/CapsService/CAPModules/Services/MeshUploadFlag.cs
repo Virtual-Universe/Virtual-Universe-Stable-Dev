@@ -49,7 +49,8 @@ namespace Universe.Services
         {
             m_service = service;
             m_profileConnector = Framework.Utilities.DataManager.RequestPlugin<IProfileConnector> ();
-            m_service.AddStreamHandler ("MeshUploadFlag", new GenericStreamHandler ("GET", m_service.CreateCAPS ("MeshUploadFlag", ""), MeshUploadFlagCAP));
+            m_service.AddStreamHandler ("MeshUploadFlag",
+                new GenericStreamHandler ("GET", m_service.CreateCAPS ("MeshUploadFlag", ""), MeshUploadFlagCAP));
         }
 
         public void DeregisterCaps ()
@@ -76,7 +77,9 @@ namespace Universe.Services
             data ["legacy_last_name"] = m_service.ClientCaps.AccountInfo.LastName;
             data ["mesh_upload_status"] = "valid"; // add if account has ability to upload mesh?
             bool isDisplayNameNDefault = (info.DisplayName == m_service.ClientCaps.AccountInfo.Name) ||
-                                         (info.DisplayName == m_service.ClientCaps.AccountInfo.FirstName + "." + m_service.ClientCaps.AccountInfo.LastName);
+                                         (info.DisplayName ==
+                                         m_service.ClientCaps.AccountInfo.FirstName + "." +
+                                         m_service.ClientCaps.AccountInfo.LastName);
             data ["is_display_name_default"] = isDisplayNameNDefault;
 
             //Send back data

@@ -27,11 +27,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using Universe.Framework.ConsoleFramework;
-using Universe.Region;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Universe.Framework.ConsoleFramework;
+using Universe.Region;
 
 namespace Universe.Modules
 {

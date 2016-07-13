@@ -31,7 +31,6 @@ using System;
 using Nini.Config;
 using Universe.Framework.ClientInterfaces;
 
-
 namespace Universe.ClientStack
 {
     /// <summary>

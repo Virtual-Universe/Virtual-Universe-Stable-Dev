@@ -28,8 +28,8 @@
  */
 
 using System.Collections.Generic;
-using Universe.Framework.ClientInterfaces;
 using OpenMetaverse;
+using Universe.Framework.ClientInterfaces;
 
 namespace Universe.Framework.Modules
 {

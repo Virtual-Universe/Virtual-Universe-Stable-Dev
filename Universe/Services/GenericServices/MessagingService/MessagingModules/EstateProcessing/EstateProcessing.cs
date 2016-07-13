@@ -58,7 +58,8 @@ namespace Universe.Services
 
         public void Start (IConfigSource config, IRegistryCore registry)
         {
-            registry.RequestModuleInterface<ISimulationBase> ().EventManager.RegisterEventHandler ("EstateUpdated", OnGenericEvent);
+            registry.RequestModuleInterface<ISimulationBase> ().EventManager.RegisterEventHandler ("EstateUpdated",
+                                                                                                 OnGenericEvent);
         }
 
         public void FinishedStartup ()
@@ -95,7 +96,6 @@ namespace Universe.Services
                     }
                 }
             }
-
             return null;
         }
 
@@ -121,13 +121,12 @@ namespace Universe.Services
                             EstateSettings es = null;
                             if ((es = estateConnector.GetEstateSettings (regionID)) != null && es.EstateID != 0) {
                                 scene.RegionInfo.EstateSettings = es;
-                                MainConsole.Instance.Debug ("[Estate Processor]: Updated estate information.");
+                                MainConsole.Instance.Debug ("[EstateProcessor]: Updated estate information.");
                             }
                         }
                     }
                 }
             }
-
             return null;
         }
     }

@@ -27,8 +27,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using Universe.Framework.PresenceInfo;
 using OpenMetaverse;
+using Universe.Framework.PresenceInfo;
 
 namespace Universe.Framework.Modules
 {
