@@ -1,7 +1,7 @@
 ### Issue Type
 
-| Q             | A
-| ------------- | ---
+| Question      | Answer
+| ------------- | ---------
 | Bug?          | [yes|no]
 | New feature?  | [yes|no]
 
