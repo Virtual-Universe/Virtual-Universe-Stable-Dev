@@ -6,7 +6,7 @@
 
 ### Notice 2
 
-**Effective August 1, 2016 Any issues opened which do not have the provided questions answered will be closed immediately without further action.  The questions need to be answered to help provide us with as much information as possible to fix the bugs you find.  This has nothing to do with disliking reports or any individuals.  This has to do with getting to the root of the issues you report.  Thank you.**
+**Effective August 1, 2016 - Any issues opened which do not have the provided questions answered will be closed immediately without further action.  The questions need to be answered to help provide us with as much information as possible to fix the bugs you find.  This has nothing to do with disliking reports or any individuals.  This has to do with getting to the root of the issues you report.  Thank you.**
 
 
 ### Issue Type
