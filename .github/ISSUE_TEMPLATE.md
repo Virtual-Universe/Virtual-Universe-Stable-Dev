@@ -1,3 +1,30 @@
+### Issue Type
+
+| Q             | A
+| ------------- | ---
+| Bug?          | [yes|no]
+| New feature?  | [yes|no]
+
+### For Feature requests please answer the following
+
+**Describe the feature you are requesting**:
+
+
+**Has the feature been implemented by a similar project**:
+
+
+**What other project similar to Virtual Universe has implemented the feature**:
+
+
+**URL to where we can view the feature and or source code**:
+
+
+### NOTE About Features
+
+**The Second Galaxy Development Team will consider the features after we have seen enough interest by users of Virtual Universe.  The Feature must recieve at least five (5) core developers voting in favor of the feature for it to be included in a future release.**
+
+### For bugs please answer the following
+
 ### Steps to reproduce
 
 1.
