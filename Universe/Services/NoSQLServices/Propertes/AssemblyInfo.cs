@@ -35,10 +35,10 @@ using System.Runtime.InteropServices;
 /// 	set of attributes.  Change these attribute values, to modify the information
 /// 	associated with an assembly.
 /// </summary>
-[assembly: AssemblyTitle("Universe.Physics.OpenDynamicsEngine")]
+[assembly: AssemblyTitle("Universe.Services.NoSQLServices")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyProduct("Universe.Physics.OpenDynamicsEngine")]
+[assembly: AssemblyProduct("Universe.Services.NoSQLServices")]
 [assembly: AssemblyCopyright("Copyright © 2016-2025")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
