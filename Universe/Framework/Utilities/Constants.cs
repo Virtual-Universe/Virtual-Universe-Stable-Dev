@@ -51,6 +51,8 @@ namespace Universe.Framework.Utilities
         public const string DEFAULT_USERHTML_DIR = "html";
         public const string DEFAULT_LOG_DIR = "logs";
 
+        public const int DEFAULT_REGIONSTART_X = 1000;
+        public const int DEFAULT_REGIONSTART_Y = 1000;
         public const int RegionSize = 256;
         public const int RegionHeight = 10000;
         public const byte TerrainPatchSize = 16;

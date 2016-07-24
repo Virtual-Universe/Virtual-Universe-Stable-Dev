@@ -736,7 +736,13 @@ namespace Universe.Modules.Web
                 IGenericsConnector generics = Framework.Utilities.DataManager.RequestPlugin<IGenericsConnector> ();
                 var settings = generics.GetGeneric<WebUISettings> (UUID.Zero, "WebUISettings", "Settings");
                 if (settings == null)
-                    settings = new WebUISettings ();
+                {
+                    settings = new WebUISettings();
+
+                    var simbase = Registry.RequestModuleInterface<ISimulationBase>();
+                    settings.MapCenter.X = simbase.MapCenterX;
+                    settings.MapCenter.Y = simbase.MapCenterY;
+                }
 
                 return settings;
             }
@@ -839,8 +845,7 @@ namespace Universe.Modules.Web
     class GridWelcomeScreen : IDataTransferable
     {
         public static readonly GridWelcomeScreen Default = new GridWelcomeScreen {
-            SpecialWindowMessageTitle =
-                                                                       "Nothing to report at this time.",
+            SpecialWindowMessageTitle = "Nothing to report at this time.",
             SpecialWindowMessageText = "Grid is up and running.",
             SpecialWindowMessageColor = "white",
             SpecialWindowActive = true,
@@ -1072,9 +1077,9 @@ namespace Universe.Modules.Web
 
     public class GridSettings : IDataTransferable
     {
-        public string Gridname = "Universe Grid";
+        public string Gridname = "Virtual Universe";
         public string Gridnick = "Universe";
-        public string WelcomeMessage = "Welcome to Universe, <USERNAME>!";
+        public string WelcomeMessage = "Welcome to Virtual Universe, <USERNAME>!";
         public string GovernorName = Constants.GovernorName;
         public string RealEstateOwnerName = Constants.RealEstateOwnerName;
         public string BankerName = Constants.BankerName;
@@ -1147,8 +1152,8 @@ namespace Universe.Modules.Web
 
         public WebUISettings ()
         {
-            MapCenter.X = 1000;     // TODO:  Maybe this should be larger? eg 5000,5000
-            MapCenter.Y = 1000;
+            MapCenter.X = Constants.DEFAULT_REGIONSTART_X;
+            MapCenter.Y = Constants.DEFAULT_REGIONSTART_Y;
         }
 
         public WebUISettings (OSD map)

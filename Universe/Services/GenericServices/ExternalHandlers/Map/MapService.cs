@@ -62,11 +62,18 @@ namespace Universe.Services
         static Bitmap m_blankRegionTile = null;
         MapTileIndex m_blankTiles = new MapTileIndex();
         byte[] m_blankRegionTileData;
+        int m_mapcenter_x = Constants.DEFAULT_REGIONSTART_X;
+        int m_mapcenter_y = Constants.DEFAULT_REGIONSTART_Y;
 
         public void Initialize(IConfigSource config, IRegistryCore registry)
         {
             m_registry = registry;
-            IConfig mapConfig = config.Configs["MapService"];
+
+            var simbase = registry.RequestModuleInterface<ISimulationBase>();
+            m_mapcenter_x = simbase.MapCenterX;
+            m_mapcenter_y = simbase.MapCenterY;
+
+            var mapConfig = config.Configs["MapService"];
             if (mapConfig != null)
             {
                 m_enabled = mapConfig.GetBoolean("Enabled", m_enabled);
@@ -74,18 +81,20 @@ namespace Universe.Services
                 m_cacheEnabled = mapConfig.GetBoolean("CacheEnabled", m_cacheEnabled);
                 m_cacheExpires = mapConfig.GetFloat("CacheExpires", m_cacheExpires);
             }
+
             if (!m_enabled)
                 return;
 
             if (m_cacheEnabled)
             {
-                m_assetCacheDir = config.Configs ["AssetCache"].GetString ("CacheDirectory",m_assetCacheDir);
+                m_assetCacheDir = config.Configs["AssetCache"].GetString("CacheDirectory", m_assetCacheDir);
                 if (m_assetCacheDir == "")
                 {
-                    var defpath = registry.RequestModuleInterface<ISimulationBase> ().DefaultDataPath;
-                    m_assetCacheDir = Path.Combine (defpath, Constants.DEFAULT_ASSETCACHE_DIR);
+                    var defpath = registry.RequestModuleInterface<ISimulationBase>().DefaultDataPath;
+                    m_assetCacheDir = Path.Combine(defpath, Constants.DEFAULT_ASSETCACHE_DIR);
                 }
-                CreateCacheDirectories (m_assetCacheDir);
+
+                CreateCacheDirectories(m_assetCacheDir);
             }
 
             m_server = registry.RequestModuleInterface<ISimulationBase>().GetHttpServer(m_port);
@@ -101,14 +110,8 @@ namespace Universe.Services
                 SolidBrush sea = new SolidBrush(Color.FromArgb(29, 71, 95));
                 g.FillRectangle(sea, 0, 0, 256, 256);
             }
+
             m_blankRegionTileData = CacheMapTexture(1, 0, 0, m_blankRegionTile, true);
-            /*string path = Path.Combine(m_assetCacheDir, Path.Combine("mapzoomlevels", "blankMap.index"));
-            if(File.Exists(path))
-            {
-                FileStream stream = File.OpenRead(path);
-                m_blankTiles = ProtoBuf.Serializer.Deserialize<MapTileIndex>(stream);
-                stream.Close();
-            }*/
         }
 
         void CreateCacheDirectories(string cacheDir)
@@ -117,8 +120,8 @@ namespace Universe.Services
                 Directory.CreateDirectory(cacheDir);
 
             m_assetMapCacheDir = cacheDir + "/mapzoomlevels";
-            if (!Directory.Exists (m_assetMapCacheDir))
-                Directory.CreateDirectory (m_assetMapCacheDir);
+            if (!Directory.Exists(m_assetMapCacheDir))
+                Directory.CreateDirectory(m_assetMapCacheDir);
         }
 
         public void Start(IConfigSource config, IRegistryCore registry)
@@ -150,12 +153,22 @@ namespace Universe.Services
             get { return m_server.ServerURI + "/MapAPI/"; }
         }
 
+        public int MapCenterX
+        {
+            get { return m_mapcenter_x; }
+        }
+
+        public int MapCenterY
+        {
+            get { return m_mapcenter_y; }
+        }
+
         public byte[] MapAPIRequest(string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
             byte[] response = MainServer.BlankResponse;
 
             string var = httpRequest.Query["var"].ToString();
-            string requestType = path.Substring (0, path.IndexOf ("?"));
+            string requestType = path.Substring(0, path.IndexOf("?"));
             if (requestType == "/MapAPI/get-region-coords-by-name")
             {
                 string resp = "var {0} = {\"x\":{1},\"y\":{2}};";
@@ -179,22 +192,23 @@ namespace Universe.Services
                 if (region == null)
                 {
                     List<GridRegion> regions = m_gridService.GetRegionRange(null,
-                                                                            (grid_x*Constants.RegionSize) -
+                                                                            (grid_x * Constants.RegionSize) -
                                                                             (m_gridService.GetMaxRegionSize()),
-                                                                            (grid_x*Constants.RegionSize),
-                                                                            (grid_y*Constants.RegionSize) -
+                                                                            (grid_x * Constants.RegionSize),
+                                                                            (grid_y * Constants.RegionSize) -
                                                                             (m_gridService.GetMaxRegionSize()),
-                                                                            (grid_y*Constants.RegionSize));
+                                                                            (grid_y * Constants.RegionSize));
                     bool found = false;
                     foreach (var r in regions)
                     {
-                        if (r.PointIsInRegion(grid_x*Constants.RegionSize, grid_y*Constants.RegionSize))
+                        if (r.PointIsInRegion(grid_x * Constants.RegionSize, grid_y * Constants.RegionSize))
                         {
                             resp = string.Format(resp, var, r.RegionName);
                             found = true;
                             break;
                         }
                     }
+
                     if (!found)
                         resp = "var " + var + " = {error: true};";
                 }
@@ -211,7 +225,7 @@ namespace Universe.Services
         {
             //Remove the /MapService/
             string uri = httpRequest.RawUrl.Remove(0, 12);
-            if (!uri.StartsWith("map"))
+            if (!uri.StartsWith("map", StringComparison.Ordinal))
             {
                 if (uri == "")
                 {
@@ -221,30 +235,36 @@ namespace Universe.Services
                                   "<Marker/>" +
                                   "<MaxKeys>1000</MaxKeys>" +
                                   "<IsTruncated>true</IsTruncated>";
-                    
-                    var thSize = 1000 * Constants.RegionSize;       // TODO:  Why 1000?  Should this be relative to the view??
+
+                    // TODO:  Why specific (was 1000)? Assumes the center of the map is here.
+                    //  Should this be relative to the view?? i.e a passed map center location
+                    var txSize = m_mapcenter_x * Constants.RegionSize;
+                    var tySize = m_mapcenter_x * Constants.RegionSize;
                     var etSize = 8 * Constants.RegionSize;
-                    List<GridRegion> regions = m_gridService.GetRegionRange (
-                                                   null, (thSize - etSize), (thSize + etSize), (thSize - etSize), (thSize + etSize));
+                    List<GridRegion> regions = m_gridService.GetRegionRange(
+                                                   null, (txSize - etSize), (txSize + etSize), (tySize - etSize), (tySize + etSize));
                     foreach (var region in regions)
                     {
-                        resp += "<Contents><Key>map-1-" + region.RegionLocX / Constants.RegionSize + "-" + region.RegionLocY / Constants.RegionSize +
+                        resp += "<Contents><Key>map-1-" + region.RegionLocX / Constants.RegionSize +
+                                "-" + region.RegionLocY / Constants.RegionSize +
                                 "-objects.jpg</Key>" +
                                 "<LastModified>2012-07-09T21:26:32.000Z</LastModified></Contents>";
                     }
+
                     resp += "</ListBucketResult>";
                     httpResponse.ContentType = "application/xml";
                     return System.Text.Encoding.UTF8.GetBytes(resp);
                 }
+
                 using (MemoryStream imgstream = new MemoryStream())
                 {
-                    GridRegion region = m_gridService.GetRegionByName(null, uri.Remove (4));
+                    GridRegion region = m_gridService.GetRegionByName(null, uri.Remove(4));
                     if (region == null)
                         region = m_gridService.GetRegionByUUID(null, OpenMetaverse.UUID.Parse(uri.Remove(uri.Length - 4)));
 
                     // non-async because we know we have the asset immediately.
                     byte[] mapasset = null;
-                    if ( m_assetService.GetExists(region.TerrainMapImage.ToString()))
+                    if (m_assetService.GetExists(region.TerrainMapImage.ToString()))
                         mapasset = m_assetService.GetData(region.TerrainMapImage.ToString());
                     if (mapasset != null)
                     {
@@ -257,23 +277,26 @@ namespace Universe.Services
 
                             EncoderParameters myEncoderParameters = new EncoderParameters();
                             myEncoderParameters.Param[0] = new EncoderParameter(Encoder.Quality, 95L);
-                            var encInfo = GetEncoderInfo ("image/jpeg");
-                            if (encInfo != null) {
+                            var encInfo = GetEncoderInfo("image/jpeg");
+                            if (encInfo != null)
+                            {
                                 // Save bitmap to stream
-                                image.Save (imgstream, encInfo, myEncoderParameters);
+                                image.Save(imgstream, encInfo, myEncoderParameters);
                             }
+
                             image.Dispose();
-                            myEncoderParameters.Dispose ();
+                            myEncoderParameters.Dispose();
 
                             // Write the stream to a byte array for output
                             return imgstream.ToArray();
                         }
                         catch { }
-
                     }
                 }
+
                 return new byte[0];
             }
+
             string[] splitUri = uri.Split('-');
             byte[] jpeg = FindCachedImage(uri);
             if (jpeg.Length != 0)
@@ -295,7 +318,7 @@ namespace Universe.Services
                     ((regionX + distance) * Constants.RegionSize) + maxRegionSize,
                     ((regionY) * Constants.RegionSize) - maxRegionSize,
                     ((regionY + distance) * Constants.RegionSize) + maxRegionSize);
-                
+
                 Bitmap mapTexture = BuildMapTile(mapLayer, regionX, regionY, regions);
                 jpeg = CacheMapTexture(mapLayer, regionX, regionY, mapTexture);
                 DisposeTexture(mapTexture);
@@ -303,6 +326,7 @@ namespace Universe.Services
             catch
             {
             }
+
             httpResponse.ContentType = "image/jpeg";
             return jpeg;
         }
@@ -310,7 +334,7 @@ namespace Universe.Services
         Bitmap BuildMapTile(int mapView, int regionX, int regionY, List<GridRegion> regions)
         {
             Bitmap mapTexture = FindCachedImage(mapView, regionX, regionY);
-            if (mapTexture != null) 
+            if (mapTexture != null)
                 return mapTexture;
             if (mapView == 1)
                 return BuildMapTile(regionX, regionY, regions.ToList());
@@ -348,7 +372,7 @@ namespace Universe.Services
                     g.DrawImage(texture, new Point(0, 128));
                     DisposeTexture(texture);
                 }
-                
+
                 if (generatedMapTiles[1] != null)
                 {
                     Bitmap texture = ResizeBitmap(generatedMapTiles[1], 128, 128);
@@ -397,6 +421,7 @@ namespace Universe.Services
                 temp.DrawImage(b, 0, 0, nWidth, nHeight);
                 temp.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             }
+
             DisposeTexture(b);
             return newsize;
         }
@@ -474,8 +499,8 @@ namespace Universe.Services
                     float xx = (x * (SizeOfImage));
                     float yy = SizeOfImage - (y * (SizeOfImage) + (SizeOfImage));
                     g.DrawImage(bitImages[i], xx, yy,
-                        (int) (SizeOfImage * ((float)regions[i].RegionSizeX / Constants.RegionSize)),
-                        (int) (SizeOfImage * (regions[i].RegionSizeY / (float)Constants.RegionSize))); // y origin is top
+                        (int)(SizeOfImage * ((float)regions[i].RegionSizeX / Constants.RegionSize)),
+                        (int)(SizeOfImage * (regions[i].RegionSizeY / (float)Constants.RegionSize))); // y origin is top
                 }
             }
 
@@ -483,17 +508,19 @@ namespace Universe.Services
                 bmp.Dispose();
 
             CacheMapTexture(1, regionX, regionY, mapTexture);
-            //mapTexture = ResizeBitmap(mapTexture, 128, 128);
             return mapTexture;
         }
 
         // From MSDN
         static ImageCodecInfo GetEncoderInfo(String mimeType)
         {
-            ImageCodecInfo [] encoders;
-            try {
-                encoders = ImageCodecInfo.GetImageEncoders ();
-            } catch {
+            ImageCodecInfo[] encoders;
+            try
+            {
+                encoders = ImageCodecInfo.GetImageEncoders();
+            }
+            catch
+            {
                 return null;
             }
 
@@ -512,6 +539,7 @@ namespace Universe.Services
                 if (DateTime.Now < File.GetLastWriteTime(fullPath).AddHours(m_cacheExpires))
                     return File.ReadAllBytes(fullPath);
             }
+
             return new byte[0];
         }
 
@@ -546,6 +574,7 @@ namespace Universe.Services
                     }
                 }
             }
+
             return null;
         }
 
@@ -560,18 +589,19 @@ namespace Universe.Services
 
             using (MemoryStream imgstream = new MemoryStream())
             {
-                var encInfo = GetEncoderInfo ("image/jpeg");
-                if (encInfo != null) {
+                var encInfo = GetEncoderInfo("image/jpeg");
+                if (encInfo != null)
+                {
                     // Save bitmap to stream
                     lock (mapTexture)
-                        mapTexture.Save (imgstream, encInfo, myEncoderParameters);
+                        mapTexture.Save(imgstream, encInfo, myEncoderParameters);
                 }
-                // Write the stream to a byte array for output
-                jpeg = imgstream.ToArray ();
 
+                // Write the stream to a byte array for output
+                jpeg = imgstream.ToArray();
             }
 
-            myEncoderParameters.Dispose ();
+            myEncoderParameters.Dispose();
             SaveCachedImage(maplayer, regionX, regionY, jpeg);
             return jpeg;
         }
@@ -582,7 +612,6 @@ namespace Universe.Services
                 return;
 
             string name = string.Format("map-{0}-{1}-{2}-objects.jpg", maplayer, regionX, regionY);
-            //string fullPath = Path.Combine(m_assetCacheDir, Path.Combine("mapzoomlevels", name));
             string fullPath = Path.Combine(m_assetMapCacheDir, name);
             File.WriteAllBytes(fullPath, data);
         }
