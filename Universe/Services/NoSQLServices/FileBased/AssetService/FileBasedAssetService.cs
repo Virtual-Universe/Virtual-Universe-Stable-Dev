@@ -85,8 +85,8 @@ namespace Universe.FileBasedServices.AssetService
                 // try and migrate sql assets if they are missing?
                 m_migrateSQL = fileConfig.GetBoolean("MigrateSQLAssets", true);
             }
-
             SetUpFileBase(m_assetsDirectory);
+
         }
 
         public virtual void Configure(IConfigSource config, IRegistryCore registry)
@@ -122,7 +122,6 @@ namespace Universe.FileBasedServices.AssetService
                     HandleGetAsset, false, true);
 
             }
-
             MainConsole.Instance.Info("[File Based Asset Service]: File based asset service enabled");
 
         }
@@ -176,7 +175,6 @@ namespace Universe.FileBasedServices.AssetService
                         cache.Cache(id, (AssetBase)remoteValue);
                     return (AssetBase)remoteValue;
                 }
-
                 return null;
             }
 
@@ -221,7 +219,6 @@ namespace Universe.FileBasedServices.AssetService
                         cache.CacheData(id, data);
                     return data;
                 }
-
                 return null;
             }
 
@@ -256,6 +253,7 @@ namespace Universe.FileBasedServices.AssetService
             if (asset != null)
             {
                 Util.FireAndForget((o) => { handler(id, sender, asset); });
+                //asset.Dispose ();
             }
         }
 
@@ -332,7 +330,8 @@ namespace Universe.FileBasedServices.AssetService
             if (!Directory.Exists(Path.Combine(m_assetsDirectory, "data")))
                 Directory.CreateDirectory(Path.Combine(m_assetsDirectory, "data"));
 
-            MainConsole.Instance.InfoFormat("[File Based Asset Service]: Set up Filebased Assets in {0}.", m_assetsDirectory);
+            MainConsole.Instance.InfoFormat("[File Based Asset Service]: Set up Filebased Assets in {0}.",
+                m_assetsDirectory);
         }
 
         string GetPathForID(string id)
@@ -345,7 +344,6 @@ namespace Universe.FileBasedServices.AssetService
                 if (!Directory.Exists(baseStr))
                     Directory.CreateDirectory(baseStr);
             }
-
             return Path.Combine(baseStr, fileName + ".asset");
         }
 
@@ -359,7 +357,6 @@ namespace Universe.FileBasedServices.AssetService
                 if (!Directory.Exists(baseStr))
                     Directory.CreateDirectory(baseStr);
             }
-
             return Path.Combine(baseStr, fileName + ".data");
         }
 
@@ -404,7 +401,7 @@ namespace Universe.FileBasedServices.AssetService
             {
                 long endTime = System.Diagnostics.Stopwatch.GetTimestamp();
                 if (MainConsole.Instance != null && asset != null)
-                    MainConsole.Instance.Warn("[File Based Asset Service]: Took " + (endTime - startTime)/10000 +
+                    MainConsole.Instance.Warn("[FILE BASED ASSET SERVICE]: Took " + (endTime - startTime)/10000 +
                                               " to get asset " + id + " sized " + asset.Data.Length/(1024) + "kbs");
 
             }
@@ -422,6 +419,11 @@ namespace Universe.FileBasedServices.AssetService
 
             if (asset == null)
                 return null;
+
+            //Delete first, then restore it with the new local flag attached, so that we know we've converted it
+            //m_assetService.Delete(asset.ID, true);
+            //asset.Flags = AssetFlags.Local;
+            //m_assetService.StoreAsset(asset);
 
             //Now store in Redis
             FileSetAsset(asset);
@@ -456,7 +458,7 @@ namespace Universe.FileBasedServices.AssetService
                     assetStream.Close();
                     asset.Data = data;
 
-                    //De-duplication...
+                    //Deduplication...
                     if (duplicate)
                     {
                         //Only set id --> asset, and not the hashcode --> data to de-duplicate
@@ -465,7 +467,6 @@ namespace Universe.FileBasedServices.AssetService
 
                     File.WriteAllBytes(GetDataPathForID(hash), data);
                 }
-
                 return true;
             }
             catch

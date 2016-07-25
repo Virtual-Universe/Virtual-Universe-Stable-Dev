@@ -245,7 +245,7 @@ namespace Universe.Simulation.Base
             {
                 m_mapcenter_x = mapConfig.GetInt("mapcenter_x", m_mapcenter_x);
                 m_mapcenter_y = mapConfig.GetInt("mapcenter_y", m_mapcenter_y);
-            }            }
+            }
 
             if (Util.FireAndForgetMethod == FireAndForgetMethod.SmartThreadPool)
                 Util.InitThreadPool(stpMinThreads, stpMaxThreads);

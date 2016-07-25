@@ -195,7 +195,7 @@ namespace Universe.Modules.Archivers
             if (backup != null)
                 backup.LoadingPrims = true;
 
-            IRegionSerializerModule serializer = m_scene.RequestModuleInterface<IRegionSerializerModule> ();
+            IRegionSerializerModule serialiser = m_scene.RequestModuleInterface<IRegionSerializerModule> ();
             int sceneObjectsLoadedCount = 0;
 
             //We save the groups so that we can back them up later
@@ -332,7 +332,7 @@ namespace Universe.Modules.Archivers
                     if (didChange)
                         data3 = Utils.StringToBytes (stringData);
 
-                    ISceneEntity sceneObject = serializer.DeserializeGroupFromXml2 (data3, m_scene);
+                    ISceneEntity sceneObject = serialiser.DeserializeGroupFromXml2 (data3, m_scene);
 
                     if (sceneObject == null) {
                         //! big error!
