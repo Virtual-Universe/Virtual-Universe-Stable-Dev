@@ -31,6 +31,7 @@ using Nini.Config;
 using OpenMetaverse;
 using Universe.Framework.DatabaseInterfaces;
 using Universe.Framework.Modules;
+using Universe.Framework.Utilities;
 
 namespace Universe.Modules.Web
 {
@@ -41,18 +42,26 @@ namespace Universe.Modules.Web
         public static GridSettings _settingsGrid;
         public static WebUISettings _settingsWebUI;
 
-        public static void InitializeWebUIDefaults (WebInterface webinterface)
+        public static void InitializeWebUIDefaults(WebInterface webinterface)
         {
-            _settingsWebUI = new WebUISettings ();
+            _settingsWebUI = new WebUISettings();
 
             _settingsWebUI.LastSettingsVersionUpdateIgnored = CurrentVersion;
-            _settingsWebUI.LastPagesVersionUpdateIgnored = PagesMigrator.GetVersion ();
-            _settingsWebUI.MapCenter = new Vector2 (1000, 1000);
+            _settingsWebUI.LastPagesVersionUpdateIgnored = PagesMigrator.GetVersion();
+            _settingsWebUI.MapCenter = new Vector2(Constants.DEFAULT_REGIONSTART_X, Constants.DEFAULT_REGIONSTART_Y);
 
-            var configSrc = webinterface.Registry.RequestModuleInterface<ISimulationBase> ().ConfigSource;
-            var loginConfig = configSrc.Configs ["LoginService"];
-            if (loginConfig != null) {
-                _settingsWebUI.WebRegistration = loginConfig.GetBoolean ("AllowAnonymousLogin", true);
+            var configSrc = webinterface.Registry.RequestModuleInterface<ISimulationBase>().ConfigSource;
+            var loginConfig = configSrc.Configs["LoginService"];
+            if (loginConfig != null)
+            {
+                _settingsWebUI.WebRegistration = loginConfig.GetBoolean("AllowAnonymousLogin", true);
+            }
+
+            var mapConfig = configSrc.Configs["WebInterface"];
+            if (mapConfig != null)
+            {
+                _settingsWebUI.MapCenter.X = mapConfig.GetInt("mapcenter_x", (int)_settingsWebUI.MapCenter.X);
+                _settingsWebUI.MapCenter.Y = mapConfig.GetInt("mapcenter_y", (int)_settingsWebUI.MapCenter.Y);
             }
         }
 
