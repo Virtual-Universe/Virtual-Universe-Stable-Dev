@@ -59,10 +59,9 @@ namespace Universe.Physics.BulletSPlugin
         public abstract float GetWaterLevelAtXYZ(Vector3 pos);
     }
 
-    // ==========================================================================================
     public sealed class BSTerrainManager : IDisposable
     {
-        private static string LogHeader = "[BULLETSIM TERRAIN MANAGER]";
+        private static string LogHeader = "[Bulletsim Terrain Manager]";
 
         // These height values are fractional so the odd values will be
         //     noticable when debugging.
@@ -111,8 +110,7 @@ namespace Universe.Physics.BulletSPlugin
             PhysicsScene = physicsScene;
 
             // Assume one region of default size
-            m_worldMax = new Vector3(physicsScene.Scene.RegionInfo.RegionSizeX,
-                physicsScene.Scene.RegionInfo.RegionSizeY, physicsScene.Scene.RegionInfo.RegionSizeZ);
+            m_worldMax = new Vector3(physicsScene.Scene.RegionInfo.RegionSizeX, physicsScene.Scene.RegionInfo.RegionSizeY, physicsScene.Scene.RegionInfo.RegionSizeZ);
         }
 
         public void Dispose()
@@ -125,19 +123,19 @@ namespace Universe.Physics.BulletSPlugin
         //    safe to call Bullet in real time. We hope no one is moving prims around yet.
         public void CreateInitialGroundPlaneAndTerrain()
         {
-            DetailLog("{0},BSTerrainManager.CreateInitialGroundPlaneAndTerrain,region={1}", BSScene.DetailLogZero,
-                PhysicsScene.RegionName);
+            DetailLog("{0},BSTerrainManager.CreateInitialGroundPlaneAndTerrain,region={1}", BSScene.DetailLogZero, PhysicsScene.RegionName);
+            
             // The ground plane is here to catch things that are trying to drop to negative infinity
-            BulletShape groundPlaneShape = PhysicsScene.PE.CreateGroundPlaneShape(BSScene.GROUNDPLANE_ID, 1f,
-                BSParam.TerrainCollisionMargin);
+            BulletShape groundPlaneShape = PhysicsScene.PE.CreateGroundPlaneShape(BSScene.GROUNDPLANE_ID, 1f, BSParam.TerrainCollisionMargin);
             Vector3 groundPlaneAltitude = new Vector3(0f, 0f, BSParam.TerrainGroundPlane);
-            m_groundPlane = PhysicsScene.PE.CreateBodyWithDefaultMotionState(groundPlaneShape,
-                BSScene.GROUNDPLANE_ID, groundPlaneAltitude, Quaternion.Identity);
+            m_groundPlane = PhysicsScene.PE.CreateBodyWithDefaultMotionState(groundPlaneShape, BSScene.GROUNDPLANE_ID, groundPlaneAltitude, Quaternion.Identity);
 
             PhysicsScene.PE.AddObjectToWorld(PhysicsScene.World, m_groundPlane);
             PhysicsScene.PE.UpdateSingleAabb(PhysicsScene.World, m_groundPlane);
+            
             // Ground plane does not move
             PhysicsScene.PE.ForceActivationState(m_groundPlane, ActivationState.DISABLE_SIMULATION);
+            
             // Everything collides with the ground plane.
             m_groundPlane.collisionType = CollisionType.Groundplane;
             m_groundPlane.ApplyCollisionMask(PhysicsScene);
@@ -148,14 +146,14 @@ namespace Universe.Physics.BulletSPlugin
         // Release all the terrain structures we might have allocated
         public void ReleaseGroundPlaneAndTerrain()
         {
-            DetailLog("{0},BSTerrainManager.ReleaseGroundPlaneAndTerrain,region={1}", BSScene.DetailLogZero,
-                PhysicsScene.RegionName);
+            DetailLog("{0},BSTerrainManager.ReleaseGroundPlaneAndTerrain,region={1}", BSScene.DetailLogZero, PhysicsScene.RegionName);
             if (m_groundPlane.HasPhysicalBody)
             {
                 if (PhysicsScene.PE.RemoveObjectFromWorld(PhysicsScene.World, m_groundPlane))
                 {
                     PhysicsScene.PE.DestroyObject(PhysicsScene.World, m_groundPlane);
                 }
+
                 m_groundPlane.Clear();
             }
 
@@ -174,8 +172,7 @@ namespace Universe.Physics.BulletSPlugin
             float[] localHeightMap = heightMap;
             // If there are multiple requests for changes to the same terrain between ticks,
             //      only do that last one.
-            PhysicsScene.PostTaintObject("TerrainManager.SetTerrain", 0,
-                delegate() { UpdateTerrain(BSScene.TERRAIN_ID, localHeightMap); });
+            PhysicsScene.PostTaintObject("TerrainManager.SetTerrain", 0, delegate() { UpdateTerrain(BSScene.TERRAIN_ID, localHeightMap); });
         }
 
         // If called for terrain has has not been previously allocated, a new terrain will be built
@@ -189,14 +186,12 @@ namespace Universe.Physics.BulletSPlugin
         // Called during taint-time.
         void UpdateTerrain(uint id, float[] heightMap)
         {
-            DetailLog("{0},BSTerrainManager.UpdateTerrain,call,id={1}",
-                BSScene.DetailLogZero, id);
+            DetailLog("{0},BSTerrainManager.UpdateTerrain,call,id={1}", BSScene.DetailLogZero, id);
 
             if (m_terrain != null)
             {
                 // There is already a terrain in this spot. Free the old and build the new.
-                DetailLog("{0},BSTErrainManager.UpdateTerrain:UpdateExisting,call,id={1}",
-                    BSScene.DetailLogZero, id);
+                DetailLog("{0},BSTErrainManager.UpdateTerrain:UpdateExisting,call,id={1}", BSScene.DetailLogZero, id);
 
                 // Release any physical memory it may be using.
                 m_terrain.Dispose();
@@ -215,8 +210,7 @@ namespace Universe.Physics.BulletSPlugin
                 if (newTerrainID >= BSScene.CHILDTERRAIN_ID)
                     newTerrainID = ++m_terrainCount;
 
-                DetailLog("{0},BSTerrainManager.UpdateTerrain:NewTerrain,taint,newID={1}",
-                    BSScene.DetailLogZero, newTerrainID);
+                DetailLog("{0},BSTerrainManager.UpdateTerrain:NewTerrain,taint,newID={1}", BSScene.DetailLogZero, newTerrainID);
                 m_terrain = BuildPhysicalTerrain(id, heightMap);
 
                 m_terrainModified = true;
@@ -237,37 +231,34 @@ namespace Universe.Physics.BulletSPlugin
                 if (height < minZ) minZ = height;
                 if (height > maxZ) maxZ = height;
             }
+
             if (minZ == maxZ)
             {
                 // If min and max are the same, reduce min a little bit so a good bounding box is created.
                 minZ -= BSTerrainManager.HEIGHT_EQUAL_FUDGE;
             }
+
             Vector3 minCoords = new Vector3(0, 0, minZ);
             Vector3 maxCoords = new Vector3(PhysicsScene.Scene.RegionInfo.RegionSizeX,
                 PhysicsScene.Scene.RegionInfo.RegionSizeY, maxZ);
 
             PhysicsScene.Logger.DebugFormat("{0} Terrain for {1}/ created with {2}",
-                LogHeader, PhysicsScene.RegionName,
-                (BSTerrainPhys.TerrainImplementation)BSParam.TerrainImplementation);
+                LogHeader, PhysicsScene.RegionName, (BSTerrainPhys.TerrainImplementation)BSParam.TerrainImplementation);
             BSTerrainPhys newTerrainPhys = null;
             switch ((int)BSParam.TerrainImplementation)
             {
                 case (int)BSTerrainPhys.TerrainImplementation.Heightmap:
-                    newTerrainPhys = new BSTerrainHeightmap(PhysicsScene, Vector3.Zero, id,
-                        heightMap, minCoords, maxCoords);
+                    newTerrainPhys = new BSTerrainHeightmap(PhysicsScene, Vector3.Zero, id, heightMap, minCoords, maxCoords);
                     break;
                 case (int)BSTerrainPhys.TerrainImplementation.Mesh:
-                    newTerrainPhys = new BSTerrainMesh(PhysicsScene, Vector3.Zero, id,
-                        heightMap, minCoords, maxCoords);
+                    newTerrainPhys = new BSTerrainMesh(PhysicsScene, Vector3.Zero, id, heightMap, minCoords, maxCoords);
                     break;
                 default:
                     PhysicsScene.Logger.ErrorFormat("{0} Bad terrain implementation specified. Type={1}/{2},Region={3}",
-                        LogHeader,
-                        (int)BSParam.TerrainImplementation,
-                        BSParam.TerrainImplementation,
-                        PhysicsScene.RegionName);
+                        LogHeader, (int)BSParam.TerrainImplementation, BSParam.TerrainImplementation, PhysicsScene.RegionName);
                     break;
             }
+
             return newTerrainPhys;
         }
 
@@ -287,15 +278,14 @@ namespace Universe.Physics.BulletSPlugin
             {
                 ret.X = Util.Clamp<float>(ret.X, 0f, 1000000f);
                 ret.Y = Util.Clamp<float>(ret.Y, 0f, 1000000f);
-                DetailLog("{0},BSTerrainManager.ClampPositionToKnownTerrain,zeroingNegXorY,oldPos={1},newPos={2}",
-                    BSScene.DetailLogZero, pPos, ret);
+                DetailLog("{0},BSTerrainManager.ClampPositionToKnownTerrain,zeroingNegXorY,oldPos={1},newPos={2}", BSScene.DetailLogZero, pPos, ret);
             }
+
             if (ret.X >= m_worldMax.X || ret.Y >= m_worldMax.Y)
             {
                 ret.X = Util.Clamp<float>(ret.X, ret.X, m_worldMax.X);
                 ret.Y = Util.Clamp<float>(ret.Y, ret.X, m_worldMax.Y);
-                DetailLog("{0},BSTerrainManager.ClampPositionToKnownTerrain,maxingPosXorY,oldPos={1},newPos={2}",
-                    BSScene.DetailLogZero, pPos, ret);
+                DetailLog("{0},BSTerrainManager.ClampPositionToKnownTerrain,maxingPosXorY,oldPos={1},newPos={2}", BSScene.DetailLogZero, pPos, ret);
             }
 
             return ret;

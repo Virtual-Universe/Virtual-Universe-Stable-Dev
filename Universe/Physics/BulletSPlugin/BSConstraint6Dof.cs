@@ -33,7 +33,7 @@ namespace Universe.Physics.BulletSPlugin
 {
     public class BSConstraint6Dof : BSConstraint
     {
-        static string LogHeader = "[BULLETSIM 6DOF CONSTRAINT]";
+        static string LogHeader = "[Bulletsim 6DOF Constraint]";
 
         public override ConstraintType Type
         {
@@ -56,15 +56,10 @@ namespace Universe.Physics.BulletSPlugin
         {
             m_body1 = obj1;
             m_body2 = obj2;
-            m_constraint = PhysicsScene.PE.Create6DofConstraint(m_world, m_body1, m_body2,
-                frame1, frame1rot,
-                frame2, frame2rot,
-                useLinearReferenceFrameA, disableCollisionsBetweenLinkedBodies);
+            m_constraint = PhysicsScene.PE.Create6DofConstraint(m_world, m_body1, m_body2, frame1, frame1rot, frame2, frame2rot, useLinearReferenceFrameA, disableCollisionsBetweenLinkedBodies);
             m_enabled = true;
             world.physicsScene.DetailLog(
-                "{0},BS6DofConstraint,createFrame,wID={1}, rID={2}, rBody={3}, cID={4}, cBody={5}",
-                BSScene.DetailLogZero, world.worldID,
-                obj1.ID, obj1.AddrString, obj2.ID, obj2.AddrString);
+                "{0},BS6DofConstraint,createFrame,wID={1}, rID={2}, rBody={3}, cID={4}, cBody={5}", BSScene.DetailLogZero, world.worldID, obj1.ID, obj1.AddrString, obj2.ID, obj2.AddrString);
         }
 
         // 6 Dof constraint based on a midpoint between the two constrained bodies
@@ -78,23 +73,20 @@ namespace Universe.Physics.BulletSPlugin
             if (!obj1.HasPhysicalBody || !obj2.HasPhysicalBody)
             {
                 world.physicsScene.DetailLog(
-                    "{0},BS6DOFConstraint,badBodyPtr,wID={1}, rID={2}, rBody={3}, cID={4}, cBody={5}",
-                    BSScene.DetailLogZero, world.worldID,
-                    obj1.ID, obj1.AddrString, obj2.ID, obj2.AddrString);
+                    "{0},BS6DOFConstraint,badBodyPtr,wID={1}, rID={2}, rBody={3}, cID={4}, cBody={5}", BSScene.DetailLogZero, world.worldID, obj1.ID, obj1.AddrString, obj2.ID, obj2.AddrString);
+
                 world.physicsScene.Logger.ErrorFormat(
-                    "{0} Attempt to build 6DOF constraint with missing bodies: wID={1}, rID={2}, rBody={3}, cID={4}, cBody={5}",
-                    LogHeader, world.worldID, obj1.ID, obj1.AddrString, obj2.ID, obj2.AddrString);
+                    "{0} Attempt to build 6DOF constraint with missing bodies: wID={1}, rID={2}, rBody={3}, cID={4}, cBody={5}", LogHeader, world.worldID, obj1.ID, obj1.AddrString, obj2.ID, obj2.AddrString);
+
                 m_enabled = false;
             }
             else
             {
-                m_constraint = PhysicsScene.PE.Create6DofConstraintToPoint(m_world, m_body1, m_body2,
-                    joinPoint,
-                    useLinearReferenceFrameA, disableCollisionsBetweenLinkedBodies);
+                m_constraint = PhysicsScene.PE.Create6DofConstraintToPoint(m_world, m_body1, m_body2, joinPoint, useLinearReferenceFrameA, disableCollisionsBetweenLinkedBodies);
                 PhysicsScene.DetailLog(
                     "{0},BS6DofConstraint,createMidPoint,wID={1}, csrt={2}, rID={3}, rBody={4}, cID={5}, cBody={6}",
-                    BSScene.DetailLogZero, world.worldID, m_constraint.AddrString,
-                    obj1.ID, obj1.AddrString, obj2.ID, obj2.AddrString);
+                    BSScene.DetailLogZero, world.worldID, m_constraint.AddrString, obj1.ID, obj1.AddrString, obj2.ID, obj2.AddrString);
+
                 if (!m_constraint.HasPhysicalConstraint)
                 {
                     world.physicsScene.Logger.ErrorFormat(
@@ -116,12 +108,9 @@ namespace Universe.Physics.BulletSPlugin
         {
             m_body1 = obj1;
             m_body2 = obj1; // Look out for confusion down the road
-            m_constraint = PhysicsScene.PE.Create6DofConstraintFixed(m_world, m_body1,
-                frameInBloc, frameInBrot,
-                useLinearReferenceFrameB, disableCollisionsBetweenLinkedBodies);
+            m_constraint = PhysicsScene.PE.Create6DofConstraintFixed(m_world, m_body1, frameInBloc, frameInBrot, useLinearReferenceFrameB, disableCollisionsBetweenLinkedBodies);
             m_enabled = true;
-            world.physicsScene.DetailLog("{0},BS6DofConstraint,createFixed,wID={1},rID={2},rBody={3}",
-                BSScene.DetailLogZero, world.worldID, obj1.ID, obj1.AddrString);
+            world.physicsScene.DetailLog("{0},BS6DofConstraint,createFixed,wID={1},rID={2},rBody={3}", BSScene.DetailLogZero, world.worldID, obj1.ID, obj1.AddrString);
         }
 
         public bool SetFrames(Vector3 frameA, Quaternion frameArot, Vector3 frameB, Quaternion frameBrot)
@@ -132,6 +121,7 @@ namespace Universe.Physics.BulletSPlugin
                 PhysicsScene.PE.SetFrames(m_constraint, frameA, frameArot, frameB, frameBrot);
                 ret = true;
             }
+
             return ret;
         }
 
@@ -140,14 +130,12 @@ namespace Universe.Physics.BulletSPlugin
             bool ret = false;
             if (m_enabled)
             {
-                PhysicsScene.PE.SetConstraintParam(m_constraint, ConstraintParams.BT_CONSTRAINT_STOP_CFM, cfm,
-                    ConstraintParamAxis.AXIS_ALL);
-                PhysicsScene.PE.SetConstraintParam(m_constraint, ConstraintParams.BT_CONSTRAINT_STOP_ERP, erp,
-                    ConstraintParamAxis.AXIS_ALL);
-                PhysicsScene.PE.SetConstraintParam(m_constraint, ConstraintParams.BT_CONSTRAINT_CFM, cfm,
-                    ConstraintParamAxis.AXIS_ALL);
+                PhysicsScene.PE.SetConstraintParam(m_constraint, ConstraintParams.BT_CONSTRAINT_STOP_CFM, cfm, ConstraintParamAxis.AXIS_ALL);
+                PhysicsScene.PE.SetConstraintParam(m_constraint, ConstraintParams.BT_CONSTRAINT_STOP_ERP, erp, ConstraintParamAxis.AXIS_ALL);
+                PhysicsScene.PE.SetConstraintParam(m_constraint, ConstraintParams.BT_CONSTRAINT_CFM, cfm, ConstraintParamAxis.AXIS_ALL);
                 ret = true;
             }
+
             return ret;
         }
 
@@ -167,9 +155,9 @@ namespace Universe.Physics.BulletSPlugin
             if (m_enabled)
             {
                 ret = PhysicsScene.PE.TranslationalLimitMotor(m_constraint, onOff, targetVelocity, maxMotorForce);
-                m_world.physicsScene.DetailLog("{0},BS6DOFConstraint,TransLimitMotor,enable={1},vel={2},maxForce={3}",
-                    BSScene.DetailLogZero, enable, targetVelocity, maxMotorForce);
+                m_world.physicsScene.DetailLog("{0},BS6DOFConstraint,TransLimitMotor,enable={1},vel={2},maxForce={3}", BSScene.DetailLogZero, enable, targetVelocity, maxMotorForce);
             }
+
             return ret;
         }
 
@@ -178,6 +166,7 @@ namespace Universe.Physics.BulletSPlugin
             bool ret = false;
             if (m_enabled)
                 ret = PhysicsScene.PE.SetBreakingImpulseThreshold(m_constraint, threshold);
+
             return ret;
         }
     }

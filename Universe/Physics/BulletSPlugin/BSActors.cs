@@ -67,6 +67,7 @@ namespace Universe.Physics.BulletSPlugin
                     ret = true;
                 }
             }
+
             return ret;
         }
 
@@ -126,7 +127,6 @@ namespace Universe.Physics.BulletSPlugin
         }
     }
 
-    // =============================================================================
     /// <summary>
     /// Each physical object can have 'actors' who are pushing the object around.
     /// This can be used for hover, locking axis, making vehicles, etc.
@@ -165,10 +165,16 @@ namespace Universe.Physics.BulletSPlugin
 
         // Release any connections and resources used by the actor.
         public abstract void Dispose();
+        
         // Called when physical parameters (properties set in Bullet) need to be re-applied.
         public abstract void Refresh();
-        // The object's physical representation is being rebuilt so pick up any physical dependencies (constraints, ...).
-        //     Register a prestep action to restore physical requirements before the next simulation step.
+        
+        /// <summary>
+        ///     THe object's physical representation is being rebuilt,
+        ///     so pick up any physical dependencies (constraints).
+        ///     Register a prestep action to restore physical requirements before
+        ///     the next simulation step.
+        /// </summary>
         public abstract void RemoveBodyDependencies();
     }
 }

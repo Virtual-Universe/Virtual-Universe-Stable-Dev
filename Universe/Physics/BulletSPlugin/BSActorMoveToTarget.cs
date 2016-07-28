@@ -49,17 +49,19 @@ namespace Universe.Physics.BulletSPlugin
             get { return Enabled && m_controllingPrim.IsPhysicallyActive; }
         }
 
-        // Release any connections and resources used by the actor.
-        // BSActor.Dispose()
+        /// <summary>
+        ///     Release any connections and resources used by the actor.
+        /// </summary>
         public override void Dispose()
         {
             Enabled = false;
             DeactivateMoveToTarget();
         }
 
-        // Called when physical parameters (properties set in Bullet) need to be re-applied.
-        // Called at taint-time.
-        // BSActor.Refresh()
+        /// <summary>
+        ///     Called when physical parameters (properties set in bullet)
+        ///     need to be re-applied or called at taint time.
+        /// </summary>
         public override void Refresh()
         {
             m_physicsScene.DetailLog("{0},BSActorMoveToTarget,refresh,enabled={1},active={2},target={3},tau={4}",
@@ -82,10 +84,12 @@ namespace Universe.Physics.BulletSPlugin
             }
         }
 
-        // The object's physical representation is being rebuilt so pick up any physical dependencies (constraints, ...).
-        //     Register a prestep action to restore physical requirements before the next simulation step.
-        // Called at taint-time.
-        // BSActor.RemoveBodyDependencies()
+        /// <summary>
+        ///     THe object's physical representation is being rebult,
+        ///     so pick up any physical dependencies (constraints).
+        ///     Register any prestep action to restore physical requirements before
+        ///     the next simulation step or call at taint time.
+        /// </summary>
         public override void RemoveBodyDependencies()
         {
             // Nothing to do for the moveToTarget since it is all software at pre-step action time.
@@ -99,12 +103,6 @@ namespace Universe.Physics.BulletSPlugin
                 // We're taking over after this.
                 m_controllingPrim.ZeroMotion(true);
 
-                /* TODO !!!!!
-                m_targetMotor = new BSPIDVMotor("BSActorMoveToTarget-" + m_controllingPrim.LocalID.ToString());
-                m_targetMotor.TimeScale = m_controllingPrim.MoveToTargetTau;
-                m_targetMotor.Efficiency = 1f;
-                */
-
                 m_targetMotor = new BSVMotor("BSActorMoveToTarget-" + m_controllingPrim.LocalID,
                     m_controllingPrim.MoveToTargetTau,       // timeScale
                     BSMotor.Infinite,                        // decay time scale
@@ -114,7 +112,6 @@ namespace Universe.Physics.BulletSPlugin
                 m_targetMotor.SetTarget(m_controllingPrim.MoveToTargetTarget);
                 m_targetMotor.SetCurrent(m_controllingPrim.RawPosition);
 
-                //m_physicsScene.BeforeStep += Mover;
                 m_physicsScene.BeforeStep += Mover2; 
             }
             else
@@ -123,23 +120,23 @@ namespace Universe.Physics.BulletSPlugin
                 m_targetMotor.SetTarget(m_controllingPrim.MoveToTargetTarget);
                 m_targetMotor.SetCurrent(m_controllingPrim.RawPosition);
             }
-
         }
 
         void DeactivateMoveToTarget()
         {
             if (m_targetMotor != null)
             {
-                //m_physicsScene.BeforeStep -= Mover;
                 m_physicsScene.BeforeStep -= Mover2;
                 m_targetMotor = null;
             }
         }
 
-        // Origional mover that set the objects position to move to the target.
-        // The problem was that gravity would keep trying to push the object down so
-        //    the overall downward velocity would increase to infinity.
-        // Called just before the simulation step. Update the vertical position for hoverness.
+        /// <summary>
+        ///     Origional mover that set the objects position to move to the target.
+        ///     The problem was that gravity would keep trying to push the object down so
+        ///         the overall downward velocity would increase to infinity.
+        ///     Called just before the simulation step. Update the vertical position for hoverness.
+        /// </summary>
         void Mover(float timeStep)
         {
             // Don't do hovering while the object is selected.
@@ -158,21 +155,26 @@ namespace Universe.Physics.BulletSPlugin
                                         m_controllingPrim.LocalID, movePosition, m_controllingPrim.RawPosition, m_controllingPrim.Mass);
                 m_controllingPrim.ForcePosition = m_targetMotor.TargetValue;
                 m_controllingPrim.ForceVelocity = OMV.Vector3.Zero;
+                
                 // Setting the position does not cause the physics engine to generate a property update. Force it.
                 m_physicsScene.PE.PushUpdate(m_controllingPrim.PhysBody);
             }
             else
             {
                 m_controllingPrim.ForcePosition = movePosition;
+                
                 // Setting the position does not cause the physics engine to generate a property update. Force it.
                 m_physicsScene.PE.PushUpdate(m_controllingPrim.PhysBody);
             }
+
             m_physicsScene.DetailLog("{0},BSPrim.PIDTarget,move,fromPos={1},movePos={2}", m_controllingPrim.LocalID, origPosition, movePosition);
         }
 
-        // Version of mover that applies forces to move the physical object to the target.
-        // Also overcomes gravity so the object doesn't just drop to the ground.
-        // Called just before the simulation step.
+        /// <summary>
+        ///     Version of mover that applies forces to move the physical object to the target.
+        ///     Also overcomes gravity so the object doesn't just drop to the ground.
+        ///     Called just before the simulation step.
+        /// </summary>
         void Mover2(float timeStep)
         {
             // Don't do hovering while the object is selected.
@@ -188,10 +190,10 @@ namespace Universe.Physics.BulletSPlugin
             // If we are very close to our target, turn off the movement motor.
             if (m_targetMotor.ErrorIsZero())
             {
-                m_physicsScene.DetailLog("{0},BSActorMoveToTarget.Mover3,zeroMovement,pos={1},mass={2}",
-                                        m_controllingPrim.LocalID, m_controllingPrim.RawPosition, m_controllingPrim.Mass);
+                m_physicsScene.DetailLog("{0},BSActorMoveToTarget.Mover3,zeroMovement,pos={1},mass={2}", m_controllingPrim.LocalID, m_controllingPrim.RawPosition, m_controllingPrim.Mass);
                 m_controllingPrim.ForcePosition = m_targetMotor.TargetValue;
                 m_controllingPrim.ForceVelocity = OMV.Vector3.Zero;
+                
                 // Setting the position does not cause the physics engine to generate a property update. Force it.
                 m_physicsScene.PE.PushUpdate(m_controllingPrim.PhysBody);
             }
@@ -199,18 +201,20 @@ namespace Universe.Physics.BulletSPlugin
             {
                 // First force to move us there -- the motor return a timestep scaled value.
                 addedForce = correctionVector / timeStep;
+                
                 // Remove the existing velocity (only the moveToTarget force counts)
                 addedForce -= m_controllingPrim.RawVelocity;
+                
                 // Overcome gravity. 
                 addedForce -= m_controllingPrim.Gravity;
 
                 // Add enough force to overcome the mass of the object
                 addedForce *= m_controllingPrim.Mass;
 
-                m_controllingPrim.AddAngularForce(addedForce, false /* pushForce */, true /* inTaintTime */);
+                m_controllingPrim.AddAngularForce(addedForce, false, true);
             }
-            m_physicsScene.DetailLog("{0},BSActorMoveToTarget.Mover3,move,fromPos={1},addedForce={2}",
-                                            m_controllingPrim.LocalID, origPosition, addedForce);
+
+            m_physicsScene.DetailLog("{0},BSActorMoveToTarget.Mover3,move,fromPos={1},addedForce={2}", m_controllingPrim.LocalID, origPosition, addedForce);
         }
     }
 }
