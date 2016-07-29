@@ -27,26 +27,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* Revised Aug, Sept 2009 by Kitto Flora. ODEDynamics.cs replaces
- * ODEVehicleSettings.cs. It and ODEPrim.cs are re-organised:
- * ODEPrim.cs contains methods dealing with Prim editing, Prim
- * characteristics and Kinetic motion.
- * ODEDynamics.cs contains methods dealing with Prim Physical motion
- * (dynamics) and the associated settings. Old Linear and angular
- * motors for dynamic motion have been replace with  MoveLinear()
- * and MoveAngular(); 'Physical' is used only to switch ODE dynamic
- * simualtion on/off; VEHICAL_TYPE_NONE/VEHICAL_TYPE_<other> is to
- * switch between 'VEHICLE' parameter use and general dynamics
- * settings use.
- */
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using OpenMetaverse;
 using Universe.Framework.Physics;
-
-//using Ode.NET;
 
 namespace Universe.Physics.OpenDynamicsEngine
 {
@@ -56,7 +41,6 @@ namespace Universe.Physics.OpenDynamicsEngine
         int frcount; // Used to limit dynamics debug output to
         // every 100th frame
 
-        // OdeScene m_parentScene = null;
         Vector3 m_BlockingEndPoint = Vector3.Zero;
         Quaternion m_RollreferenceFrame = Quaternion.Identity;
         float m_VehicleBuoyancy; //KF: m_VehicleBuoyancy is set by VEHICLE_BUOYANCY for a vehicle.
@@ -64,8 +48,6 @@ namespace Universe.Physics.OpenDynamicsEngine
         float m_VhoverHeight;
         float m_VhoverTargetHeight = -1.0f; // if <0 then no hover, else its the current target height
         float m_VhoverTimescale;
-        // Linear properties
-        //       private Vector3 m_lastVertAttractor = Vector3.Zero;             // what VA was last applied to body
 
         //Deflection properties
         float m_angularDeflectionEfficiency;
@@ -77,7 +59,6 @@ namespace Universe.Physics.OpenDynamicsEngine
         float m_angularMotorTimescale; // motor angular velocity ramp up rate
         Vector3 m_angularMotorVelocity = Vector3.Zero; // current angular motor velocity
 
-
         //Banking properties
         float m_bankingEfficiency;
         float m_bankingMix;
@@ -86,11 +67,9 @@ namespace Universe.Physics.OpenDynamicsEngine
         bool m_enabled;
         VehicleFlag m_flags = 0; // Boolean settings:
         List<Vector3> m_forcelist = new List<Vector3>();
-        // not used        Vector3 m_lastAngVelocity = Vector3.Zero;
         Vector3 m_lastAngularVelocity = Vector3.Zero; // what was last applied to body
         Vector3 m_lastLinearVelocityVector = Vector3.Zero;
         Vector3 m_lastPositionVector = Vector3.Zero;
-        // not used        Vector3 m_lastVelocity = Vector3.Zero;
         Vector3 m_lastposChange = Vector3.Zero;
         float m_linearDeflectionEfficiency;
         float m_linearDeflectionTimescale;
@@ -100,7 +79,6 @@ namespace Universe.Physics.OpenDynamicsEngine
         Vector3 m_linearMotorDirectionLASTSET = Vector3.Zero; // velocity requested by LSL
         Vector3 m_linearMotorOffset = Vector3.Zero;
         float m_linearMotorTimescale;
-        //bool m_linearZeroFlag;
         Vector3 m_newVelocity = Vector3.Zero; // velocity applied to body
         Quaternion m_referenceFrame = Quaternion.Identity; // Axis modifier
         Vehicle m_type = Vehicle.TYPE_NONE; // If a 'VEHICLE', and what kind
@@ -137,19 +115,19 @@ namespace Universe.Physics.OpenDynamicsEngine
                     if (pValue <= timestep)
                         m_angularDeflectionTimescale = timestep;
                     else
-                        m_angularDeflectionTimescale = pValue/timestep;
+                        m_angularDeflectionTimescale = pValue / timestep;
                     break;
                 case Vehicle.ANGULAR_MOTOR_DECAY_TIMESCALE:
                     if (pValue <= timestep)
                         m_angularMotorDecayTimescale = timestep;
                     else
-                        m_angularMotorDecayTimescale = pValue/timestep;
+                        m_angularMotorDecayTimescale = pValue / timestep;
                     break;
                 case Vehicle.ANGULAR_MOTOR_TIMESCALE:
                     if (pValue <= timestep)
                         m_angularMotorTimescale = timestep;
                     else
-                        m_angularMotorTimescale = pValue/timestep;
+                        m_angularMotorTimescale = pValue / timestep;
                     break;
                 case Vehicle.BANKING_EFFICIENCY:
                     if (pValue < -1f) pValue = -1f;
@@ -164,7 +142,7 @@ namespace Universe.Physics.OpenDynamicsEngine
                     if (pValue <= timestep)
                         m_bankingTimescale = timestep;
                     else
-                        m_bankingTimescale = pValue/timestep;
+                        m_bankingTimescale = pValue / timestep;
                     break;
                 case Vehicle.BUOYANCY:
                     if (pValue < -1f) pValue = -1f;
@@ -183,7 +161,7 @@ namespace Universe.Physics.OpenDynamicsEngine
                     if (pValue <= timestep)
                         m_VhoverTimescale = timestep;
                     else
-                        m_VhoverTimescale = pValue/timestep;
+                        m_VhoverTimescale = pValue / timestep;
                     break;
                 case Vehicle.LINEAR_DEFLECTION_EFFICIENCY:
                     if (pValue < 0.01f) pValue = 0.01f;
@@ -193,21 +171,21 @@ namespace Universe.Physics.OpenDynamicsEngine
                     if (pValue <= timestep)
                         m_linearDeflectionTimescale = timestep;
                     else
-                        m_linearDeflectionTimescale = pValue/timestep;
+                        m_linearDeflectionTimescale = pValue / timestep;
                     break;
                 case Vehicle.LINEAR_MOTOR_DECAY_TIMESCALE:
                     if (pValue > 120)
-                        m_linearMotorDecayTimescale = 120/timestep;
+                        m_linearMotorDecayTimescale = 120 / timestep;
                     else if (pValue <= timestep)
                         m_linearMotorDecayTimescale = timestep;
                     else
-                        m_linearMotorDecayTimescale = pValue/timestep;
+                        m_linearMotorDecayTimescale = pValue / timestep;
                     break;
                 case Vehicle.LINEAR_MOTOR_TIMESCALE:
                     if (pValue <= timestep)
                         m_linearMotorTimescale = timestep;
                     else
-                        m_linearMotorTimescale = pValue/timestep;
+                        m_linearMotorTimescale = pValue / timestep;
                     break;
                 case Vehicle.VERTICAL_ATTRACTION_EFFICIENCY:
                     if (pValue < 0.1f) pValue = 0.1f; // Less goes unstable
@@ -218,11 +196,11 @@ namespace Universe.Physics.OpenDynamicsEngine
                     if (pValue <= timestep)
                         m_verticalAttractionTimescale = timestep;
                     else
-                        m_verticalAttractionTimescale = pValue/timestep;
+                        m_verticalAttractionTimescale = pValue / timestep;
                     break;
 
-                    // These are vector properties but the engine lets you use a single float value to
-                    // set all of the components to the same value
+                // These are vector properties but the engine lets you use a single float value to
+                // set all of the components to the same value
                 case Vehicle.ANGULAR_FRICTION_TIMESCALE:
                     if (pValue <= timestep)
                         pValue = timestep;
@@ -259,7 +237,7 @@ namespace Universe.Physics.OpenDynamicsEngine
                         pValue.Y = timestep;
                     if (pValue.Z < timestep)
                         pValue.Z = timestep;
-                    m_angularFrictionTimescale = new Vector3(pValue.X/timestep, pValue.Y/timestep, pValue.Z/timestep);
+                    m_angularFrictionTimescale = new Vector3(pValue.X / timestep, pValue.Y / timestep, pValue.Z / timestep);
                     break;
                 case Vehicle.ANGULAR_MOTOR_DIRECTION:
                     m_angularMotorDirection = new Vector3(pValue.X, pValue.Y, pValue.Z);
@@ -279,7 +257,7 @@ namespace Universe.Physics.OpenDynamicsEngine
                         pValue.Y = timestep;
                     if (pValue.Z < timestep)
                         pValue.Z = timestep;
-                    m_linearFrictionTimescale = new Vector3(pValue.X/timestep, pValue.Y/timestep, pValue.Z/timestep);
+                    m_linearFrictionTimescale = new Vector3(pValue.X / timestep, pValue.Y / timestep, pValue.Z / timestep);
                     break;
                 case Vehicle.LINEAR_MOTOR_DIRECTION:
                     m_linearMotorDirection = pValue;
@@ -310,7 +288,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 
         internal void ProcessVehicleFlags(int pParam, bool remove)
         {
-            VehicleFlag param = (VehicleFlag) pParam;
+            VehicleFlag param = (VehicleFlag)pParam;
             if (remove)
             {
                 if (pParam == -1)
@@ -331,59 +309,59 @@ namespace Universe.Physics.OpenDynamicsEngine
             switch (pType)
             {
                 case Vehicle.TYPE_NONE:
-                    m_linearFrictionTimescale = new Vector3(1000/timestep, 1000/timestep, 1000/timestep);
-                    m_angularFrictionTimescale = new Vector3(1000/timestep, 1000/timestep, 1000/timestep);
+                    m_linearFrictionTimescale = new Vector3(1000 / timestep, 1000 / timestep, 1000 / timestep);
+                    m_angularFrictionTimescale = new Vector3(1000 / timestep, 1000 / timestep, 1000 / timestep);
                     m_linearMotorDirection = Vector3.Zero;
-                    m_linearMotorTimescale = 1000/timestep;
-                    m_linearMotorDecayTimescale = 1000/timestep;
+                    m_linearMotorTimescale = 1000 / timestep;
+                    m_linearMotorDecayTimescale = 1000 / timestep;
                     m_angularMotorDirection = Vector3.Zero;
-                    m_angularMotorTimescale = 1000/timestep;
-                    m_angularMotorDecayTimescale = 120/timestep;
+                    m_angularMotorTimescale = 1000 / timestep;
+                    m_angularMotorDecayTimescale = 120 / timestep;
                     m_VhoverHeight = 0;
-                    m_VhoverTimescale = 1000/timestep;
+                    m_VhoverTimescale = 1000 / timestep;
                     m_VehicleBuoyancy = 0;
 
                     m_linearDeflectionEfficiency = 1;
-                    m_linearDeflectionTimescale = 1/timestep;
+                    m_linearDeflectionTimescale = 1 / timestep;
 
                     m_angularDeflectionEfficiency = 0;
-                    m_angularDeflectionTimescale = 1000/timestep;
+                    m_angularDeflectionTimescale = 1000 / timestep;
 
                     m_bankingEfficiency = 0;
                     m_bankingMix = 1;
-                    m_bankingTimescale = 1000/timestep;
+                    m_bankingTimescale = 1000 / timestep;
 
                     m_flags = 0;
                     m_referenceFrame = Quaternion.Identity;
                     break;
 
                 case Vehicle.TYPE_SLED:
-                    m_linearFrictionTimescale = new Vector3(30/timestep, 1/timestep, 1000/timestep);
+                    m_linearFrictionTimescale = new Vector3(30 / timestep, 1 / timestep, 1000 / timestep);
 
-                    m_angularFrictionTimescale = new Vector3(1000/timestep, 1000/timestep, 1000/timestep);
+                    m_angularFrictionTimescale = new Vector3(1000 / timestep, 1000 / timestep, 1000 / timestep);
 
                     m_linearMotorDirection = Vector3.Zero;
-                    m_linearMotorTimescale = 1000/timestep;
-                    m_linearMotorDecayTimescale = 120/timestep;
+                    m_linearMotorTimescale = 1000 / timestep;
+                    m_linearMotorDecayTimescale = 120 / timestep;
 
                     m_angularMotorDirection = Vector3.Zero;
-                    m_angularMotorTimescale = 1000/timestep;
-                    m_angularMotorDecayTimescale = 120/timestep;
+                    m_angularMotorTimescale = 1000 / timestep;
+                    m_angularMotorDecayTimescale = 120 / timestep;
 
                     m_VhoverHeight = 0;
                     m_VhoverEfficiency = 10;
-                    m_VhoverTimescale = 10/timestep;
+                    m_VhoverTimescale = 10 / timestep;
                     m_VehicleBuoyancy = 0;
 
                     m_linearDeflectionEfficiency = 1;
-                    m_linearDeflectionTimescale = 1/timestep;
+                    m_linearDeflectionTimescale = 1 / timestep;
 
                     m_angularDeflectionEfficiency = 0;
-                    m_angularDeflectionTimescale = 1000/timestep;
+                    m_angularDeflectionTimescale = 1000 / timestep;
 
                     m_bankingEfficiency = 0;
                     m_bankingMix = 1;
-                    m_bankingTimescale = 10/timestep;
+                    m_bankingTimescale = 10 / timestep;
 
                     m_referenceFrame = Quaternion.Identity;
                     m_flags &=
@@ -392,27 +370,27 @@ namespace Universe.Physics.OpenDynamicsEngine
                     m_flags |= (VehicleFlag.NO_DEFLECTION_UP | VehicleFlag.LIMIT_ROLL_ONLY | VehicleFlag.LIMIT_MOTOR_UP);
                     break;
                 case Vehicle.TYPE_CAR:
-                    m_linearFrictionTimescale = new Vector3(100/timestep, 2/timestep, 1000/timestep);
-                    m_angularFrictionTimescale = new Vector3(1000/timestep, 1000/timestep, 1000/timestep);
+                    m_linearFrictionTimescale = new Vector3(100 / timestep, 2 / timestep, 1000 / timestep);
+                    m_angularFrictionTimescale = new Vector3(1000 / timestep, 1000 / timestep, 1000 / timestep);
                     m_linearMotorDirection = Vector3.Zero;
-                    m_linearMotorTimescale = 1/timestep;
-                    m_linearMotorDecayTimescale = 60/timestep;
+                    m_linearMotorTimescale = 1 / timestep;
+                    m_linearMotorDecayTimescale = 60 / timestep;
                     m_angularMotorDirection = Vector3.Zero;
-                    m_angularMotorTimescale = 1/timestep;
-                    m_angularMotorDecayTimescale = 0.8f/timestep;
+                    m_angularMotorTimescale = 1 / timestep;
+                    m_angularMotorDecayTimescale = 0.8f / timestep;
                     m_VhoverHeight = 0;
                     m_VhoverEfficiency = 0;
-                    m_VhoverTimescale = 1000/timestep;
+                    m_VhoverTimescale = 1000 / timestep;
                     m_VehicleBuoyancy = 0;
                     m_linearDeflectionEfficiency = 1;
-                    m_linearDeflectionTimescale = 2/timestep;
+                    m_linearDeflectionTimescale = 2 / timestep;
                     m_angularDeflectionEfficiency = 0;
-                    m_angularDeflectionTimescale = 10/timestep;
+                    m_angularDeflectionTimescale = 10 / timestep;
                     m_verticalAttractionEfficiency = 1f;
-                    m_verticalAttractionTimescale = 10f/timestep;
+                    m_verticalAttractionTimescale = 10f / timestep;
                     m_bankingEfficiency = -0.2f;
                     m_bankingMix = 1;
-                    m_bankingTimescale = 1/timestep;
+                    m_bankingTimescale = 1 / timestep;
                     m_referenceFrame = Quaternion.Identity;
                     m_flags &=
                         ~(VehicleFlag.HOVER_WATER_ONLY | VehicleFlag.HOVER_TERRAIN_ONLY |
@@ -421,27 +399,27 @@ namespace Universe.Physics.OpenDynamicsEngine
                                 VehicleFlag.LIMIT_MOTOR_UP | VehicleFlag.HOVER_UP_ONLY);
                     break;
                 case Vehicle.TYPE_BOAT:
-                    m_linearFrictionTimescale = new Vector3(10/timestep, 3/timestep, 2/timestep);
-                    m_angularFrictionTimescale = new Vector3(10/timestep, 10/timestep, 10/timestep);
+                    m_linearFrictionTimescale = new Vector3(10 / timestep, 3 / timestep, 2 / timestep);
+                    m_angularFrictionTimescale = new Vector3(10 / timestep, 10 / timestep, 10 / timestep);
                     m_linearMotorDirection = Vector3.Zero;
-                    m_linearMotorTimescale = 5/timestep;
-                    m_linearMotorDecayTimescale = 60/timestep;
+                    m_linearMotorTimescale = 5 / timestep;
+                    m_linearMotorDecayTimescale = 60 / timestep;
                     m_angularMotorDirection = Vector3.Zero;
-                    m_angularMotorTimescale = 4/timestep;
-                    m_angularMotorDecayTimescale = 4/timestep;
+                    m_angularMotorTimescale = 4 / timestep;
+                    m_angularMotorDecayTimescale = 4 / timestep;
                     m_VhoverHeight = 0;
                     m_VhoverEfficiency = 0.5f;
-                    m_VhoverTimescale = 2/timestep;
+                    m_VhoverTimescale = 2 / timestep;
                     m_VehicleBuoyancy = 1;
                     m_linearDeflectionEfficiency = 0.5f;
-                    m_linearDeflectionTimescale = 3/timestep;
+                    m_linearDeflectionTimescale = 3 / timestep;
                     m_angularDeflectionEfficiency = 0.5f;
-                    m_angularDeflectionTimescale = 5/timestep;
+                    m_angularDeflectionTimescale = 5 / timestep;
                     m_verticalAttractionEfficiency = 0.5f;
-                    m_verticalAttractionTimescale = 5f/timestep;
+                    m_verticalAttractionTimescale = 5f / timestep;
                     m_bankingEfficiency = -0.3f;
                     m_bankingMix = 0.8f;
-                    m_bankingTimescale = 1/timestep;
+                    m_bankingTimescale = 1 / timestep;
                     m_referenceFrame = Quaternion.Identity;
                     m_flags &= ~(VehicleFlag.LIMIT_ROLL_ONLY | VehicleFlag.HOVER_TERRAIN_ONLY |
                                  VehicleFlag.HOVER_GLOBAL_HEIGHT | VehicleFlag.HOVER_UP_ONLY);
@@ -450,24 +428,24 @@ namespace Universe.Physics.OpenDynamicsEngine
                                 VehicleFlag.HOVER_WATER_ONLY);
                     break;
                 case Vehicle.TYPE_AIRPLANE:
-                    m_linearFrictionTimescale = new Vector3(200/timestep, 10/timestep, 5/timestep);
-                    m_angularFrictionTimescale = new Vector3(20/timestep, 20/timestep, 20/timestep);
+                    m_linearFrictionTimescale = new Vector3(200 / timestep, 10 / timestep, 5 / timestep);
+                    m_angularFrictionTimescale = new Vector3(20 / timestep, 20 / timestep, 20 / timestep);
                     m_linearMotorDirection = Vector3.Zero;
-                    m_linearMotorTimescale = 2/timestep;
-                    m_linearMotorDecayTimescale = 60/timestep;
+                    m_linearMotorTimescale = 2 / timestep;
+                    m_linearMotorDecayTimescale = 60 / timestep;
                     m_angularMotorDirection = Vector3.Zero;
-                    m_angularMotorTimescale = 4/timestep;
-                    m_angularMotorDecayTimescale = 4/timestep;
+                    m_angularMotorTimescale = 4 / timestep;
+                    m_angularMotorDecayTimescale = 4 / timestep;
                     m_VhoverHeight = 0;
                     m_VhoverEfficiency = 0.5f;
-                    m_VhoverTimescale = 1000/timestep;
+                    m_VhoverTimescale = 1000 / timestep;
                     m_VehicleBuoyancy = 0;
                     m_linearDeflectionEfficiency = 0.5f;
-                    m_linearDeflectionTimescale = 3/timestep;
+                    m_linearDeflectionTimescale = 3 / timestep;
                     m_angularDeflectionEfficiency = 1;
-                    m_angularDeflectionTimescale = 2/timestep;
+                    m_angularDeflectionTimescale = 2 / timestep;
                     m_verticalAttractionEfficiency = 0.9f;
-                    m_verticalAttractionTimescale = 2f/timestep;
+                    m_verticalAttractionTimescale = 2f / timestep;
                     m_bankingEfficiency = 1;
                     m_bankingMix = 0.7f;
                     m_bankingTimescale = 2;
@@ -478,27 +456,27 @@ namespace Universe.Physics.OpenDynamicsEngine
                     m_flags |= (VehicleFlag.LIMIT_ROLL_ONLY);
                     break;
                 case Vehicle.TYPE_BALLOON:
-                    m_linearFrictionTimescale = new Vector3(5/timestep, 5/timestep, 5/timestep);
-                    m_angularFrictionTimescale = new Vector3(10/timestep, 10/timestep, 10/timestep);
+                    m_linearFrictionTimescale = new Vector3(5 / timestep, 5 / timestep, 5 / timestep);
+                    m_angularFrictionTimescale = new Vector3(10 / timestep, 10 / timestep, 10 / timestep);
                     m_linearMotorDirection = Vector3.Zero;
-                    m_linearMotorTimescale = 5/timestep;
-                    m_linearMotorDecayTimescale = 60/timestep;
+                    m_linearMotorTimescale = 5 / timestep;
+                    m_linearMotorDecayTimescale = 60 / timestep;
                     m_angularMotorDirection = Vector3.Zero;
-                    m_angularMotorTimescale = 6/timestep;
-                    m_angularMotorDecayTimescale = 10/timestep;
+                    m_angularMotorTimescale = 6 / timestep;
+                    m_angularMotorDecayTimescale = 10 / timestep;
                     m_VhoverHeight = 5;
                     m_VhoverEfficiency = 0.8f;
-                    m_VhoverTimescale = 10/timestep;
+                    m_VhoverTimescale = 10 / timestep;
                     m_VehicleBuoyancy = 1;
                     m_linearDeflectionEfficiency = 0;
-                    m_linearDeflectionTimescale = 5/timestep;
+                    m_linearDeflectionTimescale = 5 / timestep;
                     m_angularDeflectionEfficiency = 0;
-                    m_angularDeflectionTimescale = 5/timestep;
+                    m_angularDeflectionTimescale = 5 / timestep;
                     m_verticalAttractionEfficiency = 1f;
-                    m_verticalAttractionTimescale = 100f/timestep;
+                    m_verticalAttractionTimescale = 100f / timestep;
                     m_bankingEfficiency = 0;
                     m_bankingMix = 0.7f;
-                    m_bankingTimescale = 5/timestep;
+                    m_bankingTimescale = 5 / timestep;
                     m_referenceFrame = Quaternion.Identity;
                     m_flags &= ~(VehicleFlag.NO_DEFLECTION_UP | VehicleFlag.LIMIT_MOTOR_UP |
                                  VehicleFlag.HOVER_WATER_ONLY | VehicleFlag.HOVER_TERRAIN_ONLY |
@@ -605,27 +583,37 @@ namespace Universe.Physics.OpenDynamicsEngine
             if (m_BlockingEndPoint != Vector3.Zero)
             {
                 bool needUpdateBody = false;
-                if(pos.X >= (m_BlockingEndPoint.X - 1)) {
+                if (pos.X >= (m_BlockingEndPoint.X - 1))
+                {
                     pos.X -= m_lastposChange.X + 1;
                     needUpdateBody = true;
                 }
-                if(pos.Y >= (m_BlockingEndPoint.Y - 1)) {
+
+                if (pos.Y >= (m_BlockingEndPoint.Y - 1))
+                {
                     pos.Y -= m_lastposChange.Y + 1;
                     needUpdateBody = true;
                 }
-                if(pos.Z >= (m_BlockingEndPoint.Z - 1)) {
+
+                if (pos.Z >= (m_BlockingEndPoint.Z - 1))
+                {
                     pos.Z -= m_lastposChange.Z + 1;
                     needUpdateBody = true;
                 }
-                if(pos.X <= 0) {
+
+                if (pos.X <= 0)
+                {
                     pos.X += m_lastposChange.X + 1;
                     needUpdateBody = true;
                 }
-                if(pos.Y <= 0) {
+
+                if (pos.Y <= 0)
+                {
                     pos.Y += m_lastposChange.Y + 1;
                     needUpdateBody = true;
                 }
-                if(needUpdateBody)
+
+                if (needUpdateBody)
                     d.BodySetPosition(Body, pos.X, pos.Y, pos.Z);
             }
 
@@ -634,12 +622,14 @@ namespace Universe.Physics.OpenDynamicsEngine
             #region Terrain checks
 
             float terrainHeight = _pParentScene.GetTerrainHeightAtXY(pos.X, pos.Y);
-            if(pos.Z < terrainHeight - 5) {
+            if (pos.Z < terrainHeight - 5)
+            {
                 pos.Z = terrainHeight + 2;
                 m_lastPositionVector = pos;
                 d.BodySetPosition(Body, pos.X, pos.Y, pos.Z);
             }
-            else if(pos.Z < terrainHeight) {
+            else if (pos.Z < terrainHeight)
+            {
                 m_newVelocity.Z += 1;
             }
 
@@ -648,53 +638,66 @@ namespace Universe.Physics.OpenDynamicsEngine
             #region Hover
 
             Vector3 hovervel = Vector3.Zero;
-            if(m_VhoverTimescale * pTimestep <= 300.0f && m_VhoverHeight > 0.0f) {
+            if (m_VhoverTimescale * pTimestep <= 300.0f && m_VhoverHeight > 0.0f)
+            {
                 ishovering = true;
 
-                if ((m_flags & VehicleFlag.HOVER_WATER_ONLY) != 0) {
-                    m_VhoverTargetHeight = (float) _pParentScene.GetWaterLevel(pos.X, pos.Y) + 0.3f + m_VhoverHeight;
+                if ((m_flags & VehicleFlag.HOVER_WATER_ONLY) != 0)
+                {
+                    m_VhoverTargetHeight = (float)_pParentScene.GetWaterLevel(pos.X, pos.Y) + 0.3f + m_VhoverHeight;
                 }
-                else if ((m_flags & VehicleFlag.HOVER_TERRAIN_ONLY) != 0) {
+                else if ((m_flags & VehicleFlag.HOVER_TERRAIN_ONLY) != 0)
+                {
                     m_VhoverTargetHeight = _pParentScene.GetTerrainHeightAtXY(pos.X, pos.Y) + m_VhoverHeight;
                 }
-                else if ((m_flags & VehicleFlag.HOVER_GLOBAL_HEIGHT) != 0) {
+                else if ((m_flags & VehicleFlag.HOVER_GLOBAL_HEIGHT) != 0)
+                {
                     m_VhoverTargetHeight = m_VhoverHeight;
                 }
-                else {
+                else
+                {
                     float waterlevel = (float)_pParentScene.GetWaterLevel(pos.X, pos.Y) + 0.3f;
                     float terrainlevel = _pParentScene.GetTerrainHeightAtXY(pos.X, pos.Y);
-                    if(waterlevel > terrainlevel) {
+                    if (waterlevel > terrainlevel)
+                    {
                         m_VhoverTargetHeight = waterlevel + m_VhoverHeight;
                     }
-                    else {
+                    else
+                    {
                         m_VhoverTargetHeight = terrainlevel + m_VhoverHeight;
                     }
                 }
 
                 float tempHoverHeight = m_VhoverTargetHeight;
-                if((m_flags & VehicleFlag.HOVER_UP_ONLY) != 0) {
+                if ((m_flags & VehicleFlag.HOVER_UP_ONLY) != 0)
+                {
                     // If body is aready heigher, use its height as target height
-                    if (pos.Z > tempHoverHeight) {
+                    if (pos.Z > tempHoverHeight)
+                    {
                         tempHoverHeight = pos.Z;
                         bypass_buoyancy = true; //emulate sl bug
                     }
                 }
-                if((m_flags & VehicleFlag.LOCK_HOVER_HEIGHT) != 0) {
-                    if((pos.Z - tempHoverHeight) > .2 || (pos.Z - tempHoverHeight) < -.2) {
+
+                if ((m_flags & VehicleFlag.LOCK_HOVER_HEIGHT) != 0)
+                {
+                    if ((pos.Z - tempHoverHeight) > .2 || (pos.Z - tempHoverHeight) < -.2)
+                    {
                         float h = tempHoverHeight;
                         float groundHeight = _pParentScene.GetTerrainHeightAtXY(pos.X, pos.Y);
-                        if(groundHeight >= tempHoverHeight) 
+                        if (groundHeight >= tempHoverHeight)
                             h = groundHeight;
 
                         d.BodySetPosition(Body, pos.X, pos.Y, h);
                     }
                 }
-                else {
+                else
+                {
                     hovervel.Z -= ((dvel_now.Z * 0.1f * m_VhoverEfficiency) + (pos.Z - tempHoverHeight)) / m_VhoverTimescale;
                     hovervel.Z *= 7.0f * (1.0f + m_VhoverEfficiency);
 
-                    if(hovervel.Z > 50.0f) hovervel.Z = 50.0f;
-                    if(hovervel.Z < -50.0f) hovervel.Z = -50.0f;
+                    if (hovervel.Z > 50.0f) hovervel.Z = 50.0f;
+                    if (hovervel.Z < -50.0f) hovervel.Z = -50.0f;
                 }
             }
 
@@ -703,7 +706,8 @@ namespace Universe.Physics.OpenDynamicsEngine
             #region limitations
 
             //limit maximum velocity
-            if(vel_now.LengthSquared() > 1e6f) {
+            if (vel_now.LengthSquared() > 1e6f)
+            {
                 vel_now /= vel_now.Length();
                 vel_now *= 1000f;
                 d.BodySetLinearVel(Body, vel_now.X, vel_now.Y, vel_now.Z);
@@ -711,10 +715,11 @@ namespace Universe.Physics.OpenDynamicsEngine
 
             //block movement in x and y when low velocity
             bool enable_ode_gravity = true;
-            if(vel_now.LengthSquared() < 0.02f) {
+            if (vel_now.LengthSquared() < 0.02f)
+            {
                 d.BodySetLinearVel(Body, 0.0f, 0.0f, 0.0f);
                 vel_now = Vector3.Zero;
-                if(parent.LinkSetIsColliding)
+                if (parent.LinkSetIsColliding)
                     enable_ode_gravity = false;
             }
 
@@ -725,15 +730,18 @@ namespace Universe.Physics.OpenDynamicsEngine
             //cancel directions of linear friction for certain vehicles without having effect on ode gravity
             Vector3 vt_vel_now = vel_now;
             bool no_grav_calc = false;
-            if((Type != Vehicle.TYPE_AIRPLANE && Type != Vehicle.TYPE_BALLOON) && m_VehicleBuoyancy != 1.0f) {
+            if ((Type != Vehicle.TYPE_AIRPLANE && Type != Vehicle.TYPE_BALLOON) && m_VehicleBuoyancy != 1.0f)
+            {
                 vt_vel_now.Z = 0.0f;
                 no_grav_calc = true;
             }
 
-            if(!bypass_buoyancy) {
+            if (!bypass_buoyancy)
+            {
                 //apply additional gravity force over ode gravity
-                if(m_VehicleBuoyancy == 1.0f) enable_ode_gravity = false;
-                else if(m_VehicleBuoyancy != 0.0f && enable_ode_gravity) {
+                if (m_VehicleBuoyancy == 1.0f) enable_ode_gravity = false;
+                else if (m_VehicleBuoyancy != 0.0f && enable_ode_gravity)
+                {
                     float grav = _pParentScene.gravityz * parent.GravityMultiplier * -m_VehicleBuoyancy;
                     m_newVelocity.Z += grav * Mass;
                 }
@@ -747,13 +755,14 @@ namespace Universe.Physics.OpenDynamicsEngine
             float defaultFriction = 180f;
 
             Vector3 friction = Vector3.Zero;
-            if(parent.LinkSetIsColliding || ishovering) {
-                if(vt_vel_now.X > 0.0f) friction.X += initialFriction;
-                if(vt_vel_now.Y > 0.0f) friction.Y += initialFriction;
-                if(vt_vel_now.Z > 0.0f) friction.Z += initialFriction;
-                if(vt_vel_now.X < 0.0f) friction.X -= initialFriction;
-                if(vt_vel_now.Y < 0.0f) friction.Y -= initialFriction;
-                if(vt_vel_now.Z < 0.0f) friction.Z -= initialFriction;
+            if (parent.LinkSetIsColliding || ishovering)
+            {
+                if (vt_vel_now.X > 0.0f) friction.X += initialFriction;
+                if (vt_vel_now.Y > 0.0f) friction.Y += initialFriction;
+                if (vt_vel_now.Z > 0.0f) friction.Z += initialFriction;
+                if (vt_vel_now.X < 0.0f) friction.X -= initialFriction;
+                if (vt_vel_now.Y < 0.0f) friction.Y -= initialFriction;
+                if (vt_vel_now.Z < 0.0f) friction.Z -= initialFriction;
                 friction += vt_vel_now / defaultFriction;
                 friction *= irotq;
             }
@@ -763,21 +772,21 @@ namespace Universe.Physics.OpenDynamicsEngine
             vt_vel_now *= irotq;
 
             //add linear friction
-            if(vt_vel_now.X > 0.0f)
+            if (vt_vel_now.X > 0.0f)
                 friction.X += vt_vel_now.X * vt_vel_now.X / m_linearFrictionTimescale.X;
             else
                 friction.X -= vt_vel_now.X * vt_vel_now.X / m_linearFrictionTimescale.X;
 
-            if(vt_vel_now.Y > 0.0f)
+            if (vt_vel_now.Y > 0.0f)
                 friction.Y += vt_vel_now.Y * vt_vel_now.Y / m_linearFrictionTimescale.Y;
             else
                 friction.Y -= vt_vel_now.Y * vt_vel_now.Y / m_linearFrictionTimescale.Y;
 
-            if(vt_vel_now.Z > 0.0f)
+            if (vt_vel_now.Z > 0.0f)
                 friction.Z += vt_vel_now.Z * vt_vel_now.Z / m_linearFrictionTimescale.Z;
             else
                 friction.Z -= vt_vel_now.Z * vt_vel_now.Z / m_linearFrictionTimescale.Z;
-	    
+
             friction /= 1.35f; //1.5f;
 
             //add linear forces
@@ -787,26 +796,27 @@ namespace Universe.Physics.OpenDynamicsEngine
             Vector3 motorfrictionstart = new Vector3(1.0f, 1.0f, 1.0f);
             motorVelocity *= motorfrictionstart + motorfrictionamp / (m_linearFrictionTimescale * pTimestep);
             float addVel = 0.15f;
-            if(motorVelocity.LengthSquared() > 0.01f) {
-                if(motorVelocity.X > 0.0f) motorVelocity.X += addVel;
-                if(motorVelocity.Y > 0.0f) motorVelocity.Y += addVel;
-                if(motorVelocity.Z > 0.0f) motorVelocity.Z += addVel;
-                if(motorVelocity.X < 0.0f) motorVelocity.X -= addVel;
-                if(motorVelocity.Y < 0.0f) motorVelocity.Y -= addVel;
-                if(motorVelocity.Z < 0.0f) motorVelocity.Z -= addVel;
+            if (motorVelocity.LengthSquared() > 0.01f)
+            {
+                if (motorVelocity.X > 0.0f) motorVelocity.X += addVel;
+                if (motorVelocity.Y > 0.0f) motorVelocity.Y += addVel;
+                if (motorVelocity.Z > 0.0f) motorVelocity.Z += addVel;
+                if (motorVelocity.X < 0.0f) motorVelocity.X -= addVel;
+                if (motorVelocity.Y < 0.0f) motorVelocity.Y -= addVel;
+                if (motorVelocity.Z < 0.0f) motorVelocity.Z -= addVel;
             }
 
             //free run
-            if(vel_now.X > m_linearMotorDirection.X && m_linearMotorDirection.X >= 0.0f) motorVelocity.X = 0.0f;
-            if(vel_now.Y > m_linearMotorDirection.Y && m_linearMotorDirection.Y >= 0.0f) motorVelocity.Y = 0.0f;
-            if(vel_now.Z > m_linearMotorDirection.Z && m_linearMotorDirection.Z >= 0.0f) motorVelocity.Z = 0.0f;
+            if (vel_now.X > m_linearMotorDirection.X && m_linearMotorDirection.X >= 0.0f) motorVelocity.X = 0.0f;
+            if (vel_now.Y > m_linearMotorDirection.Y && m_linearMotorDirection.Y >= 0.0f) motorVelocity.Y = 0.0f;
+            if (vel_now.Z > m_linearMotorDirection.Z && m_linearMotorDirection.Z >= 0.0f) motorVelocity.Z = 0.0f;
 
-            if(vel_now.X < m_linearMotorDirection.X && m_linearMotorDirection.X <= 0.0f) motorVelocity.X = 0.0f;
-            if(vel_now.Y < m_linearMotorDirection.Y && m_linearMotorDirection.Y <= 0.0f) motorVelocity.Y = 0.0f;
-            if(vel_now.Z < m_linearMotorDirection.Z && m_linearMotorDirection.Z <= 0.0f) motorVelocity.Z = 0.0f;
+            if (vel_now.X < m_linearMotorDirection.X && m_linearMotorDirection.X <= 0.0f) motorVelocity.X = 0.0f;
+            if (vel_now.Y < m_linearMotorDirection.Y && m_linearMotorDirection.Y <= 0.0f) motorVelocity.Y = 0.0f;
+            if (vel_now.Z < m_linearMotorDirection.Z && m_linearMotorDirection.Z <= 0.0f) motorVelocity.Z = 0.0f;
 
             //decay linear motor
-            m_linearMotorDirection *= (1.0f - 1.0f/m_linearMotorDecayTimescale);
+            m_linearMotorDirection *= (1.0f - 1.0f / m_linearMotorDecayTimescale);
 
             #endregion
 
@@ -823,24 +833,26 @@ namespace Universe.Physics.OpenDynamicsEngine
 
             Vector3 vel_defl = new Vector3(dvel_now.X, dvel_now.Y, dvel_now.Z);
             vel_defl *= irotq_z;
-            if(no_grav_calc) {
+            if (no_grav_calc)
+            {
                 vel_defl.Z = 0.0f;
-                if(!parent.LinkSetIsColliding) vel_defl.Y = 0.0f;
+                if (!parent.LinkSetIsColliding) vel_defl.Y = 0.0f;
             }
 
             Vector3 deflection = vel_defl / m_linearDeflectionTimescale * m_linearDeflectionEfficiency * 100.0f;
-            
-			float deflectionLengthY = Math.Abs(deflection.Y);
+
+            float deflectionLengthY = Math.Abs(deflection.Y);
             float deflectionLengthX = Math.Abs(deflection.X);
 
             deflection.Z = 0.0f;
-            if((m_flags & (VehicleFlag.NO_DEFLECTION_UP)) == 0) {
+            if ((m_flags & (VehicleFlag.NO_DEFLECTION_UP)) == 0)
+            {
                 deflection.Z = deflectionLengthX;
                 deflection.X = -deflection.X;
             }
 
-            if(vel_defl.X < 0.0f) deflection.X = -deflectionLengthY;
-            else if(vel_defl.X >= 0.0f) deflection.X = deflectionLengthY;
+            if (vel_defl.X < 0.0f) deflection.X = -deflectionLengthY;
+            else if (vel_defl.X >= 0.0f) deflection.X = deflectionLengthY;
             deflection.Y = -deflection.Y;
 
             irotq_z.W = -irotq_z.W;
@@ -851,16 +863,21 @@ namespace Universe.Physics.OpenDynamicsEngine
             #region Deal with tainted forces
 
             Vector3 TaintedForce = new Vector3();
-            if(m_forcelist.Count != 0) {
-                try {
+            if (m_forcelist.Count != 0)
+            {
+                try
+                {
                     TaintedForce = m_forcelist.Aggregate(TaintedForce, (current, t) => current + (t));
                 }
-                catch(IndexOutOfRangeException) {
+                catch (IndexOutOfRangeException)
+                {
                     TaintedForce = Vector3.Zero;
                 }
-                catch(ArgumentOutOfRangeException) {
+                catch (ArgumentOutOfRangeException)
+                {
                     TaintedForce = Vector3.Zero;
                 }
+
                 m_forcelist = new List<Vector3>();
             }
 
@@ -877,24 +894,25 @@ namespace Universe.Physics.OpenDynamicsEngine
 
             #region No X,Y,Z
 
-            if((m_flags & (VehicleFlag.NO_X)) != 0)
+            if ((m_flags & (VehicleFlag.NO_X)) != 0)
                 m_newVelocity.X = -vel_now.X * Mass / pTimestep;
-            if((m_flags & (VehicleFlag.NO_Y)) != 0)
+            if ((m_flags & (VehicleFlag.NO_Y)) != 0)
                 m_newVelocity.Y = -vel_now.Y * Mass / pTimestep;
-            if((m_flags & (VehicleFlag.NO_Z)) != 0)
+            if ((m_flags & (VehicleFlag.NO_Z)) != 0)
                 m_newVelocity.Z = -vel_now.Z * Mass / pTimestep;
 
             #endregion
 
-    	    m_newVelocity *= rotq;
+            m_newVelocity *= rotq;
             m_newVelocity += (hovervel *= Mass / pTimestep);
-	    
-            if(parent.LinkSetIsColliding || Type == Vehicle.TYPE_AIRPLANE || Type == Vehicle.TYPE_BALLOON || ishovering) {
+
+            if (parent.LinkSetIsColliding || Type == Vehicle.TYPE_AIRPLANE || Type == Vehicle.TYPE_BALLOON || ishovering)
+            {
                 m_newVelocity += deflection;
 
                 motorVelocity *= rotq;
 
-                if((m_flags & (VehicleFlag.LIMIT_MOTOR_UP)) != 0 && motorVelocity.Z > 0.0f) motorVelocity.Z = 0.0f;
+                if ((m_flags & (VehicleFlag.LIMIT_MOTOR_UP)) != 0 && motorVelocity.Z > 0.0f) motorVelocity.Z = 0.0f;
                 m_newVelocity += motorVelocity;
             }
 
@@ -919,43 +937,46 @@ namespace Universe.Physics.OpenDynamicsEngine
             Vector3 banking = Vector3.Zero;
 
             //limit maximum rotation speed
-            if(angularVelocity.LengthSquared() > 1e3f) {
+            if (angularVelocity.LengthSquared() > 1e3f)
+            {
                 angularVelocity = Vector3.Zero;
                 d.BodySetAngularVel(Body, angularVelocity.X, angularVelocity.Y, angularVelocity.Z);
             }
 
             angularVelocity *= irotq; //world to body orientation
 
-            if(m_VhoverTimescale * pTimestep <= 300.0f && m_VhoverHeight > 0.0f) ishovering = true;
+            if (m_VhoverTimescale * pTimestep <= 300.0f && m_VhoverHeight > 0.0f) ishovering = true;
 
             #region Angular motor
             Vector3 motorDirection = Vector3.Zero;
 
-            if(Type == Vehicle.TYPE_BOAT) {
+            if (Type == Vehicle.TYPE_BOAT)
+            {
                 //keep z flat for boats, no sidediving lol
                 Vector3 tmp = new Vector3(0.0f, 0.0f, m_angularMotorDirection.Z);
                 m_angularMotorDirection.Z = 0.0f;
                 m_angularMotorDirection += tmp * irotq;
             }
 
-            if(parent.LinkSetIsColliding || Type == Vehicle.TYPE_AIRPLANE || Type == Vehicle.TYPE_BALLOON || ishovering){
+            if (parent.LinkSetIsColliding || Type == Vehicle.TYPE_AIRPLANE || Type == Vehicle.TYPE_BALLOON || ishovering)
+            {
                 motorDirection = m_angularMotorDirection * 0.34f; //0.3f;
             }
 
             m_angularMotorVelocity.X = (motorDirection.X - angularVelocity.X) / m_angularMotorTimescale;
             m_angularMotorVelocity.Y = (motorDirection.Y - angularVelocity.Y) / m_angularMotorTimescale;
             m_angularMotorVelocity.Z = (motorDirection.Z - angularVelocity.Z) / m_angularMotorTimescale;
-            m_angularMotorDirection *= (1.0f - 1.0f/m_angularMotorDecayTimescale);
+            m_angularMotorDirection *= (1.0f - 1.0f / m_angularMotorDecayTimescale);
 
-            if(m_angularMotorDirection.LengthSquared() > 0.0f)
+            if (m_angularMotorDirection.LengthSquared() > 0.0f)
             {
-                if(angularVelocity.X > m_angularMotorDirection.X && m_angularMotorDirection.X >= 0.0f) m_angularMotorVelocity.X = 0.0f;
-                if(angularVelocity.Y > m_angularMotorDirection.Y && m_angularMotorDirection.Y >= 0.0f) m_angularMotorVelocity.Y = 0.0f;
-                if(angularVelocity.Z > m_angularMotorDirection.Z && m_angularMotorDirection.Z >= 0.0f) m_angularMotorVelocity.Z = 0.0f;
+                if (angularVelocity.X > m_angularMotorDirection.X && m_angularMotorDirection.X >= 0.0f) m_angularMotorVelocity.X = 0.0f;
+                if (angularVelocity.Y > m_angularMotorDirection.Y && m_angularMotorDirection.Y >= 0.0f) m_angularMotorVelocity.Y = 0.0f;
+                if (angularVelocity.Z > m_angularMotorDirection.Z && m_angularMotorDirection.Z >= 0.0f) m_angularMotorVelocity.Z = 0.0f;
 
-                if(angularVelocity.X < m_angularMotorDirection.X && m_angularMotorDirection.X <= 0.0f) m_angularMotorVelocity.X = 0.0f;
-                if(angularVelocity.Y < m_angularMotorDirection.Y && m_angularMotorDirection.Y <= 0.0f) m_angularMotorVelocity.Y = 0.0f;
-                if(angularVelocity.Z < m_angularMotorDirection.Z && m_angularMotorDirection.Z <= 0.0f) m_angularMotorVelocity.Z = 0.0f;
+                if (angularVelocity.X < m_angularMotorDirection.X && m_angularMotorDirection.X <= 0.0f) m_angularMotorVelocity.X = 0.0f;
+                if (angularVelocity.Y < m_angularMotorDirection.Y && m_angularMotorDirection.Y <= 0.0f) m_angularMotorVelocity.Y = 0.0f;
+                if (angularVelocity.Z < m_angularMotorDirection.Z && m_angularMotorDirection.Z <= 0.0f) m_angularMotorVelocity.Z = 0.0f;
             }
 
             #endregion
@@ -963,41 +984,40 @@ namespace Universe.Physics.OpenDynamicsEngine
             #region friction
 
             float initialFriction = 0.0001f;
-            if(angularVelocity.X > initialFriction) friction.X += initialFriction;
-    	    if(angularVelocity.Y > initialFriction) friction.Y += initialFriction;
-    	    if(angularVelocity.Z > initialFriction) friction.Z += initialFriction;
-            if(angularVelocity.X < -initialFriction) friction.X -= initialFriction;
-            if(angularVelocity.Y < -initialFriction) friction.Y -= initialFriction;
-            if(angularVelocity.Z < -initialFriction) friction.Z -= initialFriction;
+            if (angularVelocity.X > initialFriction) friction.X += initialFriction;
+            if (angularVelocity.Y > initialFriction) friction.Y += initialFriction;
+            if (angularVelocity.Z > initialFriction) friction.Z += initialFriction;
+            if (angularVelocity.X < -initialFriction) friction.X -= initialFriction;
+            if (angularVelocity.Y < -initialFriction) friction.Y -= initialFriction;
+            if (angularVelocity.Z < -initialFriction) friction.Z -= initialFriction;
 
-            if(angularVelocity.X > 0.0f)
+            if (angularVelocity.X > 0.0f)
                 friction.X += angularVelocity.X * angularVelocity.X / m_angularFrictionTimescale.X;
             else
                 friction.X -= angularVelocity.X * angularVelocity.X / m_angularFrictionTimescale.X;
-            
-            if(angularVelocity.Y > 0.0f)
+
+            if (angularVelocity.Y > 0.0f)
                 friction.Y += angularVelocity.Y * angularVelocity.Y / m_angularFrictionTimescale.Y;
             else
                 friction.Y -= angularVelocity.Y * angularVelocity.Y / m_angularFrictionTimescale.Y;
 
-            if(angularVelocity.Z > 0.0f)
+            if (angularVelocity.Z > 0.0f)
                 friction.Z += angularVelocity.Z * angularVelocity.Z / m_angularFrictionTimescale.Z;
             else
                 friction.Z -= angularVelocity.Z * angularVelocity.Z / m_angularFrictionTimescale.Z;
 
-
-            if(Math.Abs(m_angularMotorDirection.X) > 0.01f) friction.X = 0.0f;
-            if(Math.Abs(m_angularMotorDirection.Y) > 0.01f) friction.Y = 0.0f;
-            if(Math.Abs(m_angularMotorDirection.Z) > 0.01f) friction.Z = 0.0f;
+            if (Math.Abs(m_angularMotorDirection.X) > 0.01f) friction.X = 0.0f;
+            if (Math.Abs(m_angularMotorDirection.Y) > 0.01f) friction.Y = 0.0f;
+            if (Math.Abs(m_angularMotorDirection.Z) > 0.01f) friction.Z = 0.0f;
 
             #endregion
 
             #region Vertical attraction
 
-            if(m_verticalAttractionTimescale < 300)
+            if (m_verticalAttractionTimescale < 300)
             {
                 float VAservo = 38.0f / m_verticalAttractionTimescale;
-                if(Type == Vehicle.TYPE_CAR) VAservo = 10.0f / m_verticalAttractionTimescale;
+                if (Type == Vehicle.TYPE_CAR) VAservo = 10.0f / m_verticalAttractionTimescale;
 
                 Vector3 verterr = new Vector3(0.0f, 0.0f, 1.0f);
                 verterr *= rotq;
@@ -1008,9 +1028,10 @@ namespace Universe.Physics.OpenDynamicsEngine
                 vertattr *= irotq;
 
                 //when upsidedown prefer x rotation of body, to keep forward movement direction the same
-                if(verterr.Z < 0.0f) {
+                if (verterr.Z < 0.0f)
+                {
                     vertattr.Y = -vertattr.Y * 2.0f;
-                    if(vertattr.X < 0.0f) vertattr.X = -2.0f - vertattr.X;
+                    if (vertattr.X < 0.0f) vertattr.X = -2.0f - vertattr.X;
                     else vertattr.X = 2.0f - vertattr.X;
                 }
 
@@ -1019,19 +1040,20 @@ namespace Universe.Physics.OpenDynamicsEngine
                 vertattr.X += (vertattr.X - angularVelocity.X) * (0.004f * m_verticalAttractionEfficiency + 0.0001f);
                 vertattr.Y += (vertattr.Y - angularVelocity.Y) * (0.004f * m_verticalAttractionEfficiency + 0.0001f);
 
-                if((m_flags & (VehicleFlag.LIMIT_ROLL_ONLY)) != 0) vertattr.Y = 0.0f;
+                if ((m_flags & (VehicleFlag.LIMIT_ROLL_ONLY)) != 0) vertattr.Y = 0.0f;
             }
 
             #endregion
 
             #region deflection
             //rotates body to direction of movement (linearMovement vector)
-			// temporary disabled due to instabilities, needs to be rewritten
-            if(m_angularDeflectionTimescale < 300)
+            // temporary disabled due to instabilities, needs to be rewritten
+            if (m_angularDeflectionTimescale < 300)
             {
                 float Dservo = 0.05f * m_angularDeflectionTimescale * m_angularDeflectionEfficiency;
                 float mag = linearVelocity.LengthSquared();
-                if(mag > 0.01f) {
+                if (mag > 0.01f)
+                {
                     linearVelocity.Y = -linearVelocity.Y;
                     linearVelocity *= rotq;
 
@@ -1046,16 +1068,18 @@ namespace Universe.Physics.OpenDynamicsEngine
                     deflection *= Dservo;
                 }
             }
-			//
+
             #endregion
 
             #region banking
 
-            if(m_verticalAttractionTimescale < 300 && m_bankingEfficiency > 0) { //vertical attraction must be enabled		
+            if (m_verticalAttractionTimescale < 300 && m_bankingEfficiency > 0)
+            { //vertical attraction must be enabled		
                 float mag = (linearVelocity.X * linearVelocity.X + linearVelocity.Y * linearVelocity.Y);
-                if(mag > 0.01f) {
+                if (mag > 0.01f)
+                {
                     mag = (float)Math.Sqrt(mag);
-                    if(mag > 20.0f) mag = 1.0f;
+                    if (mag > 20.0f) mag = 1.0f;
                     else mag /= 20.0f;
                 }
                 else mag = 0.0f;
@@ -1069,12 +1093,14 @@ namespace Universe.Physics.OpenDynamicsEngine
             #endregion
 
             m_lastAngularVelocity = angularVelocity;
-            
-            if(parent.LinkSetIsColliding || Type == Vehicle.TYPE_AIRPLANE || Type == Vehicle.TYPE_BALLOON || ishovering) {		
+
+            if (parent.LinkSetIsColliding || Type == Vehicle.TYPE_AIRPLANE || Type == Vehicle.TYPE_BALLOON || ishovering)
+            {
                 angularVelocity += deflection;
                 angularVelocity -= friction;
             }
-            else {
+            else
+            {
                 banking = Vector3.Zero;
             }
 
@@ -1083,11 +1109,13 @@ namespace Universe.Physics.OpenDynamicsEngine
             angularVelocity *= rotq;
             angularVelocity += banking;
 
-            if(angularVelocity.LengthSquared() < 1e-5f) {
+            if (angularVelocity.LengthSquared() < 1e-5f)
+            {
                 d.BodySetAngularVel(Body, 0, 0, 0);
                 m_angularZeroFlag = true;
             }
-            else {
+            else
+            {
                 d.BodySetAngularVel(Body, angularVelocity.X, angularVelocity.Y, angularVelocity.Z);
                 m_angularZeroFlag = false;
             }
@@ -1095,31 +1123,32 @@ namespace Universe.Physics.OpenDynamicsEngine
 
         Vector3 ToEuler(Quaternion m_lastCameraRotation)
         {
-            Quaternion t = new Quaternion(m_lastCameraRotation.X*m_lastCameraRotation.X,
-                                          m_lastCameraRotation.Y*m_lastCameraRotation.Y,
-                                          m_lastCameraRotation.Z*m_lastCameraRotation.Z,
-                                          m_lastCameraRotation.W*m_lastCameraRotation.W);
+            Quaternion t = new Quaternion(m_lastCameraRotation.X * m_lastCameraRotation.X,
+                                          m_lastCameraRotation.Y * m_lastCameraRotation.Y,
+                                          m_lastCameraRotation.Z * m_lastCameraRotation.Z,
+                                          m_lastCameraRotation.W * m_lastCameraRotation.W);
             double m = (m_lastCameraRotation.X + m_lastCameraRotation.Y + m_lastCameraRotation.Z +
                         m_lastCameraRotation.W);
             if (m == 0) return Vector3.Zero;
-            double n = 2*(m_lastCameraRotation.Y*m_lastCameraRotation.W + m_lastCameraRotation.X*m_lastCameraRotation.Y);
-            double p = m*m - n*n;
+            double n = 2 * (m_lastCameraRotation.Y * m_lastCameraRotation.W + m_lastCameraRotation.X * m_lastCameraRotation.Y);
+            double p = m * m - n * n;
             if (p > 0)
-                return new Vector3 (
-                    (float) NormalizeAngle ( 
-                        Math.Atan2 ( 2.0 * (m_lastCameraRotation.X * m_lastCameraRotation.W -
+                return new Vector3(
+                    (float)NormalizeAngle(
+                        Math.Atan2(2.0 * (m_lastCameraRotation.X * m_lastCameraRotation.W -
                             m_lastCameraRotation.Y * m_lastCameraRotation.Z), (-t.X - t.Y + t.Z + t.W))),
-                    (float) NormalizeAngle (Math.Atan2 (n, Math.Sqrt (p))),
-                    (float) NormalizeAngle (
-                        Math.Atan2 ( 2.0 * (m_lastCameraRotation.Z * m_lastCameraRotation.W -
+                    (float)NormalizeAngle(Math.Atan2(n, Math.Sqrt(p))),
+                    (float)NormalizeAngle(
+                        Math.Atan2(2.0 * (m_lastCameraRotation.Z * m_lastCameraRotation.W -
                             m_lastCameraRotation.X * m_lastCameraRotation.Y), (t.X - t.Y - t.Z + t.W))));
+
             if (n > 0)
-                return new Vector3 (0, (float)(Math.PI * 0.5),
-                    (float) NormalizeAngle ( Math.Atan2 (
+                return new Vector3(0, (float)(Math.PI * 0.5),
+                    (float)NormalizeAngle(Math.Atan2(
                         (m_lastCameraRotation.Z * m_lastCameraRotation.W + m_lastCameraRotation.X * m_lastCameraRotation.Y), 0.5 - t.X - t.Z)));
-            
-            return new Vector3 (0, (float)(-Math.PI * 0.5),
-                    (float) NormalizeAngle ( Math.Atan2 (
+
+            return new Vector3(0, (float)(-Math.PI * 0.5),
+                    (float)NormalizeAngle(Math.Atan2(
                     (m_lastCameraRotation.Z * m_lastCameraRotation.W + m_lastCameraRotation.X * m_lastCameraRotation.Y), 0.5 - t.X - t.Z)));
         }
 
@@ -1128,9 +1157,10 @@ namespace Universe.Physics.OpenDynamicsEngine
             if (angle > -Math.PI && angle < Math.PI)
                 return angle;
 
-            int numPis = (int) (Math.PI/angle);
-            double remainder = angle - Math.PI*numPis;
-            if (numPis%2 == 1)
+            int numPis = (int)(Math.PI / angle);
+            double remainder = angle - Math.PI * numPis;
+
+            if (numPis % 2 == 1)
                 return Math.PI - angle;
             return remainder;
         }
@@ -1142,16 +1172,16 @@ namespace Universe.Physics.OpenDynamicsEngine
                 d.Quaternion rot = d.BodyGetQuaternion(Body);
                 d.Quaternion m_rot = rot;
                 if (rot.X >= m_RollreferenceFrame.X)
-                    m_rot.X = rot.X - (m_RollreferenceFrame.X/2);
+                    m_rot.X = rot.X - (m_RollreferenceFrame.X / 2);
 
                 if (rot.Y >= m_RollreferenceFrame.Y)
-                    m_rot.Y = rot.Y - (m_RollreferenceFrame.Y/2);
+                    m_rot.Y = rot.Y - (m_RollreferenceFrame.Y / 2);
 
                 if (rot.X <= -m_RollreferenceFrame.X)
-                    m_rot.X = rot.X + (m_RollreferenceFrame.X/2);
+                    m_rot.X = rot.X + (m_RollreferenceFrame.X / 2);
 
                 if (rot.Y <= -m_RollreferenceFrame.Y)
-                    m_rot.Y = rot.Y + (m_RollreferenceFrame.Y/2);
+                    m_rot.Y = rot.Y + (m_RollreferenceFrame.Y / 2);
 
                 if ((m_flags & VehicleFlag.LOCK_ROTATION) != 0)
                 {
@@ -1168,7 +1198,7 @@ namespace Universe.Physics.OpenDynamicsEngine
         {
             //m_referenceFrame -= m_lastCameraRotation;
             //m_referenceFrame += CameraRotation;
-            // 20151111 - greythane- set but not used at present??
+            // 20151111 - greythane- set but not used at present?
             m_userLookAt = CameraRotation;
         }
 
@@ -1190,7 +1220,7 @@ namespace Universe.Physics.OpenDynamicsEngine
             {
                 a.Normalize();
                 b.Normalize();
-                double dotProduct = (a.X*b.X) + (a.Y*b.Y) + (a.Z*b.Z);
+                double dotProduct = (a.X * b.X) + (a.Y * b.Y) + (a.Z * b.Z);
                 // There are two degenerate cases possible. These are for vectors 180 or
                 // 0 degrees apart. These have to be detected and handled individually.
                 //
@@ -1200,16 +1230,16 @@ namespace Universe.Physics.OpenDynamicsEngine
                 {
                     // First assume X axis is orthogonal to the vectors.
                     Vector3 orthoVector = new Vector3(1.0f, 0.0f, 0.0f);
-                    orthoVector = orthoVector - a*(a.X/(a.X*a.X) + (a.Y*a.Y) + (a.Z*a.Z));
+                    orthoVector = orthoVector - a * (a.X / (a.X * a.X) + (a.Y * a.Y) + (a.Z * a.Z));
                     // Check for near zero vector. A very small non-zero number here will create
                     // a rotation in an undesired direction.
-                    rotBetween = Math.Sqrt(orthoVector.X*orthoVector.X + orthoVector.Y*orthoVector.Y +
-                                           orthoVector.Z*orthoVector.Z) > 0.0001
+                    rotBetween = Math.Sqrt(orthoVector.X * orthoVector.X + orthoVector.Y * orthoVector.Y +
+                                           orthoVector.Z * orthoVector.Z) > 0.0001
                                      ? new Quaternion(orthoVector.X, orthoVector.Y, orthoVector.Z, 0.0f)
                                      : new Quaternion(0.0f, 0.0f, 1.0f, 0.0f);
                 }
-                    // Check for parallel vectors.
-                    // A dot product of 1 would mean the angle between vectors is 0 degrees.
+                // Check for parallel vectors.
+                // A dot product of 1 would mean the angle between vectors is 0 degrees.
                 else if (dotProduct > 0.9999999f)
                 {
                     // Set zero rotation.
@@ -1220,25 +1250,25 @@ namespace Universe.Physics.OpenDynamicsEngine
                     // All special checks have been performed so get the axis of rotation.
                     Vector3 crossProduct = new Vector3
                         (
-                        a.Y*b.Z - a.Z*b.Y,
-                        a.Z*b.X - a.X*b.Z,
-                        a.X*b.Y - a.Y*b.X
+                        a.Y * b.Z - a.Z * b.Y,
+                        a.Z * b.X - a.X * b.Z,
+                        a.X * b.Y - a.Y * b.X
                         );
                     // Quarternion s value is the length of the unit vector + dot product.
                     double qs = 1.0 + dotProduct;
-                    rotBetween = new Quaternion(crossProduct.X, crossProduct.Y, crossProduct.Z, (float) qs);
+                    rotBetween = new Quaternion(crossProduct.X, crossProduct.Y, crossProduct.Z, (float)qs);
                     // Normalize the rotation.
                     double mag =
-                        Math.Sqrt(rotBetween.X*rotBetween.X + rotBetween.Y*rotBetween.Y + rotBetween.Z*rotBetween.Z +
-                                  rotBetween.W*rotBetween.W);
+                        Math.Sqrt(rotBetween.X * rotBetween.X + rotBetween.Y * rotBetween.Y + rotBetween.Z * rotBetween.Z +
+                                  rotBetween.W * rotBetween.W);
                     // We shouldn't have to worry about a divide by zero here. The qs value will be
                     // non-zero because we already know if we're here, then the dotProduct is not -1 so
                     // qs will not be zero. Also, we've already handled the input vectors being zero so the
                     // crossProduct vector should also not be zero.
-                    rotBetween.X = (float) (rotBetween.X/mag);
-                    rotBetween.Y = (float) (rotBetween.Y/mag);
-                    rotBetween.Z = (float) (rotBetween.Z/mag);
-                    rotBetween.W = (float) (rotBetween.W/mag);
+                    rotBetween.X = (float)(rotBetween.X / mag);
+                    rotBetween.Y = (float)(rotBetween.Y / mag);
+                    rotBetween.Z = (float)(rotBetween.Z / mag);
+                    rotBetween.W = (float)(rotBetween.W / mag);
                     // Check for undefined values and set zero rotation if any found. This code might not actually be required
                     // any longer since zero vectors are checked for at the top.
                     if (Double.IsNaN(rotBetween.X) || Double.IsNaN(rotBetween.Y) || Double.IsNaN(rotBetween.Y) ||
@@ -1248,6 +1278,7 @@ namespace Universe.Physics.OpenDynamicsEngine
                     }
                 }
             }
+
             return rotBetween;
         }
 
