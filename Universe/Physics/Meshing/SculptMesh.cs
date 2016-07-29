@@ -58,9 +58,7 @@ namespace Universe.Physics.PrimMesher
             sphere = 1,
             torus = 2,
             plane = 3,
-            cylinder = 4}
-
-        ;
+            cylinder = 4};
 
         #if SYSTEM_DRAWING
 
@@ -72,13 +70,13 @@ namespace Universe.Physics.PrimMesher
             return sculptMesh;
         }
 
-
         public SculptMesh (string fileName, int sculptType, int lod, int viewerMode, int mirror, int invert)
         {
             Bitmap bitmap = (Bitmap)Image.FromFile (fileName);
             _SculptMesh (bitmap, (SculptType)sculptType, lod, viewerMode != 0, mirror != 0, invert != 0);
             bitmap.Dispose ();
         }
+
         #endif
 
         /// <summary>
@@ -157,7 +155,6 @@ namespace Universe.Physics.PrimMesher
                         if (viewerMode)
                         {
                             f1 = new Face (p1, p4, p3, p1, p4, p3) { uv1 = p1, uv2 = p4, uv3 = p3 };
-
                             f2 = new Face (p1, p2, p4, p1, p2, p4) { uv1 = p1, uv2 = p2, uv3 = p4 };
                         } else
                         {
@@ -185,6 +182,7 @@ namespace Universe.Physics.PrimMesher
         {
             _SculptMesh (sculptBitmap, sculptType, lod, viewerMode, mirror, invert);
         }
+
         #endif
 
         public SculptMesh (List<List<Coord>> rows, SculptType sculptType, bool viewerMode, bool mirror, bool invert)
@@ -193,6 +191,7 @@ namespace Universe.Physics.PrimMesher
         }
 
         #if SYSTEM_DRAWING
+
         /// <summary>
         ///     converts a bitmap to a list of lists of coords, while scaling the image.
         ///     the scaling is done in floating point so as to allow for reduced vertex position
@@ -242,15 +241,18 @@ namespace Universe.Physics.PrimMesher
                                 pixel = Color.FromArgb (255, pixel.R, pixel.G, pixel.B);
                                 unsafeBMP.SetPixel (imageX, imageY, pixel);
                             }
+
                             rSum += pixel.R;
                             gSum += pixel.G;
                             bSum += pixel.B;
                         }
                     }
+
                     row.Add (mirror
                                 ? new Coord (-(rSum * pixScale - 0.5f), gSum * pixScale - 0.5f, bSum * pixScale - 0.5f)
                                 : new Coord (rSum * pixScale - 0.5f, gSum * pixScale - 0.5f, bSum * pixScale - 0.5f));
                 }
+
                 rows.Add (row);
             }
 
@@ -298,6 +300,7 @@ namespace Universe.Physics.PrimMesher
                                 ? new Coord (-(pixel.R * pixScale - 0.5f), pixel.G * pixScale - 0.5f, pixel.B * pixScale - 0.5f)
                                 : new Coord (pixel.R * pixScale - 0.5f, pixel.G * pixScale - 0.5f, pixel.B * pixScale - 0.5f));
                 }
+
                 rows.Add (row);
             }
 
@@ -307,15 +310,14 @@ namespace Universe.Physics.PrimMesher
         }
 
 
-        void _SculptMesh (Bitmap sculptBitmap, SculptType sculptType, int lod, bool viewerMode, bool mirror,
-                          bool invert)
+        void _SculptMesh (Bitmap sculptBitmap, SculptType sculptType, int lod, bool viewerMode, bool mirror, bool invert)
         {
             _SculptMesh (new SculptMap (sculptBitmap, lod).ToRows (mirror), sculptType, viewerMode, mirror, invert);
         }
+
         #endif
 
-        void _SculptMesh (List<List<Coord>> rows, SculptType sculptType, bool viewerMode, bool mirror,
-                          bool invert)
+        void _SculptMesh (List<List<Coord>> rows, SculptType sculptType, bool viewerMode, bool mirror, bool invert)
         {
             coords = new List<Coord> ();
             faces = new List<Face> ();
@@ -366,6 +368,7 @@ namespace Universe.Physics.PrimMesher
                         topPoleRow.Add (topPole);
                         bottomPoleRow.Add (bottomPole);
                     }
+
                     rows.Insert (0, topPoleRow);
                     rows.Add (bottomPoleRow);
                 } else
@@ -428,12 +431,10 @@ namespace Universe.Physics.PrimMesher
                             if (invert)
                             {
                                 f1 = new Face (p1, p4, p3, p1, p4, p3) { uv1 = p1, uv2 = p4, uv3 = p3 };
-
                                 f2 = new Face (p1, p2, p4, p1, p2, p4) { uv1 = p1, uv2 = p2, uv3 = p4 };
                             } else
                             {
                                 f1 = new Face (p1, p3, p4, p1, p3, p4) { uv1 = p1, uv2 = p3, uv3 = p4 };
-
                                 f2 = new Face (p1, p4, p2, p1, p4, p2) { uv1 = p1, uv2 = p4, uv3 = p2 };
                             }
                         } else
@@ -636,6 +637,7 @@ namespace Universe.Physics.PrimMesher
                 }
             } catch {
             }
+
             sw.Close ();
         }
     }
