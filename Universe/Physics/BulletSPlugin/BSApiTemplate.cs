@@ -50,7 +50,6 @@ namespace Universe.Physics.BulletSPlugin
         BS_FIXED_CONSTRAINT_TYPE = 1234
     }
 
-    // ===============================================================================
     [StructLayout(LayoutKind.Sequential)]
     public struct ConvexHull
     {
@@ -175,9 +174,12 @@ namespace Universe.Physics.BulletSPlugin
         }
     }
 
-    // Format of this structure must match the definition in the C++ code
-    // NOTE: adding the X causes compile breaks if used. These are unused symbols
-    //      that can be removed from both here and the unmanaged definition of this structure.
+    /// <summary>
+    ///     Format of this structure must match the definition in the C++ code.
+    ///     NOTE: Adding the X causes compile breaks if used.  These are unused
+    ///     symbols that can be removed from both here and the unmanaged 
+    ///     definition of this structure.
+    /// </summary>
     [StructLayout(LayoutKind.Sequential)]
     public struct ConfigurationParameters
     {
@@ -256,9 +258,11 @@ namespace Universe.Physics.BulletSPlugin
         CO_USER_TYPE = 1 << 5,
     }
 
-    // Values used by Bullet and BulletSim to control object properties.
-    // Bullet's "CollisionFlags" has more to do with operations on the
-    //    object (if collisions happen, if gravity effects it, ...).
+    /// <summary>
+    ///     Values used by Bullet and BulletSim to control object properties.
+    ///     Bullet's "CollisionFlags" has more to do with operations on the 
+    ///     object (if collisions happen, if gravity effects it).
+    /// </summary>
     [Flags]
     public enum CollisionFlags : uint
     {
@@ -269,6 +273,7 @@ namespace Universe.Physics.BulletSPlugin
         CF_CHARACTER_OBJECT = 1 << 4,
         CF_DISABLE_VISUALIZE_OBJECT = 1 << 5,
         CF_DISABLE_SPU_COLLISION_PROCESS = 1 << 6,
+        
         // Following used by BulletSim to control collisions and updates
         BS_SUBSCRIBE_COLLISION_EVENTS = 1 << 10, // return collision events from unmanaged to managed
         BS_FLOATS_ON_WATER = 1 << 11, // the object should float at water level
@@ -282,9 +287,12 @@ namespace Universe.Physics.BulletSPlugin
     [Flags]
     public enum CollisionFilterGroups : uint
     {
-        // Don't use the bit definitions!!  Define the use in a
-        //   filter/mask definition below. This way collision interactions
-        //   are more easily found and debugged.
+        /// <summary>
+        ///     Don't use the bit definitions!
+        ///     Define the use in a filter/ mask
+        ///     definition below.  This way the collision
+        ///     interactions are more easily found and debugged.
+        /// </summary>
         BNoneGroup = 0,
         BDefaultGroup = 1 << 0, // 0001
         BStaticGroup = 1 << 1, // 0002
@@ -292,27 +300,27 @@ namespace Universe.Physics.BulletSPlugin
         BDebrisGroup = 1 << 3, // 0008
         BSensorTrigger = 1 << 4, // 0010
         BCharacterGroup = 1 << 5, // 0020
-/*        BAllGroup = 0x000FFFFF,
-        // Filter groups defined by BulletSim
-        BGroundPlaneGroup = 1 << 10, // 0400
-        BTerrainGroup = 1 << 11, // 0800
-        BRaycastGroup = 1 << 12, // 1000
-        BSolidGroup = 1 << 13, // 2000
-        // BLinksetGroup        = xx  // a linkset proper is either static or dynamic
-        BLinksetChildGroup = 1 << 14, // 4000
-*/
+
         BAllGroup               = 0x0007FFF,        // collision flags are a signed short
+        
         // Filter groups defined by BulletSim
         BGroundPlaneGroup       = 1 << 8,  // 0400
         BTerrainGroup           = 1 << 9,  // 0800
         BRaycastGroup           = 1 << 10,  // 1000
         BSolidGroup             = 1 << 11,  // 2000
+        
         // BLinksetGroup        = xx  // a linkset proper is either static or dynamic
         BLinksetChildGroup      = 1 << 12,  // 4000
     };
 
-    // CFM controls the 'hardness' of the constraint. 0=fixed, 0..1=violatable. Default=0
-    // ERP controls amount of correction per tick. Usable range=0.1..0.8. Default=0.2.
+    /// <summary>
+    ///     CFM controls the 'hardness' of the constraint.
+    ///         0 = fixed,
+    ///         0..1 = violatable,
+    ///         default = 0
+    ///     ERP controls amount of correction per tick.
+    ///         usable range = 0.1..0.8. Default = 0.2.
+    /// </summary>
     public enum ConstraintParams : int
     {
         BT_CONSTRAINT_ERP = 1, // this one is not used in Bullet as of 20120730
@@ -355,7 +363,6 @@ namespace Universe.Physics.BulletSPlugin
 
         public abstract bool PushUpdate(BulletBody obj);
 
-        // =====================================================================================
         // Mesh, hull, shape and body creation helper routines
         public abstract BulletShape CreateMeshShape(BulletWorld world,
             int indicesCount, int[] indices,
@@ -365,8 +372,7 @@ namespace Universe.Physics.BulletSPlugin
                 int indicesCount, int[] indices,
                 int verticesCount, float[] vertices );
 
-        public abstract BulletShape CreateHullShape(BulletWorld world,
-            int hullCount, float[] hulls);
+        public abstract BulletShape CreateHullShape(BulletWorld world, int hullCount, float[] hulls);
 
         public abstract BulletShape BuildHullShapeFromMesh(BulletWorld world, BulletShape meshShape, HACDParams parms);
 
@@ -375,6 +381,7 @@ namespace Universe.Physics.BulletSPlugin
         public abstract BulletShape CreateConvexHullShape(BulletWorld world,
                 int indicesCount, int[] indices,
                 int verticesCount, float[] vertices );
+
         public abstract BulletShape BuildNativeShape(BulletWorld world, ShapeData shapeData);
 
         public abstract bool IsNativeShape(BulletShape shape);
@@ -387,8 +394,7 @@ namespace Universe.Physics.BulletSPlugin
 
         public abstract int GetNumberOfCompoundChildren(BulletShape cShape);
 
-        public abstract void AddChildShapeToCompoundShape(BulletShape cShape, BulletShape addShape, Vector3 pos,
-            Quaternion rot);
+        public abstract void AddChildShapeToCompoundShape(BulletShape cShape, BulletShape addShape, Vector3 pos, Quaternion rot);
 
         public abstract BulletShape GetChildShapeFromCompoundShapeIndex(BulletShape cShape, int indx);
 
@@ -396,8 +402,7 @@ namespace Universe.Physics.BulletSPlugin
 
         public abstract void RemoveChildShapeFromCompoundShape(BulletShape cShape, BulletShape removeShape);
 
-        public abstract void UpdateChildTransform(BulletShape pShape, int childIndex, Vector3 pos, Quaternion rot,
-            bool shouldRecalculateLocalAabb);
+        public abstract void UpdateChildTransform(BulletShape pShape, int childIndex, Vector3 pos, Quaternion rot, bool shouldRecalculateLocalAabb);
 
         public abstract void RecalculateCompoundShapeLocalAabb(BulletShape cShape);
 
@@ -407,25 +412,20 @@ namespace Universe.Physics.BulletSPlugin
 
         public abstract CollisionObjectTypes GetBodyType(BulletBody obj);
 
-        public abstract BulletBody CreateBodyFromShape(BulletWorld sim, BulletShape shape, UInt32 id, Vector3 pos,
-            Quaternion rot);
+        public abstract BulletBody CreateBodyFromShape(BulletWorld sim, BulletShape shape, UInt32 id, Vector3 pos, Quaternion rot);
 
-        public abstract BulletBody CreateBodyWithDefaultMotionState(BulletShape shape, UInt32 id, Vector3 pos,
-            Quaternion rot);
+        public abstract BulletBody CreateBodyWithDefaultMotionState(BulletShape shape, UInt32 id, Vector3 pos, Quaternion rot);
 
-        public abstract BulletBody CreateGhostFromShape(BulletWorld sim, BulletShape shape, UInt32 id, Vector3 pos,
-            Quaternion rot);
+        public abstract BulletBody CreateGhostFromShape(BulletWorld sim, BulletShape shape, UInt32 id, Vector3 pos, Quaternion rot);
 
         public abstract void DestroyObject(BulletWorld sim, BulletBody obj);
 
-        // =====================================================================================
         public abstract BulletShape CreateGroundPlaneShape(UInt32 id, float height, float collisionMargin);
 
         public abstract BulletShape CreateTerrainShape(UInt32 id, Vector3 size, float minHeight, float maxHeight,
             float[] heightMap,
             float scaleFactor, float collisionMargin);
 
-        // =====================================================================================
         // Constraint creation and helper routines
         public abstract BulletConstraint Create6DofConstraint(BulletWorld world, BulletBody obj1, BulletBody obj2,
             Vector3 frame1loc, Quaternion frame1rot,
@@ -472,8 +472,7 @@ namespace Universe.Physics.BulletSPlugin
 
         public abstract void SetConstraintNumSolverIterations(BulletConstraint constrain, float iterations);
 
-        public abstract bool SetFrames(BulletConstraint constrain,
-            Vector3 frameA, Quaternion frameArot, Vector3 frameB, Quaternion frameBrot);
+        public abstract bool SetFrames(BulletConstraint constrain, Vector3 frameA, Quaternion frameArot, Vector3 frameB, Quaternion frameBrot);
 
         public abstract bool SetLinearLimits(BulletConstraint constrain, Vector3 low, Vector3 hi);
 
@@ -481,17 +480,18 @@ namespace Universe.Physics.BulletSPlugin
 
         public abstract bool UseFrameOffset(BulletConstraint constrain, float enable);
 
-        public abstract bool TranslationalLimitMotor(BulletConstraint constrain, float enable, float targetVel,
-            float maxMotorForce);
+        public abstract bool TranslationalLimitMotor(BulletConstraint constrain, float enable, float targetVel, float maxMotorForce);
 
         public abstract bool SetBreakingImpulseThreshold(BulletConstraint constrain, float threshold);
 
         public const int HINGE_NOT_SPECIFIED = -1;
+
         public abstract bool HingeSetLimits(BulletConstraint constrain, float low, float high, float softness, float bias, float relaxation);
 
         public abstract bool SpringEnable(BulletConstraint constrain, int index, float numericTrueFalse);
 
         public const int SPRING_NOT_SPECIFIED = -1;
+
         public abstract bool SpringSetEquilibriumPoint(BulletConstraint constrain, int index, float equilibriumPoint);
 
         public abstract bool SpringSetStiffness(BulletConstraint constrain, int index, float stiffnesss);
@@ -499,32 +499,43 @@ namespace Universe.Physics.BulletSPlugin
         public abstract bool SpringSetDamping(BulletConstraint constrain, int index, float damping);
 
         public const int SLIDER_LOWER_LIMIT = 0;
+
         public const int SLIDER_UPPER_LIMIT = 1;
+
         public const int SLIDER_LINEAR = 2;
+
         public const int SLIDER_ANGULAR = 3;
+
         public abstract bool SliderSetLimits(BulletConstraint constrain, int lowerUpper, int linAng, float val);
 
         public const int SLIDER_SET_SOFTNESS = 4;
+
         public const int SLIDER_SET_RESTITUTION = 5;
+
         public const int SLIDER_SET_DAMPING = 6;
+
         public const int SLIDER_SET_DIRECTION = 7;
+
         public const int SLIDER_SET_LIMIT = 8;
+
         public const int SLIDER_SET_ORTHO = 9;
+
         public abstract bool SliderSet(BulletConstraint constrain, int softRestDamp, int dirLimOrtho, int linAng, float val);
 
         public abstract bool SliderMotorEnable(BulletConstraint constrain, int linAng, float numericTrueFalse);
 
         public const int SLIDER_MOTOR_VELOCITY = 10;
+
         public const int SLIDER_MAX_MOTOR_FORCE = 11;
+
         public abstract bool SliderMotor(BulletConstraint constrain, int forceVel, int linAng, float val);
+
         public abstract bool CalculateTransforms(BulletConstraint constrain);
 
-        public abstract bool SetConstraintParam(BulletConstraint constrain, ConstraintParams paramIndex, float value,
-            ConstraintParamAxis axis);
+        public abstract bool SetConstraintParam(BulletConstraint constrain, ConstraintParams paramIndex, float value, ConstraintParamAxis axis);
 
         public abstract bool DestroyConstraint(BulletWorld world, BulletConstraint constrain);
 
-        // =====================================================================================
         // btCollisionWorld entries
         public abstract void UpdateSingleAabb(BulletWorld world, BulletBody obj);
 
@@ -534,20 +545,17 @@ namespace Universe.Physics.BulletSPlugin
 
         public abstract void SetForceUpdateAllAabbs(BulletWorld world, bool force);
 
-        // =====================================================================================
         // btDynamicsWorld entries
-        // public abstract bool AddObjectToWorld(BulletWorld world, BulletBody obj, Vector3 pos, Quaternion rot);
         public abstract bool AddObjectToWorld(BulletWorld world, BulletBody obj);
 
         public abstract bool RemoveObjectFromWorld(BulletWorld world, BulletBody obj);
 
         public abstract bool ClearCollisionProxyCache(BulletWorld world, BulletBody obj);
 
-        public abstract bool AddConstraintToWorld(BulletWorld world, BulletConstraint constrain,
-            bool disableCollisionsBetweenLinkedObjects);
+        public abstract bool AddConstraintToWorld(BulletWorld world, BulletConstraint constrain, bool disableCollisionsBetweenLinkedObjects);
 
         public abstract bool RemoveConstraintFromWorld(BulletWorld world, BulletConstraint constrain);
-        // =====================================================================================
+
         // btCollisionObject entries
         public abstract Vector3 GetAnisotripicFriction(BulletConstraint constrain);
 
@@ -599,10 +607,6 @@ namespace Universe.Physics.BulletSPlugin
 
         public abstract void SetTranslation(BulletBody obj, Vector3 position, Quaternion rotation);
 
-        // public abstract IntPtr GetBroadphaseHandle(BulletBody obj);
-
-        // public abstract void SetBroadphaseHandle(BulletBody obj, IntPtr handle);
-
         public abstract void SetInterpolationLinearVelocity(BulletBody obj, Vector3 vel);
 
         public abstract void SetInterpolationAngularVelocity(BulletBody obj, Vector3 vel);
@@ -633,7 +637,6 @@ namespace Universe.Physics.BulletSPlugin
 
         public abstract void SetUserPointer(BulletBody obj, IntPtr val);
 
-        // =====================================================================================
         // btRigidBody entries
         public abstract void ApplyGravity(BulletBody obj);
 
@@ -733,9 +736,7 @@ namespace Universe.Physics.BulletSPlugin
 
         public abstract bool SetCollisionGroupMask(BulletBody body, UInt32 filter, UInt32 mask);
 
-        // =====================================================================================
         // btCollisionShape entries
-
         public abstract float GetAngularMotionDisc(BulletShape shape);
 
         public abstract float GetContactBreakingThreshold(BulletShape shape, float defaultFactor);
@@ -768,7 +769,6 @@ namespace Universe.Physics.BulletSPlugin
 
         public abstract float GetMargin(BulletShape shape);
 
-        // =====================================================================================
         // Debugging
         public virtual void DumpRigidBody(BulletWorld sim, BulletBody collisionObject)
         {

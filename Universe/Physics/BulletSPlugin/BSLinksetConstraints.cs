@@ -33,8 +33,6 @@ namespace Universe.Physics.BulletSPlugin
 {
     public sealed class BSLinksetConstraints : BSLinkset
     {
-        // private static string LogHeader = "[BULLETSIM LINKSET CONSTRAINTS]";
-
         public class BSLinkInfoConstraint : BSLinkInfo
         {
             public ConstraintType constraintType;
@@ -109,8 +107,7 @@ namespace Universe.Physics.BulletSPlugin
         {
             bool ret = false;
 
-            DetailLog("{0},BSLinksetConstraint.RemoveBodyDependencies,removeChildrenForRoot,rID={1},rBody={2}",
-                child.LocalID, LinksetRoot.LocalID, LinksetRoot.PhysBody.AddrString);
+            DetailLog("{0},BSLinksetConstraint.RemoveBodyDependencies,removeChildrenForRoot,rID={1},rBody={2}", child.LocalID, LinksetRoot.LocalID, LinksetRoot.PhysBody.AddrString);
 
             lock (m_linksetActivityLock)
             {
@@ -119,10 +116,9 @@ namespace Universe.Physics.BulletSPlugin
                 // Cause the constraints, et al to be rebuilt before the next simulation step.
                 Refresh(LinksetRoot);
             }
+
             return ret;
         }
-
-        // ================================================================
 
         // Add a new child to the linkset.
         // Called while LinkActivity is locked.
@@ -132,12 +128,12 @@ namespace Universe.Physics.BulletSPlugin
             {
                 m_children.Add(child, new BSLinkInfoConstraint(child));
                 
-                DetailLog("{0},BSLinksetConstraints.AddChildToLinkset,call,child={1}", LinksetRoot.LocalID,
-                    child.LocalID);
+                DetailLog("{0},BSLinksetConstraints.AddChildToLinkset,call,child={1}", LinksetRoot.LocalID, child.LocalID);
 
                 // Cause constraints and assorted properties to be recomputed before the next simulation step.
                 Refresh(LinksetRoot);
             }
+
             return;
         }
 
@@ -155,13 +151,10 @@ namespace Universe.Physics.BulletSPlugin
                 BSPrimLinkable rootx = LinksetRoot; // capture the root and body as of now
                 BSPrimLinkable childx = child;
 
-                DetailLog("{0},BSLinksetConstraints.RemoveChildFromLinkset,call,rID={1},rBody={2},cID={3},cBody={4}",
-                    childx.LocalID,
-                    rootx.LocalID, rootx.PhysBody.AddrString,
-                    childx.LocalID, childx.PhysBody.AddrString);
+                DetailLog("{0},BSLinksetConstraints.RemoveChildFromLinkset,call,rID={1},rBody={2},cID={3},cBody={4}", childx.LocalID,
+                    rootx.LocalID, rootx.PhysBody.AddrString, childx.LocalID, childx.PhysBody.AddrString);
 
-                PhysicsScene.TaintedObject(inTaintTime,"BSLinksetConstraints.RemoveChildFromLinkset",
-                    delegate() { PhysicallyUnlinkAChildFromRoot(rootx, childx); });
+                PhysicsScene.TaintedObject(inTaintTime,"BSLinksetConstraints.RemoveChildFromLinkset", delegate() { PhysicallyUnlinkAChildFromRoot(rootx, childx); });
                 // See that the linkset parameters are recomputed at the end of the taint time.
                 Refresh(LinksetRoot);
             }
@@ -170,6 +163,7 @@ namespace Universe.Physics.BulletSPlugin
                 // Non-fatal occurance.
                 // PhysicsScene.Logger.ErrorFormat("{0}: Asked to remove child from linkset that was not in linkset", LogHeader);
             }
+
             return;
         }
 
@@ -204,8 +198,7 @@ namespace Universe.Physics.BulletSPlugin
                     OMV.Vector3 midPoint = rootPrim.Position + (childRelativePosition/2);
                     DetailLog(
                         "{0},BSLinksetConstraint.BuildConstraint,6Dof,rBody={1},cBody={2},rLoc={3},cLoc={4},midLoc={5}",
-                        rootPrim.LocalID, rootPrim.PhysBody, linkInfo.member.PhysBody, rootPrim.Position,
-                        linkInfo.member.Position, midPoint);
+                        rootPrim.LocalID, rootPrim.PhysBody, linkInfo.member.PhysBody, rootPrim.Position, linkInfo.member.Position, midPoint);
 
                     // create a constraint that allows no freedom of movement between the two objects
                     // http://bulletphysics.org/Bullet/phpBB3/viewtopic.php?t=4818
@@ -242,12 +235,9 @@ namespace Universe.Physics.BulletSPlugin
                 case ConstraintType.D6_SPRING_CONSTRAINT_TYPE:
                     constrain = new BSConstraintSpring(PhysicsScene.World, rootPrim.PhysBody, linkInfo.member.PhysBody,
                                     linkInfo.frameInAloc, linkInfo.frameInArot, linkInfo.frameInBloc, linkInfo.frameInBrot,
-                                    linkInfo.useLinearReferenceFrameA,
-                                    true /*disableCollisionsBetweenLinkedBodies*/);
-                    DetailLog("{0},BSLinksetConstraint.BuildConstraint,spring,root={1},rBody={2},child={3},cBody={4},rLoc={5},cLoc={6}",
-                                                    rootPrim.LocalID,
-                                                    rootPrim.LocalID, rootPrim.PhysBody.AddrString,
-                                                    linkInfo.member.LocalID, linkInfo.member.PhysBody.AddrString,
+                                    linkInfo.useLinearReferenceFrameA, true);
+                    DetailLog("{0},BSLinksetConstraint.BuildConstraint,spring,root={1},rBody={2},child={3},cBody={4},rLoc={5},cLoc={6}", rootPrim.LocalID,
+                                                    rootPrim.LocalID, rootPrim.PhysBody.AddrString, linkInfo.member.LocalID, linkInfo.member.PhysBody.AddrString,
                                                     rootPrim.Position, linkInfo.member.Position);
                     break;
                 default:
@@ -269,10 +259,8 @@ namespace Universe.Physics.BulletSPlugin
         {
             bool ret = false;
             DetailLog(
-                "{0},BSLinksetConstraint.PhysicallyUnlinkAChildFromRoot,taint,root={1},rBody={2},child={3},cBody={4}",
-                rootPrim.LocalID,
-                rootPrim.LocalID, rootPrim.PhysBody.AddrString,
-                childPrim.LocalID, childPrim.PhysBody.AddrString);
+                "{0},BSLinksetConstraint.PhysicallyUnlinkAChildFromRoot,taint,root={1},rBody={2},child={3},cBody={4}", rootPrim.LocalID,
+                rootPrim.LocalID, rootPrim.PhysBody.AddrString, childPrim.LocalID, childPrim.PhysBody.AddrString);
 
             // Find the constraint for this link and get rid of it from the overall collection and from my list
             if (PhysicsScene.Constraints.RemoveAndDestroyConstraint(rootPrim.PhysBody, childPrim.PhysBody))
@@ -315,8 +303,7 @@ namespace Universe.Physics.BulletSPlugin
                 // There is no reason to build all this physical stuff for a non-physical linkset.
                 if (!LinksetRoot.IsPhysicallyActive || !HasAnyChildren)
                 {
-                    DetailLog("{0},BSLinksetConstraint.RecomputeLinksetCompound,notPhysicalOrNoChildren",
-                        LinksetRoot.LocalID);
+                    DetailLog("{0},BSLinksetConstraint.RecomputeLinksetCompound,notPhysicalOrNoChildren", LinksetRoot.LocalID);
                     return; // Note the 'finally' clause at the botton which will get executed.
                 }
 
@@ -338,7 +325,6 @@ namespace Universe.Physics.BulletSPlugin
                     li.SetLinkParameters(constrain);
                     constrain.RecomputeConstraintVariables(linksetMass);
 
-                    // PhysicScene.PE.DumpConstraint(PhysicsScene.World, constrain.Constraint);
                     return false; // 'false' says to keep processing other members
                 });
             }

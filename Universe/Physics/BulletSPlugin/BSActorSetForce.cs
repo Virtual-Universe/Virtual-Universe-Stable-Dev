@@ -49,16 +49,16 @@ namespace Universe.Physics.BulletSPlugin
         }
 
         // Release any connections and resources used by the actor.
-        // BSActor.Dispose()
         public override void Dispose()
         {
             Enabled = false;
         DeactivateSetForce();
         }
 
-        // Called when physical parameters (properties set in Bullet) need to be re-applied.
-        // Called at taint-time.
-        // BSActor.Refresh()
+        /// <summary>
+        ///     Called when physical parameters (properties set in bullet)
+        ///     need to be re-applied or called at taint time.
+        /// </summary>
         public override void Refresh()
         {
             m_physicsScene.DetailLog("{0},BSActorSetForce,refresh", m_controllingPrim.LocalID);
@@ -66,8 +66,7 @@ namespace Universe.Physics.BulletSPlugin
             // If not active any more, get rid of me (shouldn't ever happen, but just to be safe)
             if (m_controllingPrim.RawForce == OMV.Vector3.Zero)
             {
-                m_physicsScene.DetailLog("{0},BSActorSetForce,refresh,notSetForce,removing={1}",
-                    m_controllingPrim.LocalID, ActorName);
+                m_physicsScene.DetailLog("{0},BSActorSetForce,refresh,notSetForce,removing={1}", m_controllingPrim.LocalID, ActorName);
                 Enabled = false;
                 return;
             }
@@ -83,10 +82,12 @@ namespace Universe.Physics.BulletSPlugin
             }
         }
 
-        // The object's physical representation is being rebuilt so pick up any physical dependencies (constraints, ...).
-        //     Register a prestep action to restore physical requirements before the next simulation step.
-        // Called at taint-time.
-        // BSActor.RemoveBodyDependencies()
+        /// <summary>
+        ///     The object's physical representation is being rebult,
+        ///     so pick up any physical dependencies (constraints).
+        ///     Register a prestep action to restore physical requirements
+        ///     before the next simulation step or call at taint time.
+        /// </summary>
         public override void RemoveBodyDependencies()
         {
             // Nothing to do for the hoverer since it is all software at pre-step action time.
@@ -120,15 +121,12 @@ namespace Universe.Physics.BulletSPlugin
             if (!isActive)
                 return;
 
-            m_physicsScene.DetailLog("{0},BSActorSetForce,preStep,force={1}", m_controllingPrim.LocalID,
-                m_controllingPrim.RawForce);
+            m_physicsScene.DetailLog("{0},BSActorSetForce,preStep,force={1}", m_controllingPrim.LocalID, m_controllingPrim.RawForce);
             if (m_controllingPrim.PhysBody.HasPhysicalBody)
             {
                 m_physicsScene.PE.ApplyCentralForce(m_controllingPrim.PhysBody, m_controllingPrim.RawForce);
                 m_controllingPrim.ActivateIfPhysical(false);
             }
-
-            // TODO:
         }
     }
 }

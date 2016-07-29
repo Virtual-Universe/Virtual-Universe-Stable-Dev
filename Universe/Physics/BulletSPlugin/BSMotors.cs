@@ -94,15 +94,10 @@ namespace Universe.Physics.BulletSPlugin
     // The change from CurrentValue to TargetValue is linear over TimeScale seconds.
     public class BSVMotor : BSMotor
     {
-        // public Vector3 FrameOfReference { get; set; }
-        // public Vector3 Offset { get; set; }
-
         public virtual float TimeScale { get; set; }
         public virtual float TargetValueDecayTimeScale { get; set; }
         public virtual float Efficiency { get; set; }
-
         public virtual float ErrorZeroThreshold { get; set; }
-
         public virtual Vector3 TargetValue { get; protected set; }
         public virtual Vector3 CurrentValue { get; protected set; }
         public virtual Vector3 LastError { get; protected set; }
@@ -123,7 +118,7 @@ namespace Universe.Physics.BulletSPlugin
             TimeScale = TargetValueDecayTimeScale = BSMotor.Infinite;
             Efficiency = 1f;
             CurrentValue = TargetValue = Vector3.Zero;
-            ErrorZeroThreshold = BSParam.AvatarStopZeroThreshold;   // was 0.001f;
+            ErrorZeroThreshold = BSParam.AvatarStopZeroThreshold;
         }
 
         public BSVMotor(string useName, float timeScale, float decayTimeScale, float efficiency)
@@ -178,10 +173,8 @@ namespace Universe.Physics.BulletSPlugin
                     TargetValue *= (1f - decayFactor);
                 }
 
-                MDetailLog("{0}, BSVMotor.Step,nonZero,{1},origCurr={2},origTarget={3},timeStep={4},err={5},corr={6}",
-                    BSScene.DetailLogZero, UseName, origCurrVal, origTarget, timeStep, error, correction);
-                MDetailLog("{0}, BSVMotor.Step,nonZero,{1},tgtDecayTS={2},decayFact={3},tgt={4},curr={5}",
-                    BSScene.DetailLogZero, UseName, TargetValueDecayTimeScale, decayFactor, TargetValue, CurrentValue);
+                MDetailLog("{0}, BSVMotor.Step,nonZero,{1},origCurr={2},origTarget={3},timeStep={4},err={5},corr={6}", BSScene.DetailLogZero, UseName, origCurrVal, origTarget, timeStep, error, correction);
+                MDetailLog("{0}, BSVMotor.Step,nonZero,{1},tgtDecayTS={2},decayFact={3},tgt={4},curr={5}", BSScene.DetailLogZero, UseName, TargetValueDecayTimeScale, decayFactor, TargetValue, CurrentValue);
             }
             else
             {
@@ -192,10 +185,11 @@ namespace Universe.Physics.BulletSPlugin
                     //     it is really zero.
                     TargetValue = Vector3.Zero;
                 }
+
                 CurrentValue = TargetValue;
-                MDetailLog("{0},  BSVMotor.Step,zero,{1},origTgt={2},origCurr={3},currTgt={4},currCurr={5}",
-                    BSScene.DetailLogZero, UseName, origCurrVal, origTarget, TargetValue, CurrentValue);
+                MDetailLog("{0},  BSVMotor.Step,zero,{1},origTgt={2},origCurr={3},currTgt={4},currCurr={5}", BSScene.DetailLogZero, UseName, origCurrVal, origTarget, TargetValue, CurrentValue);
             }
+
             LastError = error;
 
             return correction;
@@ -223,9 +217,9 @@ namespace Universe.Physics.BulletSPlugin
                     correctionAmount = error / TimeScale * timeStep;
 
                 returnCorrection = correctionAmount;
-                MDetailLog("{0},  BSVMotor.Step,nonZero,{1},timeStep={2},timeScale={3},err={4},corr={5}",
-                    BSScene.DetailLogZero, UseName, timeStep, TimeScale, error, correctionAmount);
+                MDetailLog("{0},  BSVMotor.Step,nonZero,{1},timeStep={2},timeScale={3},err={4},corr={5}", BSScene.DetailLogZero, UseName, timeStep, TimeScale, error, correctionAmount);
             }
+
             return returnCorrection;
         }
 
@@ -234,41 +228,33 @@ namespace Universe.Physics.BulletSPlugin
         {
             // maximum number of outputs to generate.
             int maxOutput = 50;
-            MDetailLog("{0},BSVMotor.Test,{1},===================================== BEGIN Test Output",
-                BSScene.DetailLogZero, UseName);
+            MDetailLog("{0},BSVMotor.Test,{1},===================================== BEGIN Test Output", BSScene.DetailLogZero, UseName);
             MDetailLog("{0},BSVMotor.Test,{1},timeScale={2},targDlyTS={3},eff={4},curr={5},tgt={6}",
-                BSScene.DetailLogZero, UseName,
-                TimeScale, TargetValueDecayTimeScale, Efficiency, CurrentValue, TargetValue);  // no friction anymore
+                BSScene.DetailLogZero, UseName, TimeScale, TargetValueDecayTimeScale, Efficiency, CurrentValue, TargetValue);  // no friction anymore
 
             LastError = BSMotor.InfiniteVector;
             while (maxOutput-- > 0 && !LastError.ApproxEquals(Vector3.Zero, ErrorZeroThreshold))
             {
                 Vector3 lastStep = Step(timeStep);
-                MDetailLog("{0},BSVMotor.Test,{1},cur={2},tgt={3},lastError={4},lastStep={5}",
-                    BSScene.DetailLogZero, UseName, CurrentValue, TargetValue, LastError, lastStep);
+                MDetailLog("{0},BSVMotor.Test,{1},cur={2},tgt={3},lastError={4},lastStep={5}", BSScene.DetailLogZero, UseName, CurrentValue, TargetValue, LastError, lastStep);
             }
-            MDetailLog("{0},BSVMotor.Test,{1},===================================== END Test Output",
-                BSScene.DetailLogZero, UseName);
+
+            MDetailLog("{0},BSVMotor.Test,{1},===================================== END Test Output", BSScene.DetailLogZero, UseName);
         }
 
         public override string ToString()
         {
-            return String.Format("<{0},curr={1},targ={2},lastErr={3},decayTS={4}>",
-                UseName, CurrentValue, TargetValue, LastError, TargetValueDecayTimeScale); // no friction anymore
+            return String.Format("<{0},curr={1},targ={2},lastErr={3},decayTS={4}>", UseName, CurrentValue, TargetValue, LastError, TargetValueDecayTimeScale); // no friction anymore
         }
     }
 
-    // ============================================================================
-    // ============================================================================
     public class BSFMotor : BSMotor
     {
         public virtual float TimeScale { get; set; }
         public virtual float TargetValueDecayTimeScale { get; set; }
         public virtual float FrictionTimescale { get; set; }
         public virtual float Efficiency { get; set; }
-
         public virtual float ErrorZeroThreshold { get; set; }
-
         public virtual float TargetValue { get; protected set; }
         public virtual float CurrentValue { get; protected set; }
         public virtual float LastError { get; protected set; }
@@ -337,7 +323,6 @@ namespace Universe.Physics.BulletSPlugin
                 float frictionFactor = 0f;
                 if (FrictionTimescale != BSMotor.Infinite)
                 {
-                    // frictionFactor = (Vector3.One / FrictionTimescale) * timeStep;
                     // Individual friction components can be 'infinite' so compute each separately.
                     frictionFactor = 1f / FrictionTimescale;
                     frictionFactor *= timeStep;
@@ -345,13 +330,10 @@ namespace Universe.Physics.BulletSPlugin
                 }
 
                 MDetailLog("{0},  BSFMotor.Step,nonZero,{1},origCurr={2},origTarget={3},timeStep={4},err={5},corr={6}",
-                    BSScene.DetailLogZero, UseName, origCurrVal, origTarget,
-                    timeStep, error, correction);
+                    BSScene.DetailLogZero, UseName, origCurrVal, origTarget, timeStep, error, correction);
                 MDetailLog(
-                    "{0},  BSFMotor.Step,nonZero,{1},tgtDecayTS={2},decayFact={3},frictTS={4},frictFact={5},tgt={6},curr={7}",
-                    BSScene.DetailLogZero, UseName,
-                    TargetValueDecayTimeScale, decayFactor, FrictionTimescale, frictionFactor,
-                    TargetValue, CurrentValue);
+                    "{0},  BSFMotor.Step,nonZero,{1},tgtDecayTS={2},decayFact={3},frictTS={4},frictFact={5},tgt={6},curr={7}", BSScene.DetailLogZero, UseName,
+                    TargetValueDecayTimeScale, decayFactor, FrictionTimescale, frictionFactor, TargetValue, CurrentValue);
             }
             else
             {
@@ -362,10 +344,11 @@ namespace Universe.Physics.BulletSPlugin
                     //     it is really zero.
                     TargetValue = 0f;
                 }
+
                 CurrentValue = TargetValue;
-                MDetailLog("{0},  BSFMotor.Step,zero,{1},origTgt={2},origCurr={3},ret={4}",
-                    BSScene.DetailLogZero, UseName, origCurrVal, origTarget, CurrentValue);
+                MDetailLog("{0},  BSFMotor.Step,zero,{1},origTgt={2},origCurr={3},ret={4}", BSScene.DetailLogZero, UseName, origCurrVal, origTarget, CurrentValue);
             }
+
             LastError = error;
 
             return CurrentValue;
@@ -386,21 +369,18 @@ namespace Universe.Physics.BulletSPlugin
                     correctionAmount = error / TimeScale * timeStep;
 
                 returnCorrection = correctionAmount;
-                MDetailLog("{0},  BSFMotor.Step,nonZero,{1},timeStep={2},timeScale={3},err={4},corr={5}",
-                    BSScene.DetailLogZero, UseName, timeStep, TimeScale, error, correctionAmount);
+                MDetailLog("{0},  BSFMotor.Step,nonZero,{1},timeStep={2},timeScale={3},err={4},corr={5}", BSScene.DetailLogZero, UseName, timeStep, TimeScale, error, correctionAmount);
             }
+
             return returnCorrection;
         }
 
         public override string ToString()
         {
-            return String.Format("<{0},curr={1},targ={2},lastErr={3},decayTS={4},frictTS={5}>",
-                UseName, CurrentValue, TargetValue, LastError, TargetValueDecayTimeScale, FrictionTimescale);
+            return String.Format("<{0},curr={1},targ={2},lastErr={3},decayTS={4},frictTS={5}>", UseName, CurrentValue, TargetValue, LastError, TargetValueDecayTimeScale, FrictionTimescale);
         }
     }
 
-    // ============================================================================
-    // ============================================================================
     // Proportional, Integral, Derivitive Motor
     // Good description at http://www.answers.com/topic/pid-controller . Includes processes for choosing p, i and d factors.
     public class BSPIDVMotor : BSVMotor
@@ -435,7 +415,7 @@ namespace Universe.Physics.BulletSPlugin
             LastError = Vector3.Zero;
         }
 
-        //redundant??
+        //redundant?
         public override void Zero()
         {
             base.Zero();
@@ -453,12 +433,9 @@ namespace Universe.Physics.BulletSPlugin
                 // If efficiency is low (0f), use a factor value that overcorrects.
                 // TODO: might want to vary contribution of different factor depending on efficiency.
                 float factor = ((1f - this.Efficiency) * EfficiencyHigh + EfficiencyLow) / 3f;
-                // float factor = (1f - this.Efficiency) * EfficiencyHigh + EfficiencyLow;
-
                 proportionFactor = new Vector3(factor, factor, factor);
                 integralFactor = new Vector3(factor, factor, factor);
                 derivFactor = new Vector3(factor, factor, factor);
-
                 MDetailLog("{0},BSPIDVMotor.setEfficiency,eff={1},factor={2}", BSScene.DetailLogZero, Efficiency, factor);
             }
         }
@@ -475,14 +452,11 @@ namespace Universe.Physics.BulletSPlugin
             Vector3 derivitive = (error - LastError) * timeStep;
             LastError = error;
 
-            // Correction = (proportionOfPresentError + accumulationOfPastError + rateOfChangeOfError)
             Vector3 ret = error/TimeScale * timeStep * proportionFactor * FactorMix.X
                           + RunningIntegration/TimeScale * integralFactor * FactorMix.Y
-                          + derivitive/TimeScale * derivFactor * FactorMix.Z
-                ;
+                          + derivitive/TimeScale * derivFactor * FactorMix.Z;
 
-            MDetailLog("{0},BSPIDVMotor.step,ts={1},err={2},runnInt={3},deriv={4},ret={5}",
-                BSScene.DetailLogZero, timeStep, error, RunningIntegration, derivitive, ret);
+            MDetailLog("{0},BSPIDVMotor.step,ts={1},err={2},runnInt={3},deriv={4},ret={5}", BSScene.DetailLogZero, timeStep, error, RunningIntegration, derivitive, ret);
 
             return ret;
         }

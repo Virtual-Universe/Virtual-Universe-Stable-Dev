@@ -45,8 +45,6 @@ namespace Universe.Physics.BulletSPlugin
 
     public abstract class BSLinkset
     {
-        // private static string LogHeader = "[BULLETSIM LINKSET]";
-
         public enum LinksetImplementation
         {
             Constraint = 0, // linkset tied together with constraints
@@ -68,18 +66,17 @@ namespace Universe.Physics.BulletSPlugin
                     ret = new BSLinksetCompound(physScene, parent);
                     break;
                 case LinksetImplementation.Manual:
-                    // ret = new BSLinksetManual(physScene, parent);
                     break;
                 default:
                     ret = new BSLinksetCompound(physScene, parent);
                     break;
             }
+
             if (ret == null)
             {
-                physScene.Logger.ErrorFormat(
-                    "[BULLETSIM LINKSET] Factory could not create linkset. Parent name={1}, ID={2}", parent.Name,
-                    parent.LocalID);
+                physScene.Logger.ErrorFormat("[Bulletsim Linkset] Factory could not create linkset. Parent name={1}, ID={2}", parent.Name, parent.LocalID);
             }
+
             return ret;
         }
 
@@ -90,8 +87,10 @@ namespace Universe.Physics.BulletSPlugin
             {
                 member = pMember;
             }
+
             public virtual void ResetLink() { }
             public virtual void SetLinkParameters(BSConstraint constrain) { }
+            
             // Returns 'true' if physical property updates from the child should be reported to the simulator
             public virtual bool ShouldUpdateChildProperties() { return false; }
         }
@@ -103,10 +102,10 @@ namespace Universe.Physics.BulletSPlugin
         public BSScene PhysicsScene { get; private set; }
 
         static int m_nextLinksetID = 1;
+
         public int LinksetID { get; private set; }
 
         // The children under the root in this linkset.
-        //protected HashSet<BSPrimLinkable> m_children;
         protected Dictionary<BSPrimLinkable, BSLinkInfo> m_children;
 
         // We lock the diddling of linkset classes to prevent any badness.
@@ -148,12 +147,10 @@ namespace Universe.Physics.BulletSPlugin
                 m_nextLinksetID = 1;
             PhysicsScene = scene;
             LinksetRoot = parent;
-            //m_children = new HashSet<BSPrimLinkable>();
             m_children = new Dictionary<BSPrimLinkable, BSLinkInfo>();
             LinksetMass = parent.RawMass;
             Rebuilding = false;
             RebuildScheduled = false;
-
             parent.ClearDisplacement();
         }
 
@@ -170,6 +167,7 @@ namespace Universe.Physics.BulletSPlugin
                     AddChildToLinkset(child);
                 LinksetMass = ComputeLinksetMass();
             }
+
             return this;
         }
 
@@ -220,6 +218,7 @@ namespace Universe.Physics.BulletSPlugin
             {
                 ret = m_children.ContainsKey(child);
             }
+
             return ret;
         }
 
@@ -239,12 +238,14 @@ namespace Universe.Physics.BulletSPlugin
                         break;
                 }
             }
+
             return ret;
         }
 
         // TODO!!! public bool TryGetLinkInfo
 
         public delegate bool ForEachLinkInfoAction(BSLinkInfo obj);
+
         public virtual bool ForEachLinkInfo(ForEachLinkInfoAction action)
         {
             bool ret = false;
@@ -255,6 +256,7 @@ namespace Universe.Physics.BulletSPlugin
                     if (action(po)) break;
                 }
             }
+
             return ret;
         }
 
@@ -264,8 +266,7 @@ namespace Universe.Physics.BulletSPlugin
         // Return 'true' if linkset processed the collision. 'false' says the linkset didn't have
         //     anything to add for the collision and it should be passed through normal processing.
         // Default processing for a linkset.
-        public virtual bool HandleCollide(uint collidingWith, BSPhysObject collidee,
-                                    OMV.Vector3 contactPoint, OMV.Vector3 contactNormal, float pentrationDepth)
+        public virtual bool HandleCollide(uint collidingWith, BSPhysObject collidee, OMV.Vector3 contactPoint, OMV.Vector3 contactNormal, float pentrationDepth)
         {
             bool ret = false;
 
@@ -337,8 +338,10 @@ namespace Universe.Physics.BulletSPlugin
                         ret = false;
                         return true;    // exit loop
                     }
+
                     return false;   // continue loop
                 });
+
                 return ret;
             }
         }
@@ -363,7 +366,6 @@ namespace Universe.Physics.BulletSPlugin
         // Called at taint-time!!
         public abstract bool RemoveBodyDependencies(BSPrimLinkable child);
 
-        // ================================================================
         public virtual void SetPhysicalFriction(float friction)
         {
             ForEachMember((member) =>
@@ -408,8 +410,8 @@ namespace Universe.Physics.BulletSPlugin
                         PhysicsScene.PE.SetMassProps(member.PhysBody, linksetMass, member.Inertia);
                         PhysicsScene.PE.UpdateInertiaTensor(member.PhysBody);
                         DetailLog("{0},BSLinkset.ComputeAndSetLocalInertia,m.mass={1}, inertia={2}", member.LocalID, linksetMass, member.Inertia);
-
                     }
+
                     return false;   // 'false' says to continue looping
                 }
             );
@@ -447,7 +449,6 @@ namespace Universe.Physics.BulletSPlugin
                 }
             );
         }
-        // ================================================================
 
         protected virtual float ComputeLinksetMass()
         {
@@ -462,6 +463,7 @@ namespace Universe.Physics.BulletSPlugin
                     }
                 }
             }
+
             return mass;
         }
 
@@ -479,6 +481,7 @@ namespace Universe.Physics.BulletSPlugin
                     com += bp.Position * bp.RawMass;
                     totalMass += bp.RawMass;
                 }
+
                 if (totalMass != 0f)
                     com /= totalMass;
             }
@@ -497,6 +500,7 @@ namespace Universe.Physics.BulletSPlugin
                 {
                     com += bp.Position;
                 }
+
                 com /= (m_children.Count + 1);
             }
 
@@ -504,10 +508,12 @@ namespace Universe.Physics.BulletSPlugin
         }
 
         #region Extension
+
         public virtual object Extension(string pFunct, params object[] pParams)
         {
             return null;
         }
+
         #endregion // Extension
 
         // Invoke the detailed logger and output something if it's enabled.
@@ -516,7 +522,7 @@ namespace Universe.Physics.BulletSPlugin
             // => new integration of logging here! <=
             //if (PhysicsScene.PhysicsLogging.Enabled)
             //    PhysicsScene.DetailLog(msg, args);
-            // commented out by fine (logspam at the console)
+            // logspam at the console
             //MainConsole.Instance.InfoFormat("[BSLINKSET]: " + msg, args);
         }
     }

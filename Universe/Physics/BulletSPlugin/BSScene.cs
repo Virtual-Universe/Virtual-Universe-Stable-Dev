@@ -160,12 +160,14 @@ namespace Universe.Physics.BulletSPlugin
             public String originator;
             public String ident;
             public TaintCallback callback;
+
             public TaintCallbackEntry(string pIdent, TaintCallback pCallBack)
             {
                 originator = BSScene.DetailLogZero;
                 ident = pIdent;
                 callback = pCallBack;
             }
+
             public TaintCallbackEntry(string pOrigin, string pIdent, TaintCallback pCallBack)
             {
                 originator = pOrigin;
@@ -254,18 +256,15 @@ namespace Universe.Physics.BulletSPlugin
             // Bullet actually doesn't care about the extents of the simulated
             //    area. It tracks active objects no matter where they are.
             Vector3 worldExtent = new Vector3(scene.RegionInfo.RegionSizeX, scene.RegionInfo.RegionSizeX, Constants.RegionHeight);
-           // Vector3 worldExtent = regionExtent;
 
-            World = PE.Initialize(worldExtent, Params, m_maxCollisionsPerFrame, ref m_collisionArray,
-                m_maxUpdatesPerFrame, ref m_updateArray);
+            World = PE.Initialize(worldExtent, Params, m_maxCollisionsPerFrame, ref m_collisionArray, m_maxUpdatesPerFrame, ref m_updateArray);
 
             Constraints = new BSConstraintCollection(World);
 
             TerrainManager = new BSTerrainManager(this);
             TerrainManager.CreateInitialGroundPlaneAndTerrain();
 
-            MainConsole.Instance.WarnFormat("{0} Linksets implemented with {1}", LogHeader,
-                (BSLinkset.LinksetImplementation)BSParam.LinksetImplementation);
+            MainConsole.Instance.WarnFormat("{0} Linksets implemented with {1}", LogHeader, (BSLinkset.LinksetImplementation)BSParam.LinksetImplementation);
 
             InTaintTime = false;
             m_initialized = true;
@@ -335,6 +334,7 @@ namespace Universe.Physics.BulletSPlugin
                     ret = ConfigurationParameters.numericTrue;
                 }
             }
+
             return ret;
         }
 
@@ -366,8 +366,7 @@ namespace Universe.Physics.BulletSPlugin
             if (ret == null)
             {
                 MainConsole.Instance.ErrorFormat(
-                    "{0} COULD NOT SELECT BULLET ENGINE: '[BulletSim]PhysicsEngine' must be either 'BulletUnmanaged-*' or 'BulletXNA-*'",
-                    LogHeader);
+                    "[Physics Engine]: {0} COULD NOT SELECT BULLET ENGINE: '[BulletSim]PhysicsEngine' must be either 'BulletUnmanaged-*' or 'BulletXNA-*'", LogHeader);
             }
             else
             {
@@ -390,6 +389,7 @@ namespace Universe.Physics.BulletSPlugin
             {
                 kvp.Value.Destroy();
             }
+
             PhysObjects.Clear();
 
             // Now that the prims are all cleaned up, there should be no constraints left
@@ -458,17 +458,15 @@ namespace Universe.Physics.BulletSPlugin
                 }
                 catch (Exception e)
                 {
-                    MainConsole.Instance.WarnFormat("{0}: Attempt to remove avatar that is not in physics scene: {1}",
-                        LogHeader, e);
+                    MainConsole.Instance.WarnFormat("{0}: Attempt to remove avatar that is not in physics scene: {1}", LogHeader, e);
                 }
+
                 bsactor.Destroy();
-                // bsactor.dispose();
             }
             else
             {
                 MainConsole.Instance.ErrorFormat(
-                    "{0}: Requested to remove avatar that is not a BSCharacter. ID={1}, type={2}",
-                    LogHeader, actor.LocalID, actor.GetType().Name);
+                    "{0}: Requested to remove avatar that is not a BSCharacter. ID={1}, type={2}", LogHeader, actor.LocalID, actor.GetType().Name);
             }
         }
 
@@ -487,11 +485,10 @@ namespace Universe.Physics.BulletSPlugin
                 }
                 catch (Exception e)
                 {
-                    MainConsole.Instance.ErrorFormat("{0}: Attempt to remove prim that is not in physics scene: {1}",
-                        LogHeader, e);
+                    MainConsole.Instance.ErrorFormat("{0}: Attempt to remove prim that is not in physics scene: {1}", LogHeader, e);
                 }
+
                 bsprim.Destroy();
-                // bsprim.dispose();
             }
             else
             {
@@ -526,13 +523,13 @@ namespace Universe.Physics.BulletSPlugin
             return new float[3] { 0, 0, DefaultGravityZ };
         }
 
-        //redundant??
+        //Is this not redundant?
         public override void SetGravityForce(bool enabled, float forceX, float forceY, float forceZ)
         {
             base.SetGravityForce(enabled, forceX, forceY, forceZ);
         }
 
-        //redundant??
+        //Is this not redundant?
         public override void AddGravityPoint(bool isApplyingForces, Vector3 position, float forceX, float forceY,
             float forceZ, float gravForce, float radius, int identifier)
         {
@@ -593,14 +590,11 @@ namespace Universe.Physics.BulletSPlugin
                 numSubSteps = PE.PhysicsStep(World, timeStep, m_maxSubSteps, m_fixedTimeStep, out updatedEntityCount,
                     out collidersCount);
 
-                //if (PhysicsLogging.Enabled)
-                //{
                     StatContactLoopTime = Util.EnvironmentTickCountSubtract(beforeTime);
                     DetailLog(
                         "{0},Simulate,call, frame={1}, nTaints={2}, simTime={3}, substeps={4}, updates={5}, colliders={6}, objWColl={7}",
                         DetailLogZero, m_simulationStep, numTaints, StatContactLoopTime, numSubSteps,
                         updatedEntityCount, collidersCount, ObjectsWithCollisions.Count);
-                //}
             }
             catch (Exception e)
             {
@@ -668,6 +662,7 @@ namespace Universe.Physics.BulletSPlugin
                     ObjectsWithCollisions.Remove(po);
                 ObjectsWithNoMoreCollisions.Clear();
             }
+
             // Done with collisions.
 
             // If any of the objects had updated properties, tell the object it has been changed by the physics engine
@@ -695,8 +690,7 @@ namespace Universe.Physics.BulletSPlugin
         }
 
         // Something has collided
-        void SendCollision(uint localID, uint collidingWith, Vector3 collidePoint, Vector3 collideNormal,
-            float penetration)
+        void SendCollision(uint localID, uint collidingWith, Vector3 collidePoint, Vector3 collideNormal, float penetration)
         {
             if (localID <= TerrainManager.HighestTerrainID)
             {
@@ -707,8 +701,7 @@ namespace Universe.Physics.BulletSPlugin
             if (!PhysObjects.TryGetValue(localID, out collider))
             {
                 // If the object that is colliding cannot be found, just ignore the collision.
-                DetailLog("{0},BSScene.SendCollision,colliderNotInObjectList,id={1},with={2}", DetailLogZero, localID,
-                    collidingWith);
+                DetailLog("{0},BSScene.SendCollision,colliderNotInObjectList,id={1},with={2}", DetailLogZero, localID, collidingWith);
                 return;
             }
 
@@ -743,10 +736,10 @@ namespace Universe.Physics.BulletSPlugin
             {
                 for (int y = 0; y < Scene.RegionInfo.RegionSizeY; y++)
                 {
-                    heightmap[(x * Scene.RegionInfo.RegionSizeX) + y] =
-                        ((float)heightMap[x * Scene.RegionInfo.RegionSizeX + y]) / Constants.TerrainCompression;
+                    heightmap[(x * Scene.RegionInfo.RegionSizeX) + y] = ((float)heightMap[x * Scene.RegionInfo.RegionSizeX + y]) / Constants.TerrainCompression;
                 }
             }
+
             TerrainManager.SetTerrain(heightmap);
         }
 
@@ -754,7 +747,6 @@ namespace Universe.Physics.BulletSPlugin
         {
             SimpleWaterLevel = (float)baseheight;
         }
-
 
         #endregion // Terrain
 
@@ -790,9 +782,6 @@ namespace Universe.Physics.BulletSPlugin
             float pathEnd = 1.0f - (float)pbs.PathEnd * 2.0e-5f;
             float pathScaleX = (float)(200 - pbs.PathScaleX) * 0.01f;
             float pathScaleY = (float)(200 - pbs.PathScaleY) * 0.01f;
-            //float pathTaperX = pbs.PathTaperX * 0.01f;
-            //float pathTaperY = pbs.PathTaperY * 0.01f;
-
             float profileBegin = (float)pbs.ProfileBegin * 2.0e-5f;
             float profileEnd = 1.0f - (float)pbs.ProfileEnd * 2.0e-5f;
             float profileHollow = (float)pbs.ProfileHollow * 2.0e-5f;
@@ -870,18 +859,22 @@ namespace Universe.Physics.BulletSPlugin
         {
             TaintedObject(false /*inTaintTime*/, pOriginator, pIdent, pCallback);
         }
+
         public void TaintedObject(uint pOriginator, String pIdent, TaintCallback pCallback)
         {
             TaintedObject(false /*inTaintTime*/, m_physicsLoggingEnabled ? pOriginator.ToString() : BSScene.DetailLogZero, pIdent, pCallback);
         }
+
         public void TaintedObject(bool inTaintTime, String pIdent, TaintCallback pCallback)
         {
             TaintedObject(inTaintTime, BSScene.DetailLogZero, pIdent, pCallback);
         }
+
         public void TaintedObject(bool inTaintTime, uint pOriginator, String pIdent, TaintCallback pCallback)
         {
             TaintedObject(inTaintTime, m_physicsLoggingEnabled ? pOriginator.ToString() : BSScene.DetailLogZero, pIdent, pCallback);
         }
+
         // Sometimes a potentially tainted operation can be used in and out of taint time.
         // This routine executes the command immediately if in taint-time otherwise it is queued.
         public void TaintedObject(bool inTaintTime, string pOriginator, string pIdent, TaintCallback pCallback)
@@ -944,10 +937,10 @@ namespace Universe.Physics.BulletSPlugin
                     }
                     catch (Exception e)
                     {
-                        MainConsole.Instance.ErrorFormat("{0}: ProcessTaints: {1}: Exception: {2}", LogHeader,
-                            tcbe.ident, e);
+                        MainConsole.Instance.ErrorFormat("{0}: ProcessTaints: {1}: Exception: {2}", LogHeader, tcbe.ident, e);
                     }
                 }
+
                 oldList.Clear();
             }
         }
@@ -988,10 +981,10 @@ namespace Universe.Physics.BulletSPlugin
                     }
                     catch (Exception e)
                     {
-                        MainConsole.Instance.ErrorFormat("{0}: ProcessPostTaintTaints: {1}: Exception: {2}", LogHeader,
-                            kvp.Key, e);
+                        MainConsole.Instance.ErrorFormat("{0}: ProcessPostTaintTaints: {1}: Exception: {2}", LogHeader, kvp.Key, e);
                     }
                 }
+
                 oldList.Clear();
             }
         }
@@ -1001,12 +994,11 @@ namespace Universe.Physics.BulletSPlugin
         {
             if (!InTaintTime)
             {
-                DetailLog("{0},BSScene.AssertInTaintTime,NOT IN TAINT TIME,Region={1},Where={2}", DetailLogZero,
-                    RegionName, whereFrom);
-                MainConsole.Instance.ErrorFormat("{0} NOT IN TAINT TIME!! Region={1}, Where={2}", LogHeader, RegionName,
-                    whereFrom);
+                DetailLog("{0},BSScene.AssertInTaintTime,NOT IN TAINT TIME,Region={1},Where={2}", DetailLogZero, RegionName, whereFrom);
+                MainConsole.Instance.ErrorFormat("{0} NOT IN TAINT TIME!! Region={1}, Where={2}", LogHeader, RegionName, whereFrom);
                 // Util.PrintCallStack(DetailLog);
             }
+
             return InTaintTime;
         }
 

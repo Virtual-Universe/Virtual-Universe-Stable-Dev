@@ -60,8 +60,7 @@ namespace Universe.Physics.BulletSPlugin
         public virtual Vector3 PositionDisplacement { get; set; }
         public virtual Quaternion OrientationDisplacement { get; set; }
 
-        public BSPrimDisplaced(uint localID, String primName, BSScene parent_scene, Vector3 pos, Vector3 size,
-            Quaternion rotation, PrimitiveBaseShape pbs, bool pisPhysical)
+        public BSPrimDisplaced(uint localID, String primName, BSScene parent_scene, Vector3 pos, Vector3 size, Quaternion rotation, PrimitiveBaseShape pbs, bool pisPhysical)
             : base(localID, primName, parent_scene, pos, size, rotation, pbs, pisPhysical)
         {
             ClearDisplacement();
@@ -69,10 +68,7 @@ namespace Universe.Physics.BulletSPlugin
 
         public void ClearDisplacement()
         {
-            //if (UserSetCenterOfMassDisplacement.HasValue)     // wehere is this??
-            //    PositionDisplacement = (Vector3)UserSetCenterOfMassDisplacement;
-            //else
-                PositionDisplacement = Vector3.Zero;
+            PositionDisplacement = Vector3.Zero;
             OrientationDisplacement = Quaternion.Identity;
         }
 
@@ -103,6 +99,7 @@ namespace Universe.Physics.BulletSPlugin
                 PositionDisplacement = comDisp;
                 ForcePosition = RawPosition;
             }
+
             return PositionDisplacement;
         }
 
@@ -121,6 +118,7 @@ namespace Universe.Physics.BulletSPlugin
                                     LocalID, physPosition, displacement, physPosition - displacement);
                     physPosition -= displacement;
                 }
+
                 RawPosition = physPosition;
                 return physPosition;
             }
@@ -134,8 +132,7 @@ namespace Universe.Physics.BulletSPlugin
                     // Move the passed root prim postion to the center-of-mass position and set in the physics engine.
                     Vector3 displacement = PositionDisplacement * RawOrientation;
                     Vector3 displacedPos = RawPosition + displacement;
-                    DetailLog("{0},BSPrimDisplaced.ForcePosition,set,simPos={1},disp={2},physPos={3}",
-                                            LocalID, RawPosition, displacement, displacedPos);
+                    DetailLog("{0},BSPrimDisplaced.ForcePosition,set,simPos={1},disp={2},physPos={3}", LocalID, RawPosition, displacement, displacedPos);
                     if (PhysBody.HasPhysicalBody)
                     {
                         PhysicsScene.PE.SetTranslation(PhysBody, displacedPos, RawOrientation);
@@ -173,8 +170,7 @@ namespace Universe.Physics.BulletSPlugin
             // Move the returned center-of-mass location to the root prim location.
             Vector3 displacement = PositionDisplacement * entprop.Rotation;
             Vector3 displacedPos = entprop.Position - displacement;
-            DetailLog("{0},BSPrimDisplaced.UpdateProperties,physPos={1},disp={2},simPos={3}",
-                                    LocalID, entprop.Position, displacement, displacedPos);
+            DetailLog("{0},BSPrimDisplaced.UpdateProperties,physPos={1},disp={2},simPos={3}", LocalID, entprop.Position, displacement, displacedPos);
             entprop.Position = displacedPos;
             }
 
