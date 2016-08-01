@@ -70,6 +70,7 @@ namespace Universe.Services
                 server.AddStreamHandler(new ServerHandler("/server/", m_registry, null));
             }
         }
+
         #endregion
     }
 }

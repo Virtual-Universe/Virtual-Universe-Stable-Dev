@@ -44,8 +44,7 @@ namespace Universe.Services
         {
             m_service = service;
             
-            service.AddStreamHandler ("AgentExperiences",
-                new GenericStreamHandler ("GET", service.CreateCAPS ("AgentExperiences", ""), AgentExperiences));
+            service.AddStreamHandler ("AgentExperiences", new GenericStreamHandler ("GET", service.CreateCAPS ("AgentExperiences", ""), AgentExperiences));
         }
 
         public void EnteringRegion ()
@@ -57,10 +56,9 @@ namespace Universe.Services
             m_service.RemoveStreamHandler ("AgentExperiences", "GET");
         }
         
-        public byte[] AgentExperiences (string path, Stream request, OSHttpRequest httpRequest,
-                                      OSHttpResponse httpResponse)
+        public byte[] AgentExperiences (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
-        	MainConsole.Instance.DebugFormat("[AgentExperiences] Call = {0}", httpRequest);
+        	MainConsole.Instance.DebugFormat("[Agent Experiences]: Call = {0}", httpRequest);
             var agentExp = new OSDMap();
 
             return OSDParser.SerializeLLSDXmlBytes (agentExp);

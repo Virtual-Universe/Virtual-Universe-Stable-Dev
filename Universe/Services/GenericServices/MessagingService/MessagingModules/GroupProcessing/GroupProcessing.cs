@@ -69,7 +69,8 @@ namespace Universe.Services
         protected OSDMap OnMessageReceived (OSDMap message)
         {
             //We need to check and see if this is an GroupSessionAgentUpdate
-            if (message.ContainsKey ("Method") && message ["Method"] == "GroupSessionAgentUpdate") {
+            if (message.ContainsKey ("Method") && message ["Method"] == "GroupSessionAgentUpdate")
+            {
                 //COMES IN ON Universe.SERVER SIDE
                 //Send it on to whomever it concerns
                 OSDMap innerMessage = (OSDMap)message ["Message"];
@@ -79,7 +80,8 @@ namespace Universe.Services
                     UUID agentID = message ["AgentID"];
                     IEventQueueService eqs = m_registry.RequestModuleInterface<IEventQueueService> ();
                     IAgentInfoService agentInfo = m_registry.RequestModuleInterface<IAgentInfoService> ();
-                    if (agentInfo != null) {
+                    if (agentInfo != null)
+                    {
                         UserInfo user = agentInfo.GetUserInfo (agentID.ToString ());
                         if (user != null && user.IsOnline)
                             eqs.Enqueue (innerMessage, agentID, user.CurrentRegionID);
@@ -100,7 +102,8 @@ namespace Universe.Services
                     everyone = role;
 
                 List<UserInfo> regionsToBeUpdated = new List<UserInfo> ();
-                foreach (GroupRoleMembersData data in members) {
+                foreach (GroupRoleMembersData data in members)
+                {
                     if (data.RoleID == roleID) {
                         //They were affected by the change
                         switch ((GroupRoleUpdate)type) {
@@ -124,13 +127,17 @@ namespace Universe.Services
                                 //Forward the message
                                 regionsToBeUpdated.Add (info);
                             }
+
                             break;
                         }
                     }
                 }
-                if (regionsToBeUpdated.Count != 0) {
+
+                if (regionsToBeUpdated.Count != 0)
+                {
                     ISyncMessagePosterService messagePost = m_registry.RequestModuleInterface<ISyncMessagePosterService> ();
-                    if (messagePost != null) {
+                    if (messagePost != null)
+                    {
                         foreach (UserInfo userInfo in regionsToBeUpdated) {
                             OSDMap outgoingMessage = new OSDMap ();
                             outgoingMessage ["Method"] = "ForceUpdateGroupTitles";
@@ -141,7 +148,8 @@ namespace Universe.Services
                         }
                     }
                 }
-            } else if (message.ContainsKey ("Method") && message ["Method"] == "ForceUpdateGroupTitles") {
+            } else if (message.ContainsKey ("Method") && message ["Method"] == "ForceUpdateGroupTitles")
+            {
                 //This message comes in on the region side from Universe.Server
                 UUID groupID = message ["GroupID"].AsUUID ();
                 UUID roleID = message ["RoleID"].AsUUID ();
@@ -150,6 +158,7 @@ namespace Universe.Services
                 if (gm != null)
                     gm.UpdateUsersForExternalRoleUpdate (groupID, roleID, regionID);
             }
+
             return null;
         }
     }

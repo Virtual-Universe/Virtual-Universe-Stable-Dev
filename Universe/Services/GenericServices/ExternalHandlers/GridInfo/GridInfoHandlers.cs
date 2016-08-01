@@ -89,7 +89,9 @@ namespace Universe.Services
             IConfig gridCfg = m_config.Configs["GridInfoService"];
             if (gridCfg == null)
                 return;
+
             _info["platform"] = "Universe";
+
             try
             {
                 IConfig configCfg = m_config.Configs["Handlers"];
@@ -112,37 +114,44 @@ namespace Universe.Services
                         var port = configCfg.GetString("LLLoginHandlerPort", "");
                         if (port == "" || port == "0")
                             port = MainServer.Instance.Port.ToString();
+
                         GridLoginURI = MainServer.Instance.FullHostName + ":" + port + "/";
                     }
                 }
+
                 _info["login"] = GridLoginURI;
 
                 // welcome
                 GridWelcomeURI = GetConfig(m_config, "welcome");
                 if (GridWelcomeURI == "" && webInterface != null)
                     GridWelcomeURI = webInterface.LoginScreenURL;
+
                 _info["welcome"] = CheckServerHost(GridWelcomeURI);
 
                 // registration
                 GridRegisterURI = GetConfig(m_config, "register");
                 if (GridRegisterURI == "" && webInterface != null)
                     GridRegisterURI = webInterface.RegistrationScreenURL;
+
                 _info["register"] = CheckServerHost(GridRegisterURI);
 
                 GridAboutURI = GetConfig(m_config, "about");
                 if (GridAboutURI == "" && webInterface != null)
                     GridAboutURI = webInterface.HomeScreenURL;
+
                 _info["about"] = CheckServerHost(GridAboutURI);
 
                 GridHelpURI = GetConfig(m_config, "help");
                 if (GridHelpURI == "" && webInterface != null)
                     GridHelpURI = webInterface.HelpScreenURL;
+
                 _info["help"] = CheckServerHost(GridHelpURI);
 
                 GridForgotPasswordURI = GetConfig(m_config, "forgottenpassword");
                 if (GridForgotPasswordURI == "" && webInterface != null)
                     GridForgotPasswordURI = webInterface.ForgotPasswordScreenURL;
-                 _info["password"] = CheckServerHost(GridForgotPasswordURI);
+
+                _info["password"] = CheckServerHost(GridForgotPasswordURI);
 
                 // mapping
                 GridMapTileURI = GetConfig(m_config, "map");
@@ -163,7 +172,6 @@ namespace Universe.Services
                 GridEconomyURI = GetConfig(m_config, "economy");
                 if (GridEconomyURI == "")
                 {
-
                     GridEconomyURI = MainServer.Instance.ServerURI + "/";           // assume default... 
 
                     if (moneyModule != null)
@@ -175,8 +183,8 @@ namespace Universe.Services
                         GridEconomyURI = MainServer.Instance.FullHostName + ":" + port + "/";
                     }
                 }
-                _info["economy"] = _info["helperuri"] = CheckServerHost(GridEconomyURI);
 
+                _info["economy"] = _info["helperuri"] = CheckServerHost(GridEconomyURI);
 
                 // misc.. these must be set to be used
                 GridSearchURI = GetConfig(m_config, "search");
@@ -193,16 +201,13 @@ namespace Universe.Services
 
                 GridSnapshotConfigURI = GetConfig(m_config, "snapshotconfig");
                 _info["snapshotconfig"] = CheckServerHost(GridSnapshotConfigURI);
-
             }
             catch (Exception)
             {
-                MainConsole.Instance.Warn(
-                    "[GRID INFO SERVICE]: Cannot get grid info from config source, using minimal defaults");
+                MainConsole.Instance.Warn("[Grid Info Service]: Cannot get grid info from config source, using minimal defaults");
             }
 
-            MainConsole.Instance.DebugFormat("[GRID INFO SERVICE]: Grid info service initialized with {0} keys",
-                                             _info.Count);
+            MainConsole.Instance.DebugFormat("[Grid Info Service]: Grid info service initialized with {0} keys", _info.Count);
         }
 
         string CheckServerHost(string uri)
@@ -219,13 +224,12 @@ namespace Universe.Services
 
         private void IssueWarning()
         {
-            MainConsole.Instance.Warn("[GRID INFO SERVICE]: found no [GridInfo] section in your configuration files");
-            MainConsole.Instance.Warn(
-                "[GRID INFO SERVICE]: trying to guess sensible defaults, you might want to provide better ones:");
+            MainConsole.Instance.Warn("[Grid Info Service]: found no [GridInfo] section in your configuration files");
+            MainConsole.Instance.Warn("[Grid Info Service]: trying to guess sensible defaults, you might want to provide better ones:");
 
             foreach (string k in _info.Keys)
             {
-                MainConsole.Instance.WarnFormat("[GRID INFO SERVICE]: {0}: {1}", k, _info[k]);
+                MainConsole.Instance.WarnFormat("[Grid Info Service]: {0}: {1}", k, _info[k]);
             }
         }
         
@@ -234,20 +238,20 @@ namespace Universe.Services
             XmlRpcResponse response = new XmlRpcResponse();
             Hashtable responseData = new Hashtable();
 
-            MainConsole.Instance.Debug("[GRID INFO SERVICE]: Request for grid info");
+            MainConsole.Instance.Debug("[Grid Info Service]: Request for grid info");
             UpdateGridInfo();
 
             foreach (string k in _info.Keys)
             {
                 responseData[k] = _info[k];
             }
+
             response.Value = responseData;
 
             return response;
         }
 
-        public byte[] RestGetGridInfoMethod(string path, Stream request, OSHttpRequest httpRequest,
-                                            OSHttpResponse httpResponse)
+        public byte[] RestGetGridInfoMethod(string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
             StringBuilder sb = new StringBuilder();
             UpdateGridInfo();

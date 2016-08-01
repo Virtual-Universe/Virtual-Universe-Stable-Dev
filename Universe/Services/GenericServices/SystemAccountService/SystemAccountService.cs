@@ -55,35 +55,43 @@ namespace Universe.Services.GenericServices.SystemAccountService
 
         #region ISystemAccountService Members
 
-        public UUID GovernorUUID {
+        public UUID GovernorUUID
+        {
             get { return (UUID)Constants.GovernorUUID; }
         }
 
-        public string GovernorName {
+        public string GovernorName
+        {
             get { return governorName; }
         }
 
-        public UUID SystemEstateOwnerUUID {
+        public UUID SystemEstateOwnerUUID
+        {
             get { return (UUID)Constants.RealEstateOwnerUUID; }
         }
 
-        public string SystemEstateOwnerName {
+        public string SystemEstateOwnerName
+        {
             get { return realEstateOwnerName; }
         }
 
-        public UUID BankerUUID {
+        public UUID BankerUUID
+        {
             get { return (UUID)Constants.BankerUUID; }
         }
 
-        public string BankerName {
+        public string BankerName
+        {
             get { return bankerName; }
         }
 
-        public UUID MarketplaceOwnerUUID {
+        public UUID MarketplaceOwnerUUID
+        {
             get { return (UUID)Constants.MarketplaceOwnerUUID; }
         }
 
-        public string MarketplaceOwnerName {
+        public string MarketplaceOwnerName
+        {
             get { return marketplaceOwnerName; }
         }
 

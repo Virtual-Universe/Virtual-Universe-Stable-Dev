@@ -44,8 +44,7 @@ namespace Universe.Services
         public void RegisterCaps (IRegionClientCapsService service)
         {
             m_service = service;
-            m_service.AddStreamHandler ("ProductInfoRequest",
-                new GenericStreamHandler ("GET", m_service.CreateCAPS ("ProductInfoRequest", ""), ProductInfoRequestCAP));
+            m_service.AddStreamHandler ("ProductInfoRequest", new GenericStreamHandler ("GET", m_service.CreateCAPS ("ProductInfoRequest", ""), ProductInfoRequestCAP));
         }
 
         public void DeregisterCaps ()
@@ -61,7 +60,6 @@ namespace Universe.Services
 
         byte[] ProductInfoRequestCAP (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
-            //OSDMap data = m_service.GetCAPS ();
             var data = new OSDArray();
 
             var mf = new OSDMap ();

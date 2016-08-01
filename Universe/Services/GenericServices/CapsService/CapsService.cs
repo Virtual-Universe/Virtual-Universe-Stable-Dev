@@ -56,17 +56,20 @@ namespace Universe.Services
 
         protected IRegistryCore m_registry;
 
-        public IRegistryCore Registry {
+        public IRegistryCore Registry
+        {
             get { return m_registry; }
         }
 
         protected IHttpServer m_server;
 
-        public IHttpServer Server {
+        public IHttpServer Server
+        {
             get { return m_server; }
         }
 
-        public string HostUri {
+        public string HostUri
+        {
             get { return m_server.ServerURI; }
         }
 
@@ -74,16 +77,20 @@ namespace Universe.Services
 
         #region IService members
 
-        public string Name {
+        public string Name
+        {
             get { return GetType ().Name; }
         }
 
         public void Initialize (IConfigSource config, IRegistryCore registry)
         {
             IConfig handlerConfig = config.Configs ["Handlers"];
+
             if (handlerConfig.GetString ("CapsHandler", "") != Name)
                 return;
+
             m_registry = registry;
+
             registry.RegisterModuleInterface<ICapsService> (this);
         }
 
@@ -113,8 +120,7 @@ namespace Universe.Services
             //Check for all or full to show child agents
             bool showChildAgents = cmd.Length == 3 && (cmd [2] == "all" || (cmd [2] == "full"));
             int count =
-                m_RegionCapsServices.Values.SelectMany (regionCaps => regionCaps.GetClients ())
-                                    .Count (clientCaps => (clientCaps.RootAgent || showChildAgents));
+                m_RegionCapsServices.Values.SelectMany (regionCaps => regionCaps.GetClients ()).Count (clientCaps => (clientCaps.RootAgent || showChildAgents));
 
             MainConsole.Instance.WarnFormat ("{0} agents found: ", count);
             foreach (IClientCapsService clientCaps in m_ClientCapsServices.Values) {
@@ -141,12 +147,12 @@ namespace Universe.Services
         /// <param name="agentID"></param>
         public void RemoveCAPS (UUID agentID)
         {
-            if (m_ClientCapsServices.ContainsKey (agentID)) {
+            if (m_ClientCapsServices.ContainsKey (agentID))
+            {
                 IClientCapsService perClient = m_ClientCapsServices [agentID];
                 perClient.Close ();
                 m_ClientCapsServices.Remove (agentID);
-                m_registry.RequestModuleInterface<ISimulationBase> ()
-                          .EventManager.FireGenericEventHandler ("UserLogout", agentID);
+                m_registry.RequestModuleInterface<ISimulationBase> ().EventManager.FireGenericEventHandler ("UserLogout", agentID);
             }
         }
 
@@ -160,27 +166,24 @@ namespace Universe.Services
         /// <param name="circuitData"></param>
         /// <param name="port">The port to use for the CAPS service</param>
         /// <returns></returns>
-        public string CreateCAPS (UUID agentID, string capsBase, UUID regionID, bool isRootAgent,
-                                 AgentCircuitData circuitData, uint port)
+        public string CreateCAPS (UUID agentID, string capsBase, UUID regionID, bool isRootAgent, AgentCircuitData circuitData, uint port)
         {
             //Now make sure we didn't use an old one or something
             IClientCapsService service = GetOrCreateClientCapsService (agentID);
             if (service != null) {
-                IRegionClientCapsService clientService = service.GetOrCreateCapsService (regionID, capsBase, circuitData,
-                                                             port);
+                IRegionClientCapsService clientService = service.GetOrCreateCapsService (regionID, capsBase, circuitData, port);
 
-                if (clientService != null) {
+                if (clientService != null)
+                {
                     //Fix the root agent status
                     clientService.RootAgent = isRootAgent;
 
-                    MainConsole.Instance.Debug ("[CapsService]: Adding Caps URL " + clientService.CapsUrl + " for agent " + agentID);
+                    MainConsole.Instance.Debug ("[Caps Service]: Adding Caps URL " + clientService.CapsUrl + " for agent " + agentID);
                     return clientService.CapsUrl;
                 }
-
             }
 
-            MainConsole.Instance.ErrorFormat ("[CapsService]: Unable to create caps for agent {0} on {1}",
-                                             agentID, regionID);
+            MainConsole.Instance.ErrorFormat ("[Caps Service]: Unable to create caps for agent {0} on {1}", agentID, regionID);
             return string.Empty;
         }
 
@@ -192,11 +195,13 @@ namespace Universe.Services
         /// <returns></returns>
         public IClientCapsService GetOrCreateClientCapsService (UUID agentID)
         {
-            if (!m_ClientCapsServices.ContainsKey (agentID)) {
+            if (!m_ClientCapsServices.ContainsKey (agentID))
+            {
                 var client = new PerClientBasedCapsService ();
                 client.Initialize (this, agentID);
                 m_ClientCapsServices.Add (agentID, client);
             }
+
             return m_ClientCapsServices [agentID];
         }
 
@@ -209,17 +214,21 @@ namespace Universe.Services
         {
             if (!m_ClientCapsServices.ContainsKey (agentID))
                 return null;
+
             bool disabled = true;
             foreach (IRegionClientCapsService regionClients in m_ClientCapsServices [agentID].GetCapsServices ()) {
-                if (!regionClients.Disabled) {
+                if (!regionClients.Disabled)
+                {
                     disabled = false;
                     break;
                 }
             }
+
             if (disabled) {
                 RemoveCAPS (agentID);
                 return null;
             }
+
             return m_ClientCapsServices [agentID];
         }
 
@@ -239,9 +248,11 @@ namespace Universe.Services
         public IRegionCapsService GetCapsForRegion (UUID regionID)
         {
             IRegionCapsService service;
-            if (m_RegionCapsServices.TryGetValue (regionID, out service)) {
+            if (m_RegionCapsServices.TryGetValue (regionID, out service))
+            {
                 return service;
             }
+
             return null;
         }
 
@@ -251,7 +262,8 @@ namespace Universe.Services
         /// <param name="regionID"></param>
         public void AddCapsForRegion (UUID regionID)
         {
-            if (!m_RegionCapsServices.ContainsKey (regionID)) {
+            if (!m_RegionCapsServices.ContainsKey (regionID))
+            {
                 IRegionCapsService service = new PerRegionCapsService ();
                 service.Initialize (regionID, Registry);
 

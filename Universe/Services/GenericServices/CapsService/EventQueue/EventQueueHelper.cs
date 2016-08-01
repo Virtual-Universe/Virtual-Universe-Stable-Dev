@@ -107,6 +107,7 @@ namespace Universe.Services
                     PhysicsShapeType = (PhysicsShapeType)entity.PhysicsType,
                     Restitution = entity.Restitution
                 };
+
                 i++;
             }
 
@@ -126,8 +127,7 @@ namespace Universe.Services
                                        IPAddress address, int port,
                                        string capsURL, UUID agentID, UUID sessionID, int RegionSizeX, int RegionSizeY)
         {
-            OSDArray lookAtArr = new OSDArray (3)
-                                     { OSD.FromReal (lookAt.X), OSD.FromReal (lookAt.Y), OSD.FromReal (lookAt.Z) };
+            OSDArray lookAtArr = new OSDArray (3) { OSD.FromReal (lookAt.X), OSD.FromReal (lookAt.Y), OSD.FromReal (lookAt.Z) };
 
             OSDArray positionArr = new OSDArray (3) {
                 OSD.FromReal (pos.X),
@@ -373,8 +373,7 @@ namespace Universe.Services
             foreach (ChatterBoxSessionAgentListUpdatesMessage.AgentUpdatesBlock block in agentUpdatesBlock)
             {
                 infoDetail = new OSDMap ();
-                mutes = new OSDMap
-                            { { "text", OSD.FromBoolean (block.MuteText) }, { "voice", OSD.FromBoolean (block.MuteVoice) } };
+                mutes = new OSDMap { { "text", OSD.FromBoolean (block.MuteText) }, { "voice", OSD.FromBoolean (block.MuteVoice) } };
                 infoDetail.Add ("can_voice_chat", OSD.FromBoolean (block.CanVoiceChat));
                 infoDetail.Add ("is_moderator", OSD.FromBoolean (block.IsModerator));
                 infoDetail.Add ("mutes", mutes);
@@ -482,8 +481,7 @@ namespace Universe.Services
                 int num = 0;
                 foreach (OSDMap innerMap in m.Cast<OSDMap>())
                 {
-                    innerMap ["TimeStamp"] =
-                        OSD.FromUInteger ((uint)Util.ToUnixTime (parcelPropertiesMessage.PrimOwnersBlock [num].TimeStamp));
+                    innerMap ["TimeStamp"] = OSD.FromUInteger ((uint)Util.ToUnixTime (parcelPropertiesMessage.PrimOwnersBlock [num].TimeStamp));
                     num++;
                 }
             }
@@ -500,8 +498,7 @@ namespace Universe.Services
             int num = 0;
             foreach (OSDMap innerMap in m.Cast<OSDMap>())
             {
-                innerMap ["TimeStamp"] =
-                    OSD.FromUInteger ((uint)Util.ToUnixTime (statReplyMessage.ReportDataBlocks [num].TimeStamp));
+                innerMap ["TimeStamp"] = OSD.FromUInteger ((uint)Util.ToUnixTime (statReplyMessage.ReportDataBlocks [num].TimeStamp));
                 num++;
             }
 

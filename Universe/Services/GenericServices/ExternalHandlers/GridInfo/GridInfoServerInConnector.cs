@@ -58,12 +58,8 @@ namespace Universe.Services
                 return;
 
             handlerConfig = config.Configs["GridInfoService"];
-            IHttpServer server =
-                registry.RequestModuleInterface<ISimulationBase>().GetHttpServer(
-                    (uint) handlerConfig.GetInt("GridInfoInHandlerPort", 0));
-
-            server.AddStreamHandler(new GenericStreamHandler("GET", "/get_grid_info",
-                                                             handlers.RestGetGridInfoMethod));
+            IHttpServer server = registry.RequestModuleInterface<ISimulationBase>().GetHttpServer((uint) handlerConfig.GetInt("GridInfoInHandlerPort", 0));
+            server.AddStreamHandler(new GenericStreamHandler("GET", "/get_grid_info", handlers.RestGetGridInfoMethod));
             server.AddXmlRPCHandler("get_grid_info", handlers.XmlRpcGridInfoMethod);
         }
 

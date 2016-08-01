@@ -51,6 +51,7 @@ namespace Universe.Services
                 //Found the region, check permissions
                 return scene.Permissions.AllowedIncomingAgent(agent, isRootAgent, out reason);
             }
+
             reason = "Not Authorized as region does not exist.";
             return false;
         }
@@ -64,7 +65,7 @@ namespace Universe.Services
             registry.RegisterModuleInterface<IAuthorizationService>(this);
             m_registry = registry;
 
-            MainConsole.Instance.Debug("[AuthorizationService]: Local Authorization service enabled");
+            MainConsole.Instance.Debug("[Authorization Service]: Local Authorization service enabled");
         }
 
         public void Start(IConfigSource config, IRegistryCore registry)

@@ -119,6 +119,7 @@ namespace Universe.Services
                 createObjectRequest.DeserializeObject ();
                 return new OSDMap () { new KeyValuePair<string, OSD> ("Success", CreateObject (createObjectRequest.Destination, createObjectRequest.Object)) };
             }
+
             return null;
         }
 
@@ -157,6 +158,7 @@ namespace Universe.Services
                 response.Success = false;
                 return false;
             }
+
             IEntityTransferModule transferModule = Scene.RequestModuleInterface<IEntityTransferModule> ();
             if (transferModule != null)
                 return transferModule.NewUserConnection (Scene, aCircuit, teleportFlags, out response);
@@ -177,7 +179,7 @@ namespace Universe.Services
             if (transferModule != null)
                 retVal = transferModule.IncomingChildAgentDataUpdate (Scene, agentData);
 
-            //            MainConsole.Instance.DebugFormat("[LOCAL COMMS]: Did not find region {0} for ChildAgentUpdate", regionHandle);
+            //MainConsole.Instance.DebugFormat("[LOCAL COMMS]: Did not find region {0} for ChildAgentUpdate", regionHandle);
             return retVal;
         }
 
@@ -219,8 +221,7 @@ namespace Universe.Services
             return true;
         }
 
-        public bool FailedToTeleportAgent (GridRegion destination, UUID failedRegionID, UUID agentID, string reason,
-                                          bool isCrossing)
+        public bool FailedToTeleportAgent (GridRegion destination, UUID failedRegionID, UUID agentID, string reason, bool isCrossing)
         {
             IScene Scene = destination == null ? null : GetScene (destination.RegionID);
             if (Scene == null)
@@ -232,8 +233,7 @@ namespace Universe.Services
             return true;
         }
 
-        public bool RetrieveAgent (GridRegion destination, UUID agentID, bool agentIsLeaving, out AgentData agentData,
-                                  out AgentCircuitData circuitData)
+        public bool RetrieveAgent (GridRegion destination, UUID agentID, bool agentIsLeaving, out AgentData agentData, out AgentCircuitData circuitData)
         {
             agentData = null;
             circuitData = null;

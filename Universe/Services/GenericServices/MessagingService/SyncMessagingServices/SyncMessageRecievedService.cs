@@ -54,6 +54,7 @@ namespace Universe.Services
                                      select messagedelegate (message)
                                      into r where r != null select r) {result = r;}
             }
+
             return result;
         }
 

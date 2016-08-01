@@ -74,9 +74,12 @@ namespace Universe.Services
             var method = message ["Method"].AsString();
 
             ISyncMessagePosterService asyncPost = m_registry.RequestModuleInterface<ISyncMessagePosterService> ();
+            
             //We need to check and see if this is an AgentStatusChange
-            if (method == "AgentStatusChange") {
+            if (method == "AgentStatusChange")
+            {
                 OSDMap innerMessage = (OSDMap)message ["Message"];
+                
                 //We got a message, now pass it on to the clients that need it
                 UUID AgentID = innerMessage ["AgentID"].AsUUID ();
                 UUID FriendToInformID = innerMessage ["FriendToInformID"].AsUUID ();
@@ -89,7 +92,8 @@ namespace Universe.Services
                         if (scene.GetScenePresence (FriendToInformID) != null &&
                             !scene.GetScenePresence (FriendToInformID).IsChildAgent) {
                             IFriendsModule friendsModule = scene.RequestModuleInterface<IFriendsModule> ();
-                            if (friendsModule != null) {
+                            if (friendsModule != null)
+                            {
                                 //Send the message
                                 friendsModule.SendFriendsStatusMessage (FriendToInformID, new [] { AgentID }, NewStatus);
                             }
@@ -98,6 +102,7 @@ namespace Universe.Services
                 }
             } else if (method == "AgentStatusChanges") {
                 OSDMap innerMessage = (OSDMap)message ["Message"];
+                
                 //We got a message, now pass it on to the clients that need it
                 List<UUID> AgentIDs = ((OSDArray)innerMessage ["AgentIDs"]).ConvertAll<UUID> ((o) => o);
                 UUID FriendToInformID = innerMessage ["FriendToInformID"].AsUUID ();
@@ -177,6 +182,7 @@ namespace Universe.Services
                     asyncPost.Post (info.CurrentRegionURI, message);
                 }
             }
+
             return null;
         }
     }

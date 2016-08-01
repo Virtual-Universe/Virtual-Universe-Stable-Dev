@@ -171,7 +171,7 @@ namespace Universe.Services
         {
             if (asset != null)
             {
-//                MainConsole.Instance.DebugFormat("[CENOME ASSET CACHE]: Caching asset {0}", asset.IDString);
+                //MainConsole.Instance.DebugFormat("[Cenome Asset Cache]: Caching asset {0}", asset.IDString);
 
                 long size = asset.Data != null ? asset.Data.Length : 1;
                 m_cache.Set(asset.IDString, asset, size);
@@ -248,19 +248,20 @@ namespace Universe.Services
             if (m_getCount == m_debugEpoch)
             {
                 MainConsole.Instance.DebugFormat(
-                    "[ASSET CACHE]: Cached = {0}, Get = {1}, Hits = {2}%, Size = {3} bytes, Avg. A. Size = {4} bytes",
+                    "[Asset Cache]: Cached = {0}, Get = {1}, Hits = {2}%, Size = {3} bytes, Avg. A. Size = {4} bytes",
                     m_cachedCount,
                     m_getCount,
                     ((double) m_hitCount/m_getCount)*100.0,
                     m_cache.Size,
                     m_cache.Size/m_cache.Count);
+
                 m_getCount = 0;
                 m_hitCount = 0;
                 m_cachedCount = 0;
             }
 
 //            if (null == assetBase)
-//                MainConsole.Instance.DebugFormat("[CENOME ASSET CACHE]: Asset {0} not in cache", id);
+//                MainConsole.Instance.DebugFormat("[Cenome Asset Cache]: Asset {0} not in cache", id);
 
             return assetBase;
         }
@@ -293,8 +294,7 @@ namespace Universe.Services
                 // Get optional configurations
                 maxSize = assetConfig.GetLong("MaxSize", DefaultMaxSize);
                 maxCount = assetConfig.GetInt("MaxCount", DefaultMaxCount);
-                expirationTime =
-                    TimeSpan.FromMinutes(assetConfig.GetInt("ExpirationTime", (int) DefaultExpirationTime.TotalMinutes));
+                expirationTime = TimeSpan.FromMinutes(assetConfig.GetInt("ExpirationTime", (int) DefaultExpirationTime.TotalMinutes));
 
                 // Debugging purposes only
                 m_debugEpoch = assetConfig.GetInt("DebugEpoch", 0);
@@ -330,7 +330,7 @@ namespace Universe.Services
         {
             if (maximalSize <= 0 || maximalCount <= 0)
             {
-                //MainConsole.Instance.Debug("[ASSET CACHE]: Cenome asset cache is not enabled.");
+                //MainConsole.Instance.Debug("[Asset Cache]: Cenome asset cache is not enabled.");
                 return;
             }
 
@@ -342,10 +342,9 @@ namespace Universe.Services
 
             // Create cache and add synchronization wrapper over it
             m_cache =
-                CnmSynchronizedCache<string, AssetBase>.Synchronized(new CnmMemoryCache<string, AssetBase>(
-                                                                         maximalSize, maximalCount, expirationTime));
+                CnmSynchronizedCache<string, AssetBase>.Synchronized(new CnmMemoryCache<string, AssetBase>( maximalSize, maximalCount, expirationTime));
             MainConsole.Instance.DebugFormat(
-                "[ASSET CACHE]: Cenome asset cache enabled (MaxSize = {0} bytes, MaxCount = {1}, ExpirationTime = {2})",
+                "[Asset Cache]: Cenome asset cache enabled (MaxSize = {0} bytes, MaxCount = {1}, ExpirationTime = {2})",
                 maximalSize,
                 maximalCount,
                 expirationTime);

@@ -396,7 +396,7 @@ namespace Universe.Services
                 else
                     responseData["max-agent-groups"] = 100;
 
-                //Makes viewers crash...
+                //Makes viewers crash
                 if (VoiceServerType != string.Empty)
                 {
                     Hashtable voice_config = new Hashtable();
@@ -409,6 +409,7 @@ namespace Universe.Services
                 {
                     responseData["buddy-list"] = m_buddyList.ToArray();
                 }
+
                 if (m_source != null)
                 {
                     // we're mapping GridInfoService keys to 
@@ -436,7 +437,7 @@ namespace Universe.Services
                         if (tmp != string.Empty) responseData["helperuri"] = tmp;
 
                         // Some viewers recognize these values already
-                        // ...but broadcasting them won't make older viewer crash
+                        // but broadcasting them won't make older viewer crash
                         tmp = gridInfo.GetString("destination", string.Empty);
                         if (tmp != string.Empty) responseData["destination"] = tmp;
                         tmp = gridInfo.GetString("marketplace", string.Empty);
@@ -543,16 +544,14 @@ namespace Universe.Services
             {
                 foreach (UUID rootfolderID in rootFolderUUIDs)
                 {
-                    TraverseFolder(library.LibraryOwner, rootfolderID, inventoryService, library, true,
-                                   ref AgentInventoryArray);
+                    TraverseFolder(library.LibraryOwner, rootfolderID, inventoryService, library, true, ref AgentInventoryArray);
                 }
             }
 
             return AgentInventoryArray;
         }
 
-        void TraverseFolder(UUID agentIDreq, UUID folderID, IInventoryService invService, ILibraryService library,
-                                    bool rootFolder, ref ArrayList table)
+        void TraverseFolder(UUID agentIDreq, UUID folderID, IInventoryService invService, ILibraryService library, bool rootFolder, ref ArrayList table)
         {
             List<InventoryFolderBase> folders = invService.GetFolderFolders(agentIDreq, folderID);
             foreach (InventoryFolderBase folder in folders)

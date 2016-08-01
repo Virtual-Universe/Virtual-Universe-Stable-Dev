@@ -39,7 +39,6 @@ namespace Universe.Services
     {
         public UniverseEventManager EventManager = new UniverseEventManager ();
         ISchedulerDataPlugin m_database;
-        // bool m_enabled;
 
         #region Implementation of IService
 
@@ -71,9 +70,6 @@ namespace Universe.Services
         {
             if (IsLocalConnector) {
                 m_database = Framework.Utilities.DataManager.RequestPlugin<ISchedulerDataPlugin> ();
-                // if (m_database != null)
-                //     m_enabled = true;
-
             }
         }
 
@@ -96,6 +92,7 @@ namespace Universe.Services
                 DoRemotePost (id);
                 return;
             }
+
             m_database.SchedulerRemoveID (id);
         }
 
@@ -106,6 +103,7 @@ namespace Universe.Services
                 DoRemotePost (identifier);
                 return;
             }
+
             m_database.SchedulerRemoveFunction (identifier);
         }
 
@@ -143,73 +141,5 @@ namespace Universe.Services
 
         #endregion
 
-        /*       #region Timer
-
-               void t_Elapsed(object sender, ElapsedEventArgs e)
-               {
-                   scheduleTimer.Enabled = false;
-                   try
-                   {
-                       List<SchedulerItem> CurrentSchedule = m_database.ToRun();
-                       foreach (SchedulerItem I in CurrentSchedule)
-                       {
-                           FireEvent(I);
-                       }
-                   }
-                   catch (Exception ee)
-                   {
-                       MainConsole.Instance.ErrorFormat("[Scheduler] t_Elapsed Error {0}", ee);
-                   }
-                   finally
-                   {
-                       scheduleTimer.Enabled = true;
-                   }
-               }
-
-               void FireEvent(SchedulerItem I)
-               {
-                   try
-                   {
-                       // save changes before it fires in case its changed during the fire
-                       I = m_database.SaveHistory(I);
-
-                       if (I.RunOnce)
-                           I.Enabled = false;
-
-       //                if (I.Enabled) I.CalculateNextRunTime(I.TimeToRun);
-                       if (I.Enabled)
-                           I.TimeToRun = schedMoney.GetStipendPaytime(Constants.SCHEDULED_PAYMENTS_DELAY);      // next stipend payment cycle + delay
-
-                       if (!I.HistoryKeep)
-                           m_database.HistoryDeleteOld(I);
-
-                       // save the new schedule item
-                       m_database.SchedulerSave(I);
-
-                       // now fire
-                       List<Object> reciept = EventManager.FireGenericEventHandler(I.FireFunction, I.FireParams);
-                       if (!I.HistoryReceipt)
-                           I = m_database.SaveHistoryComplete(I);
-                       else
-                       {
-                           foreach (string results in reciept.Cast<string>().Where(results => results != ""))
-                           {
-                               m_database.SaveHistoryCompleteReciept(I.HistoryLastID, results);
-                           }
-                       }
-                   }
-                   catch (Exception e)
-                   {
-                       MainConsole.Instance.ErrorFormat("[Scheduler] FireEvent Error {0}: {1}", I.id, e);
-                   }
-               }
-
-               public void MarkComplete(string history_id, string receipt)
-               {
-                   m_database.SaveHistoryCompleteReciept(history_id, receipt);
-               }
-
-               #endregion
-               */
     }
 }

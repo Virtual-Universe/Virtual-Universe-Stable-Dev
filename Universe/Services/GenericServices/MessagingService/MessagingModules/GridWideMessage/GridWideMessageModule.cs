@@ -56,9 +56,11 @@ namespace Universe.Services
         {
             //Get required interfaces
             IClientCapsService client = m_capsService.GetClientCapsService (avatarID);
-            if (client != null) {
+            if (client != null)
+            {
                 IRegionClientCapsService regionClient = client.GetRootCapsService ();
-                if (regionClient != null) {
+                if (regionClient != null)
+                {
                     //Send the message to the client
                     m_messagePost.Get (regionClient.Region.ServerURI,
                                       BuildRequest ("KickUserMessage", message, regionClient.AgentID.ToString ()),
@@ -73,6 +75,7 @@ namespace Universe.Services
                     return;
                 }
             }
+
             MainConsole.Instance.Info ("Could not find user to send message to.");
         }
 
@@ -80,17 +83,19 @@ namespace Universe.Services
         {
             //Get required interfaces
             IClientCapsService client = m_capsService.GetClientCapsService (avatarID);
-            if (client != null) {
+            if (client != null)
+            {
                 IRegionClientCapsService regionClient = client.GetRootCapsService ();
-                if (regionClient != null) {
+                if (regionClient != null)
+                {
                     //Send the message to the client
-                    m_messagePost.Post (regionClient.Region.ServerURI,
-                                       BuildRequest ("GridWideMessage", message, regionClient.AgentID.ToString ()));
+                    m_messagePost.Post (regionClient.Region.ServerURI, BuildRequest ("GridWideMessage", message, regionClient.AgentID.ToString ()));
                     MainConsole.Instance.Info ("Message sent to the user.");
                     return;
                 }
             }
-            MainConsole.Instance.Info ("Could not find user to send message to.");
+
+            MainConsole.Instance.Info ("[Grid Wide Message Module]: Could not find user to send message to.");
         }
 
         public void SendAlert (string message)
@@ -106,11 +111,11 @@ namespace Universe.Services
                     where regionClient.RootAgent
                     select regionClient)
             {
-                MainConsole.Instance.Debug ("[GridWideMessageModule]: Informed " + regionClient.ClientCaps.AccountInfo.Name);
+                MainConsole.Instance.Debug ("[Grid Wide Message Module]: Informed " + regionClient.ClientCaps.AccountInfo.Name);
                 //Send the message to the client
-                m_messagePost.Post (regionClient.Region.ServerURI,
-                                   BuildRequest ("GridWideMessage", message, regionClient.AgentID.ToString ()));
+                m_messagePost.Post (regionClient.Region.ServerURI, BuildRequest ("GridWideMessage", message, regionClient.AgentID.ToString ()));
             }
+
             MainConsole.Instance.Info ("[GridWideMessageModule]: Sent alert, will be delivered across the grid shortly.");
         }
 
@@ -129,9 +134,9 @@ namespace Universe.Services
             IConfig handlersConfig = config.Configs ["Handlers"];
             if (handlersConfig == null)
                 return;
+
             if (handlersConfig.GetString ("GridWideMessage", "") != "GridWideMessageModule")
                 return;
-
 
             if (MainConsole.Instance != null) {
                 MainConsole.Instance.Commands.AddCommand (
@@ -173,6 +178,7 @@ namespace Universe.Services
                 message = CombineParams (cmd, 3);
             else
                 message = MainConsole.Instance.Prompt ("Message to send?", "");
+
             if (message == "")
                 return;
 
@@ -188,6 +194,7 @@ namespace Universe.Services
                 user = CombineParams (cmd, 3, 5);
             else
                 user = MainConsole.Instance.Prompt ("User name? (First Last)", "");
+
             if (user == "")
                 return;
 
@@ -195,9 +202,9 @@ namespace Universe.Services
                 message = CombineParams (cmd, 5);
             else
                 message = MainConsole.Instance.Prompt ("Message to send?", "");
+
             if (message == "")
                 return;
-
 
             IUserAccountService userService = m_registry.RequestModuleInterface<IUserAccountService> ();
             UserAccount account = userService.GetUserAccount (null, user.Split (' ') [0], user.Split (' ') [1]);
@@ -205,6 +212,7 @@ namespace Universe.Services
                 MainConsole.Instance.Info ("User does not exist.");
                 return;
             }
+
             MessageUser (account.PrincipalID, message);
         }
 
@@ -214,9 +222,11 @@ namespace Universe.Services
             string user = CombineParams (cmd, 3, 5);
             if (user.EndsWith (" ", System.StringComparison.Ordinal))
                 user = user.Remove (user.Length - 1);
+
             string message = CombineParams (cmd, 5);
             IUserAccountService userService = m_registry.RequestModuleInterface<IUserAccountService> ();
             UserAccount account = userService.GetUserAccount (null, user);
+
             if (account == null) {
                 MainConsole.Instance.Info ("User does not exist.");
                 return;
@@ -262,19 +272,23 @@ namespace Universe.Services
 
         protected OSDMap OnMessageReceived (OSDMap message)
         {
-            if (message.ContainsKey ("Method") && message ["Method"] == "GridWideMessage") {
+            if (message.ContainsKey ("Method") && message ["Method"] == "GridWideMessage")
+            {
                 //We got a message, now display it
                 string user = message ["User"].AsString ();
                 string value = message ["Value"].AsString ();
 
                 //Get the Scene registry since IDialogModule is a region module, and isn't in the ISimulationBase registry
                 ISceneManager manager = m_registry.RequestModuleInterface<ISceneManager> ();
-                if (manager != null) {
+                if (manager != null)
+                {
                     foreach (IScene scene in manager.Scenes) {
                         IScenePresence sp = null;
-                        if (scene.TryGetScenePresence (UUID.Parse (user), out sp) && !sp.IsChildAgent) {
+                        if (scene.TryGetScenePresence (UUID.Parse (user), out sp) && !sp.IsChildAgent)
+                        {
                             IDialogModule dialogModule = scene.RequestModuleInterface<IDialogModule> ();
-                            if (dialogModule != null) {
+                            if (dialogModule != null)
+                            {
                                 //Send the message to the user now
                                 dialogModule.SendAlertToUser (UUID.Parse (user), value);
                             }
@@ -288,11 +302,13 @@ namespace Universe.Services
 
                 //Get the Scene registry since IDialogModule is a region module, and isn't in the ISimulationBase registry
                 ISceneManager manager = m_registry.RequestModuleInterface<ISceneManager> ();
-                if (manager != null) {
+                if (manager != null)
+                {
                     foreach (IScene scene in manager.Scenes) {
                         IScenePresence sp = null;
-                        if (scene.TryGetScenePresence (UUID.Parse (user), out sp)) {
-                            sp.ControllingClient.Kick (value == "" ? "The Universe Grid Manager kicked you out." : value);
+                        if (scene.TryGetScenePresence (UUID.Parse (user), out sp))
+                        {
+                            sp.ControllingClient.Kick (value == "" ? "The Virtual Universe Grid Manager kicked you out." : value);
                             IEntityTransferModule transferModule = scene.RequestModuleInterface<IEntityTransferModule> ();
                             if (transferModule != null)
                                 transferModule.IncomingCloseAgent (scene, sp.UUID);
@@ -300,6 +316,7 @@ namespace Universe.Services
                     }
                 }
             }
+
             return null;
         }
 
