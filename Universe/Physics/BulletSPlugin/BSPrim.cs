@@ -44,7 +44,6 @@ namespace Universe.Physics.BulletSPlugin
         // _size is what the user passed. Scale is what we pass to the physics engine with the mesh.
         OMV.Vector3 _size; // the multiplier for each mesh dimension as passed by the user
 
-
         int _physicsActorType;
         bool _isSelected;
         bool _isVolumeDetect;
@@ -68,13 +67,15 @@ namespace Universe.Physics.BulletSPlugin
 
         public BSDynamics VehicleActor;
         public const string VehicleActorName = "BasicVehicle";
+
         public const string HoverActorName = "HoverActor";
-        public const string LockedAxisActorName = "BSPrim.LockedAxis";
+        public const String LockedAxisActorName = "BSPrim.LockedAxis";
         public const string MoveToTargetActorName = "MoveToTargetActor";
         public const string SetForceActorName = "SetForceActor";
         public const string SetTorqueActorName = "SetTorqueActor";
 
-        public BSPrim(uint localID, String primName, BSScene parent_scene, OMV.Vector3 pos, OMV.Vector3 size, OMV.Quaternion rotation, PrimitiveBaseShape pbs, bool pisPhysical)
+        public BSPrim(uint localID, String primName, BSScene parent_scene, OMV.Vector3 pos, OMV.Vector3 size,
+            OMV.Quaternion rotation, PrimitiveBaseShape pbs, bool pisPhysical)
             : base(parent_scene, localID, primName, "BSPrim")
         {
             // MainConsole.Instance.DebugFormat("{0}: BSPrim creation of {1}, id={2}", LogHeader, primName, localID);
@@ -93,6 +94,7 @@ namespace Universe.Physics.BulletSPlugin
             // Add a dynamic vehicle to our set of actors that can move this prim.
 	          VehicleActor = new BSDynamics(PhysicsScene, this, VehicleActorName);
             PhysicalActors.Add(VehicleActorName, VehicleActor);
+            //PhysicalActors.Add(VehicleActorName, new BSDynamics(PhysicsScene, this, VehicleActorName));
 
             _mass = CalculateMass();
 
@@ -101,9 +103,12 @@ namespace Universe.Physics.BulletSPlugin
             PhysicsScene.TaintedObject(LocalID, "BSPrim.create", delegate()
             {
                 // Make sure the object is being created with some sanity.
-                ExtremeSanityCheck(true);
+                ExtremeSanityCheck(true /* inTaintTime */);
+
                 CreateGeomAndObject(true);
+
                 CurrentCollisionFlags = PhysicsScene.PE.GetCollisionFlags(PhysBody);
+
                 IsInitialized = true;
             });
         }
@@ -213,6 +218,8 @@ namespace Universe.Physics.BulletSPlugin
                     {
                         DetailLog("{0},BSPrim.selected,taint,selected={1}", LocalID, _isSelected);
                         SetObjectDynamic(false);
+                   //SelectObject(_isSelected);   //??
+
                     });
                 }
             }
@@ -223,6 +230,7 @@ namespace Universe.Physics.BulletSPlugin
             if (!val)
             {
                 //Don't make objects phantom when selecting
+                //PhysicsScene.PE.RemoveFromCollisionFlags(PhysBody, CollisionFlags.CF_NO_CONTACT_RESPONSE);
                 //Reenable collision events
                 if (SubscribedEvents())
                     EnableCollisions(true);
@@ -234,8 +242,8 @@ namespace Universe.Physics.BulletSPlugin
             else
             {
                 //Don't make objects phantom when selecting
+                //PhysicsScene.PE.AddToCollisionFlags(PhysBody, CollisionFlags.CF_NO_CONTACT_RESPONSE);
                 PhysicsScene.PE.ForceActivationState(PhysBody, ActivationState.DISABLE_SIMULATION);
-                
                 //Disable collision events
                 EnableCollisions(false);
             }
@@ -257,7 +265,6 @@ namespace Universe.Physics.BulletSPlugin
             {
                 MainConsole.Instance.WarnFormat("{0} Too many crossing failures for {1}", LogHeader, Name);
             }
-
             return;
         }
 
@@ -317,12 +324,10 @@ namespace Universe.Physics.BulletSPlugin
             {
                 ApplyAxisLimits(ExtendedPhysics.PHYS_AXIS_LOCK_ANGULAR_X, 0f, 0f);
             }
-
             if (axis.Y != 1)
             {
                 ApplyAxisLimits(ExtendedPhysics.PHYS_AXIS_ANGULAR_Y, 0f, 0f);
             }
-
             if (axis.Z != 1)
             {
                 ApplyAxisLimits(ExtendedPhysics.PHYS_AXIS_ANGULAR_Z, 0f, 0f);
@@ -343,6 +348,7 @@ namespace Universe.Physics.BulletSPlugin
             get
             {
                 // don't do the GetObjectPosition for root elements because this function is called a zillion times.
+                // _position = ForcePosition;
                 return _position;
             }
             set
@@ -351,10 +357,10 @@ namespace Universe.Physics.BulletSPlugin
                 // All positions are given in world positions.
                 if (_position == value)
                 {
-                    DetailLog("{0},BSPrim.setPosition,call,positionNotChanging,pos={1},orient={2}", LocalID, _position, _orientation);
+                    DetailLog("{0},BSPrim.setPosition,call,positionNotChanging,pos={1},orient={2}", LocalID, _position,
+                        _orientation);
                     return;
                 }
-
                 _position = value;
                 PositionSanityCheck(false);
 
@@ -427,12 +433,12 @@ namespace Universe.Physics.BulletSPlugin
                 float targetHeight = terrainHeight + (Size.Z / 2f);
                 // If the object is below ground it just has to be moved up because pushing will
                 //     not get it through the terrain
+                //_position = new OMV.Vector3(_position.X, _position.Y, targetHeight);
                 _position.Z = targetHeight;
                 if (inTaintTime)
                 {
                     ForcePosition = _position;
                 }
-
                 // If we are throwing the object around, zero its other forces
                 ZeroMotion(inTaintTime);
                 ret = true;
@@ -449,7 +455,8 @@ namespace Universe.Physics.BulletSPlugin
 
                     // Apply upforce and overcome gravity.
                     OMV.Vector3 correctionForce = upForce - PhysicsScene.DefaultGravity;
-                    DetailLog("{0},BSPrim.PositionSanityCheck,applyForce,pos={1},upForce={2},correctionForce={3}", LocalID, _position, upForce, correctionForce);
+                    DetailLog("{0},BSPrim.PositionSanityCheck,applyForce,pos={1},upForce={2},correctionForce={3}",
+                        LocalID, _position, upForce, correctionForce);
                     AddForce(correctionForce, false, inTaintTime);
                     ret = true;
                 }
@@ -465,8 +472,13 @@ namespace Universe.Physics.BulletSPlugin
         {
             bool ret = false;
 
-          // There have been instances of objects getting thrown way out of bounds and crashing
-          //    the border crossing code.
+            // There have been instances of objects getting thrown way out of bounds and crashing
+            //    the border crossing code.
+//            uint wayOutThere = Constants.RegionSize * Constants.RegionSize;
+//            if (_position.X < -Constants.RegionSize || _position.X > wayOutThere
+//                || _position.Y < -Constants.RegionSize || _position.Y > wayOutThere
+//                || _position.Z < -Constants.RegionSize || _position.Z > wayOutThere)
+//            {
             int wayOutThere = 10000;
             int wayUnderThere = -10000;
             if (_position.X < wayUnderThere || _position.X > wayOutThere
@@ -477,13 +489,12 @@ namespace Universe.Physics.BulletSPlugin
                 ZeroMotion(inTaintTime);
                 ret = true;
             }
-
+//            if (RawVelocity.LengthSquared() > BSParam.MaxLinearVelocity)
             if (RawVelocity.LengthSquared() > BSParam.MaxLinearVelocitySquared)
             {
                 RawVelocity = Util.ClampV(RawVelocity, BSParam.MaxLinearVelocity);
                 ret = true;
             }
-
             if (_rotationalVelocity.LengthSquared() > BSParam.MaxAngularVelocitySquared)
             {
                 _rotationalVelocity = Util.ClampV(_rotationalVelocity, BSParam.MaxAngularVelocity);
@@ -544,7 +555,8 @@ namespace Universe.Physics.BulletSPlugin
                     PhysicsScene.PE.SetMassProps(PhysBody, physMass, Inertia);
                     PhysicsScene.PE.UpdateInertiaTensor(PhysBody);
 
-                    DetailLog("{0},BSPrim.UpdateMassProperties,mass={1},localInertia={2},grav={3},inWorld={4}", LocalID, physMass, Inertia, Gravity, inWorld);
+                    DetailLog("{0},BSPrim.UpdateMassProperties,mass={1},localInertia={2},grav={3},inWorld={4}",
+                        LocalID, physMass, Inertia, Gravity, inWorld);
 
                     if (inWorld)
                     {
@@ -580,9 +592,11 @@ namespace Universe.Physics.BulletSPlugin
             set
             {
                 RawForce = value;
-                EnableActor(RawForce != OMV.Vector3.Zero, SetForceActorName, delegate() { return new BSActorSetForce(PhysicsScene, this, SetForceActorName); });
+                EnableActor(RawForce != OMV.Vector3.Zero, SetForceActorName,
+                    delegate() { return new BSActorSetForce(PhysicsScene, this, SetForceActorName); });
             }
         }
+
 
         public override int VehicleType
         {
@@ -722,7 +736,6 @@ namespace Universe.Physics.BulletSPlugin
             }
         }
     }
-
     public override float GravityMultiplier   // maybe should be GravityMultiplier ??
     {
             get { return base.GravityMultiplier; }
@@ -779,6 +792,13 @@ namespace Universe.Physics.BulletSPlugin
                 EnableActor(RawTorque != OMV.Vector3.Zero, SetTorqueActorName,
                     delegate() { return new BSActorSetTorque(PhysicsScene, this, SetTorqueActorName); });
                 // DetailLog("{0},BSPrim.SetTorque,call,torque={1}", LocalID, _torque);
+
+            // This appears to cause crashes => OS import
+                // Call update so actor Refresh() is called to start things off
+            //PhysicsScene.TaintedObject("BSPrim.setTorque", delegate()
+            //{
+            //    UpdatePhysicalParameters();
+            //});
             }
         }
 
@@ -842,7 +862,6 @@ namespace Universe.Physics.BulletSPlugin
                     {
                         DetailLog("{0},setIsPhysical,taint,isPhys={1}", LocalID, _isPhysical);
                         SetObjectDynamic(true);
-                        
                         // whether phys-to-static or static-to-phys, the object is not moving.
                         ZeroMotion(true);
                     });
@@ -853,7 +872,7 @@ namespace Universe.Physics.BulletSPlugin
         // An object is static (does not move) if selected or not physical
         public override bool IsStatic
         {
-            get { return !IsPhysical; }
+            get { return /*_isSelected ||*/ !IsPhysical; }
         }
 
         // An object is solid if it's not phantom and if it's not doing VolumeDetect
@@ -917,7 +936,8 @@ namespace Universe.Physics.BulletSPlugin
 
             DetailLog(
                 "{0},BSPrim.UpdatePhysicalParameters,taintExit,static={1},solid={2},mass={3},collide={4},cf={5:X},cType={6},body={7},shape={8},pos={9}",
-                LocalID, IsStatic, IsSolid, Mass, SubscribedEvents(), CurrentCollisionFlags, PhysBody.collisionType, PhysBody, PhysShape, PhysicsScene.PE.GetPosition(PhysBody));
+                LocalID, IsStatic, IsSolid, Mass, SubscribedEvents(), CurrentCollisionFlags, PhysBody.collisionType,
+                PhysBody, PhysShape, PhysicsScene.PE.GetPosition(PhysBody));
         }
 
         // "Making dynamic" means changing to and from static.
@@ -931,7 +951,6 @@ namespace Universe.Physics.BulletSPlugin
             {
                 // Become a Bullet 'static' object type
                 CurrentCollisionFlags = PhysicsScene.PE.AddToCollisionFlags(PhysBody, CollisionFlags.CF_STATIC_OBJECT);
-                
                 // Stop all movement
                 ZeroMotion(true);
 
@@ -950,6 +969,7 @@ namespace Universe.Physics.BulletSPlugin
                 }
 
                 // The activation state is 'disabled' so Bullet will not try to act on it.
+                // PhysicsScene.PE.ForceActivationState(PhysBody, ActivationState.DISABLE_SIMULATION);
                 // Start it out sleeping and physical actions could wake it up.
                 PhysicsScene.PE.ForceActivationState(PhysBody, ActivationState.ISLAND_SLEEPING);
 
@@ -969,6 +989,8 @@ namespace Universe.Physics.BulletSPlugin
 
                 // per http://www.bulletphysics.org/Bullet/phpBB3/viewtopic.php?t=3382
                 // Since this can be called multiple times, only zero forces when becoming physical
+                // PhysicsScene.PE.ClearAllForces(BSBody);
+
                 // For good measure, make sure the transform is set through to the motion state
                 ForcePosition = _position;
                 ForceVelocity = RawVelocity;
@@ -1013,19 +1035,20 @@ namespace Universe.Physics.BulletSPlugin
                 if ((bodyType & CollisionObjectTypes.CO_RIGID_BODY) == 0)
                 {
                     MainConsole.Instance.ErrorFormat(
-                        "{0} MakeSolid: physical body of wrong type for solidity. id={1}, type={2}", LogHeader, LocalID, bodyType);
+                        "{0} MakeSolid: physical body of wrong type for solidity. id={1}, type={2}", LogHeader, LocalID,
+                        bodyType);
                 }
-
-                CurrentCollisionFlags = PhysicsScene.PE.RemoveFromCollisionFlags(PhysBody, CollisionFlags.CF_NO_CONTACT_RESPONSE);
+                CurrentCollisionFlags = PhysicsScene.PE.RemoveFromCollisionFlags(PhysBody,
+                    CollisionFlags.CF_NO_CONTACT_RESPONSE);
             }
             else
             {
                 if ((bodyType & CollisionObjectTypes.CO_GHOST_OBJECT) == 0)
                 {
                     MainConsole.Instance.ErrorFormat(
-                        "{0} MakeSolid: physical body of wrong type for non-solidness. id={1}, type={2}", LogHeader, LocalID, bodyType);
+                        "{0} MakeSolid: physical body of wrong type for non-solidness. id={1}, type={2}", LogHeader,
+                        LocalID, bodyType);
                 }
-
                 CurrentCollisionFlags = PhysicsScene.PE.AddToCollisionFlags(PhysBody,
                     CollisionFlags.CF_NO_CONTACT_RESPONSE);
 
@@ -1039,11 +1062,13 @@ namespace Universe.Physics.BulletSPlugin
         {
             if (wantsCollisionEvents)
             {
-                CurrentCollisionFlags = PhysicsScene.PE.AddToCollisionFlags(PhysBody, CollisionFlags.BS_SUBSCRIBE_COLLISION_EVENTS);
+                CurrentCollisionFlags = PhysicsScene.PE.AddToCollisionFlags(PhysBody,
+                    CollisionFlags.BS_SUBSCRIBE_COLLISION_EVENTS);
             }
             else
             {
-                CurrentCollisionFlags = PhysicsScene.PE.RemoveFromCollisionFlags(PhysBody, CollisionFlags.BS_SUBSCRIBE_COLLISION_EVENTS);
+                CurrentCollisionFlags = PhysicsScene.PE.RemoveFromCollisionFlags(PhysBody,
+                    CollisionFlags.BS_SUBSCRIBE_COLLISION_EVENTS);
             }
         }
 
@@ -1058,8 +1083,10 @@ namespace Universe.Physics.BulletSPlugin
             }
             else
             {
-                MainConsole.Instance.ErrorFormat("{0} Attempt to add physical object without body. id={1}", LogHeader, LocalID);
-                DetailLog("{0},BSPrim.AddObjectToPhysicalWorld,addObjectWithoutBody,cType={1}", LocalID, PhysBody.collisionType);
+                MainConsole.Instance.ErrorFormat("{0} Attempt to add physical object without body. id={1}", LogHeader,
+                    LocalID);
+                DetailLog("{0},BSPrim.AddObjectToPhysicalWorld,addObjectWithoutBody,cType={1}", LocalID,
+                    PhysBody.collisionType);
             }
         }
 
@@ -1101,9 +1128,11 @@ namespace Universe.Physics.BulletSPlugin
                 PhysicsScene.TaintedObject(LocalID,"BSPrim.setFloatOnWater", delegate()
                 {
                     if (_floatOnWater)
-                        CurrentCollisionFlags = PhysicsScene.PE.AddToCollisionFlags(PhysBody, CollisionFlags.BS_FLOATS_ON_WATER);
+                        CurrentCollisionFlags = PhysicsScene.PE.AddToCollisionFlags(PhysBody,
+                            CollisionFlags.BS_FLOATS_ON_WATER);
                     else
-                        CurrentCollisionFlags = PhysicsScene.PE.RemoveFromCollisionFlags(PhysBody, CollisionFlags.BS_FLOATS_ON_WATER);
+                        CurrentCollisionFlags = PhysicsScene.PE.RemoveFromCollisionFlags(PhysBody,
+                            CollisionFlags.BS_FLOATS_ON_WATER);
                 });
             }
         }
@@ -1116,7 +1145,8 @@ namespace Universe.Physics.BulletSPlugin
                 _rotationalVelocity = value;
                 Util.ClampV(_rotationalVelocity, BSParam.MaxAngularVelocity);
                 // MainConsole.Instance.DebugFormat("{0}: RotationalVelocity={1}", LogHeader, _rotationalVelocity);
-                PhysicsScene.TaintedObject(LocalID,"BSPrim.setRotationalVelocity", delegate() { ForceRotationalVelocity = _rotationalVelocity; });
+                PhysicsScene.TaintedObject(LocalID,"BSPrim.setRotationalVelocity",
+                    delegate() { ForceRotationalVelocity = _rotationalVelocity; });
             }
         }
 
@@ -1130,6 +1160,7 @@ namespace Universe.Physics.BulletSPlugin
                 {
                     DetailLog("{0},BSPrim.ForceRotationalVel,taint,rotvel={1}", LocalID, _rotationalVelocity);
                     PhysicsScene.PE.SetAngularVelocity(PhysBody, _rotationalVelocity);
+                    // PhysicsScene.PE.SetInterpolationAngularVelocity(PhysBody, _rotationalVelocity);
                     ActivateIfPhysical(false);
                 }
             }
@@ -1163,6 +1194,59 @@ namespace Universe.Physics.BulletSPlugin
             }
         }
 
+        /*
+        // all the PID stuff appears to have been moved to SceneObjectPat..UpdateLookAt()
+        public override bool PIDActive {
+            get
+            {
+                return MoveToTargetActive;
+            }
+            set {
+                base.MoveToTargetActive = value;
+                EnableActor(MoveToTargetActive, MoveToTargetActorName, delegate()
+                {
+                     return new BSActorMoveToTarget(PhysicsScene, this, MoveToTargetActorName);
+                });
+
+                // Call update so actor Refresh() is called to start things off
+                PhysicsScene.TaintedObject( "BSPrim.PIDActive", delegate()
+                {
+                    UpdatePhysicalParameters();
+                });
+             }
+        }
+
+        public override OMV.Vector3 PIDTarget
+        {
+            set
+            {
+                base.PIDTarget = value;
+                BSActor actor;
+                if (PhysicalActors.TryGetActor(MoveToTargetActorName, out actor))
+                {
+                    // if the actor exists, tell it to refresh its values.
+                    actor.Refresh();
+                }
+                
+            }
+        }
+        // Used for llSetHoverHeight and maybe vehicle height
+        // Hover Height will override MoveTo target's Z
+        public override bool PIDHoverActive {
+            set {
+                base.HoverActive = value;
+                EnableActor(HoverActive, HoverActorName, delegate()
+                {
+                    return new BSActorHover(PhysicsScene, this, HoverActorName);
+                });
+                // Call update so actor Refresh() is called to start things off
+                PhysicsScene.TaintedObject("BSPrim.PIDHoverActive", delegate()
+                {
+                    UpdatePhysicalParameters();
+                });
+            }
+        }
+*/
         public override void AddForce(OMV.Vector3 force, bool pushforce)
         {
             // Per documentation, max force is limited.
@@ -1170,7 +1254,7 @@ namespace Universe.Physics.BulletSPlugin
 
             // Since this force is being applied in only one step, make this a force per second.
             addForce /= PhysicsScene.LastTimeStep;
-            AddForce(addForce, pushforce, false);
+            AddForce(addForce, pushforce, false /* inTaintTime */);
         }
 
         // Applying a force just adds this to the total force on the object.
@@ -1198,7 +1282,8 @@ namespace Universe.Physics.BulletSPlugin
                 }
                 else
                 {
-                    MainConsole.Instance.WarnFormat("{0}: AddForce: Got a NaN force applied to a prim. LocalID={1}", LogHeader, LocalID);
+                    MainConsole.Instance.WarnFormat("{0}: AddForce: Got a NaN force applied to a prim. LocalID={1}",
+                        LogHeader, LocalID);
                     return;
                 }
             }
@@ -1227,7 +1312,8 @@ namespace Universe.Physics.BulletSPlugin
                 }
                 else
                 {
-                    MainConsole.Instance.WarnFormat("{0}: AddForceImpulse: Got a NaN impulse applied to a prim. LocalID={1}", LogHeader, LocalID);
+                    MainConsole.Instance.WarnFormat(
+                        "{0}: AddForceImpulse: Got a NaN impulse applied to a prim. LocalID={1}", LogHeader, LocalID);
                     return;
                 }
             }
@@ -1251,7 +1337,8 @@ namespace Universe.Physics.BulletSPlugin
             }
             else
             {
-                MainConsole.Instance.WarnFormat("{0}: Got a NaN force applied to a prim. LocalID={1}", LogHeader, LocalID);
+                MainConsole.Instance.WarnFormat("{0}: Got a NaN force applied to a prim. LocalID={1}", LogHeader,
+                    LocalID);
                 return;
             }
         }
@@ -1347,7 +1434,6 @@ namespace Universe.Physics.BulletSPlugin
                                     hollowVolume = 0;
                                     break;
                             }
-
                             volume *= (1.0f - hollowVolume);
                         }
                     }
@@ -1380,7 +1466,6 @@ namespace Universe.Physics.BulletSPlugin
                                     hollowVolume = 0;
                                     break;
                             }
-
                             volume *= (1.0f - hollowVolume);
                         }
                     }
@@ -1414,7 +1499,6 @@ namespace Universe.Physics.BulletSPlugin
                                     hollowVolume = 0;
                                     break;
                             }
-
                             volume *= (1.0f - hollowVolume);
                         }
                     }
@@ -1458,7 +1542,6 @@ namespace Universe.Physics.BulletSPlugin
                                     hollowVolume = 0;
                                     break;
                             }
-
                             volume *= (1.0f - hollowVolume);
                         }
                     }
@@ -1493,7 +1576,6 @@ namespace Universe.Physics.BulletSPlugin
                                     hollowVolume = 0;
                                     break;
                             }
-
                             volume *= (1.0f - hollowVolume);
                         }
                     }
@@ -1502,6 +1584,7 @@ namespace Universe.Physics.BulletSPlugin
                 default:
                     break;
             }
+
 
             float taperX1;
             float taperY1;
@@ -1600,13 +1683,13 @@ namespace Universe.Physics.BulletSPlugin
                     ret = base.Extension(pFunct, pParams);
                     break;
             }
-
             return ret;
         }
 
         void InitializeAxisActor()
         {
-            EnableActor(LockedAngularAxis != LockedAxisFree || LockedLinearAxis != LockedAxisFree, LockedAxisActorName, delegate()
+            EnableActor(LockedAngularAxis != LockedAxisFree || LockedLinearAxis != LockedAxisFree,
+                                        LockedAxisActorName, delegate()
             {
                 return new BSActorLockAxis(PhysicsScene, this, LockedAxisActorName);
             });
@@ -1676,18 +1759,15 @@ namespace Universe.Physics.BulletSPlugin
                             }
                         }
                     }
-
                     InitializeAxisActor();
                     ret = (object)index;
                 }
             }
-
             catch (Exception e)
             {
                 MainConsole.Instance.WarnFormat("{0} SetSxisLockLimitsExtension exception in object {1}: {2}", LogHeader, Name, e);
                 ret = null;
             }
-
             return ret;    // not implemented yet
         }
 
@@ -1820,10 +1900,8 @@ namespace Universe.Physics.BulletSPlugin
                 default:
                     break;
             }
-
             return;
         }
-
         #endregion  // Extension
 
         // The physics engine says that properties have updated. Update same and inform
@@ -1857,12 +1935,12 @@ namespace Universe.Physics.BulletSPlugin
             // DEBUG DEBUG DEBUG -- smooth velocity changes a bit. The simulator seems to be
             //    very sensitive to velocity changes.
             if (entprop.Velocity == OMV.Vector3.Zero ||
-                (VehicleType != 0) || !entprop.Velocity.ApproxEquals(RawVelocity, BSParam.UpdateVelocityChangeThreshold / 2f))
+                (VehicleType != 0 /*&& !entprop.Velocity.ApproxEquals(RawVelocity, 0.01f)*/) ||
+                !entprop.Velocity.ApproxEquals(RawVelocity, BSParam.UpdateVelocityChangeThreshold / 2f))
             {
                 terseUpdate = true;
                 RawVelocity = entprop.Velocity;
             }
-
             _acceleration = entprop.Acceleration;
             _rotationalVelocity = entprop.RotationalVelocity;
 
@@ -1877,12 +1955,24 @@ namespace Universe.Physics.BulletSPlugin
                 entprop.Acceleration = _acceleration;
             }
 
+            // 20131224 not used        OMV.Vector3 direction = OMV.Vector3.UnitX * _orientation;   // DEBUG DEBUG DEBUG
+            //DetailLog("{0},BSPrim.UpdateProperties,call,entProp={1},dir={2}", LocalID, entprop, direction);
+
             // remember the current and last set values
             LastEntityProperties = CurrentEntityProperties;
             CurrentEntityProperties = entprop;
 
             if (terseUpdate)
                 RequestPhysicsterseUpdate ();
+            /*
+            else
+            {
+                // For debugging, report the movement of children
+                DetailLog("{0},BSPrim.UpdateProperties,child,pos={1},orient={2},vel={3},accel={4},rotVel={5}",
+                        LocalID, entprop.Position, entprop.Rotation, entprop.Velocity,
+                        entprop.Acceleration, entprop.RotationalVelocity);
+            }
+            */
          }
 
 

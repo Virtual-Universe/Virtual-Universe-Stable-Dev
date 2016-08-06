@@ -33,10 +33,10 @@ using System.Text;
 using Universe.Framework.Physics;
 using Universe.Framework.SceneInfo;
 using Universe.Framework.Services.ClassHelpers.Assets;
-using Universe.Framework.Utilities;
 using Universe.Physics.ConvexDecompositionDotNet;
 using Universe.Physics.Meshing;
 using OMV = OpenMetaverse;
+using Universe.Framework.Utilities;
 
 namespace Universe.Physics.BulletSPlugin
 {
@@ -62,7 +62,6 @@ namespace Universe.Physics.BulletSPlugin
                 m_verticesPerHull = new int[m_hullCount];
                 Array.Clear(m_verticesPerHull, 0, m_hullCount);
             }
-
             get { return m_hullCount; }
         }
 
@@ -80,13 +79,12 @@ namespace Universe.Physics.BulletSPlugin
             {
                 return m_verticesPerHull[hullNum];
             }
-
             return 0;
         }
-
         public override string ToString()
         {
             StringBuilder buff = new StringBuilder();
+            // buff.Append("ShapeInfo=<");
             buff.Append("<");
             if (Vertices > 0)
             {
@@ -108,7 +106,6 @@ namespace Universe.Physics.BulletSPlugin
                     buff.Append(GetVerticesPerHull(ii).ToString());
                 }
             }
-
             buff.Append(">");
             return buff.ToString();
         }
@@ -139,6 +136,7 @@ namespace Universe.Physics.BulletSPlugin
             shapeInfo = new ShapeInfoInfo();
         }
 
+
         // Return 'true' if there is an allocated physics physical shape under this class instance.
         public virtual bool HasPhysicalShape
         {
@@ -161,14 +159,14 @@ namespace Universe.Physics.BulletSPlugin
             }
         }
 
+ 
         // Returns a string for debugging that uniquily identifies the memory used by this instance
         public virtual string AddrString
         {
-            get
-            {
-                if (physShapeInfo != null) return physShapeInfo.AddrString;
-                return "unknown";
-            }
+            get { 
+                    if (physShapeInfo != null) return physShapeInfo.AddrString;
+                    return "unknown";
+								}
         }
 
         public override string ToString()
@@ -183,7 +181,6 @@ namespace Universe.Physics.BulletSPlugin
                 buff.Append("<phy=");
                 buff.Append(physShapeInfo);
             }
-
             buff.Append(",c=");
             buff.Append(referenceCount.ToString());
             buff.Append(">");
@@ -208,7 +205,6 @@ namespace Universe.Physics.BulletSPlugin
             referenceCount--;
             lastReferenced = DateTime.Now;
         }
-
         // Release the use of a physical shape.
         public abstract void Dereference(BSScene physicsScene);
 
@@ -247,8 +243,10 @@ namespace Universe.Physics.BulletSPlugin
             if (prim.PrimAssetState == BSPhysObject.PrimAssetCondition.Fetched)
             {
                 prim.PrimAssetState = BSPhysObject.PrimAssetCondition.FailedMeshing;
-                physicsScene.Logger.WarnFormat("{0} Fetched asset would not mesh. prim={1}, texture={2}", LogHeader, UsefulPrimInfo(physicsScene, prim), prim.BaseShape.SculptTexture);
-                physicsScene.DetailLog("{0},BSShape.VerifyMeshCreated,setFailed,prim={1},tex={2}", prim.LocalID, UsefulPrimInfo(physicsScene, prim), prim.BaseShape.SculptTexture);
+                physicsScene.Logger.WarnFormat("{0} Fetched asset would not mesh. prim={1}, texture={2}",
+                    LogHeader, UsefulPrimInfo(physicsScene, prim), prim.BaseShape.SculptTexture);
+                physicsScene.DetailLog("{0},BSShape.VerifyMeshCreated,setFailed,prim={1},tex={2}",
+                    prim.LocalID, UsefulPrimInfo(physicsScene, prim), prim.BaseShape.SculptTexture);
             }
             else
             {
@@ -268,7 +266,7 @@ namespace Universe.Physics.BulletSPlugin
                         {
                             BSPhysObject yprim = xprim; // probably not necessary, but, just in case.
                             physicsScene.Scene.AssetService.Get(yprim.BaseShape.SculptTexture.ToString(), null,
-                                delegate (string id, Object sender, AssetBase asset)
+                                delegate(string id, Object sender, AssetBase asset)
                                 {
                                     bool assetFound = false;
                                     string mismatchIDs = String.Empty; // DEBUG DEBUG
@@ -301,7 +299,8 @@ namespace Universe.Physics.BulletSPlugin
                 {
                     if (prim.PrimAssetState == BSPhysObject.PrimAssetCondition.FailedAssetFetch)
                     {
-                        physicsScene.Logger.WarnFormat("{0} Mesh failed to fetch asset. obj={1}, texture={2}", LogHeader, prim.PhysObjectName, prim.BaseShape.SculptTexture);
+                        physicsScene.Logger.WarnFormat("{0} Mesh failed to fetch asset. obj={1}, texture={2}",
+                            LogHeader, prim.PhysObjectName, prim.BaseShape.SculptTexture);
                     }
                 }
             }
@@ -312,7 +311,7 @@ namespace Universe.Physics.BulletSPlugin
 
             return fillShape.physShapeInfo;
         }
-
+ 
         public static string UsefulPrimInfo(BSScene pScene, BSPhysObject prim)
         {
             StringBuilder buff = new StringBuilder(prim.PhysObjectName);
@@ -323,13 +322,13 @@ namespace Universe.Physics.BulletSPlugin
                 buff.Append("/rgn=");
                 buff.Append(pScene.PhysicsSceneName);
             }
-
             return buff.ToString();
         }
 
         #endregion // Common shape routines
-    }
+     }
 
+    // ============================================================================================================
     public class BSShapeNull : BSShape
     {
         public BSShapeNull()
@@ -341,22 +340,24 @@ namespace Universe.Physics.BulletSPlugin
         {
             return new BSShapeNull();
         }
-
-        public override BSShape GetReference(BSScene pPhysicsScene, BSPhysObject pPrim)
+        
+        public override BSShape GetReference(BSScene pPhysicsScene, BSPhysObject pPrim) 
         {
-            return new BSShapeNull();
+            return new BSShapeNull(); 
         }
 
         public override void Dereference(BSScene physicsScene)
         {
             /* The magic of garbage collection will make this go away */
         }
+
     }
 
+     // ============================================================================================================
     // BSShapeNative is a wrapper for a Bullet 'native' shape -- cube and sphere.
     // They are odd in that they don't allocate meshes but are computated/procedural.
     // This means allocation and freeing is different than meshes.
-    public class BSShapeNative : BSShape
+   public class BSShapeNative : BSShape
     {
         static readonly string LogHeader = "[Bulletsim Shape Native]";
         public BSShapeNative(BulletShape pShape)
@@ -364,7 +365,8 @@ namespace Universe.Physics.BulletSPlugin
         {
         }
 
-        public static BSShape GetReference(BSScene physicsScene, BSPhysObject prim, BSPhysicsShapeType shapeType, FixedShapeKey shapeKey)
+        public static BSShape GetReference(BSScene physicsScene, BSPhysObject prim,
+            BSPhysicsShapeType shapeType, FixedShapeKey shapeKey)
         {
             // Native shapes are not shared and are always built anew.
             return new BSShapeNative(CreatePhysicalNativeShape(physicsScene, prim, shapeType, shapeKey));
@@ -376,9 +378,9 @@ namespace Universe.Physics.BulletSPlugin
             BSShape ret = null;
             lock (physShapeInfo)
             {
-                ret = new BSShapeNative(CreatePhysicalNativeShape(pPhysicsScene, pPrim, physShapeInfo.shapeType, (FixedShapeKey)physShapeInfo.shapeKey));
+                ret = new BSShapeNative(CreatePhysicalNativeShape(pPhysicsScene, pPrim,
+                    physShapeInfo.shapeType, (FixedShapeKey) physShapeInfo.shapeKey));
             }
-
             return ret;
         }
 
@@ -390,16 +392,17 @@ namespace Universe.Physics.BulletSPlugin
             {
                 if (physShapeInfo.HasPhysicalShape)
                 {
-                    physicsScene.DetailLog("{0},BSShapeNative.Dereference.deleteNativeShape,shape={1}", BSScene.DetailLogZero, this);
+                    physicsScene.DetailLog("{0},BSShapeNative.Dereference.deleteNativeShape,shape={1}",
+                        BSScene.DetailLogZero, this);
                     physicsScene.PE.DeleteCollisionShape(physicsScene.World, physShapeInfo);
                 }
-
                 physShapeInfo.Clear();
                 // Garbage collection will free up this instance.
             }
         }
 
-        public static BulletShape CreatePhysicalNativeShape(BSScene physicsScene, BSPhysObject prim, BSPhysicsShapeType shapeType, FixedShapeKey shapeKey)
+        public static BulletShape CreatePhysicalNativeShape(BSScene physicsScene, BSPhysObject prim,
+            BSPhysicsShapeType shapeType, FixedShapeKey shapeKey)
         {
             BulletShape newShape;
 
@@ -420,19 +423,19 @@ namespace Universe.Physics.BulletSPlugin
             {
                 newShape = physicsScene.PE.BuildNativeShape(physicsScene.World, nativeShapeData);
             }
-
             if (!newShape.HasPhysicalShape)
             {
-                physicsScene.Logger.ErrorFormat("{0} BuildPhysicalNativeShape failed. ID={1}, shape={2}", LogHeader, prim.LocalID, shapeType);
+                physicsScene.Logger.ErrorFormat("{0} BuildPhysicalNativeShape failed. ID={1}, shape={2}",
+                    LogHeader, prim.LocalID, shapeType);
             }
-
             newShape.shapeType = shapeType;
             newShape.isNativeShape = true;
-            newShape.shapeKey = (UInt64)shapeKey;
+            newShape.shapeKey = (UInt64) shapeKey;
             return newShape;
         }
     }
 
+    // ============================================================================================================
     // BSShapeMesh is a simple mesh.
     public class BSShapeMesh : BSShape
     {
@@ -460,7 +463,8 @@ namespace Universe.Physics.BulletSPlugin
                 {
                     retMesh = new BSShapeMesh(new BulletShape());
                     // An instance of this mesh has not been created. Build and remember same.
-                    BulletShape newShape = retMesh.CreatePhysicalMesh(physicsScene, prim, newMeshKey, prim.BaseShape, prim.Size, lod);
+                    BulletShape newShape = retMesh.CreatePhysicalMesh(physicsScene, prim, newMeshKey, prim.BaseShape,
+                        prim.Size, lod);
 
                     // Check to see if mesh was created (might require an asset).
                     newShape = VerifyMeshCreated(physicsScene, newShape, prim);
@@ -470,12 +474,11 @@ namespace Universe.Physics.BulletSPlugin
                         // Also note that if meshing failed we put it in the mesh list as there is nothing else to do about the mesh.
                         Meshes.Add(newMeshKey, retMesh);
                     }
-
                     retMesh.physShapeInfo = newShape;
                 }
             }
-
-            physicsScene.DetailLog("{0},BSShapeMesh,getReference,mesh={1},size={2},lod={3}", prim.LocalID, retMesh, prim.Size, lod);
+            physicsScene.DetailLog("{0},BSShapeMesh,getReference,mesh={1},size={2},lod={3}", prim.LocalID, retMesh,
+                prim.Size, lod);
             return retMesh;
         }
 
@@ -487,7 +490,8 @@ namespace Universe.Physics.BulletSPlugin
             if (physShapeInfo.HasPhysicalShape && physShapeInfo.isNativeShape)
             {
                 // TODO: decide when the native shapes should be freed. Check in Dereference?
-                ret = BSShapeNative.GetReference(pPhysicsScene, pPrim, BSPhysicsShapeType.SHAPE_BOX, FixedShapeKey.KEY_BOX);
+                ret = BSShapeNative.GetReference(pPhysicsScene, pPrim, BSPhysicsShapeType.SHAPE_BOX,
+                    FixedShapeKey.KEY_BOX);
             }
             else
             {
@@ -495,7 +499,6 @@ namespace Universe.Physics.BulletSPlugin
                 IncrementReference();
                 ret = this;
             }
-
             return ret;
         }
 
@@ -526,14 +529,15 @@ namespace Universe.Physics.BulletSPlugin
                     }
                 }
             }
-
             outMesh = foundDesc;
             return ret;
         }
 
-        public delegate BulletShape CreateShapeCall( BulletWorld world, int indicesCount, int[] indices, int verticesCount, float[] vertices);
+        public delegate BulletShape CreateShapeCall(
+            BulletWorld world, int indicesCount, int[] indices, int verticesCount, float[] vertices);
 
-        BulletShape CreatePhysicalMesh(BSScene physicsScene, BSPhysObject prim, UInt64 newMeshKey, PrimitiveBaseShape pbs, OMV.Vector3 size, float lod)
+        BulletShape CreatePhysicalMesh(BSScene physicsScene, BSPhysObject prim, UInt64 newMeshKey,
+            PrimitiveBaseShape pbs, OMV.Vector3 size, float lod)
         {
             return BSShapeMesh.CreatePhysicalMeshShape(physicsScene, prim, newMeshKey, pbs, size, lod,
                 (w, iC, i, vC, v) =>
@@ -583,9 +587,9 @@ namespace Universe.Physics.BulletSPlugin
                     for (int tri = 0; tri < indices.Length; tri += 3)
                     {
                         // Compute displacements into vertex array for each vertex of the triangle
-                        int v1 = indices[tri + 0] * 3;
-                        int v2 = indices[tri + 1] * 3;
-                        int v3 = indices[tri + 2] * 3;
+                        int v1 = indices[tri + 0]*3;
+                        int v2 = indices[tri + 1]*3;
+                        int v3 = indices[tri + 2]*3;
                         // Check to see if any two of the vertices are the same
                         if (!((verticesAsFloats[v1 + 0] == verticesAsFloats[v2 + 0]
                                && verticesAsFloats[v1 + 1] == verticesAsFloats[v2 + 1]
@@ -606,37 +610,41 @@ namespace Universe.Physics.BulletSPlugin
                         }
                     }
                 }
-
                 physicsScene.DetailLog(
                     "{0},BSShapeMesh.CreatePhysicalMesh,key={1},origTri={2},realTri={3},numVerts={4}",
-                    BSScene.DetailLogZero, newMeshKey.ToString("X"), indices.Length / 3, realIndicesIndex / 3, verticesAsFloats.Length / 3);
+                    BSScene.DetailLogZero, newMeshKey.ToString("X"), indices.Length/3, realIndicesIndex/3,
+                    verticesAsFloats.Length/3);
 
                 if (realIndicesIndex != 0)
                 {
-                    newShape = makeShape(physicsScene.World, realIndicesIndex, indices, verticesAsFloats.Length / 3, verticesAsFloats);
+                    newShape = makeShape(physicsScene.World, realIndicesIndex, indices, verticesAsFloats.Length/3,
+                        verticesAsFloats);
                 }
                 else
                 {
                     // Force the asset condition to 'failed' so we won't try to keep fetching and processing this mesh.
                     prim.PrimAssetState = BSPhysObject.PrimAssetCondition.FailedMeshing;
-                    physicsScene.Logger.DebugFormat("{0} All mesh triangles degenerate. Prim={1}", LogHeader, UsefulPrimInfo(physicsScene, prim));
-                    physicsScene.DetailLog("{0},BSShapeMesh.CreatePhysicalMesh,allDegenerate,key={1}", prim.LocalID, newMeshKey);
+                    physicsScene.Logger.DebugFormat("{0} All mesh triangles degenerate. Prim={1}", LogHeader,
+                        UsefulPrimInfo(physicsScene, prim));
+                    physicsScene.DetailLog("{0},BSShapeMesh.CreatePhysicalMesh,allDegenerate,key={1}", prim.LocalID,
+                        newMeshKey);
                 }
             }
-
             newShape.shapeKey = newMeshKey;
 
             return newShape;
         }
     }
 
+
+    // ============================================================================================================
     // BSShapeHull is a physical shape representation htat is made up of many convex hulls.
     // The convex hulls are either supplied with the asset or are approximated by one of the
     //     convex hull creation routines (in OpenSim or in Bullet).
     public class BSShapeHull : BSShape
     {
 #pragma warning disable 414
-        static string LogHeader = "[BULLETSIM SHAPE HULL]";
+        static string LogHeader = "[Bulletsim Shape Hull]";
 #pragma warning restore 414
 
         public static Dictionary<UInt64, BSShapeHull> Hulls = new Dictionary<UInt64, BSShapeHull>();
@@ -653,7 +661,7 @@ namespace Universe.Physics.BulletSPlugin
             BSShapeHull retHull;
             bool foundHull = false;
             lock (Hulls)
-                foundHull = Hulls.TryGetValue(newHullKey, out retHull);
+                foundHull = Hulls.TryGetValue (newHullKey, out retHull);
 
             if (foundHull)
             {
@@ -671,14 +679,13 @@ namespace Universe.Physics.BulletSPlugin
                 if (!newShape.isNativeShape || prim.AssetFailed())
                 {
                     // If a mesh was what was created, remember the built shape for later sharing.
-                    lock (Hulls)
+                    lock(Hulls)
                         Hulls.Add(newHullKey, retHull);
                 }
-
-                retHull.physShapeInfo = newShape;
+                    retHull.physShapeInfo = newShape;
             }
-
-            physicsScene.DetailLog("{0},BSShapeHull,getReference,hull={1},size={2},lod={3}", prim.LocalID, retHull, prim.Size, lod);
+            physicsScene.DetailLog("{0},BSShapeHull,getReference,hull={1},size={2},lod={3}", prim.LocalID, retHull,
+                prim.Size, lod);
             return retHull;
         }
 
@@ -690,7 +697,8 @@ namespace Universe.Physics.BulletSPlugin
             if (physShapeInfo.HasPhysicalShape && physShapeInfo.isNativeShape)
             {
                 // TODO: decide when the native shapes should be freed. Check in Dereference?
-                ret = BSShapeNative.GetReference(pPhysicsScene, pPrim, BSPhysicsShapeType.SHAPE_BOX, FixedShapeKey.KEY_BOX);
+                ret = BSShapeNative.GetReference(pPhysicsScene, pPrim, BSPhysicsShapeType.SHAPE_BOX,
+                    FixedShapeKey.KEY_BOX);
             }
             else
             {
@@ -698,7 +706,6 @@ namespace Universe.Physics.BulletSPlugin
                 IncrementReference();
                 ret = this;
             }
-
             return ret;
         }
 
@@ -712,8 +719,9 @@ namespace Universe.Physics.BulletSPlugin
             }
         }
 
-        List<ConvexResult> m_hulls;
-        BulletShape CreatePhysicalHull(BSScene physicsScene, BSPhysObject prim, UInt64 newHullKey, PrimitiveBaseShape pbs, OMV.Vector3 size, float lod)
+        List<ConvexResult> m_hulls; 
+        BulletShape CreatePhysicalHull(BSScene physicsScene, BSPhysObject prim, UInt64 newHullKey,
+            PrimitiveBaseShape pbs, OMV.Vector3 size, float lod)
         {
             BulletShape newShape = new BulletShape();
             IMesh meshData;
@@ -722,7 +730,8 @@ namespace Universe.Physics.BulletSPlugin
             lock (physicsScene.mesher)
             {
                 // Pass true for physicalness as this prevents the creation of bounding box which is not needed
-                meshData = physicsScene.mesher.CreateMesh(prim.PhysObjectName, pbs, size, lod, true, false);
+                meshData = physicsScene.mesher.CreateMesh(prim.PhysObjectName, pbs, size, lod, true /* isPhysical */,
+                    false /* shouldCache */);
 
                 // If we should use the asset's hull info, fetch it out of the locked mesher
                 if (meshData != null && BSParam.ShouldUseAssetHulls)
@@ -732,7 +741,6 @@ namespace Universe.Physics.BulletSPlugin
                     {
                         allHulls = realMesher.GetConvexHulls(size);
                     }
-
                     if (allHulls == null)
                     {
                         physicsScene.DetailLog("{0},BSShapeHull.CreatePhysicalHull,assetHulls,noAssetHull", prim.LocalID);
@@ -751,12 +759,11 @@ namespace Universe.Physics.BulletSPlugin
                 foreach (List<OMV.Vector3> hullVerts in allHulls)
                 {
                     totalVertices += 4; // add four for the vertex count and centroid
-                    totalVertices += hullVerts.Count * 3; // one vertex is three dimensions
+                    totalVertices += hullVerts.Count*3; // one vertex is three dimensions
                 }
-
                 float[] convHulls = new float[totalVertices];
 
-                convHulls[0] = (float)hullCount;
+                convHulls[0] = (float) hullCount;
                 int jj = 1;
                 int hullIndex = 0;
                 foreach (List<OMV.Vector3> hullVerts in allHulls)
@@ -779,7 +786,8 @@ namespace Universe.Physics.BulletSPlugin
 
                 // create the hull data structure in Bullet
                 newShape = physicsScene.PE.CreateHullShape(physicsScene.World, hullCount, convHulls);
-                physicsScene.DetailLog("{0},BSShapeHull.CreatePhysicalHull,AssetHulls,hulls={1},totVert={2},shape={3}", prim.LocalID, hullCount, totalVertices, newShape);
+                physicsScene.DetailLog("{0},BSShapeHull.CreatePhysicalHull,AssetHulls,hulls={1},totVert={2},shape={3}",
+                    prim.LocalID, hullCount, totalVertices, newShape);
             }
 
             // If no hull specified in the asset and we should use Bullet's HACD approximation...
@@ -804,9 +812,11 @@ namespace Universe.Physics.BulletSPlugin
                     parms.shouldAdjustCollisionMargin = BSParam.NumericBool(BSParam.BHullShouldAdjustCollisionMargin);
                     parms.whichHACD = 0; // Use the HACD routine that comes with Bullet
 
-                    physicsScene.DetailLog("{0},BSShapeHull.CreatePhysicalHull,hullFromMesh,beforeCall", prim.LocalID, newShape.HasPhysicalShape);
+                    physicsScene.DetailLog("{0},BSShapeHull.CreatePhysicalHull,hullFromMesh,beforeCall", prim.LocalID,
+                        newShape.HasPhysicalShape);
                     newShape = physicsScene.PE.BuildHullShapeFromMesh(physicsScene.World, meshShape.physShapeInfo, parms);
-                    physicsScene.DetailLog("{0},BSShapeHull.CreatePhysicalHull,hullFromMesh,shape={1}", prim.LocalID, newShape);
+                    physicsScene.DetailLog("{0},BSShapeHull.CreatePhysicalHull,hullFromMesh,shape={1}", prim.LocalID,
+                        newShape);
 
                     // Now done with the mesh shape.
                     shapeInfo.HullCount = 1;
@@ -815,8 +825,8 @@ namespace Universe.Physics.BulletSPlugin
                         shapeInfo.SetVerticesPerHull(0, maybeMesh.shapeInfo.Vertices);
                     meshShape.Dereference(physicsScene);
                 }
-
-                physicsScene.DetailLog("{0},BSShapeHull.CreatePhysicalHull,bulletHACD,exit,hasBody={1}", prim.LocalID, newShape.HasPhysicalShape);
+                physicsScene.DetailLog("{0},BSShapeHull.CreatePhysicalHull,bulletHACD,exit,hasBody={1}", prim.LocalID,
+                    newShape.HasPhysicalShape);
             }
 
             // If no other hull specifications, use our HACD hull approximation.
@@ -839,7 +849,12 @@ namespace Universe.Physics.BulletSPlugin
                     convIndices.Add(indices[ii]);
                 }
 
-                // Use the integer array instead of OS type vertex list
+// greythane - use the integer array instead of OS type vertex list
+//                List<OMV.Vector3> vertices = meshData.getVertexList();
+//                foreach (OMV.Vector3 vv in vertices)
+//                {
+//                    convVertices.Add(new float3(vv.X, vv.Y, vv.Z));
+//                }
                 var vertices = meshData.getVertexListAsFloat();
                 var vertexCount = vertices.Length / 3;
                 for (int i = 0; i < vertexCount; i++)
@@ -847,7 +862,7 @@ namespace Universe.Physics.BulletSPlugin
                     convVertices.Add(new float3(vertices[3 * i + 0], vertices[3 * i + 1], vertices[3 * i + 2]));
                 }
 
-                uint maxDepthSplit = (uint)BSParam.CSHullMaxDepthSplit;
+                uint maxDepthSplit = (uint) BSParam.CSHullMaxDepthSplit;
                 if (BSParam.CSHullMaxDepthSplit != BSParam.CSHullMaxDepthSplitForSimpleShapes)
                 {
                     // Simple primitive shapes we know are convex so they are better implemented with
@@ -855,7 +870,7 @@ namespace Universe.Physics.BulletSPlugin
                     // Check for simple shape (prim without cuts) and reduce split parameter if so.
                     if (BSShapeCollection.PrimHasNoCuts(pbs))
                     {
-                        maxDepthSplit = (uint)BSParam.CSHullMaxDepthSplitForSimpleShapes;
+                        maxDepthSplit = (uint) BSParam.CSHullMaxDepthSplitForSimpleShapes;
                     }
                 }
 
@@ -867,7 +882,7 @@ namespace Universe.Physics.BulletSPlugin
                 dcomp.mDepth = maxDepthSplit;
                 dcomp.mCpercent = BSParam.CSHullConcavityThresholdPercent;
                 dcomp.mPpercent = BSParam.CSHullVolumeConservationThresholdPercent;
-                dcomp.mMaxVertices = (uint)BSParam.CSHullMaxVertices;
+                dcomp.mMaxVertices = (uint) BSParam.CSHullMaxVertices;
                 dcomp.mSkinWidth = BSParam.CSHullMaxSkinWidth;
                 ConvexBuilder convexBuilder = new ConvexBuilder(HullReturn);
                 // create the hull into the _hulls variable
@@ -875,7 +890,8 @@ namespace Universe.Physics.BulletSPlugin
 
                 physicsScene.DetailLog(
                     "{0},BSShapeCollection.CreatePhysicalHull,key={1},inVert={2},inInd={3},split={4},hulls={5}",
-                    BSScene.DetailLogZero, newHullKey, indices.GetLength(0), vertices.Length, maxDepthSplit, m_hulls.Count);
+                    BSScene.DetailLogZero, newHullKey, indices.GetLength(0), vertices.Length, maxDepthSplit,
+                    m_hulls.Count);
 
                 // Convert the vertices and indices for passing to unmanaged.
                 // The hull information is passed as a large floating point array.
@@ -902,12 +918,11 @@ namespace Universe.Physics.BulletSPlugin
                 foreach (ConvexResult cr in m_hulls)
                 {
                     totalVertices += 4; // add four for the vertex count and centroid
-                    totalVertices += cr.HullIndices.Count * 3; // we pass just triangles
+                    totalVertices += cr.HullIndices.Count*3; // we pass just triangles
                 }
-
                 float[] convHulls = new float[totalVertices];
 
-                convHulls[0] = (float)hullCount;
+                convHulls[0] = (float) hullCount;
                 int jj = 1;
                 foreach (ConvexResult cr in m_hulls)
                 {
@@ -931,11 +946,9 @@ namespace Universe.Physics.BulletSPlugin
                         convHulls[jj++] = verts[ind].z;
                     }
                 }
-
                 // create the hull data structure in Bullet
                 newShape = physicsScene.PE.CreateHullShape(physicsScene.World, hullCount, convHulls);
             }
-
             newShape.shapeKey = newHullKey;
             return newShape;
         }
@@ -965,7 +978,6 @@ namespace Universe.Physics.BulletSPlugin
                     }
                 }
             }
-
             outHull = foundDesc;
             return ret;
         }
@@ -1010,19 +1022,23 @@ namespace Universe.Physics.BulletSPlugin
                     {
                         // Failed the sanity check!!
                         physicsScene.Logger.ErrorFormat(
-                            "{0} Attempt to free a compound shape that is not compound!! type={1}, ptr={2}", LogHeader, physShapeInfo.shapeType, physShapeInfo.AddrString);
+                            "{0} Attempt to free a compound shape that is not compound!! type={1}, ptr={2}",
+                            LogHeader, physShapeInfo.shapeType, physShapeInfo.AddrString);
                         physicsScene.DetailLog(
-                            "{0},BsShapeCollection.DereferenceCompound,notACompoundShape,type={1},ptr={2}", BSScene.DetailLogZero, physShapeInfo.shapeType, physShapeInfo.AddrString);
+                            "{0},BsShapeCollection.DereferenceCompound,notACompoundShape,type={1},ptr={2}",
+                            BSScene.DetailLogZero, physShapeInfo.shapeType, physShapeInfo.AddrString);
                         return;
                     }
 
                     int numChildren = physicsScene.PE.GetNumberOfCompoundChildren(physShapeInfo);
-                    physicsScene.DetailLog("{0},BSShapeCollection.DereferenceCompound,shape={1},children={2}", BSScene.DetailLogZero, physShapeInfo, numChildren);
+                    physicsScene.DetailLog("{0},BSShapeCollection.DereferenceCompound,shape={1},children={2}",
+                        BSScene.DetailLogZero, physShapeInfo, numChildren);
 
                     // Loop through all the children dereferencing each.
                     for (int ii = numChildren = 1; ii >= 0; ii--)
                     {
-                        BulletShape childShape = physicsScene.PE.RemoveChildShapeFromCompoundShapeIndex(physShapeInfo, ii);
+                        BulletShape childShape = physicsScene.PE.RemoveChildShapeFromCompoundShapeIndex(physShapeInfo,
+                            ii);
                         DereferenceAnonCollisionShape(physicsScene, childShape);
                     }
 
@@ -1053,7 +1069,8 @@ namespace Universe.Physics.BulletSPlugin
         void DereferenceAnonCollisionShape(BSScene physicsScene, BulletShape pShape)
         {
             // TODO: figure a better way to go through all the shape types and find a possible instance.
-            physicsScene.DetailLog("{0},BSShapeCompound.DereferenceAnonCollisionShape,shape={1}", BSScene.DetailLogZero, pShape);
+            physicsScene.DetailLog("{0},BSShapeCompound.DereferenceAnonCollisionShape,shape={1}",
+                BSScene.DetailLogZero, pShape);
             BSShapeMesh meshDesc;
             if (BSShapeMesh.TryGetMeshByPtr(pShape, out meshDesc))
             {
@@ -1105,7 +1122,8 @@ namespace Universe.Physics.BulletSPlugin
                                 else
                                 {
                                     physicsScene.Logger.WarnFormat(
-                                        "{0} DereferenceAnonCollisionShape. Did not find shape. {1}", LogHeader, pShape);
+                                        "{0} DereferenceAnonCollisionShape. Did not find shape. {1}",
+                                        LogHeader, pShape);
                                 }
                             }
                         }
@@ -1115,6 +1133,7 @@ namespace Universe.Physics.BulletSPlugin
         }
     }
 
+    // ============================================================================================================
     // BSShapeConvexHull is a wrapper for a Bullet single convex hull. A BSShapeHull contains multiple convex
     //     hull shapes. This is used for simple prims that are convex and thus can be made into a simple
     //     collision shape (a single hull). More complex physical shapes will be BSShapeHull's.
@@ -1135,15 +1154,15 @@ namespace Universe.Physics.BulletSPlugin
             float lod;
             UInt64 newMeshKey = ComputeShapeKey(prim.Size, prim.BaseShape, out lod);
 
-            physicsScene.DetailLog("{0},BSShapeConvexHull,getReference,newKey={1},size={2},lod={3}", prim.LocalID, newMeshKey.ToString("X"), prim.Size, lod);
+            physicsScene.DetailLog("{0},BSShapeConvexHull,getReference,newKey={1},size={2},lod={3}",
+                prim.LocalID, newMeshKey.ToString("X"), prim.Size, lod);
             BSShapeConvexHull retConvexHull;
 
             bool foundMesh = false;
-            lock (ConvexHulls)
-            {
-                foundMesh = ConvexHulls.TryGetValue(newMeshKey, out retConvexHull);
+            lock (ConvexHulls) {
+                foundMesh = ConvexHulls.TryGetValue (newMeshKey, out retConvexHull);
             }
-
+             
             if (foundMesh)
             {
                 // The mesh has already been created. Return a new reference to same.
@@ -1170,7 +1189,8 @@ namespace Universe.Physics.BulletSPlugin
                     convexShape.shapeKey = newMeshKey;
                     lock (ConvexHulls)
                         ConvexHulls.Add(convexShape.shapeKey, retConvexHull);
-                    physicsScene.DetailLog("{0},BSShapeConvexHull.GetReference,addingNewlyCreatedShape,shape={1}", BSScene.DetailLogZero, convexShape);
+                    physicsScene.DetailLog("{0},BSShapeConvexHull.GetReference,addingNewlyCreatedShape,shape={1}",
+                                           BSScene.DetailLogZero, convexShape);
                 }
 
                 // Done with the base mesh
@@ -1217,22 +1237,22 @@ namespace Universe.Physics.BulletSPlugin
                     }
                 }
             }
-
             outHull = foundDesc;
             return ret;
         }
     }
 
+    // ============================================================================================================
     // BSShapeGImpact is a wrapper for the Bullet GImpact shape which is a collision mesh shape that
     //     can handle concave as well as convex shapes. Much slower computationally but creates smoother
     //     shapes than multiple convex hull approximations.
     public class BSShapeGImpact : BSShape
     {
 #pragma warning disable 414
-        static string LogHeader = "[Bulletsim Shape Gimpact";
+        static string LogHeader = "[Bulletsim Shape GImpact]";
 #pragma warning restore 414
 
-        public static Dictionary<UInt64, BSShapeGImpact> GImpacts = new Dictionary<UInt64, BSShapeGImpact>();
+        public static Dictionary<UInt64, BSShapeGImpact> GImpacts =  new Dictionary<UInt64, BSShapeGImpact>();
 
         public BSShapeGImpact(BulletShape pShape) : base(pShape)
         {
@@ -1243,7 +1263,8 @@ namespace Universe.Physics.BulletSPlugin
             float lod;
             UInt64 newMeshKey = ComputeShapeKey(prim.Size, prim.BaseShape, out lod);
 
-            physicsScene.DetailLog("{0},BSShapeGImpact,getReference,newKey={1},size={2},lod={3}", prim.LocalID, newMeshKey.ToString("X"), prim.Size, lod);
+            physicsScene.DetailLog("{0},BSShapeGImpact,getReference,newKey={1},size={2},lod={3}", prim.LocalID,
+                newMeshKey.ToString("X"), prim.Size, lod);
             BSShapeGImpact retGImpact;
 
             lock (GImpacts)
@@ -1256,7 +1277,8 @@ namespace Universe.Physics.BulletSPlugin
                 else
                 {
                     retGImpact = new BSShapeGImpact(new BulletShape());
-                    BulletShape newShape = retGImpact.CreatePhysicalGImpact(physicsScene, prim, newMeshKey, prim.BaseShape, prim.Size, lod);
+                    BulletShape newShape = retGImpact.CreatePhysicalGImpact(physicsScene, prim, newMeshKey,
+                        prim.BaseShape, prim.Size, lod);
 
                     // Check to see if mesh was created (might require an asset).
                     newShape = VerifyMeshCreated(physicsScene, newShape, prim);
@@ -1265,18 +1287,17 @@ namespace Universe.Physics.BulletSPlugin
                     {
                         // If a mesh was what was created, remember the built shape for later sharing.
                         // Also note that if meshing failed we put it in the mesh list as there is nothing
-                        // else to do about the mesh.
+                        //          else to do about the mesh.
                         GImpacts.Add(newMeshKey, retGImpact);
                     }
-
                     retGImpact.physShapeInfo = newShape;
                 }
             }
-
             return retGImpact;
         }
 
-        BulletShape CreatePhysicalGImpact(BSScene physicsScene, BSPhysObject prim, UInt64 newMeshKey, PrimitiveBaseShape pbs, OMV.Vector3 size, float lod)
+        BulletShape CreatePhysicalGImpact(BSScene physicsScene, BSPhysObject prim, UInt64 newMeshKey,
+            PrimitiveBaseShape pbs, OMV.Vector3 size, float lod)
         {
             return BSShapeMesh.CreatePhysicalMeshShape(physicsScene, prim, newMeshKey, pbs, size, lod,
                 (w, iC, i, vC, v) =>
@@ -1303,7 +1324,6 @@ namespace Universe.Physics.BulletSPlugin
                 IncrementReference();
                 ret = this;
             }
-
             return ret;
         }
 
@@ -1335,12 +1355,12 @@ namespace Universe.Physics.BulletSPlugin
                     }
                 }
             }
-
             outHull = foundDesc;
             return ret;
         }
     }
 
+    // ============================================================================================================
     // BSShapeAvatar is a specialized mesh shape for avatars.
     public class BSShapeAvatar : BSShape
     {

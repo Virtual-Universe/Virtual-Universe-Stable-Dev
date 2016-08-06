@@ -33,7 +33,7 @@ namespace Universe.Physics.BulletSPlugin
 {
     public sealed class BSTerrainHeightmap : BSTerrainPhys
     {
-        static string LogHeader = "[BULLETSIM TERRAIN HEIGHTMAP]";
+        static string LogHeader = "[Bulletsim Terrain Height Map]";
 
         BulletHMapInfo m_mapInfo = null;
 
@@ -41,7 +41,8 @@ namespace Universe.Physics.BulletSPlugin
         public BSTerrainHeightmap(BSScene physicsScene, Vector3 regionBase, uint id, Vector3 regionSize)
             : base(physicsScene, regionBase, id)
         {
-            Vector3 minTerrainCoords = new Vector3(0f, 0f, BSTerrainManager.HEIGHT_INITIALIZATION - BSTerrainManager.HEIGHT_EQUAL_FUDGE);
+            Vector3 minTerrainCoords = new Vector3(0f, 0f,
+                BSTerrainManager.HEIGHT_INITIALIZATION - BSTerrainManager.HEIGHT_EQUAL_FUDGE);
             Vector3 maxTerrainCoords = new Vector3(regionSize.X, regionSize.Y, BSTerrainManager.HEIGHT_INITIALIZATION);
             int totalHeights = (int)maxTerrainCoords.X * (int)maxTerrainCoords.Y;
             float[] initialMap = new float[totalHeights];
@@ -49,7 +50,6 @@ namespace Universe.Physics.BulletSPlugin
             {
                 initialMap[ii] = BSTerrainManager.HEIGHT_INITIALIZATION;
             }
-
             m_mapInfo = new BulletHMapInfo(id, initialMap, regionSize.X, regionSize.Y);
             m_mapInfo.minCoords = minTerrainCoords;
             m_mapInfo.maxCoords = maxTerrainCoords;
@@ -88,13 +88,15 @@ namespace Universe.Physics.BulletSPlugin
                 new Vector3(m_mapInfo.sizeX, m_mapInfo.sizeY, 0), m_mapInfo.minZ, m_mapInfo.maxZ,
                 m_mapInfo.heightMap, 1f, BSParam.TerrainCollisionMargin);
 
+
             // The terrain object initial position is at the center of the object
             Vector3 centerPos;
             centerPos.X = m_mapInfo.minCoords.X + (m_mapInfo.sizeX / 2f);
             centerPos.Y = m_mapInfo.minCoords.Y + (m_mapInfo.sizeY / 2f);
             centerPos.Z = m_mapInfo.minZ + ((m_mapInfo.maxZ - m_mapInfo.minZ) / 2f);
 
-            m_mapInfo.terrainBody = PhysicsScene.PE.CreateBodyWithDefaultMotionState(m_mapInfo.terrainShape, m_mapInfo.ID, centerPos, Quaternion.Identity);
+            m_mapInfo.terrainBody = PhysicsScene.PE.CreateBodyWithDefaultMotionState(m_mapInfo.terrainShape,
+                m_mapInfo.ID, centerPos, Quaternion.Identity);
 
             // Set current terrain attributes
             PhysicsScene.PE.SetFriction(m_mapInfo.terrainBody, BSParam.TerrainFriction);
@@ -129,7 +131,6 @@ namespace Universe.Physics.BulletSPlugin
                     PhysicsScene.PE.DestroyObject(PhysicsScene.World, m_mapInfo.terrainBody);
                 }
             }
-
             m_mapInfo = null;
         }
 
@@ -146,10 +147,10 @@ namespace Universe.Physics.BulletSPlugin
             catch
             {
                 // Sometimes they give us wonky values of X and Y. Give a warning and return something.
-                PhysicsScene.Logger.WarnFormat("{0} Bad request for terrain height. terrainBase={1}, pos={2}", LogHeader, m_mapInfo.terrainRegionBase, pos);
+                PhysicsScene.Logger.WarnFormat("{0} Bad request for terrain height. terrainBase={1}, pos={2}",
+                    LogHeader, m_mapInfo.terrainRegionBase, pos);
                 ret = BSTerrainManager.HEIGHT_GETHEIGHT_RET;
             }
-
             return ret;
         }
 

@@ -72,7 +72,8 @@ namespace Universe.Physics.BasicPhysicsPlugin
         {
         }
 
-        public override PhysicsActor AddAvatar(string avName, Vector3 position, Quaternion rotation, Vector3 size, bool isFlying, uint localID, UUID UUID)
+        public override PhysicsActor AddAvatar(string avName, Vector3 position, Quaternion rotation, Vector3 size,
+                                                   bool isFlying, uint localID, UUID UUID)
         {
             BasicCharacterActor act = new BasicCharacterActor {Position = position, Flying = isFlying};
             _actors.Add(act);
@@ -91,6 +92,13 @@ namespace Universe.Physics.BasicPhysicsPlugin
                 _actors.Remove(act);
             }
         }
+
+/*
+        public override PhysicsActor AddPrim(Vector3 position, Vector3 size, Quaternion rotation)
+        {
+            return null;
+        }
+*/
 
         public override PhysicsActor AddPrimShape(UUID primID, uint localID, string name, byte physicsType, PrimitiveBaseShape shape,
                                                 Vector3 position, Vector3 size, Quaternion rotation, bool isPhysical, int material,
@@ -127,8 +135,8 @@ namespace Universe.Physics.BasicPhysicsPlugin
                     actorPosition.X = (m_region.RegionSizeX - 0.1f);
                 }
 
-                float height = _heightMap[(int) actor.Position.Y*m_region.RegionSizeX + (int) actor.Position.X] + actor.Size.Z;
-
+                float height = _heightMap[(int) actor.Position.Y*m_region.RegionSizeX + (int) actor.Position.X] +
+                               actor.Size.Z;
                 if (actor.Flying)
                 {
                     if (actor.Position.Z + (actor.Velocity.Z*timeStep) <

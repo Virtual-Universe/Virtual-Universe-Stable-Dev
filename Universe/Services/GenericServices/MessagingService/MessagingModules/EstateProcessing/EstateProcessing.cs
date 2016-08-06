@@ -78,8 +78,7 @@ namespace Universe.Services
         /// <returns></returns>
         protected object OnGenericEvent (string FunctionName, object parameters)
         {
-            if (FunctionName == "EstateUpdated")
-            {
+            if (FunctionName == "EstateUpdated") {
                 EstateSettings es = (EstateSettings)parameters;
                 IEstateConnector estateConnector = Framework.Utilities.DataManager.RequestPlugin<IEstateConnector> ();
                 ISyncMessagePosterService asyncPoster = m_registry.RequestModuleInterface<ISyncMessagePosterService> ();
@@ -97,7 +96,6 @@ namespace Universe.Services
                     }
                 }
             }
-
             return null;
         }
 
@@ -109,8 +107,7 @@ namespace Universe.Services
         protected OSDMap OnMessageReceived (OSDMap message)
         {
             //We need to check and see if this is an AgentStatusChange
-            if (message.ContainsKey ("Method") && message ["Method"] == "EstateUpdated")
-            {
+            if (message.ContainsKey ("Method") && message ["Method"] == "EstateUpdated") {
                 OSDMap innerMessage = (OSDMap)message ["Message"];
                 //We got a message, deal with it
                 uint estateID = innerMessage ["EstateID"].AsUInteger ();
@@ -130,7 +127,6 @@ namespace Universe.Services
                     }
                 }
             }
-
             return null;
         }
     }

@@ -34,7 +34,7 @@ namespace Universe.Physics.BulletSPlugin
 {
     public abstract class BSConstraint : IDisposable
     {
-        static string LogHeader = "[BULLETSIM CONSTRAINT]";
+        static string LogHeader = "[Bulletsim Constraint]";
 
         protected BulletWorld m_world;
         protected BSScene PhysicsScene;
@@ -79,8 +79,12 @@ namespace Universe.Physics.BulletSPlugin
                 if (m_constraint.HasPhysicalConstraint)
                 {
                     bool success = PhysicsScene.PE.DestroyConstraint(m_world, m_constraint);
-                    m_world.physicsScene.DetailLog("{0},BSConstraint.Dispose,taint,id1={1},body1={2},id2={3},body2={4},success={5}",
-                        BSScene.DetailLogZero, m_body1.ID, m_body1.AddrString, m_body2.ID, m_body2.AddrString, success);
+                    m_world.physicsScene.DetailLog(
+                        "{0},BSConstraint.Dispose,taint,id1={1},body1={2},id2={3},body2={4},success={5}",
+                        BSScene.DetailLogZero,
+                        m_body1.ID, m_body1.AddrString,
+                        m_body2.ID, m_body2.AddrString,
+                        success);
                     m_constraint.Clear();
                 }
             }
@@ -101,7 +105,6 @@ namespace Universe.Physics.BulletSPlugin
             {
                 ret = PhysicsScene.PE.SetAngularLimits(m_constraint, low, high);
             }
-
             return ret;
         }
 
@@ -113,7 +116,6 @@ namespace Universe.Physics.BulletSPlugin
                 PhysicsScene.PE.SetConstraintNumSolverIterations(m_constraint, cnt);
                 ret = true;
             }
-
             return ret;
         }
 
@@ -126,7 +128,6 @@ namespace Universe.Physics.BulletSPlugin
                 PhysicsScene.PE.CalculateTransforms(m_constraint);
                 ret = true;
             }
-
             return ret;
         }
 
@@ -147,10 +148,10 @@ namespace Universe.Physics.BulletSPlugin
                 }
                 else
                 {
-                    m_world.physicsScene.Logger.ErrorFormat("{0} CalculateTransforms failed. A={1}, B={2}", LogHeader, Body1.ID, Body2.ID);
+                    m_world.physicsScene.Logger.ErrorFormat("{0} CalculateTransforms failed. A={1}, B={2}", LogHeader,
+                        Body1.ID, Body2.ID);
                 }
             }
-
             return ret;
         }
     }

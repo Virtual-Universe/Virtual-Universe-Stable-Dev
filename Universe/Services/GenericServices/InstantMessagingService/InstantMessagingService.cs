@@ -71,13 +71,13 @@ namespace Universe.Services
         public void FinishedStartup ()
         {
             m_eventQueueService = m_registry.RequestModuleInterface<IEventQueueService> ();
-            ISyncMessageRecievedService syncRecievedService = m_registry.RequestModuleInterface<ISyncMessageRecievedService> ();
-
+            ISyncMessageRecievedService syncRecievedService =
+                m_registry.RequestModuleInterface<ISyncMessageRecievedService> ();
             if (syncRecievedService != null)
                 syncRecievedService.OnMessageReceived += syncRecievedService_OnMessageReceived;
-
             m_groupData = Framework.Utilities.DataManager.RequestPlugin<IGroupsServiceConnector> ();
-            m_registry.RequestModuleInterface<ISimulationBase> ().EventManager.RegisterEventHandler ("UserStatusChange", OnGenericEvent);
+            m_registry.RequestModuleInterface<ISimulationBase> ().EventManager.RegisterEventHandler ("UserStatusChange",
+                                                                                                   OnGenericEvent);
         }
 
         #endregion
@@ -87,14 +87,14 @@ namespace Universe.Services
         OSDMap syncRecievedService_OnMessageReceived (OSDMap message)
         {
             string method = message ["Method"];
-            if (method == "SendInstantMessages")
-            {
-                List<GridInstantMessage> messages = ((OSDArray)message ["Messages"]).ConvertAll<GridInstantMessage> ((o) => {
-                        GridInstantMessage im = new GridInstantMessage ();
+            if (method == "SendInstantMessages") {
+                List<GridInstantMessage> messages =
+                    ((OSDArray)message ["Messages"]).ConvertAll<GridInstantMessage> ((o) => {
+                        GridInstantMessage im =
+                            new GridInstantMessage ();
                         im.FromOSD ((OSDMap)o);
                         return im;
                     });
-
                 ISceneManager manager = m_registry.RequestModuleInterface<ISceneManager> ();
                 if (manager != null) {
                     foreach (GridInstantMessage im in messages) {
@@ -103,12 +103,10 @@ namespace Universe.Services
                         foreach (IScene scene in manager.Scenes) {
                             UserPresence = scene.GetScenePresence (im.ToAgentID);
 
-                            //Do not fire for child agents or group messages are sent for every region
-                            if (UserPresence != null && UserPresence.IsChildAgent == false)
-                            {
+                            //AR: Do not fire for child agents or group messages are sent for every region
+                            if (UserPresence != null && UserPresence.IsChildAgent == false) {
                                 IMessageTransferModule messageTransfer = scene.RequestModuleInterface<IMessageTransferModule> ();
-                                if (messageTransfer != null)
-                                {
+                                if (messageTransfer != null) {
                                     messageTransfer.SendInstantMessage (im);
                                 }
                             }
@@ -116,7 +114,6 @@ namespace Universe.Services
                     }
                 }
             }
-
             return null;
         }
 
@@ -137,8 +134,7 @@ namespace Universe.Services
                     //If they are going offline, actually remove from from all group chats so that the next time they log in, they will be re-added
                     foreach (GroupMembershipData gmd in m_groupData.GetAgentGroupMemberships (us, us)) {
                         ChatSessionMember member = FindMember (gmd.GroupID, us);
-                        if (member != null)
-                        {
+                        if (member != null) {
                             member.HasBeenAdded = false;
                             member.RequestedRemoval = false;
                         }
@@ -188,6 +184,7 @@ namespace Universe.Services
                         RequestedRemoval = false
                     }, sessionid);
 
+
                     //Inform us about our room
                     ChatterBoxSessionAgentListUpdatesMessage.AgentUpdatesBlock block =
                         new ChatterBoxSessionAgentListUpdatesMessage.AgentUpdatesBlock {
@@ -198,8 +195,8 @@ namespace Universe.Services
                             MuteVoice = false,
                             Transition = "ENTER"
                         };
-
-                    m_eventQueueService.ChatterBoxSessionAgentListUpdates (sessionid, new [] { block }, caps.AgentID, "ENTER", caps.RegionID);
+                    m_eventQueueService.ChatterBoxSessionAgentListUpdates (sessionid, new [] { block }, caps.AgentID,
+                                                                          "ENTER", caps.RegionID);
 
                     ChatterBoxSessionStartReplyMessage cs = new ChatterBoxSessionStartReplyMessage {
                         VoiceEnabled = true,
@@ -210,24 +207,25 @@ namespace Universe.Services
                         SessionName = caps.ClientCaps.AccountInfo.Name + " Conference",
                         ModeratedVoice = true
                     };
-
                     return OSDParser.SerializeLLSDXmlString (cs.Serialize ());
                 }
 
             case "accept invitation": {
                     //They would like added to the group conversation
-                    var Us = new List<ChatterBoxSessionAgentListUpdatesMessage.AgentUpdatesBlock> ();
-                    var NotUsAgents = new List<ChatterBoxSessionAgentListUpdatesMessage.AgentUpdatesBlock> ();
+                    var Us =
+                        new List<ChatterBoxSessionAgentListUpdatesMessage.AgentUpdatesBlock> ();
+                    var NotUsAgents =
+                        new List<ChatterBoxSessionAgentListUpdatesMessage.AgentUpdatesBlock> ();
 
                     ChatSession session = GetSession (sessionid);
-                    if (session != null)
-                        {
+                    if (session != null) {
                         ChatSessionMember thismember = FindMember (sessionid, caps.AgentID);
-                        if (thismember != null)
-                            {
+                        if (thismember != null) {
+
                             //Tell all the other members about the incoming member
                             foreach (ChatSessionMember sessionMember in session.Members) {
-                                ChatterBoxSessionAgentListUpdatesMessage.AgentUpdatesBlock block = new ChatterBoxSessionAgentListUpdatesMessage.AgentUpdatesBlock {
+                                ChatterBoxSessionAgentListUpdatesMessage.AgentUpdatesBlock block =
+                                    new ChatterBoxSessionAgentListUpdatesMessage.AgentUpdatesBlock {
                                         AgentID = sessionMember.AvatarKey,
                                         CanVoiceChat = sessionMember.CanVoiceChat,
                                         IsModerator = sessionMember.IsModerator,
@@ -235,7 +233,6 @@ namespace Universe.Services
                                         MuteVoice = sessionMember.MuteVoice,
                                         Transition = "ENTER"
                                     };
-
                                 if (sessionMember.AvatarKey == thismember.AvatarKey) {
                                     Us.Add (block);
                                     NotUsAgents.Add (block);
@@ -245,7 +242,6 @@ namespace Universe.Services
                                         NotUsAgents.Add (block);
                                 }
                             }
-
                             thismember.HasBeenAdded = true;
                             foreach (ChatSessionMember member in session.Members) {
                                 if (member.HasBeenAdded) //Only send to those in the group
@@ -260,7 +256,6 @@ namespace Universe.Services
                                     }
                                 }
                             }
-
                             return "Accepted";
                         }
                     }
@@ -283,11 +278,11 @@ namespace Universe.Services
 
                     if (muteInfoMap.ContainsKey ("text"))
                         thismember.MuteText = muteInfoMap ["text"].AsBoolean ();
-
                     if (muteInfoMap.ContainsKey ("voice"))
                         thismember.MuteVoice = muteInfoMap ["voice"].AsBoolean ();
 
-                    ChatterBoxSessionAgentListUpdatesMessage.AgentUpdatesBlock block = new ChatterBoxSessionAgentListUpdatesMessage.AgentUpdatesBlock {
+                    ChatterBoxSessionAgentListUpdatesMessage.AgentUpdatesBlock block =
+                        new ChatterBoxSessionAgentListUpdatesMessage.AgentUpdatesBlock {
                             AgentID = thismember.AvatarKey,
                             CanVoiceChat = thismember.CanVoiceChat,
                             IsModerator = thismember.IsModerator,
@@ -302,9 +297,9 @@ namespace Universe.Services
                         if (member.HasBeenAdded) //Only send to those in the group
                         {
                             UUID regionID = FindRegionID (member.AvatarKey);
-                            if (regionID != UUID.Zero)
-                            {
-                                m_eventQueueService.ChatterBoxSessionAgentListUpdates (sessionid, new [] { block },member.AvatarKey, "", regionID);
+                            if (regionID != UUID.Zero) {
+                                m_eventQueueService.ChatterBoxSessionAgentListUpdates (
+                                    sessionid, new [] { block },member.AvatarKey, "", regionID);
                             }
                         }
                     }
@@ -314,6 +309,7 @@ namespace Universe.Services
 
             case "call": {
                     //Implement voice chat for conferences...
+
                     IVoiceService voiceService = m_registry.RequestModuleInterface<IVoiceService> ();
                     if (voiceService == null)
                         return "";
@@ -330,14 +326,12 @@ namespace Universe.Services
         [CanBeReflected (ThreatLevel = ThreatLevel.Low)]
         public void EnsureSessionIsStarted (UUID groupID)
         {
-            if (m_doRemoteOnly)
-            {
+            if (m_doRemoteOnly) {
                 DoRemoteCallPost (true, "InstantMessageServerURI", groupID);
                 return;
             }
 
-            if (!SessionExists (groupID))
-            {
+            if (!SessionExists (groupID)) {
                 GroupRecord groupInfo = m_groupData.GetGroupRecord (UUID.Zero, groupID, null);
 
                 CreateSession (new ChatSession {
@@ -379,7 +373,6 @@ namespace Universe.Services
             if (groupInfo != null) {
                 if (!GroupPermissionCheck (AgentID, GroupID, GroupPowers.JoinChat))
                     return; //They have to be able to join to create a group chat
-                
                 //Create the session.
                 if (!SessionExists (GroupID)) {
                     CreateSession (new ChatSession {
@@ -412,9 +405,9 @@ namespace Universe.Services
                             HasBeenAdded = false
                         }, GroupID);
                     }
-
                     //Tell us that it was made successfully
-                    m_eventQueueService.ChatterBoxSessionStartReply (groupInfo.GroupName, GroupID, AgentID, FindRegionID (AgentID));
+                    m_eventQueueService.ChatterBoxSessionStartReply (groupInfo.GroupName, GroupID,
+                                                                    AgentID, FindRegionID (AgentID));
                 } else {
                     ChatSession thisSession = GetSession (GroupID);
                     //A session already exists
@@ -429,9 +422,12 @@ namespace Universe.Services
                     }, GroupID);
 
                     //Tell us that we entered successfully
-                    m_eventQueueService.ChatterBoxSessionStartReply (groupInfo.GroupName, GroupID, AgentID, FindRegionID (AgentID));
-                    var Us = new List<ChatterBoxSessionAgentListUpdatesMessage.AgentUpdatesBlock> ();
-                    var NotUsAgents = new List<ChatterBoxSessionAgentListUpdatesMessage.AgentUpdatesBlock> ();
+                    m_eventQueueService.ChatterBoxSessionStartReply (groupInfo.GroupName, GroupID,
+                                                                    AgentID, FindRegionID (AgentID));
+                    var Us =
+                        new List<ChatterBoxSessionAgentListUpdatesMessage.AgentUpdatesBlock> ();
+                    var NotUsAgents =
+                        new List<ChatterBoxSessionAgentListUpdatesMessage.AgentUpdatesBlock> ();
 
                     foreach (ChatSessionMember sessionMember in thisSession.Members) {
                         ChatterBoxSessionAgentListUpdatesMessage.AgentUpdatesBlock block =
@@ -443,28 +439,25 @@ namespace Universe.Services
                                 MuteVoice = sessionMember.MuteVoice,
                                 Transition = "ENTER"
                             };
-
                         if (AgentID == sessionMember.AvatarKey)
                             Us.Add (block);
-
                         if (sessionMember.HasBeenAdded)
                             // Don't add not joined yet agents. They don't want to be here.
                             NotUsAgents.Add (block);
                     }
-
                     foreach (ChatSessionMember member in thisSession.Members) {
                         if (member.HasBeenAdded) //Only send to those in the group
                         {
                             UUID regionID = FindRegionID (member.AvatarKey);
-                            if (regionID != UUID.Zero)
-                            {
-                                if (member.AvatarKey == AgentID)
-                                {
+                            if (regionID != UUID.Zero) {
+                                if (member.AvatarKey == AgentID) {
                                     //Tell 'us' about all the other agents in the group
-                                    m_eventQueueService.ChatterBoxSessionAgentListUpdates (GroupID, NotUsAgents.ToArray (), member.AvatarKey, "ENTER", regionID);
+                                    m_eventQueueService.ChatterBoxSessionAgentListUpdates (
+                                        GroupID, NotUsAgents.ToArray (), member.AvatarKey, "ENTER", regionID);
                                 } else {
                                     //Tell 'other' agents about the new agent ('us')
-                                    m_eventQueueService.ChatterBoxSessionAgentListUpdates (GroupID, Us.ToArray (), member.AvatarKey, "ENTER", regionID);
+                                    m_eventQueueService.ChatterBoxSessionAgentListUpdates (
+                                        GroupID, Us.ToArray (), member.AvatarKey, "ENTER", regionID);
                                 }
                             }
                         }
@@ -483,8 +476,8 @@ namespace Universe.Services
                             MuteVoice = agentMember.MuteVoice,
                             Transition = "ENTER"
                         };
-
-                    m_eventQueueService.ChatterBoxSessionAgentListUpdates (GroupID, new [] { ourblock }, AgentID, "ENTER", FindRegionID (AgentID));
+                    m_eventQueueService.ChatterBoxSessionAgentListUpdates (
+                        GroupID, new [] { ourblock }, AgentID, "ENTER", FindRegionID (AgentID));
                 }
             }
         }
@@ -497,8 +490,7 @@ namespace Universe.Services
         [CanBeReflected (ThreatLevel = ThreatLevel.Low)]
         public void DropMemberFromSession (UUID agentID, GridInstantMessage im)
         {
-            if (m_doRemoteOnly)
-            {
+            if (m_doRemoteOnly) {
                 DoRemoteCallPost (true, "InstantMessageServerURI", agentID, im);
                 return;
             }
@@ -507,9 +499,9 @@ namespace Universe.Services
             ChatSessions.TryGetValue (im.SessionID, out session);
             if (session == null)
                 return;
-
             ChatSessionMember member = null;
-            foreach (ChatSessionMember testmember in session.Members.Where (testmember => testmember.AvatarKey == im.FromAgentID))
+            foreach (ChatSessionMember testmember in
+                     session.Members.Where (testmember => testmember.AvatarKey == im.FromAgentID))
                 member = testmember;
 
             if (member == null)
@@ -537,9 +529,9 @@ namespace Universe.Services
                 if (sessionMember.HasBeenAdded) //Only send to those in the group
                 {
                     UUID regionID = FindRegionID (sessionMember.AvatarKey);
-                    if (regionID != UUID.Zero)
-                    {
-                        m_eventQueueService.ChatterBoxSessionAgentListUpdates (session.SessionID, new [] { block }, sessionMember.AvatarKey, "LEAVE", regionID);
+                    if (regionID != UUID.Zero) {
+                        m_eventQueueService.ChatterBoxSessionAgentListUpdates (
+                            session.SessionID, new [] { block }, sessionMember.AvatarKey, "LEAVE", regionID);
                     }
                 }
             }
@@ -553,8 +545,7 @@ namespace Universe.Services
         [CanBeReflected (ThreatLevel = ThreatLevel.Low)]
         public void SendChatToSession (UUID agentID, GridInstantMessage im)
         {
-            if (m_doRemoteOnly)
-            {
+            if (m_doRemoteOnly) {
                 DoRemoteCallPost (true, "InstantMessageServerURI", agentID, im);
                 return;
             }
@@ -574,8 +565,7 @@ namespace Universe.Services
 
                 var messagesToSend = new Dictionary<string, List<GridInstantMessage>> ();
                 foreach (ChatSessionMember member in session.Members) {
-                    if (member.HasBeenAdded)
-                    {
+                    if (member.HasBeenAdded) {
                         im.ToAgentID = member.AvatarKey;
                         im.BinaryBucket = Utils.StringToBytes (session.Name);
                         im.RegionID = UUID.Zero;
@@ -597,8 +587,7 @@ namespace Universe.Services
                       //If they're requested to leave, don't recontact them
                       {
                         UUID regionID = FindRegionID (member.AvatarKey);
-                        if (regionID != UUID.Zero)
-                        {
+                        if (regionID != UUID.Zero) {
                             im.ToAgentID = member.AvatarKey;
                             m_eventQueueService.ChatterboxInvitation (
                                 session.SessionID
@@ -621,7 +610,6 @@ namespace Universe.Services
                         }
                     }
                 }
-
                 foreach (KeyValuePair<string, List<GridInstantMessage>> kvp in messagesToSend) {
                     SendInstantMessages (kvp.Key, kvp.Value);
                 }
@@ -647,8 +635,7 @@ namespace Universe.Services
         void SendInstantMessages (string uri, List<GridInstantMessage> ims)
         {
             ISyncMessagePosterService syncMessagePoster = m_registry.RequestModuleInterface<ISyncMessagePosterService> ();
-            if (syncMessagePoster != null)
-            {
+            if (syncMessagePoster != null) {
                 OSDMap map = new OSDMap ();
                 map ["Method"] = "SendInstantMessages";
                 map ["Messages"] = ims.ToOSDArray ();
@@ -682,12 +669,10 @@ namespace Universe.Services
             ChatSessions.TryGetValue (sessionid, out session);
             if (session == null)
                 return null;
-
             ChatSessionMember thismember = new ChatSessionMember { AvatarKey = UUID.Zero };
             foreach (ChatSessionMember testmember in session.Members.Where (testmember => testmember.AvatarKey == Agent)) {
                 thismember = testmember;
             }
-
             return thismember;
         }
 
@@ -703,12 +688,10 @@ namespace Universe.Services
             ChatSessions.TryGetValue (sessionid, out session);
             if (session == null)
                 return false;
-
             ChatSessionMember thismember = new ChatSessionMember { AvatarKey = UUID.Zero };
             foreach (ChatSessionMember testmember in session.Members.Where (testmember => testmember.AvatarKey == Agent)) {
                 thismember = testmember;
             }
-
             if (thismember == null)
                 return false;
             return thismember.IsModerator;
@@ -724,8 +707,7 @@ namespace Universe.Services
             ChatSession session;
             ChatSessions.TryGetValue (SessionID, out session);
             ChatSessionMember oldMember;
-            if ((oldMember = session.Members.Find (mem => mem.AvatarKey == member.AvatarKey)) != null)
-            {
+            if ((oldMember = session.Members.Find (mem => mem.AvatarKey == member.AvatarKey)) != null) {
                 oldMember.HasBeenAdded = true;
                 oldMember.RequestedRemoval = false;
             } else
@@ -770,7 +752,6 @@ namespace Universe.Services
                 MuteVoice = false,
                 HasBeenAdded = false
             };
-
             session.Members.Add (member);
         }
 

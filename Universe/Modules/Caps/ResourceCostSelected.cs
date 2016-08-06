@@ -35,7 +35,7 @@ using OpenMetaverse.StructuredData;
 using Universe.Framework.Modules;
 using Universe.Framework.PresenceInfo;
 using Universe.Framework.SceneInfo;
-using Universe.Framework.SceneInfo.Entities;
+using Universe.Framework.SceneInfo.Entitites;
 using Universe.Framework.Servers;
 using Universe.Framework.Servers.HttpServer;
 using Universe.Framework.Servers.HttpServer.Implementation;

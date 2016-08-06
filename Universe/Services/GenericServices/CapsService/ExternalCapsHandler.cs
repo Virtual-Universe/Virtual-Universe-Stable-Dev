@@ -44,7 +44,8 @@ namespace Universe.Services.GenericServices.CapsService
     public class ExternalCapsHandler : ConnectorBase, IExternalCapsHandler, IService
     {
         List<string> m_allowedCapsModules = new List<string> ();
-        Dictionary<UUID, List<IExternalCapsRequestHandler>> m_caps = new Dictionary<UUID, List<IExternalCapsRequestHandler>> ();
+        Dictionary<UUID, List<IExternalCapsRequestHandler>> m_caps =
+            new Dictionary<UUID, List<IExternalCapsRequestHandler>> ();
         ISyncMessagePosterService m_syncPoster;
         List<string> m_servers = new List<string> ();
 
@@ -92,26 +93,20 @@ namespace Universe.Services.GenericServices.CapsService
                     m_syncPoster.Get (uri, req, (r) => {
                         if (r == null)
                             return;
-
                         foreach (KeyValuePair<string, OSD> kvp in r)
                             resp.Add (kvp.Key, kvp.Value);
-
                         even.Set ();
                     });
-
                     events.Add (even);
                 }
-
                 if (events.Count > 0)
                     ManualResetEvent.WaitAll (events.ToArray ());
             }
-
             foreach (var h in GetHandlers(agentID, region.RegionID))
             {
                 if (m_allowedCapsModules.Contains (h.Name))
                     h.IncomingCapsRequest (agentID, region, m_registry.RequestModuleInterface<ISimulationBase> (), ref resp);
             }
-
             return resp;
         }
 
@@ -137,7 +132,6 @@ namespace Universe.Services.GenericServices.CapsService
             string method = message ["Method"];
             if (method != "GetCaps" && method != "RemoveCaps")
                 return null;
-
             UUID AgentID = message ["AgentID"];
             GridRegion region = new GridRegion ();
             region.FromOSD ((OSDMap)message ["Region"]);
@@ -158,10 +152,8 @@ namespace Universe.Services.GenericServices.CapsService
                     if (m_allowedCapsModules.Contains (h.Name))
                         h.IncomingCapsDestruction ();
                 }
-
                 return map;
             }
-
             return null;
         }
 
@@ -175,7 +167,6 @@ namespace Universe.Services.GenericServices.CapsService
                     caps = Universe.Framework.ModuleLoader.UniverseModuleLoader.PickupModules<IExternalCapsRequestHandler> ();
                     m_caps.Add (agentID ^ regionID, caps);
                 }
-
                 return caps;
             }
         }

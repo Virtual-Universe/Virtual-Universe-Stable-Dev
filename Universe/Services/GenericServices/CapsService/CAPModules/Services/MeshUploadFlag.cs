@@ -49,7 +49,8 @@ namespace Universe.Services
         {
             m_service = service;
             m_profileConnector = Framework.Utilities.DataManager.RequestPlugin<IProfileConnector> ();
-            m_service.AddStreamHandler ("MeshUploadFlag", new GenericStreamHandler ("GET", m_service.CreateCAPS ("MeshUploadFlag", ""), MeshUploadFlagCAP));
+            m_service.AddStreamHandler ("MeshUploadFlag",
+                new GenericStreamHandler ("GET", m_service.CreateCAPS ("MeshUploadFlag", ""), MeshUploadFlagCAP));
         }
 
         public void DeregisterCaps ()

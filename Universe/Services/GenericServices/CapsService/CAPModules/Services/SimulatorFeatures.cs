@@ -54,7 +54,8 @@ namespace Universe.Services
             // retrieve our god's if needed
             InitGodNames ();
 
-            m_service.AddStreamHandler ("SimulatorFeatures", new GenericStreamHandler ("GET", m_service.CreateCAPS ("SimulatorFeatures", ""), SimulatorFeaturesCAP));
+            m_service.AddStreamHandler ("SimulatorFeatures",
+                new GenericStreamHandler ("GET", m_service.CreateCAPS ("SimulatorFeatures", ""), SimulatorFeaturesCAP));
         }
 
         public void DeregisterCaps ()
@@ -71,11 +72,10 @@ namespace Universe.Services
         byte [] SimulatorFeaturesCAP (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
             OSDMap data = new OSDMap ();
-
-            // 17-06-2015 Fly-Man- AvatarHoverHeight enabled
+            // AvatarHoverHeight enabled
             data ["AvatarHoverHeightEnabled"] = true;
 
-            // 17-06-2015 Fly-Man- MaxMaterialsPerTransaction enabled
+            // MaxMaterialsPerTransaction enabled
             data ["MaxMaterialsPerTransaction"] = 50;
 
             data ["MeshRezEnabled"] = true;
@@ -107,8 +107,7 @@ namespace Universe.Services
 
             IUserAccountService userService = m_service.Registry.RequestModuleInterface<IUserAccountService> ();
             var gods = userService.GetUserAccounts (null, "*");
-            if (gods != null)
-            {
+            if (gods != null) {
                 foreach (UserAccount user in gods)
                     if (user.UserLevel >= Constants.USER_GOD_LIASON) {
                         m_lastNames.Add (user.LastName);
@@ -120,25 +119,21 @@ namespace Universe.Services
         OSDMap GodNames (OSHttpRequest httpRequest)
         {
             OSDMap namesmap = new OSDMap ();
-            if (httpRequest.Query.ContainsKey ("god_names"))
-            {
+            if (httpRequest.Query.ContainsKey ("god_names")) {
                 OSD nmap = httpRequest.Query ["god_names"].ToString ();
                 namesmap = (OSDMap)nmap;
             }
 
             OSDArray fnames = new OSDArray ();
-            foreach (string name in m_fullNames)
-            {
+            foreach (string name in m_fullNames) {
                 fnames.Add (name);
             }
             namesmap ["full_names"] = fnames;
 
             OSDArray lnames = new OSDArray ();
-            foreach (string name in m_lastNames)
-            {
+            foreach (string name in m_lastNames) {
                 lnames.Add (name);
             }
-
             namesmap ["last_names"] = lnames;
 
             return namesmap;
@@ -147,8 +142,7 @@ namespace Universe.Services
         void CameraOnllyModeRequest (OSHttpRequest httpRequest)
         {
             OSDMap extrasMap = new OSDMap ();
-            if (httpRequest.Query.ContainsKey ("OpenSimExtras"))
-            {
+            if (httpRequest.Query.ContainsKey ("OpenSimExtras")) {
                 OSD nmap = httpRequest.Query ["OpenSimExtras"].ToString ();
                 extrasMap = (OSDMap)nmap;
             }

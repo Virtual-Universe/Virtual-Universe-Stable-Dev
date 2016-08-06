@@ -92,23 +92,20 @@ namespace Universe.Simulation.Base
         }
 
         protected string m_defaultDataPath = Constants.DEFAULT_DATA_DIR;
-
         public string DefaultDataPath
-        {
-            get { return m_defaultDataPath; }
-            set { m_defaultDataPath = value; }
+        { 
+            get { return m_defaultDataPath;}
+            set { m_defaultDataPath = value;}
         }
 
         protected int m_mapcenter_x = Constants.DEFAULT_REGIONSTART_X;
-        public int MapCenterX
-        {
+        public int MapCenterX {
             get { return m_mapcenter_x; }
             set { m_mapcenter_x = value; }
         }
 
         protected int m_mapcenter_y = Constants.DEFAULT_REGIONSTART_Y;
-        public int MapCenterY
-        {
+        public int MapCenterY {
             get { return m_mapcenter_y; }
             set { m_mapcenter_y = value; }
         }
@@ -178,8 +175,7 @@ namespace Universe.Simulation.Base
         /// <param name="configSource"></param>
         /// <param name="cmdParams"></param>
         /// <param name="configLoader"></param>
-        public virtual void Initialize(IConfigSource originalConfig, IConfigSource configSource, string[] cmdParams,
-                                       ConfigurationLoader configLoader)
+        public virtual void Initialize(IConfigSource originalConfig, IConfigSource configSource, string[] cmdParams, ConfigurationLoader configLoader)
         {
             m_commandLineParameters = cmdParams;
             m_StartupTime = DateTime.Now;
@@ -217,10 +213,9 @@ namespace Universe.Simulation.Base
                 m_defaultDataPath = startupConfig.GetString("DataDirectory", Constants.DEFAULT_DATA_DIR);
                 if (m_defaultDataPath == "")
                     m_defaultDataPath = Constants.DEFAULT_DATA_DIR;
-
+                
                 m_startupCommandsFile = startupConfig.GetString("startup_console_commands_file", "startup_commands.txt");
-                m_shutdownCommandsFile = startupConfig.GetString("shutdown_console_commands_file",
-                                                                 "shutdown_commands.txt");
+                m_shutdownCommandsFile = startupConfig.GetString("shutdown_console_commands_file", "shutdown_commands.txt");
 
                 m_TimerScriptFileName = startupConfig.GetString("timer_Script", "disabled");
                 m_TimerScriptTime = startupConfig.GetInt("timer_time", m_TimerScriptTime);
@@ -247,14 +242,13 @@ namespace Universe.Simulation.Base
                 if (stpMaxThreads < 2)
                     stpMaxThreads = 2;
                 if (stpMinThreads > stpMaxThreads)
-                    stpMinThreads = stpMaxThreads;
+                    stpMinThreads = stpMaxThreads;           
             }
 
-            var mapConfig = m_config.Configs["WebInterface"];
-            if (mapConfig != null)
-            {
-                m_mapcenter_x = mapConfig.GetInt("mapcenter_x", m_mapcenter_x);
-                m_mapcenter_y = mapConfig.GetInt("mapcenter_y", m_mapcenter_y);
+            var mapConfig = m_config.Configs ["WebInterface"];
+            if (mapConfig != null) {
+                m_mapcenter_x = mapConfig.GetInt ("mapcenter_x", m_mapcenter_x);
+                m_mapcenter_y = mapConfig.GetInt ("mapcenter_y", m_mapcenter_y);
             }
 
             if (Util.FireAndForgetMethod == FireAndForgetMethod.SmartThreadPool)
@@ -265,7 +259,7 @@ namespace Universe.Simulation.Base
             consoleService.PreStartup(this);
 
             //Fix the default prompt
-            MainConsole.Instance.DefaultPrompt = m_consolePrompt;
+             MainConsole.Instance.DefaultPrompt = m_consolePrompt;
         }
 
         /// <summary>
@@ -273,14 +267,12 @@ namespace Universe.Simulation.Base
         /// </summary>
         public virtual void Startup()
         {
-            PrintFileToConsole(Path.Combine(DefaultDataPath, "startuplogo.txt"));
+            PrintFileToConsole (Path.Combine(DefaultDataPath,"startuplogo.txt"));
 
-            MainConsole.Instance.InfoFormat("[Mini Virtual Universe]: Starting Mini Virtual Universe ({0})...",
-                                             (IntPtr.Size == 4 ? "x86" : "x64"));
-            MainConsole.Instance.Info("[Mini Virtual Universe]: Version : " + Version + "\n");
-            MainConsole.Instance.Info("[Mini Virtual Universe]: Git Base: " + VersionInfo.GitVersion + "\n");
-            MainConsole.Instance.Info("[Mini Virtual Universe]: Startup completed in " +
-                                       (DateTime.Now - StartupTime).TotalSeconds);
+            MainConsole.Instance.InfoFormat ("[Mini Virtual Universe]: Starting Mini Virtual Universe ({0})...", (IntPtr.Size == 4 ? "x86" : "x64"));
+            MainConsole.Instance.Info ("[Mini Virtual Universe]: Version : " + Version + "\n");
+            MainConsole.Instance.Info ("[Mini Virtual Universe]: Git Base: " + VersionInfo.GitVersion + "\n");
+            MainConsole.Instance.Info ("[Mini Virtual Universe]: Startup completed in " + (DateTime.Now - StartupTime).TotalSeconds);
         }
 
         public virtual ISimulationBase Copy()
@@ -320,25 +312,24 @@ namespace Universe.Simulation.Base
             // been here before?
             if (Utilities.HostName == "")
             {
-                hostName = m_config.Configs["Network"].GetString("HostName", "0.0.0.0");
+                hostName = m_config.Configs ["Network"].GetString ("HostName", "0.0.0.0");
 
                 if ((hostName == "") || (hostName == "0.0.0.0"))
                 {
-                    MainConsole.Instance.Info("[Network]: Retrieving the external IP address");
-                    hostName = "http" + (useHTTPS ? "s" : "") + "://" + Utilities.GetExternalIp();
+                    MainConsole.Instance.Info ("[Network]: Retrieving the external IP address");
+                    hostName = "http" + (useHTTPS ? "s" : "") + "://" + Utilities.GetExternalIp ();
                 }
-
+            
                 //Clean it up a bit
-                if (hostName.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || hostName.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
-                    hostName = hostName.Replace("https://", "").Replace("http://", "");
-                if (hostName.EndsWith("/", StringComparison.Ordinal))
-                    hostName = hostName.Remove(hostName.Length - 1, 1);
-
+                if (hostName.StartsWith ("http://", StringComparison.OrdinalIgnoreCase) || hostName.StartsWith ("https://", StringComparison.OrdinalIgnoreCase))
+                    hostName = hostName.Replace ("https://", "").Replace ("http://", "");
+                if (hostName.EndsWith ("/", StringComparison.Ordinal))
+                    hostName = hostName.Remove (hostName.Length - 1, 1);
+                
                 // save this for posterity in case it is needed
-                MainConsole.Instance.Info("[Network]: Network IP address has been set to " + hostName);
+                MainConsole.Instance.Info ("[Network]: Network IP address has been set to " + hostName);
                 Utilities.HostName = hostName;
-            }
-            else
+            } else
                 hostName = Utilities.HostName;
 
             server = new BaseHttpServer(port, hostName, useHTTPS, threadCount);
@@ -354,8 +345,10 @@ namespace Universe.Simulation.Base
                 //Then pass the exception upwards
                 throw;
             }
+
             if (m_Servers.Count == 0)
                 MainServer.Instance = server;
+
             return (m_Servers[port] = server);
         }
 
@@ -379,7 +372,7 @@ namespace Universe.Simulation.Base
             foreach (dynamic service in modules)
             {
                 if (!(service is IService)) continue;
-                ((IService)service).Start(ConfigSource, ApplicationRegistry);
+                ((IService) service).Start(ConfigSource, ApplicationRegistry);
             }
             foreach (dynamic service in modules)
             {
@@ -409,7 +402,7 @@ namespace Universe.Simulation.Base
             // Start timer script (run a script every xx seconds)
             if (m_TimerScriptFileName != "disabled")
             {
-                m_TimerScriptTimer = new Timer { Enabled = true, Interval = m_TimerScriptTime * 60 * 1000 };
+                m_TimerScriptTimer = new Timer {Enabled = true, Interval = m_TimerScriptTime*60*1000};
                 m_TimerScriptTimer.Elapsed += RunAutoTimerScript;
             }
         }
@@ -452,58 +445,58 @@ namespace Universe.Simulation.Base
             if (MainConsole.Instance == null)
                 return;
             MainConsole.Instance.Commands.AddCommand(
-                "quit",
-                "quit",
-                "Quit the application",
+                "quit", 
+                "quit", 
+                "Quit the application", 
                 HandleQuit, false, true);
-
+            
             MainConsole.Instance.Commands.AddCommand(
                 "shutdown",
-                "shutdown",
-                "Quit the application",
+                "shutdown", 
+                "Quit the application", 
                 HandleQuit, false, true);
-
+            
             MainConsole.Instance.Commands.AddCommand(
                 "show info",
                 "show info",
-                "Show server information (e.g. startup path)",
+                "Show server information (e.g. startup path)", 
                 HandleShowInfo, false, true);
-
+            
             MainConsole.Instance.Commands.AddCommand(
                 "show version",
-                "show version",
+                "show version", 
                 "Show server version",
                 HandleShowVersion, false, true);
-
+            
             MainConsole.Instance.Commands.AddCommand(
                 "reload config",
-                "reload config",
+                "reload config", 
                 "Reloads .ini file configuration",
                 HandleConfigRefresh, false, true);
-
+            
             MainConsole.Instance.Commands.AddCommand(
                 "set timer script interval",
                 "set timer script interval",
                 "Set the interval for the timer script (in minutes).",
                 HandleTimerScriptTime, false, true);
-
+            
             MainConsole.Instance.Commands.AddCommand(
                 "force GC",
-                "force GC",
-                "Forces garbage collection.",
+                "force GC", 
+                "Forces garbage collection.", 
                 HandleForceGC, false, true);
-
+            
             MainConsole.Instance.Commands.AddCommand(
                 "run configurator",
-                "run configurator",
+                "run configurator", 
                 "Runs Universe.Configurator.",
                 runConfig, false, true);
         }
 
         void HandleQuit(IScene scene, string[] args)
         {
-            var ok = MainConsole.Instance.Prompt("[Console]: Shutdown the simulator. Are you sure? (yes/no)", "no").ToLower();
-            if (ok.StartsWith("y", StringComparison.Ordinal))
+            var ok = MainConsole.Instance.Prompt ("[Console]: Shutdown the simulator. Are you sure? (yes/no)", "no").ToLower();
+            if (ok.StartsWith ("y", StringComparison.Ordinal))
                 Shutdown(true);
         }
 
@@ -522,8 +515,8 @@ namespace Universe.Simulation.Base
                     string currentCommand;
                     while ((currentCommand = readFile.ReadLine()) != null)
                     {
-                        if ((currentCommand != string.Empty) &&
-                            (!currentCommand.StartsWith(";", StringComparison.Ordinal)))
+                        if ( (currentCommand != string.Empty) &&
+                            (!currentCommand.StartsWith (";", StringComparison.Ordinal)) )
                         {
                             commands.Add(currentCommand);
                         }
@@ -556,12 +549,12 @@ namespace Universe.Simulation.Base
                 return;
             }
 
-            if (int.TryParse(cmd[4], out m_TimerScriptTime))
+            if (int.TryParse (cmd [4], out m_TimerScriptTime))
             {
                 m_TimerScriptTimer.Enabled = false;
                 m_TimerScriptTimer.Interval = m_TimerScriptTime * 60 * 1000;
                 m_TimerScriptTimer.Enabled = true;
-                MainConsole.Instance.Warn("[Console]: Set Timer Interval to " + cmd[4]);
+                MainConsole.Instance.Warn ("[Console]: Set Timer Interval to " + cmd [4]);
             }
         }
 
@@ -572,24 +565,24 @@ namespace Universe.Simulation.Base
 
             if (m_config != null)
             {
-                string hostName = m_config.Configs["Network"].GetString("HostName", "127.0.0.1");
+                string hostName = m_config.Configs ["Network"].GetString ("HostName", "127.0.0.1");
                 //Clean it up a bit
                 // these are doing nothing??
-                hostName = hostName.Replace("http://", "").Replace("https://", "");
-                if (hostName.EndsWith("/", StringComparison.Ordinal))
-                    hostName = hostName.Remove(hostName.Length - 1, 1);
-
+                hostName = hostName.Replace ("http://", "").Replace ("https://", "");
+                if (hostName.EndsWith ("/", StringComparison.Ordinal))
+                    hostName = hostName.Remove (hostName.Length - 1, 1);
+                
                 foreach (IHttpServer server in m_Servers.Values)
                 {
                     server.HostName = hostName;
                 }
-                MainConsole.Instance.Info("[Virtual Universe Configuration]: Finished reloading configuration.");
+                MainConsole.Instance.Info ("[Virtual Universe Configuration]: Finished reloading configuration.");
             }
         }
 
         public virtual void HandleShowInfo(IScene scene, string[] cmd)
         {
-            PrintFileToConsole(Path.Combine(m_defaultDataPath, "/startuplogo.txt"));
+            PrintFileToConsole (Path.Combine (m_defaultDataPath, "/startuplogo.txt"));
 
             MainConsole.Instance.Info("Version: " + m_version);
             MainConsole.Instance.Info("Startup directory: " + Environment.CurrentDirectory);
@@ -656,8 +649,7 @@ namespace Universe.Simulation.Base
                 if (close)
                     MainConsole.Instance.Info("[Shut Down]: Terminating");
 
-                MainConsole.Instance.Info("[Shut Down]: Shut down processing on main thread complete. " +
-                                          (close ? " Exiting Virtual Universe..." : ""));
+                MainConsole.Instance.Info("[Shut Down]: Shut down processing on main thread complete. " + (close ? " Exiting Virtual Universe..." : ""));
 
                 if (close)
                     Environment.Exit(0);

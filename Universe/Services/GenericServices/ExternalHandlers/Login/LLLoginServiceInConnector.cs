@@ -63,8 +63,10 @@ namespace Universe.Services
             if (handlerConfig.GetString("LLLoginHandler", "") != Name)
                 return;
 
-            IHttpServer server = registry.RequestModuleInterface<ISimulationBase>().GetHttpServer((uint) handlerConfig.GetInt("LLLoginHandlerPort"));
-            MainConsole.Instance.Debug("[LLLogin In Connector]: Starting...");
+            IHttpServer server =
+                registry.RequestModuleInterface<ISimulationBase>().GetHttpServer(
+                    (uint) handlerConfig.GetInt("LLLoginHandlerPort"));
+            MainConsole.Instance.Debug("[LLLOGIN IN CONNECTOR]: Starting...");
             ReadLocalServiceFromConfig(config);
             m_loginService = registry.RequestModuleInterface<ILoginService>();
 
@@ -147,9 +149,10 @@ namespace Universe.Services
 
                     LoginResponse reply = null;
 
-
                     string loginName = (name == "" || name == null) ? first + " " + last : name;
-                    reply = m_loginService.Login(UUID.Zero, loginName, "UserAccount", passwd, startLocation, clientVersion, channel, mac, id0, remoteClient, requestData);
+                    reply = m_loginService.Login(UUID.Zero, loginName, "UserAccount", passwd, startLocation,
+                                                 clientVersion, channel,
+                                                 mac, id0, remoteClient, requestData);
                     XmlRpcResponse response = new XmlRpcResponse {Value = reply.ToHashtable()};
                     return response;
                 }
@@ -174,7 +177,8 @@ namespace Universe.Services
                     string passwd = requestData["passwd"].ToString();
                     int level = Int32.Parse(requestData["level"].ToString());
 
-                    MainConsole.Instance.InfoFormat("[Login]: XmlRpc Set Level to {2} Requested by {0} {1}", first, last, level);
+                    MainConsole.Instance.InfoFormat("[LOGIN]: XMLRPC Set Level to {2} Requested by {0} {1}", first, last,
+                                                    level);
 
                     Hashtable reply = m_loginService.SetLevel(first, last, passwd, level, remoteClient);
 

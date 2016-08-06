@@ -195,7 +195,7 @@ namespace Universe.Physics.BulletSPlugin
     //      than making copies.
     public class BulletHMapInfo
     {
-    	public BulletHMapInfo(uint id, float[] hm, float pSizeX, float pSizeY)
+        public BulletHMapInfo(uint id, float[] hm, float pSizeX, float pSizeY)
         {
             ID = id;
             heightMap = hm;

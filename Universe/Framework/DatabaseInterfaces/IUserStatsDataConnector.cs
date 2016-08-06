@@ -29,7 +29,7 @@
 
 using System.Collections.Generic;
 using OpenMetaverse;
-using OpenMetaverse.Messages.Linden;
+using OpenMetaverse.Nessages.Linden;
 using Universe.Framework.Services;
 
 namespace Universe.Framework.DatabaseInterfaces

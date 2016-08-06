@@ -55,7 +55,6 @@ namespace Universe.Services
         protected IJ2KDecoder m_j2kDecoder;
         protected UUID m_AgentID;
         public const string DefaultFormat = "x-j2c";
-        
         // TODO: Change this to a config option
         protected string REDIRECT_URL = null;
         string m_getTextureURI;
@@ -92,9 +91,10 @@ namespace Universe.Services
 
         #region Get Texture
 
-        byte [] ProcessGetTexture (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+        byte [] ProcessGetTexture (string path, Stream request, OSHttpRequest httpRequest,
+                                         OSHttpResponse httpResponse)
         {
-            //MainConsole.Instance.DebugFormat("[Get Texture]: called in {0}", m_scene.RegionInfo.RegionName);
+            //MainConsole.Instance.DebugFormat("[GETTEXTURE]: called in {0}", m_scene.RegionInfo.RegionName);
 
             // Try to parse the texture ID from the request URL
             NameValueCollection query = HttpUtility.ParseQueryString (httpRequest.Url.Query);
@@ -109,7 +109,6 @@ namespace Universe.Services
             UUID textureID;
             if (!string.IsNullOrEmpty (textureStr) && UUID.TryParse (textureStr, out textureID)) {
                 string [] formats;
-
                 if (!string.IsNullOrEmpty (format))
                     formats = new [] { format.ToLower () };
                 else {
@@ -127,7 +126,8 @@ namespace Universe.Services
             }
 
             // null or invalid UUID
-            MainConsole.Instance.Warn ("[Asset Caps]: Failed to parse a texture_id from GetTexture request: " + httpRequest.Url);
+            MainConsole.Instance.Warn ("[AssetCAPS]: Failed to parse a texture_id from GetTexture request: " +
+                                          httpRequest.Url);
             httpResponse.StatusCode = (int)System.Net.HttpStatusCode.NotFound;
             return MainServer.BlankResponse;
         }
@@ -140,22 +140,21 @@ namespace Universe.Services
         /// <param name="format"></param>
         /// <param name="response"></param>
         /// <returns>False for "caller try another codec"; true otherwise</returns>
-        bool FetchTexture (OSHttpRequest httpRequest, OSHttpResponse httpResponse, UUID textureID, string format, out byte [] response)
+        bool FetchTexture (OSHttpRequest httpRequest, OSHttpResponse httpResponse, UUID textureID, string format,
+                                  out byte [] response)
         {
-            //MainConsole.Instance.DebugFormat("[Get Texture]: {0} with requested format {1}", textureID, format);
+            //MainConsole.Instance.DebugFormat("[GETTEXTURE]: {0} with requested format {1}", textureID, format);
             AssetBase texture;
 
             string fullID = textureID.ToString ();
             if (format != DefaultFormat)
                 fullID = fullID + "-" + format;
 
-            if (!string.IsNullOrEmpty (REDIRECT_URL))
-            {
+            if (!string.IsNullOrEmpty (REDIRECT_URL)) {
                 // Only try to fetch locally cached textures. Misses are redirected
                 texture = m_assetService.GetCached (fullID);
 
-                if (texture != null)
-                {
+                if (texture != null) {
                     if (texture.Type != (sbyte)AssetType.Texture &&        // not actually a texture
                         texture.Type != (sbyte)AssetType.Unknown &&        // .. but valid
                         texture.Type != (sbyte)AssetType.Simstate) {
@@ -168,7 +167,7 @@ namespace Universe.Services
                     return true;
                 } else {
                     string textureUrl = REDIRECT_URL + textureID;
-                    MainConsole.Instance.Debug ("[Asset Caps]: Redirecting texture request to " + textureUrl);
+                    MainConsole.Instance.Debug ("[AssetCAPS]: Redirecting texture request to " + textureUrl);
                     httpResponse.RedirectLocation = textureUrl;
                     response = MainServer.BlankResponse;
                     return true;
@@ -180,17 +179,15 @@ namespace Universe.Services
             texture = m_assetService.GetCached (fullID);
 
             if (texture == null) {
-                //MainConsole.Instance.DebugFormat("[Get Texture]: texture was not in the cache");
+                //MainConsole.Instance.DebugFormat("[GETTEXTURE]: texture was not in the cache");
 
                 // Fetch locally or remotely. Misses return a 404
                 texture = m_assetService.Get (textureID.ToString ());
 
-                if (texture != null)
-                {
+                if (texture != null) {
                     if (texture.Type != (sbyte)AssetType.Texture &&
                         texture.Type != (sbyte)AssetType.Unknown &&
-                        texture.Type != (sbyte)AssetType.Simstate)
-                    {
+                        texture.Type != (sbyte)AssetType.Simstate) {
                         httpResponse.StatusCode = (int)System.Net.HttpStatusCode.NotFound;
                         response = MainServer.BlankResponse;
                         texture.Dispose ();
@@ -203,12 +200,12 @@ namespace Universe.Services
                         } catch {
                             response = MainServer.BlankResponse;
                         }
-
                         texture.Dispose ();
                         return true;
                     }
 
-                    AssetBase newTexture = new AssetBase (texture.ID + "-" + format, texture.Name, AssetType.Texture, texture.CreatorID) { Data = ConvertTextureData (texture, format) };
+                    AssetBase newTexture = new AssetBase (texture.ID + "-" + format, texture.Name, AssetType.Texture,
+                                                                     texture.CreatorID) { Data = ConvertTextureData (texture, format) };
 
                     if (newTexture.Data.Length == 0)            // unable to convert
                     {
@@ -225,37 +222,35 @@ namespace Universe.Services
                     } catch {
                         response = MainServer.BlankResponse;
                     }
-
                     newTexture.Dispose ();
                     texture.Dispose ();
 
                     return true;
                 }
 
-                // nothing found so we replace with the 'missing_texture" texture
+                // nothing found... replace with the 'missing_texture" texture
                 // try the cache first
                 texture = m_assetService.GetCached (Constants.MISSING_TEXTURE_ID);
 
                 if (texture == null)
                     texture = m_assetService.Get (Constants.MISSING_TEXTURE_ID);		// not in local cache...
 
-                if (texture != null)
-                {
-                    if (format == DefaultFormat)
-                    {
-                        MainConsole.Instance.Debug ("[Asset Caps]: Texture " + textureID + " replaced with default 'missing' texture");
+                if (texture != null) {
+                    if (format == DefaultFormat) {
+                        MainConsole.Instance.Debug ("[AssetCAPS]: Texture " + textureID + " replaced with default 'missing' texture");
                         response = WriteTextureData (httpRequest, httpResponse, texture, format);
                         texture.Dispose ();
                         return true;
                     }
                 }
 
-                // texture not found and we have no 'missing texture'?
-                // or if all else fails
-                MainConsole.Instance.Warn ("[Asset Caps]: Texture " + textureID + " not found (no default)");
+                // texture not found and we have no 'missing texture'??
+                // ... or if all else fails...
+                MainConsole.Instance.Warn ("[AssetCAPS]: Texture " + textureID + " not found (no default)");
                 httpResponse.StatusCode = (int)System.Net.HttpStatusCode.NotFound;
                 response = MainServer.BlankResponse;
                 return true;
+
             }
 
             // found the texture in the cache
@@ -268,15 +263,16 @@ namespace Universe.Services
             }
 
             // the best result...
-            //MainConsole.Instance.DebugFormat("[Get Texture]: texture was in the cache");
+            //MainConsole.Instance.DebugFormat("[GETTEXTURE]: texture was in the cache");
             response = WriteTextureData (httpRequest, httpResponse, texture, format);
             return true;
+
         }
 
         byte [] WriteTextureData (OSHttpRequest request, OSHttpResponse response, AssetBase texture, string format)
         {
             string range = request.Headers.GetOne ("Range");
-            //MainConsole.Instance.DebugFormat("[Get Texture]: Range {0}", range);
+            //MainConsole.Instance.DebugFormat("[GETTEXTURE]: Range {0}", range);
             if (!string.IsNullOrEmpty (range)) // JP2's only
             {
                 // Range request
@@ -284,15 +280,13 @@ namespace Universe.Services
                 if (TryParseRange (range, out start, out end)) {
                     // Before clamping start make sure we can satisfy it in order to avoid
                     // sending back the last byte instead of an error status
-                    if (start >= texture.Data.Length)
-                    {
+                    if (start >= texture.Data.Length) {
                         response.StatusCode = (int)System.Net.HttpStatusCode.RequestedRangeNotSatisfiable;
                         return MainServer.BlankResponse;
                     } else {
                         // Handle the case where portions of the range are missing.
                         if (start == -1)
                             start = 0;
-
                         if (end == -1)
                             end = int.MaxValue;
 
@@ -308,16 +302,18 @@ namespace Universe.Services
                             response.StatusCode = (int)System.Net.HttpStatusCode.OK;
 
                         response.ContentType = texture.TypeString;
-                        response.AddHeader ("Content-Range", string.Format ("bytes {0}-{1}/{2}", start, end, texture.Data.Length));
+                        response.AddHeader ("Content-Range",
+                                           string.Format ("bytes {0}-{1}/{2}", start, end, texture.Data.Length));
                         byte [] array = new byte [len];
                         Array.Copy (texture.Data, start, array, 0, len);
                         return array;
                     }
                 }
 
-                MainConsole.Instance.Warn ("[Asset Caps]: Malformed Range header: " + range);
+                MainConsole.Instance.Warn ("[AssetCAPS]: Malformed Range header: " + range);
                 response.StatusCode = (int)System.Net.HttpStatusCode.BadRequest;
                 return MainServer.BlankResponse;
+
             }
 
             // Full content request
@@ -328,20 +324,23 @@ namespace Universe.Services
             else
                 response.ContentType = "image/" + format;
             return texture.Data;
+
         }
 
- 	     /// <summary>
-         /// Parse a range header.
-         /// </summary>
-         /// <remarks>
-         ///    As per http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html,
-         ///    this obeys range headers with two values (e.g. 533-4165) and no second value (e.g. 533-).
-         ///    Where there is no value, -1 is returned. Also handles a range like (-4165) where -1 is 
-         ///    returned for the starting value.</remarks>
-         /// <returns></returns>
-         /// <param name='header'></param>
-         /// <param name='start'>Undefined if the parse fails.</param>
-         /// <param name='end'>Undefined if the parse fails.</param>
+        /*
+ 	     * <summary>
+ 		 * Parse a range header.
+ 		 * </summary>
+     	 * <remarks>
+    	 * As per http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html,
+     	 * this obeys range headers with two values (e.g. 533-4165) and no second value (e.g. 533-).
+     	 * Where there is no value, -1 is returned. Also handles a range like (-4165) where -1 is 
+     	 * returned for the starting value.</remarks>
+     	 * <returns></returns>
+     	 * <param name='header'></param>
+     	 * <param name='start'>Undefined if the parse fails.</param>
+     	 * <param name='end'>Undefined if the parse fails.</param>
+     	*/
         bool TryParseRange (string header, out int start, out int end)
         {
             start = end = -1;
@@ -378,7 +377,6 @@ namespace Universe.Services
                 image = m_j2kDecoder.DecodeToImage (texture.Data);
                 if (image == null)
                     return data;
-                
                 // Save to bitmap
                 image = new Bitmap (image);
 
@@ -391,21 +389,21 @@ namespace Universe.Services
 
                     if (codec != null) {
                         image.Save (imgstream, codec, myEncoderParameters);
-                        
                         // Write the stream to a byte array for output
                         data = imgstream.ToArray ();
                     } else
-                        MainConsole.Instance.WarnFormat ("[Asset Caps]: No such codec {0}", format);
+                        MainConsole.Instance.WarnFormat ("[AssetCAPS]: No such codec {0}", format);
                 } catch {
-                    MainConsole.Instance.ErrorFormat ("[Asset Caps]: Unable to retrieve codec {0}", format);
+                    MainConsole.Instance.ErrorFormat ("[AssetCAPS]: Unable to retrieve codec {0}", format);
                 }
                 myEncoderParameters.Dispose ();
             } catch (Exception e) {
-                MainConsole.Instance.WarnFormat ("[Asset Caps]: Unable to convert texture {0} to {1}: {2}", texture.ID,
+                MainConsole.Instance.WarnFormat ("[AssetCAPS]: Unable to convert texture {0} to {1}: {2}", texture.ID,
                                                 format, e.Message);
             } finally {
                 // Reclaim memory, these are unmanaged resources
                 // If we encountered an exception, one or more of these will be null
+
                 if (image != null)
                     image.Dispose ();
 
@@ -431,16 +429,19 @@ namespace Universe.Services
 
         #region Baked Textures
 
-        public byte [] UploadBakedTexture (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+        public byte [] UploadBakedTexture (string path, Stream request, OSHttpRequest httpRequest,
+                                         OSHttpResponse httpResponse)
         {
             try {
-                //MainConsole.Instance.Debug("[Caps]: UploadBakedTexture Request in region: " + m_regionName);
+                //MainConsole.Instance.Debug("[CAPS]: UploadBakedTexture Request in region: " +
+                //        m_regionName);
 
                 string uploadpath = "/CAPS/Upload/" + UUID.Random () + "/";
                 BakedTextureUploader uploader = new BakedTextureUploader (uploadpath);
                 uploader.OnUpLoad += BakedTextureUploaded;
 
-                MainServer.Instance.AddStreamHandler (new GenericStreamHandler ("POST", uploadpath, uploader.UploaderCaps));
+                MainServer.Instance.AddStreamHandler (new GenericStreamHandler ("POST", uploadpath,
+                                                                    uploader.UploaderCaps));
 
                 string uploaderURL = MainServer.Instance.ServerURI + uploadpath;
                 OSDMap map = new OSDMap ();
@@ -448,7 +449,7 @@ namespace Universe.Services
                 map ["state"] = "upload";
                 return OSDParser.SerializeLLSDXmlBytes (map);
             } catch (Exception e) {
-                MainConsole.Instance.Error ("[Asset Caps]: " + e);
+                MainConsole.Instance.Error ("[AssetCAPS]: " + e);
             }
 
             return null;
@@ -475,7 +476,8 @@ namespace Universe.Services
             /// <param name="httpRequest"></param>
             /// <param name="httpResponse"></param>
             /// <returns></returns>
-            public byte [] UploaderCaps (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+            public byte [] UploaderCaps (string path, Stream request,
+                                       OSHttpRequest httpRequest, OSHttpResponse httpResponse)
             {
                 handlerUpLoad = OnUpLoad;
                 UUID newAssetID;
@@ -493,10 +495,10 @@ namespace Universe.Services
 
         public void BakedTextureUploaded (byte [] data, out UUID newAssetID)
         {
-            //MainConsole.Instance.InfoFormat("[Asset Caps]: Received baked texture {0}", assetID);
+            //MainConsole.Instance.InfoFormat("[AssetCAPS]: Received baked texture {0}", assetID);
             AssetBase asset = new AssetBase (UUID.Random (), "Baked Texture", AssetType.Texture, m_AgentID) { Data = data, Flags = AssetFlags.Deletable | AssetFlags.Temporary };
             newAssetID = asset.ID = m_assetService.Store (asset);
-            MainConsole.Instance.DebugFormat ("[Asset Caps]: Baked texture new id {0}", newAssetID);
+            MainConsole.Instance.DebugFormat ("[AssetCAPS]: Baked texture new id {0}", newAssetID);
         }
 
         public byte [] ProcessGetMesh (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
@@ -505,8 +507,10 @@ namespace Universe.Services
 
             string meshStr = string.Empty;
 
+
             if (httpRequest.QueryString ["mesh_id"] != null)
                 meshStr = httpRequest.QueryString ["mesh_id"];
+
 
             UUID meshID;
             if (!string.IsNullOrEmpty (meshStr) && UUID.TryParse (meshStr, out meshID)) {

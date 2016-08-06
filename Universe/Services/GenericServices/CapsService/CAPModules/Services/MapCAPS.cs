@@ -103,9 +103,9 @@ namespace Universe.Services
             int flags = map ["Flags"].AsInteger ();
 
             OSDArray layerData = new OSDArray {
-                GetOSDMapLayerResponse (bottom, left, right, top, new UUID ("00000000-0000-1111-9999-000000000006"))
+                GetOSDMapLayerResponse (bottom, left, right, top,
+                    new UUID ("00000000-0000-1111-9999-000000000006"))
             };
-
             OSDArray mapBlocksData = new OSDArray ();
 
             if (m_allowCapsMessage) {
@@ -121,12 +121,10 @@ namespace Universe.Services
                     }
                 }
             }
-
             foreach (MapBlockData block in m_mapLayer) {
                 //Add to the array
                 mapBlocksData.Add (block.ToOSD ());
             }
-
             OSDMap response = MapLayerResponce (layerData, mapBlocksData, flags);
             return OSDParser.SerializeLLSDXmlBytes (response);
         }
@@ -139,7 +137,6 @@ namespace Universe.Services
                 block.MapImageID = UUID.Zero;
                 return block;
             }
-
             block.Access = r.Access;
             if ((flag & 0xffff) == 0)
                 block.MapImageID = r.TerrainImage;
@@ -147,7 +144,6 @@ namespace Universe.Services
                 block.MapImageID = r.TerrainMapImage;
             if ((flag & 0xffff) == 2)
                 block.MapImageID = r.ParcelMapImage;
-
             block.Name = r.RegionName;
             block.X = (ushort)(r.RegionLocX / Constants.RegionSize);
             block.Y = (ushort)(r.RegionLocY / Constants.RegionSize);

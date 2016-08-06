@@ -162,10 +162,8 @@ namespace Universe.Services
             {
                 if (!string.IsNullOrEmpty(m_overrideCapsURL))
                     return m_overrideCapsURL;
-
                 return HostUri + m_capsUrlBase;
             }
-
             set { m_overrideCapsURL = value; }
         }
 
@@ -173,7 +171,8 @@ namespace Universe.Services
 
         #region Initialize
 
-        public void Initialize(IClientCapsService clientCapsService, IRegionCapsService regionCapsService, string capsBase, AgentCircuitData circuitData, uint port)
+        public void Initialize(IClientCapsService clientCapsService, IRegionCapsService regionCapsService,
+                               string capsBase, AgentCircuitData circuitData, uint port)
         {
             m_clientCapsService = clientCapsService;
             m_regionCapsService = regionCapsService;
@@ -183,7 +182,6 @@ namespace Universe.Services
                 ISimulationBase simBase = Registry.RequestModuleInterface<ISimulationBase>();
                 Server = simBase.GetHttpServer(port);
             }
-
             AddSEEDCap(capsBase);
 
             AddCAPS();
@@ -247,14 +245,13 @@ namespace Universe.Services
         public void RemoveStreamHandler(string method, string httpMethod)
         {
             string path = RegisteredCAPS[method].AsString();
-            if (path != "") //If it doesn't exist
+            if (path != "") //If it doesn't exist...
             {
                 if (path.StartsWith (HostUri, StringComparison.Ordinal)) //Only try to remove local ones
                 {
                     path = path.Remove(0, HostUri.Length);
                     Server.RemoveStreamHandler(httpMethod, path);
                 }
-
                 RemoveCaps(method);
             }
         }
@@ -267,9 +264,7 @@ namespace Universe.Services
         {
             if (capsUrl2 != "")
                 m_capsUrlBase = capsUrl2;
-
             Disabled = false;
-
             //Add our SEED cap
             AddStreamHandler("SEED", new GenericStreamHandler("POST", m_capsUrlBase, CapsRequest));
         }
@@ -281,9 +276,10 @@ namespace Universe.Services
             RemoveCAPS();
         }
 
-        public virtual byte[] CapsRequest(string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+        public virtual byte[] CapsRequest(string path, Stream request, OSHttpRequest httpRequest,
+                                          OSHttpResponse httpResponse)
         {
-            MainConsole.Instance.Debug("[Caps Handlers]: Handling Seed Cap request at " + CapsUrl);
+            MainConsole.Instance.Debug("[CapsHandlers]: Handling Seed Cap request at " + CapsUrl);
             return OSDParser.SerializeLLSDXmlBytes(RegisteredCAPS);
         }
 
@@ -336,7 +332,6 @@ namespace Universe.Services
             {
                 m_connectors = UniverseModuleLoader.PickupModules<ICapsServiceConnector>();
             }
-
             return m_connectors;
         }
 

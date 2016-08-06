@@ -44,7 +44,8 @@ namespace Universe.Services
         {
             m_service = service;
             
-            service.AddStreamHandler ("RegionExperiences", new GenericStreamHandler ("GET", service.CreateCAPS ("RegionExperiences", ""), RegionExperiences));
+            service.AddStreamHandler ("RegionExperiences",
+                new GenericStreamHandler ("GET", service.CreateCAPS ("RegionExperiences", ""), RegionExperiences));
         }
 
         public void EnteringRegion ()
@@ -56,12 +57,14 @@ namespace Universe.Services
             m_service.RemoveStreamHandler ("RegionExperiences", "GET");
         }
         
-        public byte[] RegionExperiences (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+        public byte[] RegionExperiences (string path, Stream request, OSHttpRequest httpRequest,
+                                      OSHttpResponse httpResponse)
         {
-        	MainConsole.Instance.DebugFormat("[Region Experiences]: Call = {0}", httpRequest);
+        	MainConsole.Instance.DebugFormat("[RegionExperiences] Call = {0}", httpRequest);
             var regionExp = new OSDMap();
 
             return OSDParser.SerializeLLSDXmlBytes (regionExp);
+
         }
     }
 }

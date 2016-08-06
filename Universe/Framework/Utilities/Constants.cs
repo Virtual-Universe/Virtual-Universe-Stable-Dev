@@ -53,7 +53,6 @@ namespace Universe.Framework.Utilities
 
         public const int DEFAULT_REGIONSTART_X = 1000;
         public const int DEFAULT_REGIONSTART_Y = 1000;
-
         public const int RegionSize = 256;
         public const int RegionHeight = 10000;
         public const byte TerrainPatchSize = 16;
@@ -83,7 +82,7 @@ namespace Universe.Framework.Utilities
 
         // System Real Estate Maintenance Group
 		public const string RealEstateGroupUUID = "dc7b21cd-3c89-fcaa-31c8-25f9ffd224cd";
-		public const string RealEstateGroupName = "Virtual Universe Maintenance";
+		public const string RealEstateGroupName = "Maintenance";
 
         // System Banker Avatar
         public const string BankerUUID = "f4261829-2796-4688-bfe2-085190cb639b";

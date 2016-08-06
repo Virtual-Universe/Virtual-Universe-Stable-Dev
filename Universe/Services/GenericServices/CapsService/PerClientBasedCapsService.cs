@@ -41,9 +41,7 @@ namespace Universe.Services
     public class PerClientBasedCapsService : IClientCapsService
     {
         protected ICapsService m_CapsService;
-
         protected Dictionary<UUID, IRegionClientCapsService> m_RegionCapsServices = new Dictionary<UUID, IRegionClientCapsService> ();
-
         protected UserAccount m_account;
         protected UUID m_agentID;
         protected bool m_callbackHasCome;
@@ -112,7 +110,6 @@ namespace Universe.Services
             {
                 RemoveCAPS (regionID);
             }
-
             m_RegionCapsServices.Clear ();
         }
 
@@ -125,7 +122,6 @@ namespace Universe.Services
         {
             if (m_RegionCapsServices.ContainsKey (regionID))
                 return m_RegionCapsServices [regionID];
-
             return null;
         }
 
@@ -165,7 +161,6 @@ namespace Universe.Services
 
                 RemoveCAPS (regionID);
             }
-
             //Create a new one, and then call Get to find it
             AddCapsServiceForRegion (regionID, capsBase, circuitData, port);
             return GetCapsService (regionID);

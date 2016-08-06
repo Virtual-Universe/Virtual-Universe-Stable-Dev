@@ -36,12 +36,8 @@ namespace Universe.Physics.BulletSPlugin
         BSConstraint LockAxisConstraint;
         bool HaveRegisteredForBeforeStepCallback = false;
 
-        /// <summary>
-        ///     The lock access flags (which axises were locked)
-        ///     when the constraint was built.
-        ///     Used to see if locking has changed since when the 
-        ///     constraint was built.
-        /// </summary>
+        // The lock access flags (which axises were locked) when the constraint was built.
+        // Used to see if locking has changed since when the constraint was built.
         OMV.Vector3 LockAxisLinearFlags;
         OMV.Vector3 LockAxisAngularFlags;
 
@@ -58,28 +54,22 @@ namespace Universe.Physics.BulletSPlugin
             get { return Enabled && m_controllingPrim.IsPhysicallyActive; }
         }
 
-        /// <summary>
-        ///     BSActor Dispose
-        ///     Release any connections and resources used by the actor.
-        /// </summary>
+        // Release any connections and resources used by the actor.
+        // BSActor.Dispose()
         public override void Dispose ()
         {
             RemoveAxisLockConstraint ();
         }
 
-        /// <summary>
-        ///     BSActor Refresh
-        ///     Called when physical parameters (properties set in bullet)
-        ///     need to be re-applied or called at taint time.
-        /// </summary>
+        // Called when physical parameters (properties set in Bullet) need to be re-applied.
+        // Called at taint-time.
+        // BSActor.Refresh()
         public override void Refresh ()
         {
-            /// <summary>
-            ///     If all the axis are free, we don't need to exist
-            ///     Refresh() only turns off. Enabling is done by Initialize AxisActor()
-            ///     whenever parameters are changed.
-            ///     This leaves 'enable' free to turn off an actor when it is not wanted to run.
-            /// </summary>
+            // If all the axis are free, we don't need to exist
+            // Refresh() only turns off. Enabling is done by Initialize AxisActor()
+            //      whenever parameters are changed.
+            //      This leaves 'enable' free to turn off an actor when it is not wanted to run.
             if (m_controllingPrim.LockedAngularAxis == m_controllingPrim.LockedAxisFree
                 && m_controllingPrim.LockedLinearAxis == m_controllingPrim.LockedAxisFree)
             {
@@ -97,12 +87,10 @@ namespace Universe.Physics.BulletSPlugin
             }
         }
 
-        /// <summary>
-        ///     The object's physical representation is being rebult
-        ///     so pick up any physical dependencies (constraints).
-        ///     Register a prestep action to restore physical requirements before
-        ///     the next simulation step or is called at taint time.
-        /// </summary>
+        // The object's physical representation is being rebuilt so pick up any physical dependencies (constraints, ...).
+        //     Register a prestep action to restore physical requirements before the next simulation step.
+        // Called at taint-time.
+        // BSActor.RemoveBodyDependencies()
         public override void RemoveBodyDependencies ()
         {
             if (LockAxisConstraint != null)
@@ -154,7 +142,6 @@ namespace Universe.Physics.BulletSPlugin
                     // The locking has changed. Remove the old constraint and build a new one
                     RemoveAxisLockConstraint ();
                 }
-
                 AddAxisLockConstraint ();
             } else
             {
@@ -167,18 +154,17 @@ namespace Universe.Physics.BulletSPlugin
         {
             if (LockAxisConstraint == null)
             {
-                /// <summary>
-                ///     Lock that axis by creating a 6DOF constraint that has one end 
-                ///     in the world and the other in the object.
-                ///     http://www.bulletphysics.org/Bullet/phpBB3/viewtopic.php?p=20817
-                ///     http://www.bulletphysics.org/Bullet/phpBB3/viewtopic.php?p=26380
-                ///     
-                ///     Remove any existing axis constraint (just to be sure)
-                /// </summary>
+                // Lock that axis by creating a 6DOF constraint that has one end in the world and
+                //    the other in the object.
+                // http://www.bulletphysics.org/Bullet/phpBB3/viewtopic.php?p=20817
+                // http://www.bulletphysics.org/Bullet/phpBB3/viewtopic.php?p=26380
+
+                // Remove any existing axis constraint (just to be sure)
                 RemoveAxisLockConstraint ();
 
                 BSConstraint6Dof axisConstrainer = new BSConstraint6Dof (m_physicsScene.World, m_controllingPrim.PhysBody,
-                                                       OMV.Vector3.Zero, OMV.Quaternion.Identity, false, true);
+                                                       OMV.Vector3.Zero, OMV.Quaternion.Identity,
+                                                       false /* useLinearReferenceFrameB */, true /* disableCollisionsBetweenLinkedBodies */);
                 LockAxisConstraint = axisConstrainer;
                 m_physicsScene.Constraints.AddConstraint (LockAxisConstraint);
 
@@ -191,10 +177,13 @@ namespace Universe.Physics.BulletSPlugin
                     !axisConstrainer.SetLinearLimits (m_controllingPrim.LockedLinearAxisLow,
                         m_controllingPrim.LockedLinearAxisHigh))
                 {
-                    m_physicsScene.DetailLog ("{0},BSActorLockAxis.AddAxisLockConstraint,failedSetLinearLimits", m_controllingPrim.LocalID);
+                    m_physicsScene.DetailLog ("{0},BSActorLockAxis.AddAxisLockConstraint,failedSetLinearLimits",
+                        m_controllingPrim.LocalID);
                 }
 
-                if (!axisConstrainer.SetAngularLimits (m_controllingPrim.LockedAngularAxisLow, m_controllingPrim.LockedAngularAxisHigh))
+                if (
+                    !axisConstrainer.SetAngularLimits (m_controllingPrim.LockedAngularAxisLow,
+                        m_controllingPrim.LockedAngularAxisHigh))
                 {
                     m_physicsScene.DetailLog ("{0},BSActorLockAxis.AddAxisLockConstraint,failedSetAngularLimits", m_controllingPrim.LocalID);
                 }
@@ -219,7 +208,8 @@ namespace Universe.Physics.BulletSPlugin
             {
                 m_physicsScene.Constraints.RemoveAndDestroyConstraint (LockAxisConstraint);
                 LockAxisConstraint = null;
-                m_physicsScene.DetailLog ("{0},BSActorLockAxis.RemoveAxisLockConstraint,destroyingConstraint", m_controllingPrim.LocalID);
+                m_physicsScene.DetailLog ("{0},BSActorLockAxis.RemoveAxisLockConstraint,destroyingConstraint",
+                    m_controllingPrim.LocalID);
             }
         }
     }

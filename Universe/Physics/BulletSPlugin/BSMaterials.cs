@@ -46,7 +46,6 @@ namespace Universe.Physics.BulletSPlugin
             Plastic,
             Rubber,
             Light,
-            
             // Hereafter are BulletSim additions
             Avatar,
             NumberOfTypes // the count of types in the enum.
@@ -104,25 +103,43 @@ namespace Universe.Physics.BulletSPlugin
             float dDensity = parms.defaultDensity;
             float dFriction = parms.defaultFriction;
             float dRestitution = parms.defaultRestitution;
-            Attributes[(int)MaterialAttributes.Material.Stone] = new MaterialAttributes("stone", dDensity, 0.8f, 0.4f);
-            Attributes[(int)MaterialAttributes.Material.Metal] = new MaterialAttributes("metal", dDensity, 0.3f, 0.4f);
-            Attributes[(int)MaterialAttributes.Material.Glass] = new MaterialAttributes("glass", dDensity, 0.2f, 0.7f);
-            Attributes[(int)MaterialAttributes.Material.Wood] = new MaterialAttributes("wood", dDensity, 0.6f, 0.5f);
-            Attributes[(int)MaterialAttributes.Material.Flesh] = new MaterialAttributes("flesh", dDensity, 0.9f, 0.3f);
-            Attributes[(int)MaterialAttributes.Material.Plastic] = new MaterialAttributes("plastic", dDensity, 0.4f, 0.7f);
-            Attributes[(int)MaterialAttributes.Material.Rubber] = new MaterialAttributes("rubber", dDensity, 0.9f, 0.9f);
-            Attributes[(int)MaterialAttributes.Material.Light] = new MaterialAttributes("light", dDensity, dFriction, dRestitution);
-            Attributes[(int)MaterialAttributes.Material.Avatar] = new MaterialAttributes("avatar", 3.5f, 0.2f, 0f);
+            Attributes[(int)MaterialAttributes.Material.Stone] =
+                new MaterialAttributes("stone", dDensity, 0.8f, 0.4f);
+            Attributes[(int)MaterialAttributes.Material.Metal] =
+                new MaterialAttributes("metal", dDensity, 0.3f, 0.4f);
+            Attributes[(int)MaterialAttributes.Material.Glass] =
+                new MaterialAttributes("glass", dDensity, 0.2f, 0.7f);
+            Attributes[(int)MaterialAttributes.Material.Wood] =
+                new MaterialAttributes("wood", dDensity, 0.6f, 0.5f);
+            Attributes[(int)MaterialAttributes.Material.Flesh] =
+                new MaterialAttributes("flesh", dDensity, 0.9f, 0.3f);
+            Attributes[(int)MaterialAttributes.Material.Plastic] =
+                new MaterialAttributes("plastic", dDensity, 0.4f, 0.7f);
+            Attributes[(int)MaterialAttributes.Material.Rubber] =
+                new MaterialAttributes("rubber", dDensity, 0.9f, 0.9f);
+            Attributes[(int)MaterialAttributes.Material.Light] =
+                new MaterialAttributes("light", dDensity, dFriction, dRestitution);
+            Attributes[(int)MaterialAttributes.Material.Avatar] =
+                new MaterialAttributes("avatar", 3.5f, 0.2f, 0f);
 
-            Attributes[(int)MaterialAttributes.Material.Stone + (int)MaterialAttributes.Material.NumberOfTypes] = new MaterialAttributes("stonePhysical", dDensity, 0.8f, 0.4f);
-            Attributes[(int)MaterialAttributes.Material.Metal + (int)MaterialAttributes.Material.NumberOfTypes] = new MaterialAttributes("metalPhysical", dDensity, 0.3f, 0.4f);
-            Attributes[(int)MaterialAttributes.Material.Glass + (int)MaterialAttributes.Material.NumberOfTypes] = new MaterialAttributes("glassPhysical", dDensity, 0.2f, 0.7f);
-            Attributes[(int)MaterialAttributes.Material.Wood + (int)MaterialAttributes.Material.NumberOfTypes] = new MaterialAttributes("woodPhysical", dDensity, 0.6f, 0.5f);
-            Attributes[(int)MaterialAttributes.Material.Flesh + (int)MaterialAttributes.Material.NumberOfTypes] = new MaterialAttributes("fleshPhysical", dDensity, 0.9f, 0.3f);
-            Attributes[(int)MaterialAttributes.Material.Plastic + (int)MaterialAttributes.Material.NumberOfTypes] = new MaterialAttributes("plasticPhysical", dDensity, 0.4f, 0.7f);
-            Attributes[(int)MaterialAttributes.Material.Rubber + (int)MaterialAttributes.Material.NumberOfTypes] = new MaterialAttributes("rubberPhysical", dDensity, 0.9f, 0.9f);
-            Attributes[(int)MaterialAttributes.Material.Light + (int)MaterialAttributes.Material.NumberOfTypes] = new MaterialAttributes("lightPhysical", dDensity, dFriction, dRestitution);
-            Attributes[(int)MaterialAttributes.Material.Avatar + (int)MaterialAttributes.Material.NumberOfTypes] = new MaterialAttributes("avatarPhysical", 3.5f, 0.2f, 0f);
+            Attributes[(int)MaterialAttributes.Material.Stone + (int)MaterialAttributes.Material.NumberOfTypes] =
+                new MaterialAttributes("stonePhysical", dDensity, 0.8f, 0.4f);
+            Attributes[(int)MaterialAttributes.Material.Metal + (int)MaterialAttributes.Material.NumberOfTypes] =
+                new MaterialAttributes("metalPhysical", dDensity, 0.3f, 0.4f);
+            Attributes[(int)MaterialAttributes.Material.Glass + (int)MaterialAttributes.Material.NumberOfTypes] =
+                new MaterialAttributes("glassPhysical", dDensity, 0.2f, 0.7f);
+            Attributes[(int)MaterialAttributes.Material.Wood + (int)MaterialAttributes.Material.NumberOfTypes] =
+                new MaterialAttributes("woodPhysical", dDensity, 0.6f, 0.5f);
+            Attributes[(int)MaterialAttributes.Material.Flesh + (int)MaterialAttributes.Material.NumberOfTypes] =
+                new MaterialAttributes("fleshPhysical", dDensity, 0.9f, 0.3f);
+            Attributes[(int)MaterialAttributes.Material.Plastic + (int)MaterialAttributes.Material.NumberOfTypes] =
+                new MaterialAttributes("plasticPhysical", dDensity, 0.4f, 0.7f);
+            Attributes[(int)MaterialAttributes.Material.Rubber + (int)MaterialAttributes.Material.NumberOfTypes] =
+                new MaterialAttributes("rubberPhysical", dDensity, 0.9f, 0.9f);
+            Attributes[(int)MaterialAttributes.Material.Light + (int)MaterialAttributes.Material.NumberOfTypes] =
+                new MaterialAttributes("lightPhysical", dDensity, dFriction, dRestitution);
+            Attributes[(int)MaterialAttributes.Material.Avatar + (int)MaterialAttributes.Material.NumberOfTypes] =
+                new MaterialAttributes("avatarPhysical", 3.5f, 0.2f, 0f);
         }
 
         // Under the [BulletSim] section, one can change the individual material
@@ -149,14 +166,15 @@ namespace Universe.Physics.BulletSPlugin
                         float paramValue = pConfig.GetFloat(paramName);
                         SetAttributeValue((int)kvp.Value, attribName, paramValue);
                         // set the physical value also
-                        SetAttributeValue((int)kvp.Value + (int)MaterialAttributes.Material.NumberOfTypes, attribName, paramValue);
+                        SetAttributeValue((int)kvp.Value + (int)MaterialAttributes.Material.NumberOfTypes, attribName,
+                            paramValue);
                     }
-
                     paramName += "Physical";
                     if (pConfig.Contains(paramName))
                     {
                         float paramValue = pConfig.GetFloat(paramName);
-                        SetAttributeValue((int)kvp.Value + (int)MaterialAttributes.Material.NumberOfTypes, attribName, paramValue);
+                        SetAttributeValue((int)kvp.Value + (int)MaterialAttributes.Material.NumberOfTypes, attribName,
+                            paramValue);
                     }
                 }
             }

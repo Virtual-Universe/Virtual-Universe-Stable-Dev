@@ -96,7 +96,6 @@ namespace Universe.Physics.BasicPhysicsPlugin
         public override bool Flying { get; set; }
 
         public override bool IsTruelyColliding { get; set; }
-
         public override bool IsColliding { get; set; }
 
         public override Vector3 Position { get; set; }
@@ -217,7 +216,6 @@ namespace Universe.Physics.BasicPhysicsPlugin
         }
 
         public override bool IsTruelyColliding { get; set; }
-
         public override bool IsColliding { get; set; }
 
         public override Vector3 Position { get; set; }

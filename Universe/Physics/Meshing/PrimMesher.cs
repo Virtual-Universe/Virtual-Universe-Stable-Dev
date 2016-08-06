@@ -709,7 +709,8 @@ namespace Universe.Physics.PrimMesher
                 angles.makeAngles (sides, startAngle, stopAngle);
             } catch (Exception ex)
             {
-                errorMessage = "makeAngles failed: Exception: " + ex + "\nsides: " + sides + " startAngle: " + startAngle + " stopAngle: " + stopAngle;
+                errorMessage = "makeAngles failed: Exception: " + ex +
+                    "\nsides: " + sides + " startAngle: " + startAngle + " stopAngle: " + stopAngle;
 
                 return;
             }
@@ -730,12 +731,12 @@ namespace Universe.Physics.PrimMesher
                         hollowAngles.makeAngles (hollowSides, startAngle, stopAngle);
                     } catch (Exception ex)
                     {
-                        errorMessage = "makeAngles failed: Exception: " + ex + "\nsides: " + sides + " startAngle: " + startAngle + " stopAngle: " + stopAngle;
+                        errorMessage = "makeAngles failed: Exception: " + ex +
+                        "\nsides: " + sides + " startAngle: " + startAngle + " stopAngle: " + stopAngle;
 
                         return;
                     }
                 }
-
                 numHollowVerts = hollowAngles.angles.Count;
             } else if (!simpleFace)
             {
@@ -825,7 +826,6 @@ namespace Universe.Physics.PrimMesher
 
                     faces.Add (newFace);
                 }
-
                 index += 1;
             }
 
@@ -973,7 +973,6 @@ namespace Universe.Physics.PrimMesher
                     cutNormal2.X = -vertexNormals [vertexNormals.Count - 2].Y;
                     cutNormal2.Y = vertexNormals [vertexNormals.Count - 2].X;
                 }
-
                 cutNormal1.Normalize ();
                 cutNormal2.Normalize ();
             }
@@ -1000,6 +999,9 @@ namespace Universe.Physics.PrimMesher
                 for (int i = 0; i < numOuterVerts - 1; i++)
                     faceNumbers.Add (sides < 5 && i <= sides ? faceNum++ : faceNum);
 
+                //if (!hasHollow && !hasProfileCut)
+                //    this.bottomFaceNumber = faceNum++;
+
                 faceNumbers.Add (hasProfileCut ? -1 : faceNum++);
 
                 if (sides > 4 && (hasHollow || hasProfileCut))
@@ -1015,7 +1017,8 @@ namespace Universe.Physics.PrimMesher
 
                     hollowFaceNumber = faceNum++;
                 }
-
+                //if (hasProfileCut || hasHollow)
+                //    this.bottomFaceNumber = faceNum++;
                 bottomFaceNumber = faceNum++;
 
                 if (hasHollow && hasProfileCut)
@@ -1034,6 +1037,7 @@ namespace Universe.Physics.PrimMesher
             faceUVs = new List<UVCoord> ();
             foreach (Coord c in coords)
                 faceUVs.Add (new UVCoord (1.0f - (0.5f + c.X), 1.0f - (0.5f - c.Y)));
+// original 20150712               faceUVs.Add (new UVCoord (0.5f + c.X, 0.5f - c.Y));
         }
 
         internal Profile Copy ()
@@ -1064,7 +1068,6 @@ namespace Universe.Physics.PrimMesher
                 copy.hollowCoordIndices = new List<int> (hollowCoordIndices);
                 copy.outerCoordIndices = new List<int> (outerCoordIndices);
             }
-
             copy.numOuterVerts = numOuterVerts;
             copy.numHollowVerts = numHollowVerts;
 
@@ -1217,7 +1220,6 @@ namespace Universe.Physics.PrimMesher
                 }
             } catch {
             }
-
             sw.Close ();
         }
     }
@@ -1294,6 +1296,7 @@ namespace Universe.Physics.PrimMesher
                 zOffset += percentOfPath;
 
                 // sanity checks
+
                 bool done = false;
 
                 while (!done)
@@ -1418,9 +1421,12 @@ namespace Universe.Physics.PrimMesher
 
                     // now orient the rotation of the profile layer relative to it's position on the path
                     // adding taperY to the angle used to generate the quat appears to approximate the viewer
+
                     newNode.rotation = new Quat (new Coord (1.0f, 0.0f, 0.0f), angle + topShearY);
 
                     // next apply twist rotation to the profile layer
+// 20151106                    if ((Math.Abs(twistTotal) > Constants.FloatDifference) || (Math.Abs(twistBegin) > Constants.FloatDifference))
+// *=??                        newNode.rotation *= new Quat (new Coord (0.0f, 0.0f, 1.0f), twist);
                     if (twistTotal != 0.0f || twistBegin != 0.0f)
                         newNode.rotation = new Quat(new Coord(0.0f, 0.0f, 1.0f), twist);
 
@@ -1430,6 +1436,7 @@ namespace Universe.Physics.PrimMesher
 
                     // calculate terms for next iteration
                     // calculate the angle for the next iteration of the loop
+
                     if (angle >= endAngle - 0.01)
                         done = true;
                     else
@@ -1549,6 +1556,7 @@ namespace Universe.Physics.PrimMesher
         {
             get { return hasHollow; }
         }
+
 
         /// <summary>
         ///     Constructs a PrimMesh object and creates the profile for extrusion.
@@ -1683,7 +1691,8 @@ namespace Universe.Physics.PrimMesher
                     hollow2 *= 1.414f;
             }
 
-            Profile profile = new Profile (sides, profileStart, profileEnd, hollow2, hollowSides, true, calcVertexNormals);
+            Profile profile = new Profile (sides, profileStart, profileEnd, hollow2, hollowSides, true,
+                                  calcVertexNormals);
             errorMessage = profile.errorMessage;
 
             numPrimFaces = profile.numPrimFaces;
@@ -1744,8 +1753,8 @@ namespace Universe.Physics.PrimMesher
             float lastV = 0.0f;
 
             Path path = new Path {
-                twistBegin = twistBegin2,	   // original was twistBegin
-                twistEnd = twistEnd2,          // ditto for twistEnd
+                twistBegin = twistBegin2,			//20151106 - original was twistBegin
+                twistEnd = twistEnd2,         //   ditto for twistEnd
                 topShearX = topShearX,
                 topShearY = topShearY,
                 pathCutBegin = pathCutBegin,
@@ -1810,7 +1819,6 @@ namespace Universe.Physics.PrimMesher
                                 newViewerFace.uv2.Flip();
                                 newViewerFace.uv3.Flip();
                             }
-
                             viewerFaces.Add (newViewerFace);
                         }
                     }
@@ -1921,6 +1929,7 @@ namespace Universe.Physics.PrimMesher
                                 {
                                     u1 *= 2.0f;
                                     u2 *= 2.0f;
+                                    //profileHollowFaceNumber = primFaceNum;
                                 }
                             }
 
@@ -1936,6 +1945,7 @@ namespace Universe.Physics.PrimMesher
                                         u1 -= hollow;
                                         u2 -= hollow;
                                     }
+
                                 }
                             }
 
@@ -2011,9 +2021,9 @@ namespace Universe.Physics.PrimMesher
                                     newViewerFace2.n3 = normals[newFace2.n3];
                                 }
                             }
-
                             viewerFaces.Add (newViewerFace1);
                             viewerFaces.Add (newViewerFace2);
+
                         }
                     }
                 }
@@ -2055,12 +2065,12 @@ namespace Universe.Physics.PrimMesher
                             newViewerFace.uv2.Flip();
                             newViewerFace.uv3.Flip();
                         }
-
                         viewerFaces.Add (newViewerFace);
                     }
                 }
             } // for (int nodeIndex = 0; nodeIndex < path.pathNodes.Count; nodeIndex++)
         }
+
 
         /// <summary>
         ///     DEPRICATED - use Extrude(PathType.Linear) instead
@@ -2071,8 +2081,9 @@ namespace Universe.Physics.PrimMesher
             Extrude (PathType.Linear);
         }
 
+
         /// <summary>
-        ///     DEPRIECATED - use Extrude(PathType.Circular) instead
+        ///     DEPRICATED - use Extrude(PathType.Circular) instead
         ///     Extrude a profile into a circular path prim mesh. Used for prim types torus, tube, and ring.
         /// </summary>
         public void ExtrudeCircular ()
@@ -2145,6 +2156,7 @@ namespace Universe.Physics.PrimMesher
                 viewerFaces = new List<ViewerFace> (viewerFaces),
                 normals = new List<Coord> (normals)
             };
+
 
             return copy;
         }
@@ -2310,7 +2322,6 @@ namespace Universe.Physics.PrimMesher
                 }
             } catch {
             }
-
             sw.Close ();
         }
     }

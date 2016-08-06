@@ -54,7 +54,8 @@ namespace Universe.Physics.BulletSPlugin
         }
 
         // Create terrain mesh from a heightmap.
-        public BSTerrainMesh(BSScene physicsScene, Vector3 regionBase, uint id, float[] initialMap, Vector3 minCoords, Vector3 maxCoords)
+        public BSTerrainMesh(BSScene physicsScene, Vector3 regionBase, uint id, float[] initialMap,
+            Vector3 minCoords, Vector3 maxCoords)
             : base(physicsScene, regionBase, id)
         {
             int indicesCount;
@@ -89,8 +90,10 @@ namespace Universe.Physics.BulletSPlugin
             if (!meshCreationSuccess)
             {
                 // DISASTER!!
-                PhysicsScene.DetailLog("{0},BSTerrainMesh.create,failedConversionOfHeightmap,id={1}", BSScene.DetailLogZero, ID);
-                PhysicsScene.Logger.ErrorFormat("{0} Failed conversion of heightmap to mesh! base={1}", LogHeader, TerrainBase);
+                PhysicsScene.DetailLog("{0},BSTerrainMesh.create,failedConversionOfHeightmap,id={1}",
+                    BSScene.DetailLogZero, ID);
+                PhysicsScene.Logger.ErrorFormat("{0} Failed conversion of heightmap to mesh! base={1}", LogHeader,
+                    TerrainBase);
                 // Something is very messed up and a crash is in our future.
                 return;
             }
@@ -98,12 +101,14 @@ namespace Universe.Physics.BulletSPlugin
             PhysicsScene.DetailLog("{0},BSTerrainMesh.create,meshid,id={1},indices={2},indSz={3},vertices={4},vertSz={5}",
                 BSScene.DetailLogZero, ID, indicesCount, indices.Length, verticesCount, vertices.Length);
 
-            m_terrainShape = PhysicsScene.PE.CreateMeshShape(PhysicsScene.World, indicesCount, indices, verticesCount, vertices);
+            m_terrainShape = PhysicsScene.PE.CreateMeshShape(PhysicsScene.World, indicesCount, indices, verticesCount,
+                vertices);
 
             if (!m_terrainShape.HasPhysicalShape)
             {
                 // DISASTER!!
-                PhysicsScene.DetailLog("{0},BSTerrainMesh.create,failedCreationOfShape,id={1}", BSScene.DetailLogZero, ID);
+                PhysicsScene.DetailLog("{0},BSTerrainMesh.create,failedCreationOfShape,id={1}", BSScene.DetailLogZero,
+                    ID);
                 PhysicsScene.Logger.ErrorFormat("{0} Failed creation of terrain mesh! base={1}", LogHeader, TerrainBase);
                 // Something is very messed up and a crash is in our future.
                 return;
@@ -178,10 +183,10 @@ namespace Universe.Physics.BulletSPlugin
             catch
             {
                 // Sometimes they give us wonky values of X and Y. Give a warning and return something.
-                PhysicsScene.Logger.WarnFormat("{0} Bad request for terrain height. terrainBase={1}, pos={2}", LogHeader, TerrainBase, pos);
+                PhysicsScene.Logger.WarnFormat("{0} Bad request for terrain height. terrainBase={1}, pos={2}",
+                    LogHeader, TerrainBase, pos);
                 ret = BSTerrainManager.HEIGHT_GETHEIGHT_RET;
             }
-
             return ret;
         }
 
@@ -224,7 +229,8 @@ namespace Universe.Physics.BulletSPlugin
 
                 if (physicsScene != null)
                     physicsScene.DetailLog(
-                        "{0},BSTerrainMesh.ConvertHeightMapToMesh,totVert={1},totInd={2},extentBase={3}", BSScene.DetailLogZero, totalVertices, totalIndices, extentBase);
+                        "{0},BSTerrainMesh.ConvertHeightMapToMesh,totVert={1},totInd={2},extentBase={3}",
+                        BSScene.DetailLogZero, totalVertices, totalIndices, extentBase);
                 float minHeight = float.MaxValue;
                 // Note that sizeX+1 vertices are created since there is land between this and the next region.
                 for (int yy = 0; yy <= sizeY; yy++)
@@ -243,7 +249,6 @@ namespace Universe.Physics.BulletSPlugin
                         verticesCount += 3;
                     }
                 }
-
                 verticesCount = verticesCount / 3;
 
                 for (int yy = 0; yy < sizeY; yy++)
@@ -267,7 +272,8 @@ namespace Universe.Physics.BulletSPlugin
             catch (Exception e)
             {
                 if (physicsScene != null)
-                    physicsScene.Logger.ErrorFormat("{0} Failed conversion of heightmap to mesh. For={1}/{2}, e={3}", LogHeader, physicsScene.RegionName, extentBase, e);
+                    physicsScene.Logger.ErrorFormat("{0} Failed conversion of heightmap to mesh. For={1}/{2}, e={3}",
+                        LogHeader, physicsScene.RegionName, extentBase, e);
             }
 
             indicesCountO = indicesCount;
@@ -309,7 +315,6 @@ namespace Universe.Physics.BulletSPlugin
                     else
                         offset = yy * m_sizeX + xx;
                 }
-
                 return m_heightMap[offset];
             }
         }
@@ -357,7 +362,8 @@ namespace Universe.Physics.BulletSPlugin
                 if (physicsScene != null)
                     physicsScene.DetailLog(
                         "{0},BSTerrainMesh.ConvertHeightMapToMesh2,inSize={1},outSize={2},totVert={3},totInd={4},extentBase={5}",
-                        BSScene.DetailLogZero, new Vector2(sizeX, sizeY), new Vector2(meshX, meshY), totalVertices, totalIndices, extentBase);
+                        BSScene.DetailLogZero, new Vector2(sizeX, sizeY), new Vector2(meshX, meshY),
+                        totalVertices, totalIndices, extentBase);
 
                 float minHeight = float.MaxValue;
                 // Note that sizeX+1 vertices are created since there is land between this and the next region.
@@ -401,7 +407,6 @@ namespace Universe.Physics.BulletSPlugin
                         verticesCount += 3;
                     }
                 }
-
                 // The number of vertices generated
                 verticesCount /= 3;
 
@@ -427,7 +432,8 @@ namespace Universe.Physics.BulletSPlugin
             catch (Exception e)
             {
                 if (physicsScene != null)
-                    physicsScene.Logger.ErrorFormat("{0} Failed conversion of heightmap to mesh. For={1}/{2}, e={3}", LogHeader, physicsScene.RegionName, extentBase, e);
+                    physicsScene.Logger.ErrorFormat("{0} Failed conversion of heightmap to mesh. For={1}/{2}, e={3}",
+                        LogHeader, physicsScene.RegionName, extentBase, e);
             }
 
             indicesCountO = indicesCount;

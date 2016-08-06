@@ -218,6 +218,7 @@ namespace Universe.Physics.OpenDynamicsEngine
             public Single MinZ, MaxZ;
         }
 
+
         [StructLayout(LayoutKind.Sequential)]
         public struct Contact
         {
@@ -226,6 +227,7 @@ namespace Universe.Physics.OpenDynamicsEngine
             public Vector3 fdir1;
             public static readonly int unmanagedSizeOf = Marshal.SizeOf(typeof (Contact));
         }
+
 
         [StructLayout(LayoutKind.Sequential)]
         public struct ContactGeom
@@ -250,6 +252,7 @@ namespace Universe.Physics.OpenDynamicsEngine
             public GeomDtorFn dtor;
         }
 
+
         [StructLayout(LayoutKind.Sequential)]
         public struct JointFeedback
         {
@@ -259,6 +262,7 @@ namespace Universe.Physics.OpenDynamicsEngine
             public Vector3 t2;
         }
 
+
         [StructLayout(LayoutKind.Sequential)]
         public struct Mass
         {
@@ -266,6 +270,7 @@ namespace Universe.Physics.OpenDynamicsEngine
             public Vector4 c;
             public Matrix3 I;
         }
+
 
         [StructLayout(LayoutKind.Sequential)]
         public struct Matrix3
@@ -333,6 +338,7 @@ namespace Universe.Physics.OpenDynamicsEngine
             public Single W, X, Y, Z;
         }
 
+
         [StructLayout(LayoutKind.Sequential)]
         public struct SurfaceParameters
         {
@@ -349,6 +355,7 @@ namespace Universe.Physics.OpenDynamicsEngine
             public Single slip1;
             public Single slip2;
         }
+
 
         [StructLayout(LayoutKind.Sequential)]
         public struct Vector3
@@ -369,6 +376,7 @@ namespace Universe.Physics.OpenDynamicsEngine
                 return new OpenMetaverse.Vector3((float) X, (float) Y, (float) Z);
             }
         }
+
 
         [StructLayout(LayoutKind.Sequential)]
         public struct Vector4
@@ -401,19 +409,23 @@ namespace Universe.Physics.OpenDynamicsEngine
         internal static extern void BodyAddForce(IntPtr body, Single fx, Single fy, Single fz);
 
         [DllImport("ode", EntryPoint = "dBodyAddForceAtPos"), SuppressUnmanagedCodeSecurity]
-        internal static extern void BodyAddForceAtPos(IntPtr body, Single fx, Single fy, Single fz, Single px, Single py, Single pz);
+        internal static extern void BodyAddForceAtPos(IntPtr body, Single fx, Single fy, Single fz, Single px, Single py,
+                                                    Single pz);
 
         [DllImport("ode", EntryPoint = "dBodyAddForceAtRelPos"), SuppressUnmanagedCodeSecurity]
-        internal static extern void BodyAddForceAtRelPos(IntPtr body, Single fx, Single fy, Single fz, Single px, Single py, Single pz);
+        internal static extern void BodyAddForceAtRelPos(IntPtr body, Single fx, Single fy, Single fz, Single px, Single py,
+                                                       Single pz);
 
         [DllImport("ode", EntryPoint = "dBodyAddRelForce"), SuppressUnmanagedCodeSecurity]
         internal static extern void BodyAddRelForce(IntPtr body, Single fx, Single fy, Single fz);
 
         [DllImport("ode", EntryPoint = "dBodyAddRelForceAtPos"), SuppressUnmanagedCodeSecurity]
-        internal static extern void BodyAddRelForceAtPos(IntPtr body, Single fx, Single fy, Single fz, Single px, Single py, Single pz);
+        internal static extern void BodyAddRelForceAtPos(IntPtr body, Single fx, Single fy, Single fz, Single px, Single py,
+                                                       Single pz);
 
         [DllImport("ode", EntryPoint = "dBodyAddRelForceAtRelPos"), SuppressUnmanagedCodeSecurity]
-        internal static extern void BodyAddRelForceAtRelPos(IntPtr body, Single fx, Single fy, Single fz, Single px, Single py, Single pz);
+        internal static extern void BodyAddRelForceAtRelPos(IntPtr body, Single fx, Single fy, Single fz, Single px, Single py,
+                                                          Single pz);
 
         [DllImport("ode", EntryPoint = "dBodyAddRelTorque"), SuppressUnmanagedCodeSecurity]
         internal static extern void BodyAddRelTorque(IntPtr body, Single fx, Single fy, Single fz);
@@ -977,10 +989,9 @@ namespace Universe.Physics.OpenDynamicsEngine
 
         [DllImport("ode", EntryPoint = "dGeomHeightfieldDataBuildDouble"), SuppressUnmanagedCodeSecurity]
         internal static extern void GeomHeightfieldDataBuildDouble(IntPtr d, IntPtr pHeightData, int bCopyHeightData,
-                                                                 Single width, Single depth, 
-                                                                 int widthSamples, int depthSamples, 
-                                                                 Single scale, Single offset, 
-                                                                 Single thickness, int bWrap);
+                                                                 Single width, Single depth, int widthSamples,
+                                                                 int depthSamples,
+                                                                 Single scale, Single offset, Single thickness, int bWrap);
 
         [DllImport("ode", EntryPoint = "dGeomHeightfieldDataCreate"), SuppressUnmanagedCodeSecurity]
         internal static extern IntPtr GeomHeightfieldDataCreate();
@@ -1055,7 +1066,8 @@ namespace Universe.Physics.OpenDynamicsEngine
         internal static extern void GeomSetCollideBits(IntPtr geom, int bits);
 
         [DllImport("ode", EntryPoint = "dGeomSetConvex"), SuppressUnmanagedCodeSecurity]
-        internal static extern IntPtr GeomSetConvex(IntPtr geom, Single[] planes, int planeCount, Single[] points, int pointCount, int[] polygons);
+        internal static extern IntPtr GeomSetConvex(IntPtr geom, Single[] planes, int planeCount, Single[] points,
+                                                  int pointCount, int[] polygons);
 
         [DllImport("ode", EntryPoint = "dGeomSetData"), SuppressUnmanagedCodeSecurity]
         internal static extern void GeomSetData(IntPtr geom, IntPtr data);
@@ -1133,40 +1145,70 @@ namespace Universe.Physics.OpenDynamicsEngine
         internal static extern void GeomTransformSetInfo(IntPtr geom, int info);
 
         [DllImport("ode", EntryPoint = "dGeomTriMeshDataBuildDouble"), SuppressUnmanagedCodeSecurity]
-        internal static extern void GeomTriMeshDataBuildDouble(IntPtr d, double[] vertices, int vertexStride, int vertexCount, int[] indices, int indexCount, int triStride);
+        internal static extern void GeomTriMeshDataBuildDouble(IntPtr d,
+                                                             double[] vertices, int vertexStride, int vertexCount,
+                                                             int[] indices, int indexCount, int triStride);
 
         [DllImport("ode", EntryPoint = "dGeomTriMeshDataBuildDouble"), SuppressUnmanagedCodeSecurity]
-        internal static extern void GeomTriMeshDataBuildDouble(IntPtr d, IntPtr vertices, int vertexStride, int vertexCount, IntPtr indices, int indexCount, int triStride);
+        internal static extern void GeomTriMeshDataBuildDouble(IntPtr d,
+                                                             IntPtr vertices, int vertexStride, int vertexCount,
+                                                             IntPtr indices, int indexCount, int triStride);
 
         [DllImport("ode", EntryPoint = "dGeomTriMeshDataBuildDouble1"), SuppressUnmanagedCodeSecurity]
-        internal static extern void GeomTriMeshDataBuildDouble1(IntPtr d, double[] vertices, int vertexStride, int vertexCount, int[] indices, int indexCount, int triStride, double[] normals);
+        internal static extern void GeomTriMeshDataBuildDouble1(IntPtr d,
+                                                              double[] vertices, int vertexStride, int vertexCount,
+                                                              int[] indices, int indexCount, int triStride,
+                                                              double[] normals);
 
         [DllImport("ode", EntryPoint = "dGeomTriMeshDataBuildDouble1"), SuppressUnmanagedCodeSecurity]
-        internal static extern void GeomTriMeshDataBuildDouble(IntPtr d, IntPtr vertices, int vertexStride, int vertexCount, IntPtr indices, int indexCount, int triStride, IntPtr normals);
+        internal static extern void GeomTriMeshDataBuildDouble(IntPtr d,
+                                                             IntPtr vertices, int vertexStride, int vertexCount,
+                                                             IntPtr indices, int indexCount, int triStride,
+                                                             IntPtr normals);
 
         [DllImport("ode", EntryPoint = "dGeomTriMeshDataBuildSimple"), SuppressUnmanagedCodeSecurity]
-        internal static extern void GeomTriMeshDataBuildSingle(IntPtr d, Single[] vertices, int vertexStride, int vertexCount, int[] indices, int indexCount, int triStride);
+        internal static extern void GeomTriMeshDataBuildSingle(IntPtr d,
+                                                             Single[] vertices, int vertexStride, int vertexCount,
+                                                             int[] indices, int indexCount, int triStride);
 
         [DllImport("ode", EntryPoint = "dGeomTriMeshDataBuildSimple"), SuppressUnmanagedCodeSecurity]
-        internal static extern void GeomTriMeshDataBuildSingle(IntPtr d, IntPtr vertices, int vertexStride, int vertexCount, IntPtr indices, int indexCount, int triStride);
+        internal static extern void GeomTriMeshDataBuildSingle(IntPtr d,
+                                                             IntPtr vertices, int vertexStride, int vertexCount,
+                                                             IntPtr indices, int indexCount, int triStride);
 
         [DllImport("ode", EntryPoint = "dGeomTriMeshDataBuildSimple1"), SuppressUnmanagedCodeSecurity]
-        internal static extern void GeomTriMeshDataBuildSingle1(IntPtr d, Single[] vertices, int vertexStride, int vertexCount, int[] indices, int indexCount, int triStride, Single[] normals);
+        internal static extern void GeomTriMeshDataBuildSingle1(IntPtr d,
+                                                              Single[] vertices, int vertexStride, int vertexCount,
+                                                              int[] indices, int indexCount, int triStride,
+                                                              Single[] normals);
 
         [DllImport("ode", EntryPoint = "dGeomTriMeshDataBuildSimple1"), SuppressUnmanagedCodeSecurity]
-        internal static extern void GeomTriMeshDataBuildSingle1(IntPtr d, IntPtr vertices, int vertexStride, int vertexCount, IntPtr indices, int indexCount, int triStride, IntPtr normals);
+        internal static extern void GeomTriMeshDataBuildSingle1(IntPtr d,
+                                                              IntPtr vertices, int vertexStride, int vertexCount,
+                                                              IntPtr indices, int indexCount, int triStride,
+                                                              IntPtr normals);
 
         [DllImport("ode", EntryPoint = "dGeomTriMeshDataBuildSingle"), SuppressUnmanagedCodeSecurity]
-        internal static extern void GeomTriMeshDataBuildSimple(IntPtr d, float[] vertices, int vertexStride, int vertexCount, int[] indices, int indexCount, int triStride);
+        internal static extern void GeomTriMeshDataBuildSimple(IntPtr d,
+                                                             float[] vertices, int vertexStride, int vertexCount,
+                                                             int[] indices, int indexCount, int triStride);
 
         [DllImport("ode", EntryPoint = "dGeomTriMeshDataBuildSingle"), SuppressUnmanagedCodeSecurity]
-        internal static extern void GeomTriMeshDataBuildSimple(IntPtr d, IntPtr vertices, int vertexStride, int vertexCount, IntPtr indices, int indexCount, int triStride);
+        internal static extern void GeomTriMeshDataBuildSimple(IntPtr d,
+                                                             IntPtr vertices, int vertexStride, int vertexCount,
+                                                             IntPtr indices, int indexCount, int triStride);
 
         [DllImport("ode", EntryPoint = "dGeomTriMeshDataBuildSingle1"), SuppressUnmanagedCodeSecurity]
-        internal static extern void GeomTriMeshDataBuildSimple1(IntPtr d, float[] vertices, int vertexStride, int vertexCount, int[] indices, int indexCount, int triStride, float[] normals);
+        internal static extern void GeomTriMeshDataBuildSimple1(IntPtr d,
+                                                              float[] vertices, int vertexStride, int vertexCount,
+                                                              int[] indices, int indexCount, int triStride,
+                                                              float[] normals);
 
         [DllImport("ode", EntryPoint = "dGeomTriMeshDataBuildSingle1"), SuppressUnmanagedCodeSecurity]
-        internal static extern void GeomTriMeshDataBuildSimple1(IntPtr d, IntPtr vertices, int vertexStride, int vertexCount, IntPtr indices, int indexCount, int triStride, IntPtr normals);
+        internal static extern void GeomTriMeshDataBuildSimple1(IntPtr d,
+                                                              IntPtr vertices, int vertexStride, int vertexCount,
+                                                              IntPtr indices, int indexCount, int triStride,
+                                                              IntPtr normals);
 
         [DllImport("ode", EntryPoint = "dGeomTriMeshClearTCCache"), SuppressUnmanagedCodeSecurity]
         internal static extern void GeomTriMeshClearTCCache(IntPtr g);
@@ -1219,7 +1261,8 @@ namespace Universe.Physics.OpenDynamicsEngine
         internal static extern TriRayCallback GeomTriMeshGetRayCallback(IntPtr g);
 
         [DllImport("ode", EntryPoint = "dGeomTriMeshGetTriangle"), SuppressUnmanagedCodeSecurity]
-        internal static extern void GeomTriMeshGetTriangle(IntPtr g, int index, ref Vector3 v0, ref Vector3 v1, ref Vector3 v2);
+        internal static extern void GeomTriMeshGetTriangle(IntPtr g, int index, ref Vector3 v0, ref Vector3 v1,
+                                                         ref Vector3 v2);
 
         [DllImport("ode", EntryPoint = "dGeomTriMeshGetTriangleCount"), SuppressUnmanagedCodeSecurity]
         internal static extern int GeomTriMeshGetTriangleCount(IntPtr g);
@@ -1536,7 +1579,8 @@ namespace Universe.Physics.OpenDynamicsEngine
         internal static extern void JointSetHingeAnchor(IntPtr j, Single x, Single y, Single z);
 
         [DllImport("ode", EntryPoint = "dJointSetHingeAnchorDelta"), SuppressUnmanagedCodeSecurity]
-        internal static extern void JointSetHingeAnchorDelta(IntPtr j, Single x, Single y, Single z, Single ax, Single ay, Single az);
+        internal static extern void JointSetHingeAnchorDelta(IntPtr j, Single x, Single y, Single z, Single ax, Single ay,
+                                                           Single az);
 
         [DllImport("ode", EntryPoint = "dJointSetHingeAxis"), SuppressUnmanagedCodeSecurity]
         internal static extern void JointSetHingeAxis(IntPtr j, Single x, Single y, Single z);
@@ -1590,7 +1634,8 @@ namespace Universe.Physics.OpenDynamicsEngine
         internal static extern void JointSetSliderAxis(IntPtr j, Single x, Single y, Single z);
 
         [DllImport("ode", EntryPoint = "dJointSetSliderAxisDelta"), SuppressUnmanagedCodeSecurity]
-        internal static extern void JointSetSliderAxisDelta(IntPtr j, Single x, Single y, Single z, Single ax, Single ay, Single az);
+        internal static extern void JointSetSliderAxisDelta(IntPtr j, Single x, Single y, Single z,
+                                                            Single ax, Single ay, Single az);
 
         [DllImport("ode", EntryPoint = "dJointSetSliderParam"), SuppressUnmanagedCodeSecurity]
         internal static extern void JointSetSliderParam(IntPtr j, int parameter, Single value);
@@ -1635,16 +1680,22 @@ namespace Universe.Physics.OpenDynamicsEngine
         internal static extern void MassSetCapsule(out Mass mass, Single density, int direction, Single radius, Single length);
 
         [DllImport("ode", EntryPoint = "dMassSetCapsuleTotal"), SuppressUnmanagedCodeSecurity]
-        internal static extern void MassSetCapsuleTotal(out Mass mass, Single total_mass, int direction, Single radius, Single length);
+        internal static extern void MassSetCapsuleTotal(out Mass mass, Single total_mass, int direction, Single radius,
+                                                      Single length);
 
         [DllImport("ode", EntryPoint = "dMassSetCylinder"), SuppressUnmanagedCodeSecurity]
-        internal static extern void MassSetCylinder(out Mass mass, Single density, int direction, Single radius, Single length);
+        internal static extern void MassSetCylinder(out Mass mass, Single density, int direction, Single radius,
+                                                  Single length);
 
         [DllImport("ode", EntryPoint = "dMassSetCylinderTotal"), SuppressUnmanagedCodeSecurity]
-        internal static extern void MassSetCylinderTotal(out Mass mass, Single total_mass, int direction, Single radius, Single length);
+        internal static extern void MassSetCylinderTotal(out Mass mass, Single total_mass, int direction, Single radius,
+                                                       Single length);
 
         [DllImport("ode", EntryPoint = "dMassSetParameters"), SuppressUnmanagedCodeSecurity]
-        internal static extern void MassSetParameters(out Mass mass, Single themass, Single cgx, Single cgy, Single cgz, Single i11, Single i22, Single i33, Single i12, Single i13, Single i23);
+        internal static extern void MassSetParameters(out Mass mass, Single themass,
+                                                    Single cgx, Single cgy, Single cgz,
+                                                    Single i11, Single i22, Single i33,
+                                                    Single i12, Single i13, Single i23);
 
         [DllImport("ode", EntryPoint = "dMassSetSphere"), SuppressUnmanagedCodeSecurity]
         internal static extern void MassSetSphere(out Mass mass, Single density, Single radius);
@@ -1854,10 +1905,12 @@ namespace Universe.Physics.OpenDynamicsEngine
         internal static extern Single WorldGetMaxAngularSpeed(IntPtr world);
 
         [DllImport("ode", EntryPoint = "dWorldImpulseToForce"), SuppressUnmanagedCodeSecurity]
-        internal static extern void WorldImpulseToForce(IntPtr world, Single stepsize, Single ix, Single iy, Single iz, out Vector3 force);
+        internal static extern void WorldImpulseToForce(IntPtr world, Single stepsize, Single ix, Single iy, Single iz,
+                                                      out Vector3 force);
 
         [DllImport("ode", EntryPoint = "dWorldImpulseToForce"), SuppressUnmanagedCodeSecurity]
-        internal static extern void WorldImpulseToForce(IntPtr world, Single stepsize, Single ix, Single iy, Single iz, out Single forceX);
+        internal static extern void WorldImpulseToForce(IntPtr world, Single stepsize, Single ix, Single iy, Single iz,
+                                                      out Single forceX);
 
         [DllImport("ode", EntryPoint = "dWorldQuickStep"), SuppressUnmanagedCodeSecurity]
         internal static extern void WorldQuickStep(IntPtr world, Single stepsize);
@@ -1945,7 +1998,8 @@ namespace Universe.Physics.OpenDynamicsEngine
             catch (Exception ex)
             {
                 MainConsole.Instance.Format(Level.Off, "[ODE]: Failed to copy ODE dll file, may have issues with physics!\n" +
-                    "(Can be caused by running multiple instances in the same bin, if so, ignore this warning) " + ex);
+                    "(Can be caused by running multiple instances in the same bin, if so, ignore this warning) " +
+                    ex);
             }
             try
             {
@@ -1958,7 +2012,8 @@ namespace Universe.Physics.OpenDynamicsEngine
             catch (Exception ex)
             {
                 MainConsole.Instance.Format(Level.Off, "[ODE]: Failed to copy ODE dll file, may have issues with physics!\n" +
-                    "(Can be caused by running multiple instances in the same bin, if so, ignore this warning) " + ex);
+                    "(Can be caused by running multiple instances in the same bin, if so, ignore this warning) " +
+                    ex);
             }
         }
 

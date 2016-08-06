@@ -48,20 +48,17 @@ namespace Universe.Physics.BulletSPlugin
             get { return Enabled && m_controllingPrim.IsPhysicallyActive; }
         }
 
-        /// <summary>
-        ///     Release any connections and resources 
-        ///     used by the actor.
-        /// </summary>
+        // Release any connections and resources used by the actor.
+        // BSActor.Dispose()
         public override void Dispose()
         {
             Enabled = false;
         DeactivateSetTorque();
         }
 
-        /// <summary>
-        ///     Called when physical paramaters (properties set in bullet)
-        ///     need to be re-applied or called at taint time.
-        /// </summary>
+        // Called when physical parameters (properties set in Bullet) need to be re-applied.
+        // Called at taint-time.
+        // BSActor.Refresh()
         public override void Refresh()
         {
             m_physicsScene.DetailLog("{0},BSActorSetTorque,refresh,torque={1}", m_controllingPrim.LocalID,
@@ -87,12 +84,10 @@ namespace Universe.Physics.BulletSPlugin
             }
         }
 
-        /// <summary>
-        ///     The object's physical representation is being rebult,
-        ///     so pick up any physical dependencies (constraints).
-        ///     Register a pre-step action to restore physical requirements
-        ///     before the next simulation step or call at taint time.
-        /// </summary>
+        // The object's physical representation is being rebuilt so pick up any physical dependencies (constraints, ...).
+        //     Register a pre step action to restore physical requirements before the next simulation step.
+        // Called at taint-time.
+        // BSActor.RemoveBodyDependencies()
         public override void RemoveBodyDependencies()
         {
             // Nothing to do for the hoverer since it is all software at pre-step action time.
@@ -126,12 +121,15 @@ namespace Universe.Physics.BulletSPlugin
             if (!isActive)
                 return;
 
-            m_physicsScene.DetailLog("{0},BSActorSetTorque,preStep,force={1}", m_controllingPrim.LocalID, m_controllingPrim.RawTorque);
+            m_physicsScene.DetailLog("{0},BSActorSetTorque,preStep,force={1}", m_controllingPrim.LocalID,
+                m_controllingPrim.RawTorque);
             if (m_controllingPrim.PhysBody.HasPhysicalBody)
             {
                 m_controllingPrim.AddAngularForce(m_controllingPrim.RawTorque, false, true);
                 m_controllingPrim.ActivateIfPhysical(false);
             }
+
+            // TODO:
         }
     }
 }

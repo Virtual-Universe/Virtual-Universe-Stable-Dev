@@ -70,6 +70,9 @@ namespace Universe.Services
         {
             if (IsLocalConnector) {
                 m_database = Framework.Utilities.DataManager.RequestPlugin<ISchedulerDataPlugin> ();
+                // if (m_database != null)
+                //     m_enabled = true;
+
             }
         }
 
@@ -92,7 +95,6 @@ namespace Universe.Services
                 DoRemotePost (id);
                 return;
             }
-
             m_database.SchedulerRemoveID (id);
         }
 
@@ -103,7 +105,6 @@ namespace Universe.Services
                 DoRemotePost (identifier);
                 return;
             }
-
             m_database.SchedulerRemoveFunction (identifier);
         }
 

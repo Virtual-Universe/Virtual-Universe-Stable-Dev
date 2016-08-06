@@ -167,9 +167,11 @@ namespace Universe.Physics.BulletSPlugin
             //     like "Bullet-2.80-OpenCL-Intel" loading the version for Intel based OpenCL implementation, etc.
             if (Util.IsWindows())
                 Util.LoadArchSpecificWindowsDll("BulletSim.dll");
-            // If not Windows, loading is performed by the Mono loader as specified in
+            // If not Windows, loading is performed by the
+            // Mono loader as specified in
             // "bin/Physics/Universe.Physics.BulletSPlugin.dll.config".
             BulletEngineVersion = "2.82";
+
         }
 
         // Initialization and simulation
@@ -187,14 +189,18 @@ namespace Universe.Physics.BulletSPlugin
             m_DebugLogCallbackHandle = null;
             if (MainConsole.Instance.IsDebugEnabled)
             {
-                MainConsole.Instance.DebugFormat("{0}: Initialize: Setting debug callback for unmanaged code", BSScene.LogHeader);
-
+                MainConsole.Instance.DebugFormat("{0}: Initialize: Setting debug callback for unmanaged code",
+                    BSScene.LogHeader);
+                //if (PhysicsScene.PhysicsLogging.Enabled)
                 // The handle is saved in a variable to make sure it doesn't get freed after this call
+                //    m_DebugLogCallbackHandle = new BSAPICPP.DebugLogCallback(BulletLoggerPhysLog);
+                //else
                 m_DebugLogCallbackHandle = new BSAPICPP.DebugLogCallback(BulletLogger);
             }
 
             // Get the version of the DLL
             // TODO: this doesn't work yet. Something wrong with marshaling the returned string.
+            // BulletEngineVersion = BulletSimAPI.GetVersion2();
             BulletEngineVersion = "2.82";
 
             // Call the unmanaged code with the buffers and other information
@@ -208,20 +214,21 @@ namespace Universe.Physics.BulletSPlugin
         // Called directly from unmanaged code so don't do much
         void BulletLogger(string msg)
         {
-            MainConsole.Instance.Debug("[BULLETS UNMANAGED]:" + msg);
+            MainConsole.Instance.Debug("[Bulletsim Unmanaged]:" + msg);
         }
 
         // Called directly from unmanaged code so don't do much
         void BulletLoggerPhysLog(string msg)
         {
-            PhysicsScene.DetailLog("[BULLETS UNMANAGED]:" + msg);
+            PhysicsScene.DetailLog("[Bulletsim Unmanaged]:" + msg);
         }
 
         public override int PhysicsStep(BulletWorld world, float timeStep, int maxSubSteps, float fixedTimeStep,
             out int updatedEntityCount, out int collidersCount)
         {
             BulletWorldUnman worldu = world as BulletWorldUnman;
-            return BSAPICPP.PhysicsStep2(worldu.ptr, timeStep, maxSubSteps, fixedTimeStep, out updatedEntityCount, out collidersCount);
+            return BSAPICPP.PhysicsStep2(worldu.ptr, timeStep, maxSubSteps, fixedTimeStep, out updatedEntityCount,
+                out collidersCount);
         }
 
         public override void Shutdown(BulletWorld world)
@@ -233,12 +240,10 @@ namespace Universe.Physics.BulletSPlugin
             {
                 m_paramsHandle.Free();
             }
-
             if (m_collisionArrayPinnedHandle.IsAllocated)
             {
                 m_collisionArrayPinnedHandle.Free();
             }
-
             if (m_updateArrayPinnedHandle.IsAllocated)
             {
                 m_updateArrayPinnedHandle.Free();
@@ -257,6 +262,7 @@ namespace Universe.Physics.BulletSPlugin
             return BSAPICPP.UpdateParameter2(worldu.ptr, localID, parm, value);
         }
 
+        // =====================================================================================
         // Mesh, hull, shape and body creation helper routines
         public override BulletShape CreateMeshShape(BulletWorld world,
             int indicesCount, int[] indices,
@@ -264,21 +270,26 @@ namespace Universe.Physics.BulletSPlugin
         {
             BulletWorldUnman worldu = world as BulletWorldUnman;
             return new BulletShapeUnman(
-                BSAPICPP.CreateMeshShape2(worldu.ptr, indicesCount, indices, verticesCount, vertices), BSPhysicsShapeType.SHAPE_MESH);
+                BSAPICPP.CreateMeshShape2(worldu.ptr, indicesCount, indices, verticesCount, vertices),
+                BSPhysicsShapeType.SHAPE_MESH);
         }
 
-        public override BulletShape CreateGImpactShape(BulletWorld world, int indicesCount, int[] indices, int verticesCount, float[] vertices)
+        public override BulletShape CreateGImpactShape(BulletWorld world,
+                int indicesCount, int[] indices,
+                int verticesCount, float[] vertices)
         {
             BulletWorldUnman worldu = world as BulletWorldUnman;
             return new BulletShapeUnman(
-                    BSAPICPP.CreateGImpactShape2(worldu.ptr, indicesCount, indices, verticesCount, vertices), BSPhysicsShapeType.SHAPE_GIMPACT);
+                    BSAPICPP.CreateGImpactShape2(worldu.ptr, indicesCount, indices, verticesCount, vertices),
+                    BSPhysicsShapeType.SHAPE_GIMPACT);
         }
 
         public override BulletShape CreateHullShape(BulletWorld world, int hullCount, float[] hulls)
         {
             BulletWorldUnman worldu = world as BulletWorldUnman;
             return new BulletShapeUnman(
-                BSAPICPP.CreateHullShape2(worldu.ptr, hullCount, hulls), BSPhysicsShapeType.SHAPE_HULL);
+                BSAPICPP.CreateHullShape2(worldu.ptr, hullCount, hulls),
+                BSPhysicsShapeType.SHAPE_HULL);
         }
 
         public override BulletShape BuildHullShapeFromMesh(BulletWorld world, BulletShape meshShape, HACDParams parms)
@@ -286,7 +297,8 @@ namespace Universe.Physics.BulletSPlugin
             BulletWorldUnman worldu = world as BulletWorldUnman;
             BulletShapeUnman shapeu = meshShape as BulletShapeUnman;
             return new BulletShapeUnman(
-                BSAPICPP.BuildHullShapeFromMesh2(worldu.ptr, shapeu.ptr, parms), BSPhysicsShapeType.SHAPE_HULL);
+                BSAPICPP.BuildHullShapeFromMesh2(worldu.ptr, shapeu.ptr, parms),
+                BSPhysicsShapeType.SHAPE_HULL);
         }
 
         public override BulletShape BuildConvexHullShapeFromMesh(BulletWorld world, BulletShape meshShape)
@@ -294,14 +306,18 @@ namespace Universe.Physics.BulletSPlugin
             BulletWorldUnman worldu = world as BulletWorldUnman;
             BulletShapeUnman shapeu = meshShape as BulletShapeUnman;
             return new BulletShapeUnman(
-                    BSAPICPP.BuildConvexHullShapeFromMesh2(worldu.ptr, shapeu.ptr), BSPhysicsShapeType.SHAPE_CONVEXHULL);
+                    BSAPICPP.BuildConvexHullShapeFromMesh2(worldu.ptr, shapeu.ptr),
+                    BSPhysicsShapeType.SHAPE_CONVEXHULL);
         }
 
-        public override BulletShape CreateConvexHullShape(BulletWorld world, int indicesCount, int[] indices, int verticesCount, float[] vertices)
+        public override BulletShape CreateConvexHullShape(BulletWorld world,
+                int indicesCount, int[] indices,
+                int verticesCount, float[] vertices)
         {
             BulletWorldUnman worldu = world as BulletWorldUnman;
             return new BulletShapeUnman(
-                    BSAPICPP.CreateConvexHullShape2(worldu.ptr, indicesCount, indices, verticesCount, vertices), BSPhysicsShapeType.SHAPE_CONVEXHULL);
+                    BSAPICPP.CreateConvexHullShape2(worldu.ptr, indicesCount, indices, verticesCount, vertices),
+                    BSPhysicsShapeType.SHAPE_CONVEXHULL);
         }
 
         public override BulletShape BuildNativeShape(BulletWorld world, ShapeData shapeData)
@@ -329,14 +345,16 @@ namespace Universe.Physics.BulletSPlugin
         {
             BulletWorldUnman worldu = world as BulletWorldUnman;
             return new BulletShapeUnman(
-                BSAPICPP.BuildCapsuleShape2(worldu.ptr, radius, height, scale), BSPhysicsShapeType.SHAPE_CAPSULE);
+                BSAPICPP.BuildCapsuleShape2(worldu.ptr, radius, height, scale),
+                BSPhysicsShapeType.SHAPE_CAPSULE);
         }
 
         public override BulletShape CreateCompoundShape(BulletWorld world, bool enableDynamicAabbTree)
         {
             BulletWorldUnman worldu = world as BulletWorldUnman;
             return new BulletShapeUnman(
-                BSAPICPP.CreateCompoundShape2(worldu.ptr, enableDynamicAabbTree), BSPhysicsShapeType.SHAPE_COMPOUND);
+                BSAPICPP.CreateCompoundShape2(worldu.ptr, enableDynamicAabbTree),
+                BSPhysicsShapeType.SHAPE_COMPOUND);
         }
 
         public override int GetNumberOfCompoundChildren(BulletShape shape)
@@ -358,13 +376,15 @@ namespace Universe.Physics.BulletSPlugin
         public override BulletShape GetChildShapeFromCompoundShapeIndex(BulletShape shape, int indx)
         {
             BulletShapeUnman shapeu = shape as BulletShapeUnman;
-            return new BulletShapeUnman(BSAPICPP.GetChildShapeFromCompoundShapeIndex2(shapeu.ptr, indx), BSPhysicsShapeType.SHAPE_UNKNOWN);
+            return new BulletShapeUnman(BSAPICPP.GetChildShapeFromCompoundShapeIndex2(shapeu.ptr, indx),
+                BSPhysicsShapeType.SHAPE_UNKNOWN);
         }
 
         public override BulletShape RemoveChildShapeFromCompoundShapeIndex(BulletShape shape, int indx)
         {
             BulletShapeUnman shapeu = shape as BulletShapeUnman;
-            return new BulletShapeUnman(BSAPICPP.RemoveChildShapeFromCompoundShapeIndex2(shapeu.ptr, indx), BSPhysicsShapeType.SHAPE_UNKNOWN);
+            return new BulletShapeUnman(BSAPICPP.RemoveChildShapeFromCompoundShapeIndex2(shapeu.ptr, indx),
+                BSPhysicsShapeType.SHAPE_UNKNOWN);
         }
 
         public override void RemoveChildShapeFromCompoundShape(BulletShape shape, BulletShape removeShape)
@@ -415,13 +435,15 @@ namespace Universe.Physics.BulletSPlugin
             return new BulletBodyUnman(id, BSAPICPP.CreateBodyFromShape2(worldu.ptr, shapeu.ptr, id, pos, rot));
         }
 
-        public override BulletBody CreateBodyWithDefaultMotionState(BulletShape shape, uint id, Vector3 pos, Quaternion rot)
+        public override BulletBody CreateBodyWithDefaultMotionState(BulletShape shape, uint id, Vector3 pos,
+            Quaternion rot)
         {
             BulletShapeUnman shapeu = shape as BulletShapeUnman;
             return new BulletBodyUnman(id, BSAPICPP.CreateBodyWithDefaultMotionState2(shapeu.ptr, id, pos, rot));
         }
 
-        public override BulletBody CreateGhostFromShape(BulletWorld world, BulletShape shape, uint id, Vector3 pos, Quaternion rot)
+        public override BulletBody CreateGhostFromShape(BulletWorld world, BulletShape shape, uint id, Vector3 pos,
+            Quaternion rot)
         {
             BulletWorldUnman worldu = world as BulletWorldUnman;
             BulletShapeUnman shapeu = shape as BulletShapeUnman;
@@ -435,10 +457,12 @@ namespace Universe.Physics.BulletSPlugin
             BSAPICPP.DestroyObject2(worldu.ptr, bodyu.ptr);
         }
 
+        // =====================================================================================
         // Terrain creation and helper routines
         public override BulletShape CreateGroundPlaneShape(uint id, float height, float collisionMargin)
         {
-            return new BulletShapeUnman(BSAPICPP.CreateGroundPlaneShape2(id, height, collisionMargin), BSPhysicsShapeType.SHAPE_GROUNDPLANE);
+            return new BulletShapeUnman(BSAPICPP.CreateGroundPlaneShape2(id, height, collisionMargin),
+                BSPhysicsShapeType.SHAPE_GROUNDPLANE);
         }
 
         public override BulletShape CreateTerrainShape(uint id, Vector3 size, float minHeight, float maxHeight,
@@ -447,9 +471,11 @@ namespace Universe.Physics.BulletSPlugin
         {
             return
                 new BulletShapeUnman(
-                    BSAPICPP.CreateTerrainShape2(id, size, minHeight, maxHeight, heightMap, scaleFactor, collisionMargin), BSPhysicsShapeType.SHAPE_TERRAIN);
+                    BSAPICPP.CreateTerrainShape2(id, size, minHeight, maxHeight, heightMap, scaleFactor, collisionMargin),
+                    BSPhysicsShapeType.SHAPE_TERRAIN);
         }
 
+        // =====================================================================================
         // Constraint creation and helper routines
         public override BulletConstraint Create6DofConstraint(BulletWorld world, BulletBody obj1, BulletBody obj2,
             Vector3 frame1loc, Quaternion frame1rot,
@@ -461,16 +487,19 @@ namespace Universe.Physics.BulletSPlugin
             BulletBodyUnman bodyu2 = obj2 as BulletBodyUnman;
             return
                 new BulletConstraintUnman(BSAPICPP.Create6DofConstraint2(worldu.ptr, bodyu1.ptr, bodyu2.ptr, frame1loc,
-                    frame1rot, frame2loc, frame2rot, useLinearReferenceFrameA, disableCollisionsBetweenLinkedBodies));
+                    frame1rot,
+                    frame2loc, frame2rot, useLinearReferenceFrameA, disableCollisionsBetweenLinkedBodies));
         }
 
         public override BulletConstraint Create6DofConstraintToPoint(BulletWorld world, BulletBody obj1, BulletBody obj2,
-            Vector3 joinPoint, bool useLinearReferenceFrameA, bool disableCollisionsBetweenLinkedBodies)
+            Vector3 joinPoint,
+            bool useLinearReferenceFrameA, bool disableCollisionsBetweenLinkedBodies)
         {
             BulletWorldUnman worldu = world as BulletWorldUnman;
             BulletBodyUnman bodyu1 = obj1 as BulletBodyUnman;
             BulletBodyUnman bodyu2 = obj2 as BulletBodyUnman;
-            return new BulletConstraintUnman(BSAPICPP.Create6DofConstraintToPoint2(worldu.ptr, bodyu1.ptr, bodyu2.ptr, joinPoint, useLinearReferenceFrameA, disableCollisionsBetweenLinkedBodies));
+            return new BulletConstraintUnman(BSAPICPP.Create6DofConstraintToPoint2(worldu.ptr, bodyu1.ptr, bodyu2.ptr,
+                joinPoint, useLinearReferenceFrameA, disableCollisionsBetweenLinkedBodies));
         }
 
         public override BulletConstraint Create6DofConstraintFixed(BulletWorld world, BulletBody obj1,
@@ -479,7 +508,8 @@ namespace Universe.Physics.BulletSPlugin
         {
             BulletWorldUnman worldu = world as BulletWorldUnman;
             BulletBodyUnman bodyu1 = obj1 as BulletBodyUnman;
-            return new BulletConstraintUnman(BSAPICPP.Create6DofConstraintFixed2(worldu.ptr, bodyu1.ptr, frameInBloc, frameInBrot, useLinearReferenceFrameB, disableCollisionsBetweenLinkedBodies));
+            return new BulletConstraintUnman(BSAPICPP.Create6DofConstraintFixed2(worldu.ptr, bodyu1.ptr,
+                frameInBloc, frameInBrot, useLinearReferenceFrameB, disableCollisionsBetweenLinkedBodies));
         }
 
         public override BulletConstraint Create6DofSpringConstraint(BulletWorld world, BulletBody obj1, BulletBody obj2,
@@ -492,7 +522,8 @@ namespace Universe.Physics.BulletSPlugin
             BulletBodyUnman bodyu2 = obj2 as BulletBodyUnman;
             return
                 new BulletConstraintUnman(BSAPICPP.Create6DofSpringConstraint2(worldu.ptr, bodyu1.ptr, bodyu2.ptr,
-                    frame1loc, frame1rot, frame2loc, frame2rot, useLinearReferenceFrameA, disableCollisionsBetweenLinkedBodies));
+                    frame1loc, frame1rot,
+                    frame2loc, frame2rot, useLinearReferenceFrameA, disableCollisionsBetweenLinkedBodies));
         }
 
         public override BulletConstraint CreateHingeConstraint(BulletWorld world, BulletBody obj1, BulletBody obj2,
@@ -517,7 +548,8 @@ namespace Universe.Physics.BulletSPlugin
             BulletBodyUnman bodyu2 = obj2 as BulletBodyUnman;
             return
                 new BulletConstraintUnman(BSAPICPP.CreateSliderConstraint2(worldu.ptr, bodyu1.ptr, bodyu2.ptr, frame1loc,
-                    frame1rot, frame2loc, frame2rot, useLinearReferenceFrameA, disableCollisionsBetweenLinkedBodies));
+                    frame1rot,
+                    frame2loc, frame2rot, useLinearReferenceFrameA, disableCollisionsBetweenLinkedBodies));
         }
 
         public override BulletConstraint CreateConeTwistConstraint(BulletWorld world, BulletBody obj1, BulletBody obj2,
@@ -530,7 +562,8 @@ namespace Universe.Physics.BulletSPlugin
             BulletBodyUnman bodyu2 = obj2 as BulletBodyUnman;
             return
                 new BulletConstraintUnman(BSAPICPP.CreateConeTwistConstraint2(worldu.ptr, bodyu1.ptr, bodyu2.ptr,
-                    frame1loc, frame1rot, frame2loc, frame2rot, disableCollisionsBetweenLinkedBodies));
+                    frame1loc, frame1rot,
+                    frame2loc, frame2rot, disableCollisionsBetweenLinkedBodies));
         }
 
         public override BulletConstraint CreateGearConstraint(BulletWorld world, BulletBody obj1, BulletBody obj2,
@@ -542,7 +575,8 @@ namespace Universe.Physics.BulletSPlugin
             BulletBodyUnman bodyu2 = obj2 as BulletBodyUnman;
             return
                 new BulletConstraintUnman(BSAPICPP.CreateGearConstraint2(worldu.ptr, bodyu1.ptr, bodyu2.ptr, axisInA,
-                    axisInB, ratio, disableCollisionsBetweenLinkedBodies));
+                    axisInB,
+                    ratio, disableCollisionsBetweenLinkedBodies));
         }
 
         public override BulletConstraint CreatePoint2PointConstraint(BulletWorld world, BulletBody obj1, BulletBody obj2,
@@ -554,7 +588,8 @@ namespace Universe.Physics.BulletSPlugin
             BulletBodyUnman bodyu2 = obj2 as BulletBodyUnman;
             return
                 new BulletConstraintUnman(BSAPICPP.CreatePoint2PointConstraint2(worldu.ptr, bodyu1.ptr, bodyu2.ptr,
-                    pivotInA, pivotInB, disableCollisionsBetweenLinkedBodies));
+                    pivotInA, pivotInB,
+                    disableCollisionsBetweenLinkedBodies));
         }
 
         public override void SetConstraintEnable(BulletConstraint constrain, float numericTrueFalse)
@@ -681,6 +716,7 @@ namespace Universe.Physics.BulletSPlugin
             return BSAPICPP.DestroyConstraint2(worldu.ptr, constrainu.ptr);
         }
 
+        // =====================================================================================
         // btCollisionWorld entries
         public override void UpdateSingleAabb(BulletWorld world, BulletBody obj)
         {
@@ -707,18 +743,16 @@ namespace Universe.Physics.BulletSPlugin
             BSAPICPP.SetForceUpdateAllAabbs2(worldu.ptr, force);
         }
 
+        // =====================================================================================
         // btDynamicsWorld entries
         public override bool AddObjectToWorld(BulletWorld world, BulletBody obj)
         {
             BulletWorldUnman worldu = world as BulletWorldUnman;
             BulletBodyUnman bodyu = obj as BulletBodyUnman;
 
-            /// <summary>
-            ///     Bullet resets several variables when an object is added to the world.
-            ///     Gravity is reset to world default depending on the static or dynamic
-            ///     type.  Of course, the collision flags in the broadphase
-            ///     proxy are initialized to default.
-            /// </summary>
+            // Bullet resets several variables when an object is added to the world.
+            //   Gravity is reset to world default depending on the static/dynamic
+            //   type. Of course, the collision flags in the broadphase proxy are initialized to default.
             Vector3 origGrav = BSAPICPP.GetGravity2(bodyu.ptr);
 
             bool ret = BSAPICPP.AddObjectToWorld2(worldu.ptr, bodyu.ptr);
@@ -746,7 +780,8 @@ namespace Universe.Physics.BulletSPlugin
             return BSAPICPP.ClearCollisionProxyCache2(worldu.ptr, bodyu.ptr);
         }
 
-        public override bool AddConstraintToWorld(BulletWorld world, BulletConstraint constrain, bool disableCollisionsBetweenLinkedObjects)
+        public override bool AddConstraintToWorld(BulletWorld world, BulletConstraint constrain,
+            bool disableCollisionsBetweenLinkedObjects)
         {
             BulletWorldUnman worldu = world as BulletWorldUnman;
             BulletConstraintUnman constrainu = constrain as BulletConstraintUnman;
@@ -760,6 +795,7 @@ namespace Universe.Physics.BulletSPlugin
             return BSAPICPP.RemoveConstraintFromWorld2(worldu.ptr, constrainu.ptr);
         }
 
+        // =====================================================================================
         // btCollisionObject entries
         public override Vector3 GetAnisotripicFriction(BulletConstraint constrain)
         {
@@ -920,6 +956,20 @@ namespace Universe.Physics.BulletSPlugin
             BSAPICPP.SetTranslation2(bodyu.ptr, position, rotation);
         }
 
+        /*
+public override IntPtr GetBroadphaseHandle(BulletBody obj)
+{
+    BulletBodyUnman bodyu = obj as BulletBodyUnman;
+    return BSAPICPP.GetBroadphaseHandle2(bodyu.ptr);
+}
+
+public override void SetBroadphaseHandle(BulletBody obj, IntPtr handle)
+{
+    BulletBodyUnman bodyu = obj as BulletBodyUnman;
+    BSAPICPP.SetUserPointer2(bodyu.ptr, handle);
+}
+     */
+
         public override void SetInterpolationLinearVelocity(BulletBody obj, Vector3 vel)
         {
             BulletBodyUnman bodyu = obj as BulletBodyUnman;
@@ -1011,6 +1061,7 @@ namespace Universe.Physics.BulletSPlugin
             BSAPICPP.SetUserPointer2(bodyu.ptr, val);
         }
 
+        // =====================================================================================
         // btRigidBody entries
         public override void ApplyGravity(BulletBody obj)
         {
@@ -1150,7 +1201,7 @@ namespace Universe.Physics.BulletSPlugin
 
         // Apply force at the given point. Will add torque to the object.
         // Deep down in Bullet: applyCentralForce(force);
-        //applyTorque(rel_pos.cross(force*m_linearFactor));
+        //              		applyTorque(rel_pos.cross(force*m_linearFactor));
         public override void ApplyForce(BulletBody obj, Vector3 force, Vector3 pos)
         {
             BulletBodyUnman bodyu = obj as BulletBodyUnman;
@@ -1175,7 +1226,7 @@ namespace Universe.Physics.BulletSPlugin
 
         // Apply impulse at the point given. For is scaled by object's mass and effects both linear and angular forces.
         // Deep down in Bullet: applyCentralImpulse(impulse);
-        //applyTorqueImpulse(rel_pos.cross(impulse*m_linearFactor));
+        //          			applyTorqueImpulse(rel_pos.cross(impulse*m_linearFactor));
         public override void ApplyImpulse(BulletBody obj, Vector3 imp, Vector3 pos)
         {
             BulletBodyUnman bodyu = obj as BulletBodyUnman;
@@ -1304,7 +1355,9 @@ namespace Universe.Physics.BulletSPlugin
             return BSAPICPP.SetCollisionGroupMask2(bodyu.ptr, filter, mask);
         }
 
+        // =====================================================================================
         // btCollisionShape entries
+
         public override float GetAngularMotionDisc(BulletShape shape)
         {
             BulletShapeUnman shapeu = shape as BulletShapeUnman;
@@ -1401,6 +1454,7 @@ namespace Universe.Physics.BulletSPlugin
             return BSAPICPP.GetMargin2(shapeu.ptr);
         }
 
+        // =====================================================================================
         // Debugging
         public override void DumpRigidBody(BulletWorld world, BulletBody collisionObject)
         {
@@ -1453,13 +1507,20 @@ namespace Universe.Physics.BulletSPlugin
             BSAPICPP.ResetConstraintSolver(worldu.ptr);
         }
 
+        // =====================================================================================
+        // =====================================================================================
+        // =====================================================================================
+        // =====================================================================================
+        // =====================================================================================
         // The actual interface to the unmanaged code
         static class BSAPICPP
         {
+            // ===============================================================================
             // Link back to the managed code for outputting log messages
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
             public delegate void DebugLogCallback([MarshalAs(UnmanagedType.LPStr)] string msg);
 
+            // ===============================================================================
             // Initialization and simulation
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern IntPtr Initialize2(Vector3 maxPosition, IntPtr parms,
@@ -1480,6 +1541,7 @@ namespace Universe.Physics.BulletSPlugin
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern bool UpdateParameter2(IntPtr world, uint localID, String parm, float value);
 
+            // =====================================================================================
             // Mesh, hull, shape and body creation helper routines
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern IntPtr CreateMeshShape2(IntPtr world,
@@ -1489,10 +1551,11 @@ namespace Universe.Physics.BulletSPlugin
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern IntPtr CreateGImpactShape2(IntPtr world,
                 int indicesCount, [MarshalAs(UnmanagedType.LPArray)] int[] indices,
-                int verticesCount, [MarshalAs(UnmanagedType.LPArray)] float[] vertices);
+                int verticesCount, [MarshalAs(UnmanagedType.LPArray)] float[] vertices );
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
-            public static extern IntPtr CreateHullShape2(IntPtr world, int hullCount, [MarshalAs(UnmanagedType.LPArray)] float[] hulls);
+            public static extern IntPtr CreateHullShape2(IntPtr world,
+                int hullCount, [MarshalAs(UnmanagedType.LPArray)] float[] hulls);
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern IntPtr BuildHullShapeFromMesh2(IntPtr world, IntPtr meshShape, HACDParams parms);
@@ -1503,7 +1566,7 @@ namespace Universe.Physics.BulletSPlugin
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern IntPtr CreateConvexHullShape2(IntPtr world,
                 int indicesCount, [MarshalAs(UnmanagedType.LPArray)] int[] indices,
-                int verticesCount, [MarshalAs(UnmanagedType.LPArray)] float[] vertices);
+                int verticesCount, [MarshalAs(UnmanagedType.LPArray)] float[] vertices );
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern IntPtr BuildNativeShape2(IntPtr world, ShapeData shapeData);
@@ -1524,7 +1587,8 @@ namespace Universe.Physics.BulletSPlugin
             public static extern int GetNumberOfCompoundChildren2(IntPtr cShape);
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
-            public static extern void AddChildShapeToCompoundShape2(IntPtr cShape, IntPtr addShape, Vector3 pos, Quaternion rot);
+            public static extern void AddChildShapeToCompoundShape2(IntPtr cShape, IntPtr addShape, Vector3 pos,
+                Quaternion rot);
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern IntPtr GetChildShapeFromCompoundShapeIndex2(IntPtr cShape, int indx);
@@ -1536,7 +1600,8 @@ namespace Universe.Physics.BulletSPlugin
             public static extern void RemoveChildShapeFromCompoundShape2(IntPtr cShape, IntPtr removeShape);
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
-            public static extern void UpdateChildTransform2(IntPtr pShape, int childIndex, Vector3 pos, Quaternion rot, bool shouldRecalculateLocalAabb);
+            public static extern void UpdateChildTransform2(IntPtr pShape, int childIndex, Vector3 pos, Quaternion rot,
+                bool shouldRecalculateLocalAabb);
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern void RecalculateCompoundShapeLocalAabb2(IntPtr cShape);
@@ -1551,17 +1616,21 @@ namespace Universe.Physics.BulletSPlugin
             public static extern int GetBodyType2(IntPtr obj);
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
-            public static extern IntPtr CreateBodyFromShape2(IntPtr sim, IntPtr shape, uint id, Vector3 pos, Quaternion rot);
+            public static extern IntPtr CreateBodyFromShape2(IntPtr sim, IntPtr shape, uint id, Vector3 pos,
+                Quaternion rot);
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
-            public static extern IntPtr CreateBodyWithDefaultMotionState2(IntPtr shape, uint id, Vector3 pos, Quaternion rot);
+            public static extern IntPtr CreateBodyWithDefaultMotionState2(IntPtr shape, uint id, Vector3 pos,
+                Quaternion rot);
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
-            public static extern IntPtr CreateGhostFromShape2(IntPtr sim, IntPtr shape, uint id, Vector3 pos, Quaternion rot);
+            public static extern IntPtr CreateGhostFromShape2(IntPtr sim, IntPtr shape, uint id, Vector3 pos,
+                Quaternion rot);
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern void DestroyObject2(IntPtr sim, IntPtr obj);
 
+            // =====================================================================================
             // Terrain creation and helper routines
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern IntPtr CreateGroundPlaneShape2(uint id, float height, float collisionMargin);
@@ -1571,6 +1640,7 @@ namespace Universe.Physics.BulletSPlugin
                 [MarshalAs(UnmanagedType.LPArray)] float[] heightMap,
                 float scaleFactor, float collisionMargin);
 
+            // =====================================================================================
             // Constraint creation and helper routines
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern IntPtr Create6DofConstraint2(IntPtr world, IntPtr obj1, IntPtr obj2,
@@ -1580,11 +1650,13 @@ namespace Universe.Physics.BulletSPlugin
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern IntPtr Create6DofConstraintToPoint2(IntPtr world, IntPtr obj1, IntPtr obj2,
-                Vector3 joinPoint, bool useLinearReferenceFrameA, bool disableCollisionsBetweenLinkedBodies);
+                Vector3 joinPoint,
+                bool useLinearReferenceFrameA, bool disableCollisionsBetweenLinkedBodies);
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern IntPtr Create6DofConstraintFixed2(IntPtr world, IntPtr obj1,
-                Vector3 frameInBloc, Quaternion frameInBrot, bool useLinearReferenceFrameB, bool disableCollisionsBetweenLinkedBodies);
+                Vector3 frameInBloc, Quaternion frameInBrot,
+                bool useLinearReferenceFrameB, bool disableCollisionsBetweenLinkedBodies);
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern IntPtr Create6DofSpringConstraint2(IntPtr world, IntPtr obj1, IntPtr obj2,
@@ -1612,11 +1684,14 @@ namespace Universe.Physics.BulletSPlugin
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern IntPtr CreateGearConstraint2(IntPtr world, IntPtr obj1, IntPtr obj2,
-                Vector3 axisInA, Vector3 axisInB, float ratio, bool disableCollisionsBetweenLinkedBodies);
+                Vector3 axisInA, Vector3 axisInB,
+                float ratio, bool disableCollisionsBetweenLinkedBodies);
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern IntPtr CreatePoint2PointConstraint2(IntPtr world, IntPtr obj1, IntPtr obj2,
-                Vector3 pivotInA, Vector3 pivotInB, bool disableCollisionsBetweenLinkedBodies);
+                Vector3 pivotInA, Vector3 pivotInB,
+                bool disableCollisionsBetweenLinkedBodies);
+
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern void SetConstraintEnable2(IntPtr constrain, float numericTrueFalse);
@@ -1625,7 +1700,8 @@ namespace Universe.Physics.BulletSPlugin
             public static extern void SetConstraintNumSolverIterations2(IntPtr constrain, float iterations);
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
-            public static extern bool SetFrames2(IntPtr constrain, Vector3 frameA, Quaternion frameArot, Vector3 frameB, Quaternion frameBrot);
+            public static extern bool SetFrames2(IntPtr constrain,
+                Vector3 frameA, Quaternion frameArot, Vector3 frameB, Quaternion frameBrot);
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern bool SetLinearLimits2(IntPtr constrain, Vector3 low, Vector3 hi);
@@ -1637,7 +1713,8 @@ namespace Universe.Physics.BulletSPlugin
             public static extern bool UseFrameOffset2(IntPtr constrain, float enable);
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
-            public static extern bool TranslationalLimitMotor2(IntPtr constrain, float enable, float targetVel, float maxMotorForce);
+            public static extern bool TranslationalLimitMotor2(IntPtr constrain, float enable, float targetVel,
+                float maxMotorForce);
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern bool SetBreakingImpulseThreshold2(IntPtr constrain, float threshold);
@@ -1673,11 +1750,13 @@ namespace Universe.Physics.BulletSPlugin
             public static extern bool CalculateTransforms2(IntPtr constrain);
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
-            public static extern bool SetConstraintParam2(IntPtr constrain, ConstraintParams paramIndex, float value, ConstraintParamAxis axis);
+            public static extern bool SetConstraintParam2(IntPtr constrain, ConstraintParams paramIndex, float value,
+                ConstraintParamAxis axis);
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern bool DestroyConstraint2(IntPtr world, IntPtr constrain);
 
+            // =====================================================================================
             // btCollisionWorld entries
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern void UpdateSingleAabb2(IntPtr world, IntPtr obj);
@@ -1691,6 +1770,7 @@ namespace Universe.Physics.BulletSPlugin
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern void SetForceUpdateAllAabbs2(IntPtr world, bool force);
 
+            // =====================================================================================
             // btDynamicsWorld entries
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern bool AddObjectToWorld2(IntPtr world, IntPtr obj);
@@ -1702,11 +1782,13 @@ namespace Universe.Physics.BulletSPlugin
             public static extern bool ClearCollisionProxyCache2(IntPtr world, IntPtr obj);
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
-            public static extern bool AddConstraintToWorld2(IntPtr world, IntPtr constrain, bool disableCollisionsBetweenLinkedObjects);
+            public static extern bool AddConstraintToWorld2(IntPtr world, IntPtr constrain,
+                bool disableCollisionsBetweenLinkedObjects);
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern bool RemoveConstraintFromWorld2(IntPtr world, IntPtr constrain);
 
+            // =====================================================================================
             // btCollisionObject entries
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern Vector3 GetAnisotripicFriction2(IntPtr constrain);
@@ -1774,6 +1856,14 @@ namespace Universe.Physics.BulletSPlugin
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern float GetFriction2(IntPtr obj);
 
+            /* Haven't defined the type 'Transform'
+[DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+public static extern Transform GetWorldTransform2(IntPtr obj);
+
+[DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+public static extern void setWorldTransform2(IntPtr obj, Transform trans);
+     */
+
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern Vector3 GetPosition2(IntPtr obj);
 
@@ -1788,6 +1878,14 @@ namespace Universe.Physics.BulletSPlugin
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern void SetBroadphaseHandle2(IntPtr obj, IntPtr handle);
+
+            /*
+[DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+public static extern Transform GetInterpolationWorldTransform2(IntPtr obj);
+
+[DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+public static extern void SetInterpolationWorldTransform2(IntPtr obj, Transform trans);
+     */
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern void SetInterpolationLinearVelocity2(IntPtr obj, Vector3 vel);
@@ -1834,6 +1932,7 @@ namespace Universe.Physics.BulletSPlugin
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern void SetUserPointer2(IntPtr obj, IntPtr val);
 
+            // =====================================================================================
             // btRigidBody entries
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern void ApplyGravity2(IntPtr obj);
@@ -1876,6 +1975,11 @@ namespace Universe.Physics.BulletSPlugin
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern void SetLinearFactor2(IntPtr obj, Vector3 factor);
+
+            /*
+[DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+public static extern void SetCenterOfMassTransform2(IntPtr obj, Transform trans);
+     */
 
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern void SetCenterOfMassByPosRot2(IntPtr obj, Vector3 pos, Quaternion rot);
@@ -1934,6 +2038,11 @@ namespace Universe.Physics.BulletSPlugin
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern Vector3 GetCenterOfMassPosition2(IntPtr obj);
 
+            /*
+[DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
+public static extern Transform GetCenterOfMassTransform2(IntPtr obj);
+     */
+
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern Vector3 GetLinearVelocity2(IntPtr obj);
 
@@ -1985,7 +2094,9 @@ namespace Universe.Physics.BulletSPlugin
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern bool SetCollisionGroupMask2(IntPtr body, uint filter, uint mask);
 
+            // =====================================================================================
             // btCollisionShape entries
+
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern float GetAngularMotionDisc2(IntPtr shape);
 
@@ -2034,6 +2145,7 @@ namespace Universe.Physics.BulletSPlugin
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern float GetMargin2(IntPtr shape);
 
+            // =====================================================================================
             // Debugging
             [DllImport("BulletSim", CallingConvention = CallingConvention.Cdecl), SuppressUnmanagedCodeSecurity]
             public static extern void DumpRigidBody2(IntPtr sim, IntPtr collisionObject);

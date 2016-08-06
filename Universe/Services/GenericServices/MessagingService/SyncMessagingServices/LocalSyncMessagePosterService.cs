@@ -39,8 +39,7 @@ namespace Universe.Services
 {
     public class SyncMessagePosterService : ConnectorBase, ISyncMessagePosterService, IService
     {
-        public string Name
-        {
+        public string Name {
             get { return GetType ().Name; }
         }
 
@@ -74,8 +73,7 @@ namespace Universe.Services
 
         public void Post (string url, OSDMap request)
         {
-            if (m_doRemote)
-            {
+            if (m_doRemote) {
                 Util.FireAndForget ((o) => { PostInternal (true, url, request); });
             } else
                 m_registry.RequestModuleInterface<ISyncMessageRecievedService> ().FireMessageReceived (request);
@@ -91,7 +89,8 @@ namespace Universe.Services
                 else
                     m_registry.RequestModuleInterface<ISyncMessageRecievedService> ().FireMessageReceived (request);
             } catch (Exception ex) {
-                MainConsole.Instance.WarnFormat ("[Sync Message Poster Service]: Caught exception when attempting to post to {0}: {1}", url, ex.ToString ()); 
+                MainConsole.Instance.WarnFormat ("[SyncMessagePoster]: Caught exception when attempting to post to {0}: {1}",
+                                                 url, ex.ToString ()); 
             }
         }
 
@@ -113,14 +112,14 @@ namespace Universe.Services
                 else
                     m_registry.RequestModuleInterface<ISyncMessageRecievedService> ().FireMessageReceived (request);
             } catch (Exception ex) { 
-                MainConsole.Instance.WarnFormat ("[Sync Message Poster Service]: Caught exception when attempting to post to grid server: {0}",  ex.ToString ()); 
+                MainConsole.Instance.WarnFormat ("[SyncMessagePoster]: Caught exception when attempting to post to grid server: {0}", 
+                                                 ex.ToString ()); 
             }
         }
 
         public void Get (string url, OSDMap request, GetResponse response)
         {
-            if (m_doRemote)
-            {
+            if (m_doRemote) {
                 Util.FireAndForget ((o) => { response (GetInternal (true, url, request)); });
             } else
                 response (m_registry.RequestModuleInterface<ISyncMessageRecievedService> ().FireMessageReceived (request));
@@ -131,10 +130,8 @@ namespace Universe.Services
         {
             try {
                 LogMessage (remote, url, request);
-                if (remote)
-                {
-                    if (url != "")
-                    {
+                if (remote) {
+                    if (url != "") {
                         url = (url.EndsWith ("/syncmessage/", StringComparison.Ordinal) ? url : (url + "/syncmessage/"));
                         return DoRemoteCallGet (true, url, false, url, request) as OSDMap;
                     } else
@@ -142,15 +139,15 @@ namespace Universe.Services
                 }
                 return m_registry.RequestModuleInterface<ISyncMessageRecievedService> ().FireMessageReceived (request);
             } catch (Exception ex) {
-                MainConsole.Instance.WarnFormat ("[Sync Message Poster Service]: Caught exception when attempting to post to {0}: {1}", url, ex.ToString ()); 
+                MainConsole.Instance.WarnFormat ("[SyncMessagePoster]: Caught exception when attempting to post to {0}: {1}",
+                                                                      url, ex.ToString ()); 
             }
-
             return null;
         }
 
         void LogMessage (bool remote, string url, OSDMap request)
         {
-            MainConsole.Instance.DebugFormat ("[Sync Message Poster Service]: Sending message ({0}) to {1}, method {2}",
+            MainConsole.Instance.DebugFormat ("[SyncMessagePosterService]: Sending message ({0}) to {1}, method {2}",
                 remote ? "remotely" : "locally",
                 url == "" ? "grid server" : url,
                 (request != null && request.ContainsKey ("Method")) ? request ["Method"].AsString () : "no method set");

@@ -27,10 +27,32 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*
-* For the MIT License that accompanies this license, see Licenses folder for more
-* information.
-*/
+/* The MIT License
+ * 
+ * Copyright (c) 2010 Intel Corporation.
+ * All rights reserved.
+ *
+ * Based on the convexdecomposition library from 
+ * <http://codesuppository.googlecode.com> by John W. Ratcliff and Stan Melax.
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 
 using System;
 
@@ -113,6 +135,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
         public static float3 operator *(Quaternion q, float3 v)
         {
             // The following is equivalent to:
+            //return (q.getmatrix() * v);
             float qx2 = q.x * q.x;
             float qy2 = q.y * q.y;
             float qz2 = q.z * q.z;
@@ -145,7 +168,6 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                 a.x = a.y = a.z = 0;
                 return a;
             }
-
             return a * (1f / m);
         }
 
@@ -163,19 +185,16 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                 a.y = -a.y;
                 a.z = -a.z;
             }
-
             float d = dot(a, b);
             if (d >= 1.0)
             {
                 return a;
             }
-
             float theta = (float)Math.Acos(d);
             if (theta == 0.0f)
             {
                 return (a);
             }
-
             return a * ((float)Math.Sin(theta - interp * theta) / (float)Math.Sin(theta)) + b * ((float)Math.Sin(interp * theta) / (float)Math.Sin(theta));
         }
 

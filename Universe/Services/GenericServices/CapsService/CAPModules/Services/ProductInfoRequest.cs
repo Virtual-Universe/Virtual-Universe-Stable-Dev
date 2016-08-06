@@ -44,7 +44,8 @@ namespace Universe.Services
         public void RegisterCaps (IRegionClientCapsService service)
         {
             m_service = service;
-            m_service.AddStreamHandler ("ProductInfoRequest", new GenericStreamHandler ("GET", m_service.CreateCAPS ("ProductInfoRequest", ""), ProductInfoRequestCAP));
+            m_service.AddStreamHandler ("ProductInfoRequest",
+                new GenericStreamHandler ("GET", m_service.CreateCAPS ("ProductInfoRequest", ""), ProductInfoRequestCAP));
         }
 
         public void DeregisterCaps ()

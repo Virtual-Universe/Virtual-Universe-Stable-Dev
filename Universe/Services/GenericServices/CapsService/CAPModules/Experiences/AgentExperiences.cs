@@ -58,7 +58,7 @@ namespace Universe.Services
         
         public byte[] AgentExperiences (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
-        	MainConsole.Instance.DebugFormat("[Agent Experiences]: Call = {0}", httpRequest);
+        	MainConsole.Instance.DebugFormat("[AgentExperiences] Call = {0}", httpRequest);
             var agentExp = new OSDMap();
 
             return OSDParser.SerializeLLSDXmlBytes (agentExp);

@@ -92,7 +92,6 @@ namespace Universe.Simulation.Base
         }
 
         protected string m_defaultDataPath = Constants.DEFAULT_DATA_DIR;
-
         public string DefaultDataPath
         { 
             get { return m_defaultDataPath;}
@@ -100,15 +99,13 @@ namespace Universe.Simulation.Base
         }
 
         protected int m_mapcenter_x = Constants.DEFAULT_REGIONSTART_X;
-        public int MapCenterX
-        {
+        public int MapCenterX {
             get { return m_mapcenter_x; }
             set { m_mapcenter_x = value; }
         }
 
         protected int m_mapcenter_y = Constants.DEFAULT_REGIONSTART_Y;
-        public int MapCenterY
-        {
+        public int MapCenterY {
             get { return m_mapcenter_y; }
             set { m_mapcenter_y = value; }
         }
@@ -240,11 +237,10 @@ namespace Universe.Simulation.Base
                     stpMinThreads = stpMaxThreads;
             }
 
-            var mapConfig = m_config.Configs["WebInterface"];
-            if (mapConfig != null)
-            {
-                m_mapcenter_x = mapConfig.GetInt("mapcenter_x", m_mapcenter_x);
-                m_mapcenter_y = mapConfig.GetInt("mapcenter_y", m_mapcenter_y);
+            var mapConfig = m_config.Configs ["WebInterface"];
+            if (mapConfig != null) {
+                m_mapcenter_x = mapConfig.GetInt ("mapcenter_x", m_mapcenter_x);
+                m_mapcenter_y = mapConfig.GetInt ("mapcenter_y", m_mapcenter_y);
             }
 
             if (Util.FireAndForgetMethod == FireAndForgetMethod.SmartThreadPool)
@@ -677,8 +673,7 @@ namespace Universe.Simulation.Base
                 if (close)
                     MainConsole.Instance.Info("[Shut Down]: Terminating");
 
-                MainConsole.Instance.Info("[Shut Down]: Shut down processing on main thread complete. " +
-                                          (close ? " Exiting Virtual Universe..." : ""));
+                MainConsole.Instance.Info("[Shut Down]: Shut down processing on main thread complete. " + (close ? " Exiting Virtual Universe..." : ""));
                 MainConsole.Instance.CleanInfo("");
                 MainConsole.Instance.CleanInfo("");
 

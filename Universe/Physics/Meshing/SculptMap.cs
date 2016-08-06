@@ -64,7 +64,7 @@ namespace Universe.Physics.PrimMesher
             int bmH = bm.Height;
 
             if (bmW == 0 || bmH == 0)
-                MainConsole.Instance.Error("[Sculpt Map]: Bitmap has no data");
+                MainConsole.Instance.Error("[Sculptmap]: Bitmap has no data");
 
             int numLodPixels = lod * 2 * lod * 2; // (32 * 2)^2  = 64^2 pixels for default sculpt map image
 
@@ -81,13 +81,14 @@ namespace Universe.Physics.PrimMesher
                 needsScaling = true;
             }
 
+
             try
             {
                 if (needsScaling)
                     bm = ScaleImage (bm, width, height, InterpolationMode.NearestNeighbor);
             } catch (Exception e)
             {
-                MainConsole.Instance.Error ("[Sculpt Map]: Exception in ScaleImage(): e: " + e);
+                MainConsole.Instance.Error ("[Sculptmap]: Exception in ScaleImage(): e: " + e);
             }
 
             if (width * height > lod * lod)
@@ -140,7 +141,7 @@ namespace Universe.Physics.PrimMesher
                 }
             } catch (Exception e)
             {
-                MainConsole.Instance.Error("[Sculpt Map]: Caught exception processing byte arrays in SculptMap(): e: " + e);
+                MainConsole.Instance.Error("[SculptMap]: Caught exception processing byte arrays in SculptMap(): e: " + e);
             }
 #if FASTBMP
             //All done, unlock
@@ -169,21 +170,22 @@ namespace Universe.Physics.PrimMesher
                 for (colNdx = 0; colNdx < numCols; colNdx++)
                 {
                     if (mirror)
-                        row.Add (new Coord (-(redBytes [smNdx] * pixScale - 0.5f), (greenBytes [smNdx] * pixScale - 0.5f), blueBytes [smNdx] * pixScale - 0.5f));
+                        row.Add (new Coord (-(redBytes [smNdx] * pixScale - 0.5f), (greenBytes [smNdx] * pixScale - 0.5f),
+                            blueBytes [smNdx] * pixScale - 0.5f));
                     else
-                        row.Add (new Coord (redBytes [smNdx] * pixScale - 0.5f, greenBytes [smNdx] * pixScale - 0.5f, blueBytes [smNdx] * pixScale - 0.5f));
+                        row.Add (new Coord (redBytes [smNdx] * pixScale - 0.5f, greenBytes [smNdx] * pixScale - 0.5f,
+                            blueBytes [smNdx] * pixScale - 0.5f));
 
                     ++smNdx;
                 }
-
                 rows.Add (row);
             }
-
             return rows;
         }
 
         Bitmap ScaleImage (Bitmap srcImage, int destWidth, int destHeight, InterpolationMode interpMode)
         {
+            // just in case of furfies  :)
             if (destWidth == 0 || destHeight == 0)
                 return srcImage;
             
@@ -209,12 +211,26 @@ namespace Universe.Physics.PrimMesher
 
                     sx += xscale;
                 }
-
                 sy += yscale;
             }
-
             srcImage.Dispose ();
             return scaledImage;
+
+            /*
+            Bitmap scaledImage = new Bitmap(srcImage, destWidth, destHeight);
+            scaledImage.SetResolution(96.0f, 96.0f);
+
+            Graphics grPhoto = Graphics.FromImage(scaledImage);
+            grPhoto.InterpolationMode = interpMode;
+
+            grPhoto.DrawImage(srcImage,
+                              new Rectangle(0, 0, destWidth, destHeight),
+                              new Rectangle(0, 0, srcImage.Width, srcImage.Height),
+                              GraphicsUnit.Pixel);
+
+            grPhoto.Dispose();
+            return scaledImage;
+             */
         }
     }
 }

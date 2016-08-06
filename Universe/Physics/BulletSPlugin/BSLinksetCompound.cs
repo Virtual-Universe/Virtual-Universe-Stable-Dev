@@ -119,7 +119,7 @@ namespace Universe.Physics.BulletSPlugin
             {
                 ret = BSPhysicsShapeType.SHAPE_COMPOUND;
             }
-
+            // DetailLog("{0},BSLinksetCompound.PreferredPhysicalShape,call,shape={1}", LinksetRoot.LocalID, ret);
             return ret;
         }
 
@@ -150,7 +150,8 @@ namespace Universe.Physics.BulletSPlugin
         // must be called with m_linksetActivityLock or race conditions will haunt you.
         void InternalScheduleRebuild(BSPrimLinkable requestor)
         {
-            DetailLog("{0},BSLinksetCompound.InternalScheduleRebuild,,rebuilding={1},hasChildren={2}", requestor.LocalID, Rebuilding, HasAnyChildren);
+            DetailLog("{0},BSLinksetCompound.InternalScheduleRebuild,,rebuilding={1},hasChildren={2}", requestor.LocalID,
+                Rebuilding, HasAnyChildren);
             RebuildScheduled = true;
             PhysicsScene.PostTaintObject("BSLinksetCompound.ScheduleRebuild", LinksetRoot.LocalID, delegate()
             {
@@ -162,11 +163,12 @@ namespace Universe.Physics.BulletSPlugin
                     }
                     else
                     {
-                        DetailLog("{0},BSLinksetCompound.InternalScheduleRebuild,,rescheduling because not all children complete", requestor.LocalID);
+                        DetailLog(
+                            "{0},BSLinksetCompound.InternalScheduleRebuild,,rescheduling because not all children complete",
+                            requestor.LocalID);
                         InternalScheduleRebuild(requestor);
                     }
                 }
-
                 RebuildScheduled = false;
             });
         }
@@ -185,7 +187,6 @@ namespace Universe.Physics.BulletSPlugin
                 // The root is going dynamic. Rebuild the linkset so parts and mass get computed properly.
                 Refresh(LinksetRoot);
             }
-
             return ret;
         }
 
@@ -203,7 +204,6 @@ namespace Universe.Physics.BulletSPlugin
             {
                 Refresh(LinksetRoot);
             }
-
             return ret;
         }
 
@@ -217,7 +217,6 @@ namespace Universe.Physics.BulletSPlugin
                 DetailLog("{0},BSLinksetCompound.UpdateProperties,notPhysical", LinksetRoot.LocalID);
                 return;
             }
-
             // The user moving a child around requires the rebuilding of the linkset compound shape
             // One problem is this happens when a border is crossed -- the simulator implementation
             //    stores the position into the group which causes the move of the object
@@ -245,24 +244,32 @@ namespace Universe.Physics.BulletSPlugin
                         //    build the whole thing with the new position or rotation.
                         // The index must be checked because Bullet references the child array but does no validity
                         //    checking of the child index passed.
-                        int numLinksetChildren = PhysicsScene.PE.GetNumberOfCompoundChildren(LinksetRoot.PhysShape.physShapeInfo);
+                        int numLinksetChildren =
+                            PhysicsScene.PE.GetNumberOfCompoundChildren(LinksetRoot.PhysShape.physShapeInfo);
                         if (updated.LinksetChildIndex < numLinksetChildren)
                         {
-                            BulletShape linksetChildShape = PhysicsScene.PE.GetChildShapeFromCompoundShapeIndex(LinksetRoot.PhysShape.physShapeInfo, updated.LinksetChildIndex);
+                            BulletShape linksetChildShape =
+                                PhysicsScene.PE.GetChildShapeFromCompoundShapeIndex(LinksetRoot.PhysShape.physShapeInfo,
+                                    updated.LinksetChildIndex);
                             if (linksetChildShape.HasPhysicalShape)
                             {
                                 // Found the child shape within the compound shape
-                                PhysicsScene.PE.UpdateChildTransform(LinksetRoot.PhysShape.physShapeInfo, updated.LinksetChildIndex,
-                                    updated.RawPosition - LinksetRoot.RawPosition, updated.RawOrientation*OMV.Quaternion.Inverse(LinksetRoot.RawOrientation), true);
+                                PhysicsScene.PE.UpdateChildTransform(LinksetRoot.PhysShape.physShapeInfo,
+                                    updated.LinksetChildIndex,
+                                    updated.RawPosition - LinksetRoot.RawPosition,
+                                    updated.RawOrientation*OMV.Quaternion.Inverse(LinksetRoot.RawOrientation),
+                                    true /* shouldRecalculateLocalAabb */);
                                 updatedChild = true;
                                 DetailLog(
-                                    "{0},BSLinksetCompound.UpdateProperties,changeChildPosRot,whichUpdated={1},pos={2},rot={3}", updated.LocalID, whichUpdated, updated.RawPosition, updated.RawOrientation);
+                                    "{0},BSLinksetCompound.UpdateProperties,changeChildPosRot,whichUpdated={1},pos={2},rot={3}",
+                                    updated.LocalID, whichUpdated, updated.RawPosition, updated.RawOrientation);
                             }
                             else // DEBUG DEBUG
                             {
                                 // DEBUG DEBUG
                                 DetailLog(
-                                    "{0},BSLinksetCompound.UpdateProperties,couldNotUpdateChild,noChildShape,shape={1}", updated.LocalID, linksetChildShape);
+                                    "{0},BSLinksetCompound.UpdateProperties,couldNotUpdateChild,noChildShape,shape={1}",
+                                    updated.LocalID, linksetChildShape);
                             } // DEBUG DEBUG
                         }
                         else // DEBUG DEBUG
@@ -270,13 +277,15 @@ namespace Universe.Physics.BulletSPlugin
                             // DEBUG DEBUG
                             // the child is not yet in the compound shape. This is non-fatal.
                             DetailLog(
-                                "{0},BSLinksetCompound.UpdateProperties,couldNotUpdateChild,childNotInCompoundShape,numChildren={1},index={2}", updated.LocalID, numLinksetChildren, updated.LinksetChildIndex);
+                                "{0},BSLinksetCompound.UpdateProperties,couldNotUpdateChild,childNotInCompoundShape,numChildren={1},index={2}",
+                                updated.LocalID, numLinksetChildren, updated.LinksetChildIndex);
                         } // DEBUG DEBUG
                     }
                     else // DEBUG DEBUG
                     {
                         // DEBUG DEBUG
-                        DetailLog("{0},BSLinksetCompound.UpdateProperties,couldNotUpdateChild,noBodyOrNotCompound", updated.LocalID);
+                        DetailLog("{0},BSLinksetCompound.UpdateProperties,couldNotUpdateChild,noBodyOrNotCompound",
+                            updated.LocalID);
                     } // DEBUG DEBUG
 
                     if (!updatedChild)
@@ -286,7 +295,8 @@ namespace Universe.Physics.BulletSPlugin
                         //    the linkset is being rebuilt. In this case, scheduling a rebuild is a NOOP since
                         //    there will already be a rebuild scheduled.
                         DetailLog(
-                            "{0},BSLinksetCompound.UpdateProperties,couldNotUpdateChild.schedulingRebuild,whichUpdated={1}", updated.LocalID, whichUpdated);
+                            "{0},BSLinksetCompound.UpdateProperties,couldNotUpdateChild.schedulingRebuild,whichUpdated={1}",
+                            updated.LocalID, whichUpdated);
                         Refresh(updated);
                     }
                 }
@@ -302,7 +312,8 @@ namespace Universe.Physics.BulletSPlugin
         {
             bool ret = false;
 
-            DetailLog("{0},BSLinksetCompound.RemoveBodyDependencies,refreshIfChild,rID={1},rBody={2},isRoot={3}", child.LocalID, LinksetRoot.LocalID, LinksetRoot.PhysBody, IsRoot(child));
+            DetailLog("{0},BSLinksetCompound.RemoveBodyDependencies,refreshIfChild,rID={1},rBody={2},isRoot={3}",
+                child.LocalID, LinksetRoot.LocalID, LinksetRoot.PhysBody, IsRoot(child));
 
             Refresh(child);
 
@@ -314,7 +325,46 @@ namespace Universe.Physics.BulletSPlugin
         //    prim. The child prim's location must be recomputed based on the location of the root shape.
         void RecomputeChildWorldPosition(BSPrimLinkable child, bool inTaintTime)
         {
+            // For the moment (20130201), disable this computation (converting the child physical addr back to
+            //    a region address) until we have a good handle on center-of-mass offsets and what the physics
+            //    engine moving a child actually means.
+            // The simulator keeps track of where children should be as the linkset moves. Setting
+            //    the pos/rot here does not effect that knowledge as there is no good way for the
+            //    physics engine to send the simulator an update for a child.
+
+            /*
+            BSLinksetCompoundInfo lci = child.LinksetInfo as BSLinksetCompoundInfo;
+            if (lci != null)
+            {
+                if (inTaintTime)
+                {
+                    OMV.Vector3 oldPos = child.RawPosition;
+                    child.ForcePosition = LinksetRoot.RawPosition + lci.OffsetFromRoot;
+                    child.ForceOrientation = LinksetRoot.RawOrientation * lci.OffsetRot;
+                    DetailLog("{0},BSLinksetCompound.RecomputeChildWorldPosition,oldPos={1},lci={2},newPos={3}",
+                                                child.LocalID, oldPos, lci, child.RawPosition);
+                }
+                else
+                {
+                    // TaintedObject is not used here so the raw position is set now and not at taint-time.
+                    child.Position = LinksetRoot.RawPosition + lci.OffsetFromRoot;
+                    child.Orientation = LinksetRoot.RawOrientation * lci.OffsetRot;
+                }
+            }
+            else
+            {
+                // This happens when children have been added to the linkset but the linkset
+                //     has not been constructed yet. So like, at taint time, adding children to a linkset
+                //     and then changing properties of the children (makePhysical, for instance)
+                //     but the post-print action of actually rebuilding the linkset has not yet happened.
+                // PhysicsScene.Logger.WarnFormat("{0} Restoring linkset child position failed because of no relative position computed. ID={1}",
+                //                                 LogHeader, child.LocalID);
+                DetailLog("{0},BSLinksetCompound.recomputeChildWorldPosition,noRelativePositonInfo", child.LocalID);
+            }
+            */
         }
+
+        // ================================================================
 
         // Add a new child to the linkset.
         // Called while LinkActivity is locked.
@@ -328,8 +378,8 @@ namespace Universe.Physics.BulletSPlugin
 
                 // Rebuild the compound shape with the new child shape included
                 Refresh(child);
-            }
 
+            }
             return;
         }
 
@@ -341,8 +391,10 @@ namespace Universe.Physics.BulletSPlugin
 
             if (m_children.Remove(child))
             {
-                DetailLog("{0},BSLinksetCompound.RemoveChildFromLinkset,call,rID={1},rBody={2},cID={3},cBody={4}", child.LocalID,
-                    LinksetRoot.LocalID, LinksetRoot.PhysBody.AddrString, child.LocalID, child.PhysBody.AddrString);
+                DetailLog("{0},BSLinksetCompound.RemoveChildFromLinkset,call,rID={1},rBody={2},cID={3},cBody={4}",
+                    child.LocalID,
+                    LinksetRoot.LocalID, LinksetRoot.PhysBody.AddrString,
+                    child.LocalID, child.PhysBody.AddrString);
 
                 // Cause the child's body to be rebuilt and thus restored to normal operation
                 child.ForceBodyShapeRebuild(inTaintTime);
@@ -358,7 +410,6 @@ namespace Universe.Physics.BulletSPlugin
                     Refresh(LinksetRoot);
                 }
             }
-
             return;
         }
 
@@ -388,7 +439,8 @@ namespace Universe.Physics.BulletSPlugin
                 // There is no reason to build all this physical stuff for a non-physical or empty linkset.
                 if (!LinksetRoot.IsPhysicallyActive || !HasAnyChildren)
                 {
-                    DetailLog("{0},BSLinksetCompound.RecomputeLinksetCompound,notPhysicalOrNoChildren", LinksetRoot.LocalID);
+                    DetailLog("{0},BSLinksetCompound.RecomputeLinksetCompound,notPhysicalOrNoChildren",
+                        LinksetRoot.LocalID);
                     return; // Note the 'finally' clause at the botton which will get executed.
                 }
 
@@ -417,7 +469,8 @@ namespace Universe.Physics.BulletSPlugin
                     centerDisplacementV = LinksetRoot.SetEffectiveCenterOfMassDisplacement(centerDisplacementV);
                 }
 
-                DetailLog("{0},BSLinksetCompound.RecumputeLinksetCompound,COM,rootPos={1},com={2},comDisp={3}", LinksetRoot.LocalID, origRootPosition, centerOfMassW, centerDisplacementV);
+                DetailLog("{0},BSLinksetCompound.RecumputeLinksetCompound,COM,rootPos={1},com={2},comDisp={3}",
+                    LinksetRoot.LocalID, origRootPosition, centerOfMassW, centerDisplacementV);
 
                 // Add the shapes of all the components of the linkset
                 int memberIndex = 1;
@@ -438,14 +491,17 @@ namespace Universe.Physics.BulletSPlugin
                     BSShape childShape = cPrim.PhysShape.GetReference(PhysicsScene, cPrim);
 
                     // Offset the child shape from the center-of-mass and rotate it to root relative.
-                    OMV.Vector3 offsetPos = (cPrim.RawPosition - origRootPosition)*invRootOrientation - centerDisplacementV;
+                    OMV.Vector3 offsetPos = (cPrim.RawPosition - origRootPosition)*invRootOrientation -
+                                            centerDisplacementV;
                     OMV.Quaternion offsetRot = OMV.Quaternion.Normalize(cPrim.RawOrientation)*invRootOrientation;
 
                     // Add the child shape to the compound shape being build
                     if (childShape.physShapeInfo.HasPhysicalShape)
                     {
-                        PhysicsScene.PE.AddChildShapeToCompoundShape(linksetShape.physShapeInfo, childShape.physShapeInfo, offsetPos, offsetRot);
-                        DetailLog("{0},BSLinksetCompound.RecomputeLinksetCompound,addChild,indx={1},cShape={2},offPos={3},offRot={4}",
+                        PhysicsScene.PE.AddChildShapeToCompoundShape(linksetShape.physShapeInfo,
+                            childShape.physShapeInfo, offsetPos, offsetRot);
+                        DetailLog(
+                            "{0},BSLinksetCompound.RecomputeLinksetCompound,addChild,indx={1},cShape={2},offPos={3},offRot={4}",
                             LinksetRoot.LocalID, cPrim.LinksetChildIndex, childShape, offsetPos, offsetRot);
 
                         // Since we are borrowing the shape of the child, disable the original child body
@@ -455,7 +511,8 @@ namespace Universe.Physics.BulletSPlugin
                             PhysicsScene.PE.ForceActivationState(cPrim.PhysBody, ActivationState.DISABLE_SIMULATION);
 
                             // We don't want collision from the old linkset children.
-                            PhysicsScene.PE.RemoveFromCollisionFlags(cPrim.PhysBody, CollisionFlags.BS_SUBSCRIBE_COLLISION_EVENTS);
+                            PhysicsScene.PE.RemoveFromCollisionFlags(cPrim.PhysBody,
+                                CollisionFlags.BS_SUBSCRIBE_COLLISION_EVENTS);
                             cPrim.PhysBody.collisionType = CollisionType.LinksetChild;
                         }
                     }
@@ -468,18 +525,21 @@ namespace Universe.Physics.BulletSPlugin
                         // One problem might be that the shape is broken somehow and it never becomes completely
                         //    available. This might cause the rebuild to happen over and over.
                         InternalScheduleRebuild(LinksetRoot);
-                        DetailLog("{0},BSLinksetCompound.RecomputeLinksetCompound,addChildWithNoShape,indx={1},cShape={2},offPos={3},offRot={4}",
+                        DetailLog(
+                            "{0},BSLinksetCompound.RecomputeLinksetCompound,addChildWithNoShape,indx={1},cShape={2},offPos={3},offRot={4}",
                             LinksetRoot.LocalID, cPrim.LinksetChildIndex, childShape, offsetPos, offsetRot);
                         // Output an annoying warning. It should only happen once but if it keeps coming out,
                         //    the user knows there is something wrong and will report it.
-                        PhysicsScene.Logger.WarnFormat("{0} Linkset rebuild warning. If this happens more than one or two times, please report in the issue tracker", LogHeader);
-                        PhysicsScene.Logger.WarnFormat("{0} pName={1}, childIdx={2}, shape={3}", LogHeader, LinksetRoot.Name, cPrim.LinksetChildIndex, childShape);
+                        PhysicsScene.Logger.WarnFormat(
+                            "{0} Linkset rebuild warning. If this happens more than one or two times, please report in the issue tracker",
+                            LogHeader);
+                        PhysicsScene.Logger.WarnFormat("{0} pName={1}, childIdx={2}, shape={3}",
+                            LogHeader, LinksetRoot.Name, cPrim.LinksetChildIndex, childShape);
 
                         // This causes the loop to bail on building the rest of this linkset.
                         // The rebuild operation will fix it up next tick or declare the object unbuildable.
                         return true;
                     }
-
                     return false; // 'false' says to move anto the nex child in the list
                 });
 
@@ -490,7 +550,8 @@ namespace Universe.Physics.BulletSPlugin
                 PhysicsScene.PE.RemoveObjectFromWorld(PhysicsScene.World, LinksetRoot.PhysBody);
                 PhysicsScene.PE.SetCollisionShape(PhysicsScene.World, LinksetRoot.PhysBody, linksetShape.physShapeInfo);
                 PhysicsScene.PE.AddObjectToWorld(PhysicsScene.World, LinksetRoot.PhysBody);
-                DetailLog("{0},BSLinksetCompound.RecomputeLinksetCompound,addBody,body={1},shape={2}", LinksetRoot.LocalID, LinksetRoot.PhysBody, linksetShape);
+                DetailLog("{0},BSLinksetCompound.RecomputeLinksetCompound,addBody,body={1},shape={2}",
+                    LinksetRoot.LocalID, LinksetRoot.PhysBody, linksetShape);
 
                 // With all of the linkset packed into the root prim, it has the mass of everyone.
                 LinksetMass = ComputeLinksetMass();
@@ -502,7 +563,8 @@ namespace Universe.Physics.BulletSPlugin
                     //      compound shape. This aleviates the need to offset the returned physical position by the
                     //      center-of-mass offset.
                     // TODO: either debug this feature or remove it.
-                    PhysicsScene.PE.AddToCollisionFlags(LinksetRoot.PhysBody, CollisionFlags.BS_RETURN_ROOT_COMPOUND_SHAPE);
+                    PhysicsScene.PE.AddToCollisionFlags(LinksetRoot.PhysBody,
+                        CollisionFlags.BS_RETURN_ROOT_COMPOUND_SHAPE);
                 }
             }
             finally

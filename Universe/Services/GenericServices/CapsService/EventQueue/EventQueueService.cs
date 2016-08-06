@@ -80,7 +80,6 @@ namespace Universe.Services
                 Util.FireAndForget ((none) => {
                     EnqueueInternal (o, agentID, regionID);
                 });
-
                 return true;
             }
 
@@ -88,7 +87,6 @@ namespace Universe.Services
             IRegionClientCapsService service = GetRegionClientCapsService (agentID, regionID);
             if (service == null)
                 return false;
-
             RegionClientEventQueueService eventQueueService = service.GetServiceConnectors ()
                                                                      .OfType<RegionClientEventQueueService> ()
                                                                      .FirstOrDefault ();
@@ -138,7 +136,6 @@ namespace Universe.Services
             IClientCapsService clientCaps = m_service.GetClientCapsService (agentID);
             if (clientCaps == null)
                 return null;
-
             //If it doesn't exist, it will be null anyway, so we don't need to check anything else
             return clientCaps.GetCapsService (regionHandle);
         }
@@ -151,7 +148,9 @@ namespace Universe.Services
             Enqueue (item, avatarID, regionID);
         }
 
-        public virtual void EnableSimulator (ulong handle, byte[] iPAddress, int port,    UUID avatarID,  int regionSizeX, int regionSizeY, UUID regionID)
+        public virtual void EnableSimulator (ulong handle, byte[] iPAddress, int port,   
+                                             UUID avatarID, 
+                                             int regionSizeX, int regionSizeY, UUID regionID)
         {
             OSD item = EventQueueHelper.EnableSimulator (handle, iPAddress, port, regionSizeX, regionSizeY);
             Enqueue (item, avatarID, regionID);
@@ -169,7 +168,8 @@ namespace Universe.Services
                                                          UUID regionID)
         {
             IPEndPoint endPoint = new IPEndPoint (new IPAddress (iPAddress), port);
-            OSD item = EventQueueHelper.EstablishAgentCommunication (avatarID, regionHandle, endPoint.ToString (), capsUrl, regionSizeX, regionSizeY);
+            OSD item = EventQueueHelper.EstablishAgentCommunication (avatarID, regionHandle, endPoint.ToString (), capsUrl,
+                           regionSizeX, regionSizeY);
             Enqueue (item, avatarID, regionID);
         }
 
@@ -181,7 +181,8 @@ namespace Universe.Services
         {
             //Blank (for the CapsUrl) as we do not know what the CapsURL is on the sim side, it will be fixed when it reaches the grid server
             OSD item = EventQueueHelper.TeleportFinishEvent (regionHandle, simAccess, address, port,
-                           locationID, capsURL, avatarID, teleportFlags, regionSizeX, regionSizeY);
+                           locationID, capsURL, avatarID, teleportFlags, regionSizeX,
+                           regionSizeY);
             Enqueue (item, avatarID, regionID);
         }
 
@@ -190,7 +191,8 @@ namespace Universe.Services
                                          UUID avatarID, UUID sessionID, int regionSizeX, int regionSizeY,
                                          UUID regionID)
         {
-            OSD item = EventQueueHelper.CrossRegion (handle, pos, lookAt, address, port, capsURL, avatarID, sessionID, regionSizeX, regionSizeY);
+            OSD item = EventQueueHelper.CrossRegion (handle, pos, lookAt, address, port,
+                           capsURL, avatarID, sessionID, regionSizeX, regionSizeY);
             Enqueue (item, avatarID, regionID);
         }
 
@@ -220,7 +222,8 @@ namespace Universe.Services
                                                                bool canVoiceChat, bool isModerator, bool textMute,
                                                                UUID regionID)
         {
-            OSD item = EventQueueHelper.ChatterBoxSessionAgentListUpdates (sessionID, fromAgent, canVoiceChat, isModerator, textMute);
+            OSD item = EventQueueHelper.ChatterBoxSessionAgentListUpdates (sessionID, fromAgent, canVoiceChat,
+                           isModerator, textMute);
             Enqueue (item, toAgent, regionID);
             //MainConsole.Instance.InfoFormat("########### eq ChatterBoxSessionAgentListUpdates #############\n{0}", item);
         }
@@ -314,7 +317,7 @@ namespace Universe.Services
                     queue.Enqueue (ev);
             } catch (NullReferenceException e)
             {
-                MainConsole.Instance.Error ("[Event Queue] Caught exception: " + e);
+                MainConsole.Instance.Error ("[EVENTQUEUE] Caught exception: " + e);
                 return false;
             }
 
@@ -385,10 +388,13 @@ namespace Universe.Services
             const string capsBase = "/CAPS/EQG/";
             m_capsPath = capsBase + UUID.Random () + "/";
 
-            // Register this as a caps handler
-            m_service.AddStreamHandler ("EventQueueGet", new GenericStreamHandler ("POST", m_capsPath, ( path, request, httpRequest, httpResponse) => new byte[0]));
 
-            MainServer.Instance.AddPollServiceHTTPHandler ( m_capsPath, new PollServiceEventArgs (null, HasEvents, GetEvents, NoEvents, m_service.AgentID));
+            // Register this as a caps handler
+            m_service.AddStreamHandler ("EventQueueGet", 
+                new GenericStreamHandler ("POST", m_capsPath, ( path, request, httpRequest, httpResponse) => new byte[0]));
+
+            MainServer.Instance.AddPollServiceHTTPHandler (
+                m_capsPath, new PollServiceEventArgs (null, HasEvents, GetEvents, NoEvents, m_service.AgentID));
 
             Random rnd = new Random (Environment.TickCount);
             m_ids = rnd.Next (30000000);

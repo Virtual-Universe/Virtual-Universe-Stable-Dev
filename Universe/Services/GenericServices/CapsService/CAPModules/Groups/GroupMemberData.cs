@@ -52,7 +52,8 @@ namespace Universe.Services
             m_service = service;
             m_groupService = Framework.Utilities.DataManager.RequestPlugin<IGroupsServiceConnector> ();
 
-            service.AddStreamHandler ("GroupMemberData", new GenericStreamHandler ("POST", service.CreateCAPS ("GroupMemberData", ""), GroupMemberData));
+            service.AddStreamHandler ("GroupMemberData",
+                new GenericStreamHandler ("POST", service.CreateCAPS ("GroupMemberData", ""), GroupMemberData));
         }
 
         public void EnteringRegion ()
@@ -66,7 +67,8 @@ namespace Universe.Services
 
         #region Group Members
 
-        public byte[] GroupMemberData (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+        public byte[] GroupMemberData (string path, Stream request, OSHttpRequest httpRequest,
+                                      OSHttpResponse httpResponse)
         {
             try
             {
@@ -98,7 +100,6 @@ namespace Universe.Services
                         titles.Add (gmd.Title);
                         member ["title"] = titles.Count - 1;
                     }
-
                     member ["powers"] = gmd.AgentPowers;
                     count++;
                     members [gmd.AgentID.ToString ()] = member;
@@ -118,7 +119,6 @@ namespace Universe.Services
 
             return null;
         }
-
         #endregion
     }
 }

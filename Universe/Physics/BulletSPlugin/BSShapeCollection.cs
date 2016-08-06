@@ -36,6 +36,10 @@ namespace Universe.Physics.BulletSPlugin
 {
     public sealed class BSShapeCollection : IDisposable
     {
+//#pragma warning disable 414
+//        static string LogHeader = "[Bulletsim Shape Collection]";
+//#pragma warning restore 414
+
         BSScene PhysicsScene { get; set; }
 
         Object m_collectionActivityLock = new Object();
@@ -116,8 +120,8 @@ namespace Universe.Physics.BulletSPlugin
                 bool newBody = CreateBody((newGeom || forceRebuild), prim, PhysicsScene.World, bodyCallback);
                 ret = newGeom || newBody;
             }
-
-            DetailLog("{0},BSShapeCollection.GetBodyAndShape,taintExit,force={1},ret={2},body={3},shape={4}", prim.LocalID, forceRebuild, ret, prim.PhysBody, prim.PhysShape);
+            DetailLog("{0},BSShapeCollection.GetBodyAndShape,taintExit,force={1},ret={2},body={3},shape={4}",
+                prim.LocalID, forceRebuild, ret, prim.PhysBody, prim.PhysShape);
 
             return ret;
         }
@@ -137,7 +141,6 @@ namespace Universe.Physics.BulletSPlugin
                     shapeCallback(prim.PhysBody, prim.PhysShape.physShapeInfo);
                 prim.PhysShape.Dereference(PhysicsScene);
             }
-
             prim.PhysShape = new BSShapeNull();
         }
 
@@ -170,18 +173,21 @@ namespace Universe.Physics.BulletSPlugin
                 switch (BSParam.AvatarShape)
                 {
                     case AvatarShapeCapsule:
-                        prim.PhysShape = BSShapeNative.GetReference(PhysicsScene, prim, BSPhysicsShapeType.SHAPE_CAPSULE, FixedShapeKey.KEY_CAPSULE);
+                        prim.PhysShape = BSShapeNative.GetReference(PhysicsScene, prim, BSPhysicsShapeType.SHAPE_CAPSULE,
+                            FixedShapeKey.KEY_CAPSULE);
                         ret = true;
                         haveShape = true;
                         break;
                     case AvatarShapeCube:
-                        prim.PhysShape = BSShapeNative.GetReference(PhysicsScene, prim, BSPhysicsShapeType.SHAPE_BOX, FixedShapeKey.KEY_CAPSULE);
+                        prim.PhysShape = BSShapeNative.GetReference(PhysicsScene, prim, BSPhysicsShapeType.SHAPE_BOX,
+                            FixedShapeKey.KEY_CAPSULE);
                         ret = true;
                         haveShape = true;
                         break;
                     case AvatarShapeOvoid:
                         // Saddly, Bullet doesn't scale spheres so this doen't work as an avatar shape
-                        prim.PhysShape = BSShapeNative.GetReference(PhysicsScene, prim, BSPhysicsShapeType.SHAPE_SPHERE, FixedShapeKey.KEY_CAPSULE);
+                        prim.PhysShape = BSShapeNative.GetReference(PhysicsScene, prim, BSPhysicsShapeType.SHAPE_SPHERE,
+                            FixedShapeKey.KEY_CAPSULE);
                         ret = true;
                         haveShape = true;
                         break;
@@ -214,14 +220,14 @@ namespace Universe.Physics.BulletSPlugin
                     if (forceRebuild || prim.PhysShape.ShapeType != BSPhysicsShapeType.SHAPE_SPHERE)
                     {
                         DereferenceExistingShape(prim, shapeCallback);
-                        prim.PhysShape = BSShapeNative.GetReference(PhysicsScene, prim, BSPhysicsShapeType.SHAPE_SPHERE, FixedShapeKey.KEY_SPHERE);
+                        prim.PhysShape = BSShapeNative.GetReference(PhysicsScene, prim, BSPhysicsShapeType.SHAPE_SPHERE,
+                            FixedShapeKey.KEY_SPHERE);
                         ret = true;
                     }
-
                     if (DDetail)
-                        DetailLog("{0},BSShapeCollection.CreateGeom,sphere,force={1},rebuild={2},shape={3}", prim.LocalID, forceRebuild, ret, prim.PhysShape);
+                        DetailLog("{0},BSShapeCollection.CreateGeom,sphere,force={1},rebuild={2},shape={3}",
+                            prim.LocalID, forceRebuild, ret, prim.PhysShape);
                 }
-
                 // If we didn't make a sphere, maybe a box will work.
                 if (!haveShape && pbs.ProfileShape == ProfileShape.Square && pbs.PathCurve == (byte)Extrusion.Straight)
                 {
@@ -230,12 +236,13 @@ namespace Universe.Physics.BulletSPlugin
                         prim.PhysShape.ShapeType != BSPhysicsShapeType.SHAPE_BOX)
                     {
                         DereferenceExistingShape(prim, shapeCallback);
-                        prim.PhysShape = BSShapeNative.GetReference(PhysicsScene, prim, BSPhysicsShapeType.SHAPE_BOX, FixedShapeKey.KEY_BOX);
+                        prim.PhysShape = BSShapeNative.GetReference(PhysicsScene, prim, BSPhysicsShapeType.SHAPE_BOX,
+                            FixedShapeKey.KEY_BOX);
                         ret = true;
                     }
-
                     if (DDetail)
-                        DetailLog("{0},BSShapeCollection.CreateGeom,box,force={1},rebuild={2},shape={3}", prim.LocalID, forceRebuild, ret, prim.PhysShape);
+                        DetailLog("{0},BSShapeCollection.CreateGeom,box,force={1},rebuild={2},shape={3}", prim.LocalID,
+                            forceRebuild, ret, prim.PhysShape);
                 }
             }
 
@@ -303,7 +310,6 @@ namespace Universe.Physics.BulletSPlugin
                     // The current shape on the prim is the correct one. We don't need the potential reference.
                     potentialHull.Dereference(PhysicsScene);
                 }
-
                 if (DDetail) DetailLog("{0},BSShapeCollection.CreateGeom,hull,shape={1}", prim.LocalID, prim.PhysShape);
             }
             else
@@ -324,10 +330,8 @@ namespace Universe.Physics.BulletSPlugin
                     // We don't need this reference to the mesh that is already being using.
                     potentialMesh.Dereference(PhysicsScene);
                 }
-
                 if (DDetail) DetailLog("{0},BSShapeCollection.CreateGeom,mesh,shape={1}", prim.LocalID, prim.PhysShape);
             }
-
             return ret;
         }
 
@@ -377,7 +381,8 @@ namespace Universe.Physics.BulletSPlugin
         // Update prim.BSBody with the information about the new body if one is created.
         // Returns 'true if an object was actually created.
         // Called at taint-time.
-        bool CreateBody(bool forceRebuild, BSPhysObject prim, BulletWorld sim, PhysicalDestructionCallback bodyCallback)
+        bool CreateBody(bool forceRebuild, BSPhysObject prim, BulletWorld sim,
+            PhysicalDestructionCallback bodyCallback)
         {
             bool ret = false;
 
@@ -395,7 +400,8 @@ namespace Universe.Physics.BulletSPlugin
                     // If the collisionObject is not the correct type for solidness, rebuild what's there
                     mustRebuild = true;
                     if (DDetail)
-                        DetailLog("{0},BSShapeCollection.CreateBody,forceRebuildBecauseChangingBodyType,bodyType={1}", prim.LocalID, bodyType);
+                        DetailLog("{0},BSShapeCollection.CreateBody,forceRebuildBecauseChangingBodyType,bodyType={1}",
+                            prim.LocalID, bodyType);
                 }
             }
 
@@ -407,12 +413,14 @@ namespace Universe.Physics.BulletSPlugin
                 BulletBody aBody;
                 if (prim.IsSolid)
                 {
-                    aBody = PhysicsScene.PE.CreateBodyFromShape(sim, prim.PhysShape.physShapeInfo, prim.LocalID, prim.RawPosition, prim.RawOrientation);
+                    aBody = PhysicsScene.PE.CreateBodyFromShape(sim, prim.PhysShape.physShapeInfo, prim.LocalID,
+                        prim.RawPosition, prim.RawOrientation);
                     if (DDetail) DetailLog("{0},BSShapeCollection.CreateBody,rigid,body={1}", prim.LocalID, aBody);
                 }
                 else
                 {
-                    aBody = PhysicsScene.PE.CreateGhostFromShape(sim, prim.PhysShape.physShapeInfo, prim.LocalID, prim.RawPosition, prim.RawOrientation);
+                    aBody = PhysicsScene.PE.CreateGhostFromShape(sim, prim.PhysShape.physShapeInfo, prim.LocalID,
+                        prim.RawPosition, prim.RawOrientation);
                     if (DDetail) DetailLog("{0},BSShapeCollection.CreateBody,ghost,body={1}", prim.LocalID, aBody);
                 }
 
@@ -422,12 +430,12 @@ namespace Universe.Physics.BulletSPlugin
 
                 ret = true;
             }
-
             return ret;
         }
 
         void DetailLog(string msg, params Object[] args)
         {
+            //if (PhysicsScene.PhysicsLogging.Enabled)
             PhysicsScene.DetailLog(msg, args);
         }
     }

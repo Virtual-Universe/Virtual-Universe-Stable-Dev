@@ -82,6 +82,7 @@ namespace Universe.Framework.Utilities
                 versionString = CommitFile.ReadLine();
                 CommitFile.Close();
             }
+
             return versionString;
         }
     }

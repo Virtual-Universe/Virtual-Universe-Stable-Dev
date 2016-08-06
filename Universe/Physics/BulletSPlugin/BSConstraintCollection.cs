@@ -45,6 +45,7 @@ namespace Universe.Physics.BulletSPlugin
             m_constraints = new List<BSConstraint>();
         }
 
+
         public void Dispose()
         {
             Clear();
@@ -58,7 +59,6 @@ namespace Universe.Physics.BulletSPlugin
                 {
                     cons.Dispose();
                 }
-
                 m_constraints.Clear();
             }
         }
@@ -69,6 +69,7 @@ namespace Universe.Physics.BulletSPlugin
             {
                 // There is only one constraint between any bodies. Remove any old just to make sure.
                 RemoveAndDestroyConstraint(cons.Body1, cons.Body2);
+
                 m_constraints.Add(cons);
             }
 
@@ -81,13 +82,15 @@ namespace Universe.Physics.BulletSPlugin
         {
             bool found = false;
             BSConstraint foundConstraint = null;
+
             uint lookingID1 = body1.ID;
             uint lookingID2 = body2.ID;
             lock (m_constraints)
             {
                 foreach (BSConstraint constrain in m_constraints)
                 {
-                    if ((constrain.Body1.ID == lookingID1 && constrain.Body2.ID == lookingID2) || (constrain.Body1.ID == lookingID2 && constrain.Body2.ID == lookingID1))
+                    if ((constrain.Body1.ID == lookingID1 && constrain.Body2.ID == lookingID2)
+                        || (constrain.Body1.ID == lookingID2 && constrain.Body2.ID == lookingID1))
                     {
                         foundConstraint = constrain;
                         found = true;
@@ -95,7 +98,6 @@ namespace Universe.Physics.BulletSPlugin
                     }
                 }
             }
-
             returnConstraint = foundConstraint;
             return found;
         }
@@ -130,7 +132,6 @@ namespace Universe.Physics.BulletSPlugin
                 // remove the constraint from our collection
                 removed = m_constraints.Remove(constrain);
             }
-
             // Dispose() is safe to call multiple times
             constrain.Dispose();
             return removed;
@@ -151,14 +152,12 @@ namespace Universe.Physics.BulletSPlugin
                         toRemove.Add(constrain);
                     }
                 }
-
                 foreach (BSConstraint constrain in toRemove)
                 {
                     m_constraints.Remove(constrain);
                     constrain.Dispose();
                 }
             }
-
             return (toRemove.Count > 0);
         }
 
@@ -173,7 +172,6 @@ namespace Universe.Physics.BulletSPlugin
                     ret = true;
                 }
             }
-
             return ret;
         }
     }

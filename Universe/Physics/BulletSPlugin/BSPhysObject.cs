@@ -119,6 +119,7 @@ namespace Universe.Physics.BulletSPlugin
         }
 
         public BSScene PhysicsScene { get; protected set; }
+        // public override uint LocalID { get; set; } // Use the LocalID definition in PhysicsActor
         public string PhysObjectName { get; protected set; }
         public string TypeName { get; protected set; }
 
@@ -137,20 +138,17 @@ namespace Universe.Physics.BulletSPlugin
 
         // Return the object mass without calculating it or having side effects
         public abstract float RawMass { get; }
-        
         // Set the raw mass but also update physical mass properties (inertia, ...)
         // 'inWorld' true if the object has already been added to the dynamic world.
         public abstract void UpdatePhysicalMassProperties(float mass, bool inWorld);
 
         // The gravity being applied to the object. A function of default grav, GravityModifier and Buoyancy.
         public virtual OMV.Vector3 Gravity { get; set; }
-        
         // The last value calculated for the prim's inertia
         public OMV.Vector3 Inertia { get; set; }
 
         // Reference to the physical body (btCollisionObject) of this object
         public BulletBody PhysBody = new BulletBody(0);
-        
         // Reference to the physical shape (btCollisionShape) of this object
         public BSShape PhysShape = new BSShapeNull();
 
@@ -166,7 +164,6 @@ namespace Universe.Physics.BulletSPlugin
         }
 
         public PrimAssetCondition PrimAssetState { get; set; }
-
         public virtual bool AssetFailed()
         {
             return ( (PrimAssetState == PrimAssetCondition.FailedAssetFetch)
@@ -225,26 +222,21 @@ namespace Universe.Physics.BulletSPlugin
 
         // Stop all physical motion.
         public abstract void ZeroMotion(bool inTaintTime);
-
         public abstract void ZeroAngularMotion(bool inTaintTime);
 
         // Update the physical location and motion of the object. Called with data from Bullet.
         public abstract void UpdateProperties(EntityProperties entprop);
 
         public abstract OMV.Vector3 RawPosition { get; set; }
-
         public abstract OMV.Vector3 ForcePosition { get; set; }
 
         public abstract OMV.Quaternion RawOrientation { get; set; }
-
         public abstract OMV.Quaternion ForceOrientation { get; set; }
 
         public OMV.Vector3 RawVelocity { get; set; }
-
         public abstract OMV.Vector3 ForceVelocity { get; set; }
 
         public OMV.Vector3 RawForce { get; set; }
-
         public OMV.Vector3 RawTorque { get; set; }
 
         public override void AddAngularForce(OMV.Vector3 force, bool pushforce)
@@ -268,7 +260,8 @@ namespace Universe.Physics.BulletSPlugin
         {
             get
             {
-                OMV.Vector3 characterOrientedVelocity = RawVelocity * OMV.Quaternion.Inverse(OMV.Quaternion.Normalize(RawOrientation));
+                OMV.Vector3 characterOrientedVelocity = RawVelocity *
+                                                        OMV.Quaternion.Inverse(OMV.Quaternion.Normalize(RawOrientation));
                 return characterOrientedVelocity.X;
             }
         }
@@ -278,7 +271,8 @@ namespace Universe.Physics.BulletSPlugin
         {
             get
             {
-                OMV.Vector3 characterOrientedVelocity = TargetVelocity * OMV.Quaternion.Inverse(OMV.Quaternion.Normalize(RawOrientation));
+                OMV.Vector3 characterOrientedVelocity = TargetVelocity *
+                                                        OMV.Quaternion.Inverse(OMV.Quaternion.Normalize(RawOrientation));
                 return characterOrientedVelocity.X;
             }
         }
@@ -289,24 +283,17 @@ namespace Universe.Physics.BulletSPlugin
         public OMV.Vector3? UserSetCenterOfMassDisplacement { get; set; }
 
         public OMV.Vector3 LockedLinearAxis;    // zero means locked. one means free.
-
         public OMV.Vector3 LockedAngularAxis;   // zero means locked. one means free.
-
         public const float FreeAxis = 1f;
-
         public const float LockedAxis = 0f;
-
         public readonly OMV.Vector3 LockedAxisFree = new OMV.Vector3(FreeAxis, FreeAxis, FreeAxis); // All axis are free
 
         // If an axis is locked (flagged above) then the limits of that axis are specified here.
         // Linear axis limits are relative to the object's starting coordinates.
         // Angular limits are limited to -PI to +PI
         public OMV.Vector3 LockedLinearAxisLow;
-
         public OMV.Vector3 LockedLinearAxisHigh;
-
         public OMV.Vector3 LockedAngularAxisLow;
-
         public OMV.Vector3 LockedAngularAxisHigh;
 
         // Enable physical actions. Bullet will keep sleeping non-moving physical objects so
@@ -314,6 +301,7 @@ namespace Universe.Physics.BulletSPlugin
         // Called in taint-time!!
         public void ActivateIfPhysical(bool forceIt)
         {
+            //if (IsPhysical && PhysBody.HasPhysicalBody)
             if (PhysBody.HasPhysicalBody)
             {
                 if (IsPhysical)
@@ -364,26 +352,19 @@ namespace Universe.Physics.BulletSPlugin
 
         // Requested number of milliseconds between collision events. Zero means disabled.
         protected int SubscribedEventsMs { get; set; }
-        
         // Given subscription, the time that a collision may be passed up
         protected int NextCollisionOkTime { get; set; }
-        
         // The simulation step that last had a collision
         protected long CollidingStep { get; set; }
-        
         // The simulation step that last had a collision
         protected long TrueCollidingStep { get; set; }
-        
         // The collision flags we think are set in Bullet
         protected CollisionFlags CurrentCollisionFlags { get; set; }
-        
         // On a collision, check the collider and remember if the last collider was moving
         //    Used to modify the standing of avatars (avatars on stationary things stand still)
         public bool ColliderIsMoving;
-    	
-        // 'true' if the last collider was a volume detect object
+    	  // 'true' if the last collider was a volume detect object
         public bool ColliderIsVolumeDetect;
-        
         // Used by BSCharacter to manage standing (and not slipping)
         public bool IsStationary;
 
@@ -428,7 +409,6 @@ namespace Universe.Physics.BulletSPlugin
 
         // The collisions that have been collected this tick
         protected CollisionEventUpdate CollisionCollection;
-        
         // Remember collisions from last tick for fancy collision based actions
         //     (like a BSCharacter walking up stairs).
         public CollisionEventUpdate CollisionsLastTick;
@@ -465,13 +445,14 @@ namespace Universe.Physics.BulletSPlugin
             // If someone has subscribed for collision events log the collision so it will be reported up
             if (SubscribedEvents())
             {
-                CollisionCollection.AddCollider(collidingWith, new ContactPoint(contactPoint, contactNormal, pentrationDepth, (ActorTypes)PhysicsActorType));
-                DetailLog("{0},{1}.Collison.AddCollider,call,with={2},point={3},normal={4},depth={5},colliderMoving={6}",
+                CollisionCollection.AddCollider(collidingWith,
+                    new ContactPoint(contactPoint, contactNormal, pentrationDepth, (ActorTypes)PhysicsActorType));
+                DetailLog(
+                    "{0},{1}.Collison.AddCollider,call,with={2},point={3},normal={4},depth={5},colliderMoving={6}",
                     LocalID, TypeName, collidingWith, contactPoint, contactNormal, pentrationDepth, ColliderIsMoving);
 
                 ret = true;
             }
-
             return ret;
         }
 
@@ -504,7 +485,8 @@ namespace Universe.Physics.BulletSPlugin
                     ret = false;
                 }
 
-                DetailLog("{0},{1}.SendCollisionUpdate,call,numCollisions={2}", LocalID, TypeName, CollisionCollection.Count);
+                DetailLog("{0},{1}.SendCollisionUpdate,call,numCollisions={2}", LocalID, TypeName,
+                    CollisionCollection.Count);
                 base.SendCollisionUpdate(CollisionCollection);
 
                 // Remember the collisions from this tick for some collision specific processing.
@@ -516,7 +498,6 @@ namespace Universe.Physics.BulletSPlugin
                 //    a race condition is created for the other users of this instance.
                 CollisionCollection = new CollisionEventUpdate();
             }
-
             return ret;
         }
 
@@ -534,7 +515,8 @@ namespace Universe.Physics.BulletSPlugin
                 PhysicsScene.TaintedObject(LocalID, TypeName + ".SubscribeEvents", delegate()
                 {
                     if (PhysBody.HasPhysicalBody)
-                        CurrentCollisionFlags = PhysicsScene.PE.AddToCollisionFlags(PhysBody, CollisionFlags.BS_SUBSCRIBE_COLLISION_EVENTS);
+                        CurrentCollisionFlags = PhysicsScene.PE.AddToCollisionFlags(PhysBody,
+                            CollisionFlags.BS_SUBSCRIBE_COLLISION_EVENTS);
                 });
             }
             else
@@ -552,7 +534,8 @@ namespace Universe.Physics.BulletSPlugin
             {
                 // Make sure there is a body there because sometimes destruction happens in an un-ideal order.
                 if (PhysBody.HasPhysicalBody)
-                    CurrentCollisionFlags = PhysicsScene.PE.RemoveFromCollisionFlags(PhysBody, CollisionFlags.BS_SUBSCRIBE_COLLISION_EVENTS);
+                    CurrentCollisionFlags = PhysicsScene.PE.RemoveFromCollisionFlags(PhysBody,
+                        CollisionFlags.BS_SUBSCRIBE_COLLISION_EVENTS);
             });
         }
 
@@ -574,11 +557,8 @@ namespace Universe.Physics.BulletSPlugin
         }
 
         public override float CollisionScore { get; set; }
-
         public bool MoveToTargetActive { get; set; }
-
         public OMV.Vector3 MoveToTargetTarget { get; set; }
-
         public float MoveToTargetTau { get; set; }
 
         #endregion // Collisions
@@ -605,6 +585,7 @@ namespace Universe.Physics.BulletSPlugin
         // High performance detailed logging routine used by the physical objects.
         protected void DetailLog(string msg, params Object[] args)
         {
+            //if (PhysicsScene.PhysicsLogging.Enabled)
             PhysicsScene.DetailLog(msg, args);
         }
     }

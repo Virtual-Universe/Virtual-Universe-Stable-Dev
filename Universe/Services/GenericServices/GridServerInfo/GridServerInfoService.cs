@@ -76,9 +76,9 @@ namespace Universe.Services.GenericServices
             var uris = new Dictionary<string, string>();
             foreach (ConnectorBase connector in ConnectorRegistry.ServerHandlerConnectors)
             {
-                uris.Add(connector.ServerHandlerName, MainServer.Instance.FullHostName + ":" + connector.ServerHandlerPort + connector.ServerHandlerPath);
+                uris.Add(connector.ServerHandlerName, MainServer.Instance.FullHostName + ":" +
+                    connector.ServerHandlerPort + connector.ServerHandlerPath);
             }
-
             gridTimer = new Timer(SendGridURIsAsync, uris, 3000, Timeout.Infinite);
         }
 
@@ -92,7 +92,6 @@ namespace Universe.Services.GenericServices
         {
             if (!m_gridURIs.ContainsKey(key))
                 return new List<string>();
-
             return m_gridURIs[key];
         }
 
@@ -100,7 +99,6 @@ namespace Universe.Services.GenericServices
         {
             if (!m_gridURIs.ContainsKey(key))
                 return "";
-
             return m_gridURIs[key][0];
         }
 
@@ -112,7 +110,7 @@ namespace Universe.Services.GenericServices
 
             if (m_gridURIs.Count < m_defaultURICount)
             {
-                MainConsole.Instance.WarnFormat("[Grid Server Info Service]: Retrieve URIs failed, only had {0} of {1} URIs needed", m_gridURIs.Count, m_defaultURICount);
+                MainConsole.Instance.WarnFormat("[GridServerInfoService]: Retrieve URIs failed, only had {0} of {1} URIs needed", m_gridURIs.Count, m_defaultURICount);
                 return new Dictionary<string, List<string>>();
             }
 
@@ -122,7 +120,6 @@ namespace Universe.Services.GenericServices
             var uris = new Dictionary<string, List<string>> ();
             foreach (KeyValuePair<string, List<string>> kvp in m_gridURIs)
                 uris.Add (kvp.Key, new List<string> (kvp.Value));
-
             return uris;
         }
 
@@ -135,8 +132,7 @@ namespace Universe.Services.GenericServices
                 return;
             }
 
-
-            MainConsole.Instance.InfoFormat("[Grid Server Info Service]: Adding {0} uris", uri.Count);
+            MainConsole.Instance.InfoFormat("[GridServerInfoService]: Adding {0} uris", uri.Count);
 
             foreach (KeyValuePair<string, string> kvp in uri)
             {

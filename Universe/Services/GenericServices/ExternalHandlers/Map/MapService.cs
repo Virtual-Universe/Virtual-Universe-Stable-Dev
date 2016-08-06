@@ -62,12 +62,18 @@ namespace Universe.Services
         static Bitmap m_blankRegionTile = null;
         MapTileIndex m_blankTiles = new MapTileIndex();
         byte[] m_blankRegionTileData;
+        int m_mapcenter_x = Constants.DEFAULT_REGIONSTART_X;
+        int m_mapcenter_y = Constants.DEFAULT_REGIONSTART_Y;
 
         public void Initialize(IConfigSource config, IRegistryCore registry)
         {
             m_registry = registry;
-            IConfig mapConfig = config.Configs["MapService"];
 
+            var simbase = registry.RequestModuleInterface<ISimulationBase> ();
+            m_mapcenter_x = simbase.MapCenterX;
+            m_mapcenter_y = simbase.MapCenterY;
+
+            var mapConfig = config.Configs["MapService"];
             if (mapConfig != null)
             {
                 m_enabled = mapConfig.GetBoolean("Enabled", m_enabled);
@@ -75,14 +81,12 @@ namespace Universe.Services
                 m_cacheEnabled = mapConfig.GetBoolean("CacheEnabled", m_cacheEnabled);
                 m_cacheExpires = mapConfig.GetFloat("CacheExpires", m_cacheExpires);
             }
-
             if (!m_enabled)
                 return;
 
             if (m_cacheEnabled)
             {
                 m_assetCacheDir = config.Configs ["AssetCache"].GetString ("CacheDirectory",m_assetCacheDir);
-
                 if (m_assetCacheDir == "")
                 {
                     var defpath = registry.RequestModuleInterface<ISimulationBase> ().DefaultDataPath;
@@ -148,6 +152,14 @@ namespace Universe.Services
             get { return m_server.ServerURI + "/MapAPI/"; }
         }
 
+        public int MapCenterX {
+            get { return m_mapcenter_x; }
+        }
+
+        public int MapCenterY {
+            get { return m_mapcenter_y; }
+        }
+
         public byte[] MapAPIRequest(string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
             byte[] response = MainServer.BlankResponse;
@@ -171,8 +183,9 @@ namespace Universe.Services
                 string resp = "var {0} = \"{1}\";";
                 int grid_x = int.Parse(httpRequest.Query["grid_x"].ToString());
                 int grid_y = int.Parse(httpRequest.Query["grid_y"].ToString());
-                var region = m_gridService.GetRegionByPosition(null, grid_x * Constants.RegionSize, grid_y * Constants.RegionSize);
-
+                var region = m_gridService.GetRegionByPosition(null,
+                                                               grid_x * Constants.RegionSize,
+                                                               grid_y * Constants.RegionSize);
                 if (region == null)
                 {
                     List<GridRegion> regions = m_gridService.GetRegionRange(null,
@@ -192,7 +205,6 @@ namespace Universe.Services
                             break;
                         }
                     }
-
                     if (!found)
                         resp = "var " + var + " = {error: true};";
                 }
@@ -209,7 +221,7 @@ namespace Universe.Services
         {
             //Remove the /MapService/
             string uri = httpRequest.RawUrl.Remove(0, 12);
-            if (!uri.StartsWith("map"))
+            if (!uri.StartsWith ("map", StringComparison.Ordinal))
             {
                 if (uri == "")
                 {
@@ -219,22 +231,25 @@ namespace Universe.Services
                                   "<Marker/>" +
                                   "<MaxKeys>1000</MaxKeys>" +
                                   "<IsTruncated>true</IsTruncated>";
-                    
-                    var thSize = 1000 * Constants.RegionSize;       // TODO:  Why 1000?  Should this be relative to the view??
+
+                    // TODO:  Why specific (was 1000)? Assumes the center of the map is here.
+                    //  Should this be relative to the view?? i.e a passed map center location
+                    var txSize = m_mapcenter_x * Constants.RegionSize;
+                    var tySize = m_mapcenter_x * Constants.RegionSize;
                     var etSize = 8 * Constants.RegionSize;
-                    List<GridRegion> regions = m_gridService.GetRegionRange (null, (thSize - etSize), (thSize + etSize), (thSize - etSize), (thSize + etSize));
+                    List<GridRegion> regions = m_gridService.GetRegionRange (
+                                                   null, (txSize - etSize), (txSize + etSize), (tySize - etSize), (tySize + etSize));
                     foreach (var region in regions)
                     {
-                        resp += "<Contents><Key>map-1-" + region.RegionLocX / Constants.RegionSize + "-" + region.RegionLocY / Constants.RegionSize +
+                        resp += "<Contents><Key>map-1-" + region.RegionLocX / Constants.RegionSize +
+                                "-" + region.RegionLocY / Constants.RegionSize +
                                 "-objects.jpg</Key>" +
                                 "<LastModified>2012-07-09T21:26:32.000Z</LastModified></Contents>";
                     }
-
                     resp += "</ListBucketResult>";
                     httpResponse.ContentType = "application/xml";
                     return System.Text.Encoding.UTF8.GetBytes(resp);
                 }
-
                 using (MemoryStream imgstream = new MemoryStream())
                 {
                     GridRegion region = m_gridService.GetRegionByName(null, uri.Remove (4));
@@ -245,7 +260,6 @@ namespace Universe.Services
                     byte[] mapasset = null;
                     if ( m_assetService.GetExists(region.TerrainMapImage.ToString()))
                         mapasset = m_assetService.GetData(region.TerrainMapImage.ToString());
-
                     if (mapasset != null)
                     {
                         try
@@ -262,21 +276,18 @@ namespace Universe.Services
                                 // Save bitmap to stream
                                 image.Save (imgstream, encInfo, myEncoderParameters);
                             }
-
                             image.Dispose();
                             myEncoderParameters.Dispose ();
 
                             // Write the stream to a byte array for output
                             return imgstream.ToArray();
                         }
-
                         catch { }
+
                     }
                 }
-
                 return new byte[0];
             }
-
             string[] splitUri = uri.Split('-');
             byte[] jpeg = FindCachedImage(uri);
             if (jpeg.Length != 0)
@@ -306,7 +317,6 @@ namespace Universe.Services
             catch
             {
             }
-
             httpResponse.ContentType = "image/jpeg";
             return jpeg;
         }
@@ -316,7 +326,6 @@ namespace Universe.Services
             Bitmap mapTexture = FindCachedImage(mapView, regionX, regionY);
             if (mapTexture != null) 
                 return mapTexture;
-
             if (mapView == 1)
                 return BuildMapTile(regionX, regionY, regions.ToList());
 
@@ -334,7 +343,6 @@ namespace Universe.Services
                     isStatic = false;
                 else
                     generatedMapTiles[i] = null;
-
             if (isStatic)
             {
                 lock (m_blankTiles.BlankTilesLayers)
@@ -403,7 +411,6 @@ namespace Universe.Services
                 temp.DrawImage(b, 0, 0, nWidth, nHeight);
                 temp.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             }
-
             DisposeTexture(b);
             return newsize;
         }
@@ -431,7 +438,6 @@ namespace Universe.Services
                 if (!mapRect.IntersectsWith(regionRect))
                     badRegions.Add(r);
             }
-
             foreach (GridRegion r in badRegions)
                 regions.Remove(r);
             badRegions.Clear();
@@ -453,7 +459,6 @@ namespace Universe.Services
                 else
                     badRegions.Add(r);
             }
-
             foreach (GridRegion r in badRegions)
                 regions.Remove(r);
 
@@ -475,8 +480,10 @@ namespace Universe.Services
                 for (int i = 0; i < regions.Count; i++)
                 {
                     //Find the offsets first
-                    float x = (regions[i].RegionLocX - (regionX * (float)Constants.RegionSize)) / Constants.RegionSize;
-                    float y = (regions[i].RegionLocY - (regionY * (float)Constants.RegionSize)) / Constants.RegionSize;
+                    float x = (regions[i].RegionLocX - (regionX * (float)Constants.RegionSize)) /
+                                Constants.RegionSize;
+                    float y = (regions[i].RegionLocY - (regionY * (float)Constants.RegionSize)) /
+                                Constants.RegionSize;
                     y += (regions[i].RegionSizeY - Constants.RegionSize) / Constants.RegionSize;
                     float xx = (x * (SizeOfImage));
                     float yy = SizeOfImage - (y * (SizeOfImage) + (SizeOfImage));
@@ -490,6 +497,7 @@ namespace Universe.Services
                 bmp.Dispose();
 
             CacheMapTexture(1, regionX, regionY, mapTexture);
+            //mapTexture = ResizeBitmap(mapTexture, 128, 128);
             return mapTexture;
         }
 
@@ -518,7 +526,6 @@ namespace Universe.Services
                 if (DateTime.Now < File.GetLastWriteTime(fullPath).AddHours(m_cacheExpires))
                     return File.ReadAllBytes(fullPath);
             }
-
             return new byte[0];
         }
 
@@ -553,7 +560,6 @@ namespace Universe.Services
                     }
                 }
             }
-
             return null;
         }
 
@@ -569,13 +575,11 @@ namespace Universe.Services
             using (MemoryStream imgstream = new MemoryStream())
             {
                 var encInfo = GetEncoderInfo ("image/jpeg");
-                if (encInfo != null)
-                {
+                if (encInfo != null) {
                     // Save bitmap to stream
                     lock (mapTexture)
                         mapTexture.Save (imgstream, encInfo, myEncoderParameters);
                 }
-
                 // Write the stream to a byte array for output
                 jpeg = imgstream.ToArray ();
 

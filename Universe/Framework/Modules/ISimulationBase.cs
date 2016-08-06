@@ -110,8 +110,7 @@ namespace Universe.Framework.Modules
         /// <param name="configSource">The .ini config</param>
         /// <param name="cmdParameters"></param>
         /// <param name="configLoader"></param>
-        void Initialize(IConfigSource originalConfigSource, IConfigSource configSource, string[] cmdParameters,
-                        ConfigurationLoader configLoader);
+        void Initialize(IConfigSource originalConfigSource, IConfigSource configSource, string[] cmdParameters, ConfigurationLoader configLoader);
 
         /// <summary>
         ///     Start up any modules and run the HTTP server

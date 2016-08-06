@@ -105,6 +105,7 @@ namespace Universe.Services
                 map ["success"] = success;
                 map ["error"] = error;
                 map ["agent_id"] = m_agentID;
+                
                 return OSDParser.SerializeLLSDXmlBytes (map);
 
             } catch (Exception e)

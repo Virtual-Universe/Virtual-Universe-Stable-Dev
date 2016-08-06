@@ -72,8 +72,7 @@ namespace Universe.Services
             m_urls = new Dictionary<string,string>();
             if (uris == null)
                 return;
-
-            foreach (KeyValuePair<string, List<string>> kvp in uris)
+            foreach(KeyValuePair<string, List<string>> kvp in uris)
                 m_urls.Add(kvp.Key, kvp.Value[0]);
         }
 
