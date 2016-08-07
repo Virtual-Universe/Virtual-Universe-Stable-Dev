@@ -30,41 +30,30 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-/// <summary>
-/// 	General information about an assembly is controlled through the following
-/// 	set of attributes.  Change these attribute values, to modify the information
-/// 	associated with an assembly.
-/// </summary>
+// General Information about an assembly is controlled through the following 
+// set of attributes. Change these attribute values to modify the information
+// associated with an assembly.
 [assembly: AssemblyTitle("Universe.Physics.BulletSPlugin")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyProduct("Universe.Physics.BulletSPlugin")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyCopyright("Copyright © 2016-2025")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
-/// <summary>
-/// 	Setting ComVisible to false makes the types in this assembly not visible
-/// 	to COM components.  If you need to access a type in this assembly from
-/// 	COM, set the ComVisible attribute to true on that type.
-/// </summary>
+// Setting ComVisible to false makes the types in this assembly not visible 
+// to COM components.  If you need to access a type in this assembly from 
+// COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
 
-/// <summary>
-/// 	The following GUID is for the ID of the typelib if this project is exposed to COM
-/// </summary>
-[assembly: Guid("269c99ff-0740-4886-8593-7527903090bf")]
+// The following GUID is for the ID of the typelib if this project is exposed to COM
+[assembly: Guid("520ea11b-20cb-449d-ba05-c01015fed841")]
 
-/// <summary>
-/// 	Version information for an assembly consists of the following four values:
-/// 		
-/// 		Major Version
-/// 		Minor Version
-/// 		Build Number
-/// 		Revion Number
-/// 	
-/// 	You can specify all the values or you can default the Build and Revision Numbers
-/// 	by using the '*' as shown below:
-/// 	[assembly: AssemblyVersion("1.0.*")]
-/// </summary>
+// Version information for an assembly consists of the following four values:
+//
+//      Major Version
+//      Minor Version 
+//      Build Number
+//      Revision
+//
 [assembly: AssemblyVersion("1.0.3.*")]

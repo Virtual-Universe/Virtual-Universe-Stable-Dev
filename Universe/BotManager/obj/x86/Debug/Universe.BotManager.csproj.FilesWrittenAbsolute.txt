@@ -1,5 +1,0 @@
-/home/development/Desktop/Virtual-Dev/Universe/BotManager/obj/x86/Debug/.NETFramework,Version=v4.5.AssemblyAttribute.cs
-/home/development/Desktop/Virtual-Dev/VirtualUniverse/bin/Universe.BotManager.dll.mdb
-/home/development/Desktop/Virtual-Dev/VirtualUniverse/bin/Universe.BotManager.dll
-/home/development/Desktop/Virtual-Dev/Universe/BotManager/obj/x86/Debug/Universe.BotManager.dll
-/home/development/Desktop/Virtual-Dev/Universe/BotManager/obj/x86/Debug/Universe.BotManager.dll.mdb

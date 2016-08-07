@@ -46,11 +46,11 @@ using Universe.Framework.Utilities;
 
 namespace Universe.Modules.Archivers
 {
-    public class Archiver : IService, IBackupArchiver
+    public class Archiver : IService, IUniverseBackupArchiver
     {
         Int64 m_AllowPrompting;
 
-        #region IBackupArchiver Members
+        #region IUniverseBackupArchiver Members
 
         public bool AllowPrompting
         {

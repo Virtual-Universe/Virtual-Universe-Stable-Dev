@@ -28,7 +28,7 @@
  */
 
 using System.Drawing;
-using Nini.COnfig;
+using Nini.Config;
 using Universe.Framework.SceneInfo;
 
 namespace Universe.Framework.Modules

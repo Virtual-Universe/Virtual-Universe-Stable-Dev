@@ -25,53 +25,45 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Resources;
 
-/// <summary>
-/// 	General information about an assembly is controlled through the following
-/// 	set of attributes.  Change these attribute values, to modify the information
-/// 	associated with an assembly.
-/// </summary>
+// General Information about an assembly is controlled through the following 
+// set of attributes. Change these attribute values to modify the information
+// associated with an assembly.
+
 [assembly: AssemblyTitle("Universe.Servers.InventoryServer")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyProduct("Universe.Servers.InventoryServer")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("Universe")]
 [assembly: AssemblyCopyright("Copyright © 2016-2025")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
-/// <summary>
-/// 	Setting ComVisible to false makes the types in this assembly not visible
-/// 	to COM components.  If you need to access a type in this assembly from
-/// 	COM, set the ComVisible attribute to true on that type.
-/// </summary>
+// Setting ComVisible to false makes the types in this assembly not visible 
+// to COM components.  If you need to access a type in this assembly from 
+// COM, set the ComVisible attribute to true on that type.
+
 [assembly: ComVisible(false)]
 
-/// <summary>
-/// 	The following GUID is for the ID of the typelib if this project is exposed to COM
-/// </summary>
+// The following GUID is for the ID of the typelib if this project is exposed to COM
+
 [assembly: Guid("269c99ff-0740-4886-8593-7527903090bf")]
 
-/// <summary>
-/// 	Version information for an assembly consists of the following four values:
-/// 		
-/// 		Major Version
-/// 		Minor Version
-/// 		Build Number
-/// 		Revion Number
-/// 	
-/// 	You can specify all the values or you can default the Build and Revision Numbers
-/// 	by using the '*' as shown below:
-/// 	[assembly: AssemblyVersion("1.0.*")]
-/// </summary>
-[assembly: AssemblyVersion("1.0.3.*")]
+// Version information for an assembly consists of the following four values:
+//
+//      Major Version
+//      Minor Version 
+//      Build Number
+//      Revision
+//
+// You can specify all the values or you can default the Build and Revision Numbers 
+// by using the '*' as shown below:
+// [assembly: AssemblyVersion("1.0.*")]
 
-/// <summary>
-/// 	You can set the Neutral Resources Language Attribute here.  The normal 
-/// 	Resources Language Attribute is "en" due to how operating systems work.
-/// </summary>
+[assembly: AssemblyVersion("1.0.3.*")]
 [assembly: NeutralResourcesLanguageAttribute("en")]
