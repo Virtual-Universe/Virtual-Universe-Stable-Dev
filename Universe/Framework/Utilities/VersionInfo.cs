@@ -47,9 +47,10 @@ namespace Universe.Framework.Utilities
 
         #endregion
 
-        public const string VERSION_NUMBER = "1.0.3";
-        public const Flavour VERSION_FLAVOUR = Flavour.Development;
-        public const string VERSION_NAME = "Universe";
+        public const string VERSION_NUMBER = "1.0.2.1";               // Virtual Universe Version Number
+        public const Flavour VERSION_FLAVOUR = Flavour.Release;       // Virtual Universe Flavor
+        public const string VERSION_NAME = "Universe";                // Virtual Universe Version Name
+        public const string VERSION_CODE_NAME = "Earth";              // Virtual Universe Code Name
 
         public static string Version
         {
@@ -63,7 +64,7 @@ namespace Universe.Framework.Utilities
 
         static string GetVersionString(string versionNumber, Flavour flavour)
         {
-            string versionString = VERSION_NAME + " " + versionNumber + " " + flavour;
+            string versionString = VERSION_NAME + " " + VERSION_CODE_NAME + " " + versionNumber + " " + flavour;
             return versionString;
         }
 
