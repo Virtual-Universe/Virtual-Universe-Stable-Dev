@@ -92,6 +92,9 @@ namespace Universe.Services.GenericServices.SystemAccountService
             if (estateID == 1)  // Mainland estate
                 return governorName;
 
+            if (estateID == 2) // Homes Estate
+                return governorName;
+
             // System estate then
             return realEstateOwnerName;
         }
@@ -99,6 +102,9 @@ namespace Universe.Services.GenericServices.SystemAccountService
         public UUID GetSystemEstateOwner (int estateID)
         {
             if (estateID == 1)  // Mainland estate
+                return GovernorUUID;
+
+            if (estateID == 2)  // Homes Estate
                 return GovernorUUID;
 
             // System estate then
@@ -111,7 +117,6 @@ namespace Universe.Services.GenericServices.SystemAccountService
 
         public void Initialize (IConfigSource config, IRegistryCore registry)
         {
-
             IConfig estConfig = config.Configs ["SystemUserService"];
             if (estConfig != null) {
                 governorName = estConfig.GetString ("GovernorName", governorName);
@@ -139,7 +144,6 @@ namespace Universe.Services.GenericServices.SystemAccountService
 
                 AddCommands ();
             }
-
         }
 
         #endregion
@@ -187,12 +191,10 @@ namespace Universe.Services.GenericServices.SystemAccountService
             VerifySystemUserInfo ("RealEstate", SystemEstateOwnerUUID, SystemEstateOwnerName, 150);
             VerifySystemUserInfo ("Banker", BankerUUID, BankerName, 100);
             VerifySystemUserInfo ("Marketplace", MarketplaceOwnerUUID, MarketplaceOwnerName, 100);
-
         }
 
         void VerifySystemUserInfo (string usrType, UUID usrUUID, string usrName, int usrLevel)
         {
-
             var userAccount = m_accountService.GetUserAccount (null, usrUUID);
             var userPassword = Utilities.RandomPassword.Generate (2, 3, 0);
 
@@ -225,7 +227,6 @@ namespace Universe.Services.GenericServices.SystemAccountService
                     MainConsole.Instance.InfoFormat (" The {0} user has been elevated to '{1}' level", usrType, m_accountService.UserGodLevel (usrLevel));
 
                 return;
-
             }
 
             // we already have the account.. verify details in case of a configuration change
@@ -242,7 +243,6 @@ namespace Universe.Services.GenericServices.SystemAccountService
                 } else
                     MainConsole.Instance.WarnFormat (" There was a problem updating the {0} user", usrType);
             }
-
         }
 
         // Save passwords for later
@@ -310,7 +310,6 @@ namespace Universe.Services.GenericServices.SystemAccountService
                 }
             }
         }
-
 
         #endregion
     }

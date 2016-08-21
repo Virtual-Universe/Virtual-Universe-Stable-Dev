@@ -313,8 +313,7 @@ namespace Universe.Modules.Estate
                     m_scene.RegionInfo.AccessLevel = Util.ConvertMaturityToAccessLevel (2);
                     break;
                 default:
-                    MainConsole.Instance.Warn (
-                        "Your parameter did not match any existing parameters. Try PG, Mature, or Adult");
+                    MainConsole.Instance.Warn ("Your parameter did not match any existing parameters. Try PG, Mature, or Adult");
                     return;
                 }
 
@@ -341,6 +340,7 @@ namespace Universe.Modules.Estate
                     EstateBan EB = new EstateBan { BannedUserID = userID };
                     m_scene.RegionInfo.EstateSettings.AddBan (EB);
                 }
+
                 if (cmdparams [2] == "AddEstateManager".ToLower ())
                     m_scene.RegionInfo.EstateSettings.AddEstateManager (userID);
 
@@ -359,8 +359,8 @@ namespace Universe.Modules.Estate
                 Framework.Utilities.DataManager.RequestPlugin<IEstateConnector> ()
                          .SaveEstateSettings (m_scene.RegionInfo.EstateSettings);
             }
-            #endregion
 
+            #endregion
         }
 
         #endregion
@@ -444,8 +444,7 @@ namespace Universe.Modules.Estate
                     if (part == null)
                         return;
 
-                    Telehub telehub = regionConnector.FindTelehub (client.Scene.RegionInfo.RegionID,
-                                          client.Scene.RegionInfo.RegionHandle);
+                    Telehub telehub = regionConnector.FindTelehub (client.Scene.RegionInfo.RegionID, client.Scene.RegionInfo.RegionHandle);
                     if (telehub == null)
                         telehub = new Telehub ();
                     telehub.RegionLocX = client.Scene.RegionInfo.RegionLocX;
@@ -501,7 +500,6 @@ namespace Universe.Modules.Estate
                 return false; //NO!
             }
 
-
             //Make sure that this user is inside the region as well
             if (position.X < -2f || position.Y < -2f ||
                 position.X > scene.RegionInfo.RegionSizeX + 2 || position.Y > scene.RegionInfo.RegionSizeY + 2) {
@@ -515,6 +513,7 @@ namespace Universe.Modules.Estate
                     position.X += scene.RegionInfo.RegionSizeX;
                     changedX = true;
                 }
+
                 while (position.X > scene.RegionInfo.RegionSizeX) {
                     position.X -= scene.RegionInfo.RegionSizeX;
                     changedX = true;
@@ -524,6 +523,7 @@ namespace Universe.Modules.Estate
                     position.Y += scene.RegionInfo.RegionSizeY;
                     changedY = true;
                 }
+
                 while (position.Y > scene.RegionInfo.RegionSizeY) {
                     position.Y -= scene.RegionInfo.RegionSizeY;
                     changedY = true;
@@ -568,6 +568,7 @@ namespace Universe.Modules.Estate
                         //return true;
                     }
                 }
+
                 //Move them out of banned parcels
                 ParcelFlags parcelflags = (ParcelFlags)ILO.LandData.Flags;
                 if ((parcelflags & ParcelFlags.UseAccessGroup) == ParcelFlags.UseAccessGroup &&
@@ -581,6 +582,7 @@ namespace Universe.Modules.Estate
                             reason = "Banned from this parcel.";
                             return false;
                         }
+
                         if (Sp.ControllingClient.ActiveGroupId != ILO.LandData.GroupID) {
                             if (!FindUnBannedParcel (position, Sp, userID, out ILO, out newPosition, out reason)) {
                                 //We found a place for them, but we don't need to check any further on positions here
@@ -592,6 +594,7 @@ namespace Universe.Modules.Estate
                             reason = "Banned from this parcel.";
                             return false;
                         }
+
                         //All but the people on the access list are banned
                         if (ILO.IsRestrictedFromLand (userID))
                             if (!FindUnBannedParcel (position, Sp, userID, out ILO, out newPosition, out reason)) {
@@ -603,6 +606,7 @@ namespace Universe.Modules.Estate
                             reason = "Banned from this parcel.";
                             return false;
                         }
+
                         //All but the people on the pass/access list are banned
                         if (ILO.IsRestrictedFromLand (Sp.UUID))
                             if (!FindUnBannedParcel (position, Sp, userID, out ILO, out newPosition, out reason)) {
@@ -610,7 +614,6 @@ namespace Universe.Modules.Estate
                                 //return true;
                             }
                     }
-
                 }
             }
 
@@ -638,8 +641,7 @@ namespace Universe.Modules.Estate
                 if (Sp != null)
                     Sp.ClearSavedVelocity (); //If we are moving the agent, clear their velocity
                 if (!scene.Permissions.IsGod (userID)) {
-                    Telehub telehub = regionConnector.FindTelehub (scene.RegionInfo.RegionID,
-                                          scene.RegionInfo.RegionHandle);
+                    Telehub telehub = regionConnector.FindTelehub (scene.RegionInfo.RegionID, scene.RegionInfo.RegionHandle);
                     if (telehub != null) {
                         if (telehub.SpawnPos.Count == 0) {
                             position = new Vector3 (telehub.TelehubLocX, telehub.TelehubLocY, telehub.TelehubLocZ);
@@ -715,6 +717,7 @@ namespace Universe.Modules.Estate
                         agentConnector.UpdateAgent (agentInfo);
                     }
                 }
+
                 if (agentInfo.OtherAgentInformation.ContainsKey ("LimitedToEstate")) {
                     int limitedToEstate = agentInfo.OtherAgentInformation ["LimitedToEstate"];
                     if (scene.RegionInfo.EstateSettings.EstateID != limitedToEstate) {
@@ -723,7 +726,6 @@ namespace Universe.Modules.Estate
                     }
                 }
             }
-
 
             if ((ILO.LandData.Flags & (int)ParcelFlags.DenyAnonymous) != 0) {
                 if (account != null &&
@@ -751,7 +753,6 @@ namespace Universe.Modules.Estate
                 }
             }
 
-            //newPosition = Position;
             reason = "";
             return true;
         }
@@ -780,6 +781,7 @@ namespace Universe.Modules.Estate
                         return false; // Too soon since the last TP
                     }
                 }
+
                 timeSinceLastTeleport [Sp.Scene.RegionInfo.RegionID] = Util.UnixTimeSinceEpoch () +
                 ((int)(secondsBeforeNextTeleport));
             }
@@ -801,6 +803,7 @@ namespace Universe.Modules.Estate
                         return false;
                     }
                 }
+
                 //Make sure they exist in the grid right now
                 IAgentInfoService presence = scene.RequestModuleInterface<IAgentInfoService> ();
                 if (presence == null) {
@@ -848,6 +851,7 @@ namespace Universe.Modules.Estate
                                 BannedHostAddress = ban.BannedHostAddress,
                                 BannedHostNameMask = ban.BannedHostNameMask
                             });
+
                             //Update the database
                             Framework.Utilities.DataManager.RequestPlugin<IEstateConnector> ().SaveEstateSettings (ES);
                         }
@@ -856,6 +860,7 @@ namespace Universe.Modules.Estate
                     reason = "Banned from this region.";
                     return false;
                 }
+
                 if (Sp != null) {
                     bool banendpoint = false;
                     IPAddress endpoint = Sp.ControllingClient.EndPoint;
@@ -872,6 +877,7 @@ namespace Universe.Modules.Estate
                         if (!banendpoint)
                             banendpoint = endpoint.ToString ().StartsWith (ban.BannedHostIPMask, StringComparison.Ordinal);
                     }
+
                     if (ban.BannedHostIPMask == agent.IPAddress || banendpoint) {
                         //Ban the new user
                         ES.AddBan (new EstateBan {
@@ -881,6 +887,7 @@ namespace Universe.Modules.Estate
                             BannedHostAddress = agent.IPAddress,
                             BannedHostNameMask = agent.IPAddress
                         });
+
                         Framework.Utilities.DataManager.RequestPlugin<IEstateConnector> ().
                             SaveEstateSettings (ES);
 
@@ -888,6 +895,7 @@ namespace Universe.Modules.Estate
                         return false;
                     }
                 }
+
                 i++;
             }
 
@@ -1005,8 +1013,8 @@ namespace Universe.Modules.Estate
                     ILO = null;
                     return false;
                 }
-
             }
+
             newPosition = Position;
             reason = "";
             return true;

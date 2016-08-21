@@ -130,10 +130,12 @@ namespace Universe.Services.DataService
                     MainConsole.Instance.Error ("[LocalGridConnector] Cannot fix missing owner for regions in Estate " +
                                                estateID + ", Estate Owner is also missing.");
                 }
+
                 if (es == null || es.EstateOwner == UUID.Zero) {
                     ++estateFail;
                     continue;
                 }
+
                 estateOwnerIDs [estateID] = es.EstateOwner;
             }
 

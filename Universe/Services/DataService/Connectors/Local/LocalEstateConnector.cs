@@ -131,7 +131,6 @@ namespace Universe.Services.DataService
                 return remoteValue != null ? (int)remoteValue : 0;      // TODO: 0 may be incorrect??
             }
 
-
             int estateID = GetEstate(es.EstateOwner, es.EstateName);
             if (estateID > 0)
             {
@@ -139,9 +138,12 @@ namespace Universe.Services.DataService
             }
 
             // check for system or user estates
-            if ((es.EstateOwner == (UUID) Constants.GovernorUUID))                  // Mainland?
+            if ((es.EstateOwner == (UUID)Constants.GovernorUUID))                  // Mainland?
             {
                 es.EstateID = Constants.MainlandEstateID;
+            } else if ( (es.EstateOwner == (UUID) constants.GovernorUUID))         // Universe Homes Estate?
+            {
+                es.EstateID = Constants.HomesEstateID;
             } else if ( (es.EstateOwner == (UUID) Constants.RealEstateOwnerUUID) )  // System Estate?
             {
                 es.EstateID = (uint) Constants.SystemEstateID;                       
@@ -417,7 +419,7 @@ namespace Universe.Services.DataService
             if (uint.Parse (QueryResults [0]) > 0)
             {
                 uint esID = uint.Parse (QueryResults [1]);
-                if (esID > 99)                                 // Mainland is @#1, system estate is #10, user estates start at 100
+                if (esID > 99)                                 // Mainland is #1, Homes Estate is #2 and system estate is #10, user estates start at 100
                     return esID + 1;
             }
 
