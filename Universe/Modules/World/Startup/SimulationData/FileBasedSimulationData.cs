@@ -441,6 +441,7 @@ namespace Universe.Modules
                       {
                         info.RegionSettings.AllowLandJoinDivide = true;
                         info.RegionSettings.AllowLandResell = true;
+                        info.InfiniteRegion = true;
                         info.ObjectCapacity = 25000;
                     }
                 }

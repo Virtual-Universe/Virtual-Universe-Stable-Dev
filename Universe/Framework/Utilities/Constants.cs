@@ -78,6 +78,8 @@ namespace Universe.Framework.Utilities
         // System Estate
         public const string MainlandEstateName = "Universe Mainland";
         public const int MainlandEstateID = 1;
+        public const string HomesEstateName = "Universe Homes";
+        public const int HomesEstateID = 2;
         public const string SystemEstateName = "Universe Estate";
         public const int SystemEstateID = 10;
 
