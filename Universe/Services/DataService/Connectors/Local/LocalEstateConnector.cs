@@ -143,7 +143,7 @@ namespace Universe.Services.DataService
                 es.EstateID = Constants.MainlandEstateID;
             } else if ( (es.EstateOwner == (UUID) Constants.GovernorUUID))         // Universe Homes Estate?
             {
-                es.EstateID = Constants.HomesEstateID;
+                es.EstateID = (uint) Constants.HomesEstateID;
             } else if ( (es.EstateOwner == (UUID) Constants.RealEstateOwnerUUID) )  // System Estate?
             {
                 es.EstateID = (uint) Constants.SystemEstateID;                       
