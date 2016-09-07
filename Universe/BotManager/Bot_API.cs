@@ -37,15 +37,15 @@ using Universe.Framework.ClientInterfaces;
 using Universe.Framework.Modules;
 using Universe.Framework.PresenceInfo;
 using Universe.Framework.SceneInfo;
-using Universe.ScriptEngine.VirtualScript;
-using LSL_Float = Universe.ScriptEngine.VirtualScript.LSL_Types.LSLFloat;
-using LSL_Integer = Universe.ScriptEngine.VirtualScript.LSL_Types.LSLInteger;
-using LSL_Key = Universe.ScriptEngine.VirtualScript.LSL_Types.LSLString;
-using LSL_List = Universe.ScriptEngine.VirtualScript.LSL_Types.list;
-using LSL_Rotation = Universe.ScriptEngine.VirtualScript.LSL_Types.Quaternion;
-using LSL_String = Universe.ScriptEngine.VirtualScript.LSL_Types.LSLString;
-using LSL_Vector = Universe.ScriptEngine.VirtualScript.LSL_Types.Vector3;
-using ThreatLevel = Universe.ScriptEngine.VirtualScript.ThreatLevel;
+using Universe.ScriptEngine.UniverseScript;
+using LSL_Float = Universe.ScriptEngine.UniverseScript.LSL_Types.LSLFloat;
+using LSL_Integer = Universe.ScriptEngine.UniverseScript.LSL_Types.LSLInteger;
+using LSL_Key = Universe.ScriptEngine.UniverseScript.LSL_Types.LSLString;
+using LSL_List = Universe.ScriptEngine.UniverseScript.LSL_Types.list;
+using LSL_Rotation = Universe.ScriptEngine.UniverseScript.LSL_Types.Quaternion;
+using LSL_String = Universe.ScriptEngine.UniverseScript.LSL_Types.LSLString;
+using LSL_Vector = Universe.ScriptEngine.UniverseScript.LSL_Types.Vector3;
+using ThreatLevel = Universe.ScriptEngine.UniverseScript.ThreatLevel;
 
 namespace Universe.BotManager
 {
@@ -104,7 +104,9 @@ namespace Universe.BotManager
         {
             if (!ScriptProtection.CheckThreatLevel(ThreatLevel.Moderate, "botPauseMovement", m_host, "bot", m_itemID))
                 return;
+
             IBotManager manager = World.RequestModuleInterface<IBotManager>();
+
             if (manager != null)
                 manager.PauseMovement(UUID.Parse(bot), m_host.OwnerID);
         }
@@ -113,7 +115,9 @@ namespace Universe.BotManager
         {
             if (!ScriptProtection.CheckThreatLevel(ThreatLevel.Moderate, "botResumeMovement", m_host, "bot", m_itemID))
                 return;
+
             IBotManager manager = World.RequestModuleInterface<IBotManager>();
+
             if (manager != null)
                 manager.ResumeMovement(UUID.Parse(bot), m_host.OwnerID);
         }
@@ -122,7 +126,9 @@ namespace Universe.BotManager
         {
             if (!ScriptProtection.CheckThreatLevel(ThreatLevel.Moderate, "botSetShouldFly", m_host, "bot", m_itemID))
                 return;
+
             IBotManager manager = World.RequestModuleInterface<IBotManager>();
+
             if (manager != null)
                 manager.SetBotShouldFly(UUID.Parse(keyOfBot), ShouldFly == 1, m_host.OwnerID);
         }
@@ -130,13 +136,17 @@ namespace Universe.BotManager
         public void botSetMap(string keyOfBot, LSL_List positions, LSL_List movementType, LSL_Integer flags)
         {
             if (!ScriptProtection.CheckThreatLevel(ThreatLevel.Moderate, "botSetMap", m_host, "bot", m_itemID)) return;
+
             List<Vector3> PositionsMap = new List<Vector3>();
+
             for (int i = 0; i < positions.Length; i++)
             {
                 LSL_Vector pos = positions.GetVector3Item(i);
                 PositionsMap.Add(new Vector3((float) pos.x, (float) pos.y, (float) pos.z));
             }
+
             List<TravelMode> TravelMap = new List<TravelMode>();
+
             for (int i = 0; i < movementType.Length; i++)
             {
                 LSL_Integer travel = movementType.GetLSLIntegerItem(i);
@@ -144,6 +154,7 @@ namespace Universe.BotManager
             }
 
             IBotManager manager = World.RequestModuleInterface<IBotManager>();
+
             if (manager != null)
                 manager.SetBotMap(UUID.Parse(keyOfBot), PositionsMap, TravelMap, flags.value, m_host.OwnerID);
         }
@@ -152,7 +163,9 @@ namespace Universe.BotManager
         {
             if (!ScriptProtection.CheckThreatLevel(ThreatLevel.Moderate, "botRemoveBot", m_host, "bot", m_itemID))
                 return;
+
             IBotManager manager = World.RequestModuleInterface<IBotManager>();
+
             if (manager != null)
                 manager.RemoveAvatar(UUID.Parse(bot), m_host.ParentEntity.Scene, m_host.OwnerID);
         }
@@ -163,16 +176,18 @@ namespace Universe.BotManager
                 return;
 
             IBotManager manager = World.RequestModuleInterface<IBotManager>();
+
             if (manager != null)
                 manager.SetSpeed(UUID.Parse(bot), m_host.OwnerID, (float)SpeedModifier);
         }
 
-        public void botFollowAvatar(string bot, string avatarName, LSL_Float startFollowDistance,
-                                    LSL_Float endFollowDistance)
+        public void botFollowAvatar(string bot, string avatarName, LSL_Float startFollowDistance, LSL_Float endFollowDistance)
         {
             if (!ScriptProtection.CheckThreatLevel(ThreatLevel.Moderate, "botFollowAvatar", m_host, "bot", m_itemID))
                 return;
+
             IBotManager manager = World.RequestModuleInterface<IBotManager>();
+
             if (manager != null)
                 manager.FollowAvatar(UUID.Parse(bot), avatarName, (float) startFollowDistance, (float) endFollowDistance,
                                      false, Vector3.Zero,
@@ -183,7 +198,9 @@ namespace Universe.BotManager
         {
             if (!ScriptProtection.CheckThreatLevel(ThreatLevel.Moderate, "botStopFollowAvatar", m_host, "bot", m_itemID))
                 return;
+
             IBotManager manager = World.RequestModuleInterface<IBotManager>();
+
             if (manager != null)
                 manager.StopFollowAvatar(UUID.Parse(bot), m_host.OwnerID);
         }
@@ -192,7 +209,9 @@ namespace Universe.BotManager
         {
             if (!ScriptProtection.CheckThreatLevel(ThreatLevel.Moderate, "botSendChatMessage", m_host, "bot", m_itemID))
                 return;
+
             IBotManager manager = World.RequestModuleInterface<IBotManager>();
+
             if (manager != null)
                 manager.SendChatMessage(UUID.Parse(bot), message, sayType, channel, m_host.OwnerID);
         }
@@ -201,7 +220,9 @@ namespace Universe.BotManager
         {
             if (!ScriptProtection.CheckThreatLevel(ThreatLevel.Moderate, "botSendIM", m_host, "bot", m_itemID))
                 return;
+
             IBotManager manager = World.RequestModuleInterface<IBotManager>();
+
             if (manager != null)
                 manager.SendIM(UUID.Parse(bot), UUID.Parse(user), message, m_host.OwnerID);
         }
@@ -210,19 +231,21 @@ namespace Universe.BotManager
         {
             if (!ScriptProtection.CheckThreatLevel(ThreatLevel.Moderate, "botTouchObject", m_host, "bot", m_itemID))
                 return;
+
             SurfaceTouchEventArgs touchArgs = new SurfaceTouchEventArgs();
 
             IScenePresence sp = World.GetScenePresence(UUID.Parse(bot));
+
             if (sp == null)
                 return;
+
             ISceneChildEntity child = World.GetSceneObjectPart(UUID.Parse(objectID));
+
             if (child == null)
                 throw new Exception("Failed to find entity to touch");
 
-            World.EventManager.TriggerObjectGrab(child.ParentEntity.RootChild, child, Vector3.Zero, sp.ControllingClient,
-                                                 touchArgs);
-            World.EventManager.TriggerObjectGrabbing(child.ParentEntity.RootChild, child, Vector3.Zero,
-                                                     sp.ControllingClient, touchArgs);
+            World.EventManager.TriggerObjectGrab(child.ParentEntity.RootChild, child, Vector3.Zero, sp.ControllingClient, touchArgs);
+            World.EventManager.TriggerObjectGrabbing(child.ParentEntity.RootChild, child, Vector3.Zero, sp.ControllingClient, touchArgs);
             World.EventManager.TriggerObjectDeGrab(child.ParentEntity.RootChild, child, sp.ControllingClient, touchArgs);
         }
 
@@ -230,33 +253,44 @@ namespace Universe.BotManager
         {
             if (!ScriptProtection.CheckThreatLevel(ThreatLevel.Moderate, "botTouchObject", m_host, "bot", m_itemID))
                 return;
+
             IScenePresence sp = World.GetScenePresence(UUID.Parse(bot));
+
             if (sp == null)
                 return;
+
             ISceneChildEntity child = World.GetSceneObjectPart(UUID.Parse(objectID));
+
             if (child == null)
                 throw new Exception("Failed to find entity to sit on");
 
-            sp.HandleAgentRequestSit(sp.ControllingClient, UUID.Parse(objectID),
-                                     new Vector3((float) offset.x, (float) offset.y, (float) offset.z));
+            sp.HandleAgentRequestSit(sp.ControllingClient, UUID.Parse(objectID), new Vector3((float) offset.x, (float) offset.y, (float) offset.z));
         }
 
         public void botStandUp(string bot)
         {
             if (!ScriptProtection.CheckThreatLevel(ThreatLevel.Moderate, "botStandUp", m_host, "bot", m_itemID)) return;
+
             IScenePresence sp = World.GetScenePresence(UUID.Parse(bot));
+
             if (sp == null)
                 return;
+
             sp.StandUp();
         }
 
         public void botSetRot(LSL_Key npc, LSL_Rotation rotation)
         {
-            if (!ScriptProtection.CheckThreatLevel(ThreatLevel.Moderate, "botStandUp", m_host, "bot", m_itemID)) return;
+            if (!ScriptProtection.CheckThreatLevel(ThreatLevel.Moderate, "botStandUp", m_host, "bot", m_itemID))
+                return;
+
             IScenePresence sp = World.GetScenePresence(UUID.Parse(npc));
+
             if (sp == null)
                 return;
+
             UUID npcId;
+
             if (!UUID.TryParse(npc.m_string, out npcId))
                 return;
 
@@ -267,7 +301,9 @@ namespace Universe.BotManager
         public void botAddTag(string bot, string tag)
         {
             if (!ScriptProtection.CheckThreatLevel(ThreatLevel.Moderate, "botAddTag", m_host, "bot", m_itemID)) return;
+
             IBotManager manager = World.RequestModuleInterface<IBotManager>();
+
             if (manager != null)
                 manager.AddTagToBot(UUID.Parse(bot), tag, m_host.OwnerID);
         }
@@ -276,11 +312,15 @@ namespace Universe.BotManager
         {
             if (!ScriptProtection.CheckThreatLevel(ThreatLevel.Moderate, "botGetBotsWithTag", m_host, "bot", m_itemID))
                 return new LSL_List();
+
             IBotManager manager = World.RequestModuleInterface<IBotManager>();
             List<UUID> bots = new List<UUID>();
+
             if (manager != null)
                 bots = manager.GetBotsWithTag(tag);
+
             LSL_List b = new LSL_List();
+
             foreach (UUID bot in bots)
                 b.Add(bot.ToString());
 
@@ -289,10 +329,11 @@ namespace Universe.BotManager
 
         public void botRemoveBotsWithTag(string tag)
         {
-            if (
-                !ScriptProtection.CheckThreatLevel(ThreatLevel.Moderate, "botRemoveBotsWithTag", m_host, "bot", m_itemID))
+            if (!ScriptProtection.CheckThreatLevel(ThreatLevel.Moderate, "botRemoveBotsWithTag", m_host, "bot", m_itemID))
                 return;
+
             IBotManager manager = World.RequestModuleInterface<IBotManager>();
+
             if (manager != null)
                 manager.RemoveBots(tag, m_host.OwnerID);
         }

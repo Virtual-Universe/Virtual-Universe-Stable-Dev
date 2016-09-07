@@ -85,6 +85,7 @@ namespace Universe.BotManager.AStar
                 FGoalNode = value;
                 Calculate();
             }
+
             get { return FGoalNode; }
         }
 
@@ -233,8 +234,8 @@ namespace Universe.BotManager.AStar
             Console.WriteLine("Node list:");
             foreach (AStarNode n in (aNodeList as IEnumerable))
             {
-                //n.PrintNodeInfo();
             }
+
             Console.WriteLine("=====");
         }
 
@@ -267,6 +268,7 @@ namespace Universe.BotManager.AStar
                         FSolution.Insert(0, NodeCurrent);
                         NodeCurrent = NodeCurrent.Parent;
                     }
+
                     break;
                 }
 
@@ -279,6 +281,7 @@ namespace Universe.BotManager.AStar
                     AStarNode NodeOpen = null;
                     if (FOpenList.Contains(NodeSuccessor))
                         NodeOpen = (AStarNode) FOpenList[FOpenList.IndexOf(NodeSuccessor)];
+
                     if ((NodeOpen != null) && (NodeSuccessor.TotalCost > NodeOpen.TotalCost))
                         continue;
 
@@ -287,6 +290,7 @@ namespace Universe.BotManager.AStar
                     AStarNode NodeClosed = null;
                     if (FClosedList.Contains(NodeSuccessor))
                         NodeClosed = (AStarNode) FClosedList[FClosedList.IndexOf(NodeSuccessor)];
+
                     if ((NodeClosed != null) && (NodeSuccessor.TotalCost > NodeClosed.TotalCost))
                         continue;
 
@@ -299,6 +303,7 @@ namespace Universe.BotManager.AStar
                     // Add the current successor to the open list
                     FOpenList.Push(NodeSuccessor);
                 }
+
                 // Add the current node to the closed list
                 FClosedList.Add(NodeCurrent);
                 i++;

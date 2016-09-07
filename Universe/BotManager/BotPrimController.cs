@@ -98,8 +98,7 @@ namespace Universe.BotManager
 
         public void SendInstantMessage(GridInstantMessage im)
         {
-            IMessageTransferModule m_TransferModule =
-                m_object.Scene.RequestModuleInterface<IMessageTransferModule>();
+            IMessageTransferModule m_TransferModule = m_object.Scene.RequestModuleInterface<IMessageTransferModule>();
 
             if (m_TransferModule != null)
                 m_TransferModule.SendInstantMessage(im);
@@ -143,6 +142,7 @@ namespace Universe.BotManager
         {
             if (m_hasStoppedMoving)
                 return;
+
             m_hasStoppedMoving = true;
             m_bot.State = BotState.Idle;
 
@@ -152,6 +152,7 @@ namespace Universe.BotManager
 
             //Send the stop message
             m_bot.m_movementFlag = (uint) AgentManager.ControlFlags.NONE;
+
             if (fly)
                 m_bot.m_movementFlag |= (uint) AgentManager.ControlFlags.AGENT_CONTROL_FLY;
 

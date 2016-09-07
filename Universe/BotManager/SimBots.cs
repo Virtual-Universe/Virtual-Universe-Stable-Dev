@@ -66,11 +66,13 @@ namespace Universe.BotManager
                 for (i = 0; i < xsize; i++)
                 {
                     int fooBar = currentMap[i, j];
+
                     if (fooBar == type)
                     {
                         double distx = botx - i;
                         double disty = boty - j;
                         double goalDist = Math.Sqrt((distx*distx) + (disty*disty));
+
                         if (goalDist < DistTarget)
                         {
                             target = goalDist;
@@ -80,6 +82,7 @@ namespace Universe.BotManager
                     }
                 }
             }
+
             return itemLoc;
         }
     }

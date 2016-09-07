@@ -40,7 +40,7 @@ using Universe.Framework.SceneInfo;
 using Universe.Framework.SceneInfo.Entities;
 using Universe.Framework.Services.ClassHelpers.Inventory;
 using Universe.Framework.Utilities;
-using Universe.ScriptEngine.VirtualScript.Runtime;
+using Universe.ScriptEngine.UniverseScript.Runtime;
 
 namespace Universe.BotManager
 {
@@ -105,8 +105,7 @@ namespace Universe.BotManager
             return CreateAvatar (firstName, lastName, scene, avatarApp, creatorID, startPos);
         }
 
-        public UUID CreateAvatar(string firstName, string lastName, IScene scene, AvatarAppearance avatarApp,
-            UUID creatorID, Vector3 startPos)
+        public UUID CreateAvatar(string firstName, string lastName, IScene scene, AvatarAppearance avatarApp, UUID creatorID, Vector3 startPos)
         {
             //Add the circuit data so they can login
             AgentCircuitData m_aCircuitData = new AgentCircuitData
@@ -157,7 +156,7 @@ namespace Universe.BotManager
             try {
                 SP.MakeRootAgent (startPos, false, true);
             } catch {
-                MainConsole.Instance.ErrorFormat ("[BotManager]: Error creating bot {0} as root agent!",m_character.AgentId);
+                MainConsole.Instance.ErrorFormat ("[Bot Manager]: Error creating bot {0} as root agent!",m_character.AgentId);
             }
 
             //Move them
@@ -165,7 +164,9 @@ namespace Universe.BotManager
 
             foreach (var presence in scene.GetScenePresences())
                 presence.SceneViewer.QueuePresenceForUpdate(SP, PrimUpdateFlags.ForcedFullUpdate);
+
             IAttachmentsModule attModule = SP.Scene.RequestModuleInterface<IAttachmentsModule>();
+
             if (attModule != null)
                 foreach (AvatarAttachment att in attachments)
                     attModule.RezSingleAttachmentFromInventory(SP.ControllingClient, att.ItemID, att.AssetID, 0, true);
@@ -174,7 +175,7 @@ namespace Universe.BotManager
             m_bots.Add(m_character.AgentId, bot);
             AddTagToBot(m_character.AgentId, "AllBots", bot.AvatarCreatorID);
 
-            MainConsole.Instance.InfoFormat("[BotManager]: Added bot {0} to region {1}", m_character.Name, scene.RegionInfo.RegionName);
+            MainConsole.Instance.InfoFormat("[Bot Manager]: Added bot {0} to region {1}", m_character.Name, scene.RegionInfo.RegionName);
 
             //Return their UUID
             return m_character.AgentId;
@@ -194,8 +195,10 @@ namespace Universe.BotManager
             if (sp == null)
             {
                 sp = scene.GetSceneObjectPart(avatarID);
+
                 if (sp == null)
                     return;
+
                 sp = ((ISceneChildEntity) sp).ParentEntity;
             }
 
@@ -219,12 +222,13 @@ namespace Universe.BotManager
             if (rootFolder != null)
                 scene.InventoryService.ForcePurgeFolder (rootFolder);
 
-            MainConsole.Instance.InfoFormat("[BotManager]: Removed bot {0} from region {1}", sp.Name, scene.RegionInfo.RegionName);
+            MainConsole.Instance.InfoFormat("[Bot Manager]: Removed bot {0} from region {1}", sp.Name, scene.RegionInfo.RegionName);
         }
 
         public bool SetAvatarAppearance(UUID botID, AvatarAppearance avatarApp, IScene scene)
         {
             Bot bot;
+            
             //Find the bot
             if (!m_bots.TryGetValue (botID, out bot))
                 return false;
@@ -251,6 +255,7 @@ namespace Universe.BotManager
             }
 
             IScenePresence SP = scene.GetScenePresence(botID);
+
             if (SP == null)
                 return false;   // Failed! bot not found??
 
@@ -264,11 +269,13 @@ namespace Universe.BotManager
         public void PauseMovement(UUID botID, UUID userAttempting)
         {
             Bot bot;
+            
             //Find the bot
             if (m_bots.TryGetValue(botID, out bot))
             {
                 if (!CheckPermission(bot, userAttempting))
                     return;
+
                 bot.PauseMovement();
             }
         }
@@ -276,11 +283,13 @@ namespace Universe.BotManager
         public void ResumeMovement(UUID botID, UUID userAttempting)
         {
             Bot bot;
+            
             //Find the bot
             if (m_bots.TryGetValue(botID, out bot))
             {
                 if (!CheckPermission(bot, userAttempting))
                     return;
+
                 bot.ResumeMovement();
             }
         }
@@ -296,6 +305,7 @@ namespace Universe.BotManager
         public void SetBotMap(UUID botID, List<Vector3> positions, List<TravelMode> mode, int flags, UUID userAttempting)
         {
             Bot bot;
+            
             //Find the bot
             if (m_bots.TryGetValue(botID, out bot))
             {
@@ -315,6 +325,7 @@ namespace Universe.BotManager
         public void SetMovementSpeedMod(UUID botID, float modifier, UUID userAttempting)
         {
             Bot bot;
+
             if (m_bots.TryGetValue(botID, out bot))
             {
                 if (!CheckPermission(bot, userAttempting))
@@ -327,10 +338,12 @@ namespace Universe.BotManager
         public void SetBotShouldFly(UUID botID, bool shouldFly, UUID userAttempting)
         {
             Bot bot;
+
             if (m_bots.TryGetValue(botID, out bot))
             {
                 if (!CheckPermission(bot, userAttempting))
                     return;
+
                 if (shouldFly)
                     bot.DisableWalk();
                 else
@@ -345,6 +358,7 @@ namespace Universe.BotManager
         public void AddTagToBot(UUID botID, string tag, UUID userAttempting)
         {
             Bot bot;
+
             if (m_bots.TryGetValue(botID, out bot))
             {
                 if (!CheckPermission(bot, userAttempting))
@@ -368,6 +382,7 @@ namespace Universe.BotManager
         public void RemoveBots(string tag, UUID userAttempting)
         {
             List<UUID> bots = GetBotsWithTag(tag);
+
             foreach (UUID bot in bots)
             {
                 Bot Bot;
@@ -385,6 +400,7 @@ namespace Universe.BotManager
         public void RemoveTagFromBot(UUID botID, string tag, UUID userAttempting)
         {
             Bot bot;
+
             if (m_bots.TryGetValue(botID, out bot))
             {
                 if (!CheckPermission(bot, userAttempting))
@@ -427,6 +443,7 @@ namespace Universe.BotManager
         AvatarAppearance GetAppearance(UUID targetID, IScene scene)
         {
             IScenePresence sp = scene.GetScenePresence(targetID);
+
             if (sp != null)
             {
                 IAvatarAppearanceModule aa = sp.RequestModuleInterface<IAvatarAppearanceModule>();
@@ -472,6 +489,7 @@ namespace Universe.BotManager
         public bool CheckPermission(UUID botID, UUID userAttempting)
         {
             Bot bot;
+
             if (m_bots.TryGetValue(botID, out bot))
             {
                 return CheckPermission (bot, userAttempting);
@@ -526,6 +544,7 @@ namespace Universe.BotManager
         public void MoveToTarget(UUID botID, Vector3 destination, int options, UUID userAttempting)
         {
             Bot bot;
+
             if (m_bots.TryGetValue(botID, out bot))
             {
                 if (!CheckPermission(bot, userAttempting))
@@ -548,6 +567,7 @@ namespace Universe.BotManager
         public void StopMoving(UUID botID, UUID userAttempting)
         {
             Bot bot;
+
             if (m_bots.TryGetValue(botID, out bot))
             {
                 if (!CheckPermission(bot, userAttempting))
@@ -561,6 +581,7 @@ namespace Universe.BotManager
         public void WalkTo(UUID botID, Vector3 destination, UUID userAttempting)
         {
             Bot bot;
+
             if (m_bots.TryGetValue(botID, out bot))
             {
                 if (!CheckPermission(bot, userAttempting))
@@ -601,6 +622,7 @@ namespace Universe.BotManager
         public void SendChatMessage(UUID botID, string message, int sayType, int channel, UUID userAttempting)
         {
             Bot bot;
+
             if (m_bots.TryGetValue(botID, out bot))
             {
                 if (!CheckPermission(bot, userAttempting))
@@ -686,6 +708,7 @@ namespace Universe.BotManager
         public Quaternion GetRotation(UUID botID, UUID userAttempting)
         {
             Bot bot;
+
             if (m_bots.TryGetValue(botID, out bot))
             {
                 if (!CheckPermission(bot, userAttempting))

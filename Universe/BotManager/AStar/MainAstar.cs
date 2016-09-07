@@ -53,31 +53,6 @@ namespace Universe.BotManager.AStar
                 {1, 1, 1, -1, 1, 1, 2, 3, 2, 1}
             };
 
-        //		static int[,] Map = {
-        //			{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-        //			{ 1, 1, 1, 1, 1, 1, 1, 1,-1, 1 },
-        //			{ 1, 1, 1, 1, 1, 1, 1, 1,-1, 1 },
-        //			{ 1, 1, 1, 1, 1, 1, 1, 1,-1, 1 },
-        //			{ 1, 1, 1, 1, 1, 1, 1, 1,-1, 1 },
-        //			{ 1, 1, 1, 1, 1, 1, 1, 1,-1, 1 },
-        //			{ 1, 1, 1, 1, 1, 1, 1, 1,-1, 1 },
-        //			{ 1, 1, 1, 1, 1, 1, 1, 1,-1, 1 },
-        //			{ 1,-1,-1,-1,-1,-1,-1,-1,-1, 1 },
-        //			{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
-        //		};
-        //		static int[,] Map = {
-        //			{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-        //			{ 1, 1, 1, 1, 1, 2, 1, 1, 1, 1 },
-        //			{ 1, 1, 1, 1, 2, 3, 2, 1, 1, 1 },
-        //			{ 1, 1, 1, 2, 3, 4, 3, 2, 1, 1 },
-        //			{ 1, 1, 2, 3, 4, 5, 4, 3, 2, 1 },
-        //			{ 1, 1, 1, 2, 3, 4, 3, 2, 1, 1 },
-        //			{ 1, 1, 1, 1, 2, 3, 2, 1, 1, 1 },
-        //			{ 1, 1, 1, 1, 1, 2, 1, 1, 1, 1 },
-        //			{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-        //			{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
-        //		};
-
         #endregion
 
         #region Public Methods
@@ -92,8 +67,10 @@ namespace Universe.BotManager.AStar
         {
             if ((x < 0) || (x > 9))
                 return (-1);
+
             if ((y < 0) || (y > 9))
                 return (-1);
+
             return (Map[y, x]);
         }
 
@@ -112,9 +89,11 @@ namespace Universe.BotManager.AStar
                     {
                         AStarNode2D tmp = new AStarNode2D(null, null, 0, i, j);
                         solution = n.IsSameState(tmp);
+
                         if (solution)
                             break;
                     }
+
                     if (solution)
                         Console.Write("S ");
                     else if (GetMap(i, j) == -1)
@@ -122,6 +101,7 @@ namespace Universe.BotManager.AStar
                     else
                         Console.Write(". ");
                 }
+
                 Console.WriteLine("");
             }
         }

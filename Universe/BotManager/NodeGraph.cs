@@ -51,13 +51,17 @@ namespace Universe.BotManager
 
         public int CurrentPos
         {
-            get {
-                lock (m_lock) {
+            get
+            {
+                lock (m_lock)
+                {
                     return m_currentpos;
                 }
             }
-            set {
-                lock (m_lock) {
+            set
+            {
+                lock (m_lock)
+                {
                     m_currentpos = value;
                 }
             }
@@ -105,7 +109,7 @@ namespace Universe.BotManager
 
             lock (m_lock)
             {
-                findNewTarget:
+            findNewTarget:
                 position = Vector3.Zero;
                 state = TravelMode.None;
                 needsToTeleportToPosition = false;
@@ -145,6 +149,7 @@ namespace Universe.BotManager
                     else
                     {
                         m_lastChangedPosition = DateTime.Now;
+
                         if ((DateTime.Now - m_lastChangedPosition).Seconds > secondsBeforeForcedTeleport)
                             needsToTeleportToPosition = true;
                     }
@@ -152,7 +157,7 @@ namespace Universe.BotManager
                     return true;
                 }
 
-                if (m_listOfPositions.Count == 0)          
+                if (m_listOfPositions.Count == 0)
                     return false;
 
                 if (FollowIndefinitely)
