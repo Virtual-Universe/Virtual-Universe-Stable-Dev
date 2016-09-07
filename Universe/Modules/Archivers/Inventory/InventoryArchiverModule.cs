@@ -68,15 +68,12 @@ namespace Universe.Modules.Archivers
 
         public event InventoryArchiveSaved OnInventoryArchiveSaved;
 
-        public bool ArchiveInventory(
-            Guid id, string firstName, string lastName, string invPath, Stream saveStream)
+        public bool ArchiveInventory(Guid id, string firstName, string lastName, string invPath, Stream saveStream)
         {
             return ArchiveInventory(id, firstName, lastName, invPath, saveStream, new Dictionary<string, object>());
         }
 
-        public bool ArchiveInventory(
-            Guid id, string firstName, string lastName, string invPath, Stream saveStream,
-            Dictionary<string, object> options)
+        public bool ArchiveInventory(Guid id, string firstName, string lastName, string invPath, Stream saveStream, Dictionary<string, object> options)
         {
             UserAccount userInfo = m_registry.RequestModuleInterface<IUserAccountService>()
                                              .GetUserAccount(null, firstName, lastName);
@@ -146,8 +143,7 @@ namespace Universe.Modules.Archivers
             // check if this is a local service
             IConfig connectorConfig = config.Configs ["UniverseConnectors"];
             if ((connectorConfig != null) && connectorConfig.Contains ("DoRemoteCalls"))
-                isLocal = ! connectorConfig.GetBoolean ("DoRemoteCalls", false);
-            
+                isLocal = ! connectorConfig.GetBoolean ("DoRemoteCalls", false);          
         }
 
         public void Start(IConfigSource config, IRegistryCore registry)
@@ -202,18 +198,14 @@ namespace Universe.Modules.Archivers
         /// <summary>
         ///     Trigger the inventory archive saved event.
         /// </summary>
-        protected internal void TriggerInventoryArchiveSaved(
-            Guid id, bool succeeded, UserAccount userInfo, string invPath, Stream saveStream,
-            Exception reportedException)
+        protected internal void TriggerInventoryArchiveSaved(Guid id, bool succeeded, UserAccount userInfo, string invPath, Stream saveStream, Exception reportedException)
         {
             InventoryArchiveSaved handlerInventoryArchiveSaved = OnInventoryArchiveSaved;
             if (handlerInventoryArchiveSaved != null)
                 handlerInventoryArchiveSaved(id, succeeded, userInfo, invPath, saveStream, reportedException);
         }
 
-        public bool ArchiveInventory(
-            Guid id, string firstName, string lastName, string invPath, string savePath,
-            Dictionary<string, object> options)
+        public bool ArchiveInventory(Guid id, string firstName, string lastName, string invPath, string savePath, Dictionary<string, object> options)
         {
             UserAccount userInfo = m_registry.RequestModuleInterface<IUserAccountService>()
                                              .GetUserAccount(null, firstName, lastName);
@@ -238,8 +230,7 @@ namespace Universe.Modules.Archivers
                             checkPermissions = temp.ToString().ToUpper();
                     }
 
-                    new InventoryArchiveWriteRequest(id, this, m_registry, userInfo, invPath, savePath, UseAssets, checkPermissions).
-                        Execute();
+                    new InventoryArchiveWriteRequest(id, this, m_registry, userInfo, invPath, savePath, UseAssets, checkPermissions).Execute();
                 }
                 catch (EntryPointNotFoundException e)
                 {
@@ -257,9 +248,7 @@ namespace Universe.Modules.Archivers
             return false;
         }
 
-        public bool DearchiveInventory(
-            string firstName, string lastName, string invPath, string loadPath,
-            Dictionary<string, object> options)
+        public bool DearchiveInventory(string firstName, string lastName, string invPath, string loadPath, Dictionary<string, object> options)
         {
             UserAccount userInfo = m_registry.RequestModuleInterface<IUserAccountService>()
                                              .GetUserAccount(null, firstName, lastName);
@@ -359,6 +348,7 @@ namespace Universe.Modules.Archivers
                     firstName = newParams[2];
                     lastName = newParams[3];
                 }
+
                 string archiveFileName = firstName+"_"+lastName+".iar";         // assume this is the IAR to load initially
 
                 // optional...
@@ -414,15 +404,10 @@ namespace Universe.Modules.Archivers
 
                 if (loadPath != "")
                 {
-
-                    MainConsole.Instance.InfoFormat(
-                        "[Inventory Archiver]: Loading archive {0} to inventory path {1} for {2} {3}",
-                        loadPath, iarPath, firstName, lastName);
+                    MainConsole.Instance.InfoFormat("[Inventory Archiver]: Loading archive {0} to inventory path {1} for {2} {3}", loadPath, iarPath, firstName, lastName);
 
                     if (DearchiveInventory(firstName, lastName, iarPath, loadPath, options))
-                        MainConsole.Instance.InfoFormat(
-                            "[Inventory Archiver]: Loaded archive {0} for {1} {2}",
-                            loadPath, firstName, lastName);
+                        MainConsole.Instance.InfoFormat("[Inventory Archiver]: Loaded archive {0} for {1} {2}", loadPath, firstName, lastName);
                 }
             }
             catch (InventoryArchiverException e)
@@ -446,12 +431,12 @@ namespace Universe.Modules.Archivers
                     options["Assets"] = false;
                     newParams.Remove(param);
                 }
+
                 if (param.StartsWith("--perm=", StringComparison.CurrentCultureIgnoreCase))
                 {
                     options["CheckPermissions"] = param.Substring(7);
                     newParams.Remove(param);
                 }
-
             }
 
             string firstName;
@@ -496,9 +481,7 @@ namespace Universe.Modules.Archivers
                 string savePath;
                 savePath = PathHelpers.VerifyWriteFile (archiveFileName, ".iar", m_archiveDirectory, true);
 
-                MainConsole.Instance.InfoFormat(
-                    "[Inventory Archiver]: Saving archive {0} using inventory path {1} for {2} {3}",
-                    savePath, iarPath, firstName, lastName);
+                MainConsole.Instance.InfoFormat("[Inventory Archiver]: Saving archive {0} using inventory path {1} for {2} {3}", savePath, iarPath, firstName, lastName);
 
                 Guid id = Guid.NewGuid();
                 ArchiveInventory(id, firstName, lastName, iarPath, savePath, options);
@@ -512,10 +495,7 @@ namespace Universe.Modules.Archivers
             }
         }
 
-        void SaveIARConsoleCommandCompleted(
-            Guid id, bool succeeded, UserAccount userInfo, string invPath, Stream saveStream,
-            Exception reportedException)
-
+        void SaveIARConsoleCommandCompleted(Guid id, bool succeeded, UserAccount userInfo, string invPath, Stream saveStream, Exception reportedException)
         {
             lock (m_pendingConsoleSaves)
             {
@@ -527,14 +507,11 @@ namespace Universe.Modules.Archivers
 
             if (succeeded)
             {
-                MainConsole.Instance.InfoFormat("[Inventory Archiver]: Saved archive for {0} {1}", userInfo.FirstName,
-                                                userInfo.LastName);
+                MainConsole.Instance.InfoFormat("[Inventory Archiver]: Saved archive for {0} {1}", userInfo.FirstName, userInfo.LastName);
             }
             else
             {
-                MainConsole.Instance.ErrorFormat(
-                    "[Inventory Archiver]: Archive save for {0} {1} failed - {2}",
-                    userInfo.FirstName, userInfo.LastName, reportedException.Message);
+                MainConsole.Instance.ErrorFormat("[Inventory Archiver]: Archive save for {0} {1} failed - {2}", userInfo.FirstName, userInfo.LastName, reportedException.Message);
             }
         }
     }

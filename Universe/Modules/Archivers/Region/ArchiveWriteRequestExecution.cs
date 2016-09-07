@@ -44,8 +44,7 @@ namespace Universe.Modules.Archivers
     /// <summary>
     ///     Method called when all the necessary assets for an archive request have been received.
     /// </summary>
-    public delegate void AssetsRequestCallback(
-        ICollection<UUID> assetsFoundUuids, ICollection<UUID> assetsNotFoundUuids);
+    public delegate void AssetsRequestCallback(ICollection<UUID> assetsFoundUuids, ICollection<UUID> assetsNotFoundUuids);
 
     /// <summary>
     ///     Execute the write of an archive once we have received all the necessary data
@@ -75,8 +74,7 @@ namespace Universe.Modules.Archivers
             m_requestId = requestId;
         }
 
-        protected internal void ReceivedAllAssets(
-            ICollection<UUID> assetsFoundUuids, ICollection<UUID> assetsNotFoundUuids)
+        protected internal void ReceivedAllAssets(ICollection<UUID> assetsFoundUuids, ICollection<UUID> assetsNotFoundUuids)
         {
             try
             {
@@ -87,8 +85,7 @@ namespace Universe.Modules.Archivers
                 m_archiveWriter.Close();
             }
 
-            MainConsole.Instance.InfoFormat("[Archiver]: Finished writing out OAR for {0}",
-                                            m_scene.RegionInfo.RegionName);
+            MainConsole.Instance.InfoFormat("[Archiver]: Finished writing out OAR for {0}", m_scene.RegionInfo.RegionName);
 
             m_scene.EventManager.TriggerOarFileSaved(m_requestId, string.Empty);
         }
@@ -110,10 +107,8 @@ namespace Universe.Modules.Archivers
             MainConsole.Instance.InfoFormat("[Archiver]: Added control file to archive.");
 
             // Write out region settings
-            string settingsPath
-                = string.Format("{0}{1}.xml", ArchiveConstants.SETTINGS_PATH, m_scene.RegionInfo.RegionName);
-            m_archiveWriter.WriteFile(settingsPath,
-                                      RegionSettingsSerializer.Serialize(m_scene.RegionInfo.RegionSettings));
+            string settingsPath = string.Format("{0}{1}.xml", ArchiveConstants.SETTINGS_PATH, m_scene.RegionInfo.RegionName);
+            m_archiveWriter.WriteFile(settingsPath, RegionSettingsSerializer.Serialize(m_scene.RegionInfo.RegionSettings));
 
             MainConsole.Instance.InfoFormat("[Archiver]: Added region settings to archive.");
 
@@ -133,8 +128,7 @@ namespace Universe.Modules.Archivers
             MainConsole.Instance.InfoFormat("[Archiver]: Added parcel settings to archive.");
 
             // Write out terrain
-            string terrainPath
-                = string.Format("{0}{1}.r32", ArchiveConstants.TERRAINS_PATH, m_scene.RegionInfo.RegionName);
+            string terrainPath = string.Format("{0}{1}.r32", ArchiveConstants.TERRAINS_PATH, m_scene.RegionInfo.RegionName);
 
             MemoryStream ms = new MemoryStream();
             m_terrainModule.SaveToStream(m_terrainModule.TerrainMap, terrainPath, ms);

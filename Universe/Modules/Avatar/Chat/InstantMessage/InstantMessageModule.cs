@@ -80,7 +80,7 @@ namespace Universe.Modules.Chat
                     scene.RequestModuleInterface<IMessageTransferModule> ();
 
                 if (m_TransferModule == null) {
-                    MainConsole.Instance.Error ("[INSTANT MESSAGE]: No message transfer module, IM will not work!");
+                    MainConsole.Instance.Error ("[Instant Messaging Module]: No message transfer module, IM will not work!");
                     scene.EventManager.OnNewClient -= EventManager_OnNewClient;
                     scene.EventManager.OnClosingClient -= EventManager_OnClosingClient;
                     scene.EventManager.OnIncomingInstantMessage -= OnGridInstantMessage;
@@ -103,11 +103,13 @@ namespace Universe.Modules.Chat
         {
         }
 
-        public string Name {
+        public string Name
+        {
             get { return "InstantMessageModule"; }
         }
 
-        public Type ReplaceableInterface {
+        public Type ReplaceableInterface
+        {
             get { return null; }
         }
 
@@ -115,7 +117,6 @@ namespace Universe.Modules.Chat
 
         void EventManager_OnClosingClient (IClientAPI client)
         {
-            //client.OnInstantMessage -= OnInstantMessage;
         }
 
         void EventManager_OnNewClient (IClientAPI client)
@@ -137,8 +138,7 @@ namespace Universe.Modules.Chat
 
             if (m_TransferModule != null) {
                 if (client == null) {
-                    UserAccount account = m_Scene.UserAccountService.GetUserAccount (m_Scene.RegionInfo.AllScopeIDs,
-                                                                                    im.FromAgentID);
+                    UserAccount account = m_Scene.UserAccountService.GetUserAccount (m_Scene.RegionInfo.AllScopeIDs, im.FromAgentID);
                     if (account != null)
                         im.FromAgentName = account.Name;
                     else
@@ -164,9 +164,9 @@ namespace Universe.Modules.Chat
                 return;
             }
 
-            if (m_TransferModule != null) {
-                UserAccount account = m_Scene.UserAccountService.GetUserAccount (m_Scene.RegionInfo.AllScopeIDs,
-                                                                                msg.FromAgentID);
+            if (m_TransferModule != null)
+            {
+                UserAccount account = m_Scene.UserAccountService.GetUserAccount (m_Scene.RegionInfo.AllScopeIDs, msg.FromAgentID);
                 if (account != null)
                     msg.FromAgentName = account.Name;
                 else

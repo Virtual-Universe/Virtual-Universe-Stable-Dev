@@ -62,19 +62,18 @@ namespace Universe.Modules.Voice
 
             // We are using generic voice calls to keep the viewer happy
             m_enabled = true;
-
         }
 
         public void AddRegion(IScene scene)
         {
             if (m_enabled)
             {
-                scene.EventManager.OnRegisterCaps +=
-                    (agentID, server) => OnRegisterCaps(scene, agentID, server);
+                scene.EventManager.OnRegisterCaps += (agentID, server) => OnRegisterCaps(scene, agentID, server);
             }
+
             m_scene = scene;
-            ISyncMessageRecievedService syncRecievedService =
-                m_scene.RequestModuleInterface<ISyncMessageRecievedService>();
+            ISyncMessageRecievedService syncRecievedService = m_scene.RequestModuleInterface<ISyncMessageRecievedService>();
+
             if (syncRecievedService != null)
                 syncRecievedService.OnMessageReceived += syncRecievedService_OnMessageReceived;
         }
@@ -107,22 +106,24 @@ namespace Universe.Modules.Voice
 
         #endregion
 
-        // OnRegisterCaps is invoked via the scene.EventManager
-        // every time Universe hands out capabilities to a client
-        // (login, region crossing). We contribute two capabilities to
-        // the set of capabilities handed back to the client:
-        // ProvisionVoiceAccountRequest and ParcelVoiceInfoRequest.
-        // 
-        // ProvisionVoiceAccountRequest allows the client to obtain
-        // the voice account credentials for the avatar it is
-        // controlling (e.g., user name, password, etc).
-        // 
-        // ParcelVoiceInfoRequest is invoked whenever the client
-        // changes from one region or parcel to another.
-        //
-        // Note that OnRegisterCaps is called here via a closure
-        // delegate containing the scene of the respective region (see
-        // Initialize()).
+        /// <summary>
+        /// OnRegisterCaps is invoked via the scene.EventManager
+        /// every time Universe hands out capabilities to a client
+        /// (login, region crossing). We contribute two capabilities to
+        /// the set of capabilities handed back to the client:
+        /// ProvisionVoiceAccountRequest and ParcelVoiceInfoRequest.
+        /// 
+        /// ProvisionVoiceAccountRequest allows the client to obtain
+        /// the voice account credentials for the avatar it is
+        /// controlling (e.g., user name, password, etc).
+        /// 
+        /// ParcelVoiceInfoRequest is invoked whenever the client
+        /// changes from one region or parcel to another.
+        /// 
+        /// Note that OnRegisterCaps is called here via a closure
+        /// delegate containing the scene of the respective region (see
+        /// Initialize()).
+        /// </summary>
         public OSDMap OnRegisterCaps(IScene scene, UUID agentID, IHttpServer caps)
         {
             OSDMap retVal = new OSDMap();
@@ -184,16 +185,17 @@ namespace Universe.Modules.Voice
 
                 bool success = true;
                 bool noAgent = false;
+                
                 // get channel_uri: check first whether estate
                 // settings allow voice, then whether parcel allows
                 // voice, if all do retrieve or obtain the parcel
                 // voice channel
                 if (!m_scene.RegionInfo.EstateSettings.AllowVoice)
                 {
-                    MainConsole.Instance.DebugFormat(
-                        "[Voice]: region \"{0}\": voice not enabled in estate settings", m_scene.RegionInfo.RegionName);
+                    MainConsole.Instance.DebugFormat("[Generic Voice Service]: region \"{0}\": voice not enabled in estate settings", m_scene.RegionInfo.RegionName);
                     success = false;
                 }
+
                 if (avatar == null || avatar.CurrentParcel == null)
                 {
                     noAgent = true;
@@ -201,7 +203,7 @@ namespace Universe.Modules.Voice
                 } else if ((avatar.CurrentParcel.LandData.Flags & (uint)ParcelFlags.AllowVoiceChat) == 0)
                 {
                     MainConsole.Instance.DebugFormat(
-                       "[Voice]: region \"{0}\": Parcel \"{1}\" ({2}): avatar \"{3}\": voice not enabled for parcel",
+                       "[Generic Voice Service]: region \"{0}\": Parcel \"{1}\" ({2}): avatar \"{3}\": voice not enabled for parcel",
                         m_scene.RegionInfo.RegionName, avatar.CurrentParcel.LandData.Name,
                         avatar.CurrentParcel.LandData.LocalID, avatar.Name);
                     success = false;
@@ -209,9 +211,8 @@ namespace Universe.Modules.Voice
                 else
                 {
                     MainConsole.Instance.DebugFormat(
-                        "[Voice]: region \"{0}\": voice enabled in estate settings, creating parcel voice",
+                        "[Generic Voice Service]: region \"{0}\": voice enabled in estate settings, creating parcel voice",
                         m_scene.RegionInfo.RegionName);
-                    //success = true;
                 }
 
                 OSDMap map = new OSDMap();

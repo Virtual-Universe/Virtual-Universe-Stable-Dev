@@ -118,7 +118,6 @@ namespace Universe.Modules.Web
                             { "Description", transaction.Description },
                             { "Amount",transaction.Amount },
                             { "ToBalance",transaction.ToBalance }
-
                         });
                         }
                     }
@@ -153,7 +152,6 @@ namespace Universe.Modules.Web
             vars.Add ("TransactionDateText", translator.GetTranslatedString ("TransactionDateText"));
             vars.Add ("TransactionToAgentText", translator.GetTranslatedString ("TransactionToAgentText"));
             vars.Add ("TransactionFromAgentText", translator.GetTranslatedString ("TransactionFromAgentText"));
-            //vars.Add("TransactionTimeText", translator.GetTranslatedString("Time"));
             vars.Add ("TransactionDetailText", translator.GetTranslatedString ("TransactionDetailText"));
             vars.Add ("TransactionAmountText", translator.GetTranslatedString ("TransactionAmountText"));
             vars.Add ("TransactionBalanceText", translator.GetTranslatedString ("TransactionBalanceText"));

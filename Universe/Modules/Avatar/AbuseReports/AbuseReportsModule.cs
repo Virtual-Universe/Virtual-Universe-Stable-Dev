@@ -154,7 +154,6 @@ namespace Universe.Modules.AbuseReports
             if (!m_enabled)
                 return;
 
-
             m_Scene = null;
 
             scene.EventManager.OnNewClient -= OnNewClient;
@@ -232,42 +231,32 @@ namespace Universe.Modules.AbuseReports
                 report.ObjectName = "";
 
             string[] detailssplit = details.Split('\n');
-
             string AbuseDetails = detailssplit[detailssplit.Length - 1];
-
             report.AbuseDetails = AbuseDetails;
-
             report.ReporterName = client.Name;
-
             string[] findRegion = summery.Split('|');
             report.RegionName = findRegion[1];
-
             string[] findLocation = summery.Split('(');
             string[] findLocationend = findLocation[1].Split(')');
             report.AbuseLocation = findLocationend[0];
-
             string[] findCategory = summery.Split('[');
             string[] findCategoryend = findCategory[1].Split(']');
             report.Category = findCategoryend[0];
-
             string[] findAbuserName = summery.Split('{');
             string[] findAbuserNameend = findAbuserName[1].Split('}');
             report.AbuserName = findAbuserNameend[0];
-
             string[] findSummary = summery.Split('\"');
-
             string abuseSummary = findSummary[1];
+
             if (findSummary.Length != 0)
             {
                 abuseSummary = findSummary[1];
             }
 
             report.AbuseSummary = abuseSummary;
-
-
             report.Number = (-1);
-
             EstateSettings ES = client.Scene.RegionInfo.EstateSettings;
+            
             //If the abuse email is set up and the email module is available, send the email
             if (ES.AbuseEmailToEstateOwner && ES.AbuseEmail != "")
             {
@@ -325,8 +314,6 @@ namespace Universe.Modules.AbuseReports
         {
             IScenePresence SP = findScenePresence(AgentID);
             OSDMap map = (OSDMap)OSDParser.DeserializeLLSDXml(HttpServerHandlerHelpers.ReadFully(request));
-            //string RegionName = map["abuse-region-name"];
-
             UUID AbuserID = map["abuser-id"];
             uint Category = map["category"];
             uint CheckFlags = map["check-flags"];
@@ -371,7 +358,6 @@ namespace Universe.Modules.AbuseReports
             return MainServer.BlankResponse;
         }
 
-
         public delegate void UploadedAbuseTexture(UUID agentID, UUID assetID, byte[] data);
 
         public class AbuseTextureUploader
@@ -396,8 +382,7 @@ namespace Universe.Modules.AbuseReports
             /// <param name="httpRequest"></param>
             /// <param name="httpResponse"></param>
             /// <returns></returns>
-            public byte[] uploaderCaps(string path, Stream request,
-                                       OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+            public byte[] uploaderCaps(string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
             {
                 handlerUpLoad = OnUpLoad;
                 handlerUpLoad(m_agentID, m_assetID, HttpServerHandlerHelpers.ReadFully(request));
@@ -415,10 +400,10 @@ namespace Universe.Modules.AbuseReports
 
         public void AbuseTextureUploaded(UUID agentID, UUID assetID, byte[] data)
         {
-            //MainConsole.Instance.InfoFormat("[AssetCAPS]: Received baked texture {0}", assetID.ToString());
+            //MainConsole.Instance.InfoFormat("[Asset Caps]: Received baked texture {0}", assetID.ToString());
             AssetBase asset = new AssetBase(assetID, "Abuse Texture", AssetType.Texture, agentID) { Data = data };
             asset.ID = m_Scene.AssetService.Store(asset);
-            MainConsole.Instance.DebugFormat("[AbuseCAPS]: texture new id {0}", assetID);
+            MainConsole.Instance.DebugFormat("[Abuse Caps]: texture new id {0}", assetID);
         }
 
         #endregion

@@ -37,11 +37,6 @@ namespace Universe.Framework.Services
         string MainlandEstateName { get; }
 
         /// <summary>
-        ///     The system Homes estate name
-        /// </summary>
-        string HomesEstateName { get; }
-
-        /// <summary>
         ///     The system Estate name
         /// </summary>
         string SystemEstateName { get; }

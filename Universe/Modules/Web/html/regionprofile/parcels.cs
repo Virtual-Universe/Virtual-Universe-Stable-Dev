@@ -63,13 +63,6 @@ namespace Universe.Modules.Web
                                                OSHttpResponse httpResponse, Dictionary<string, object> requestParameters,
                                                ITranslator translator, out string response)
         {
-            // under development
-            //response = "<h3>Sorry! This feature is not available yet<</h3><br /> Redirecting to main page" +
-            //    "<script language=\"javascript\">" +
-            //    "setTimeout(function() {window.location.href = \"index.html\";}, 3000);" +
-            //    "</script>";
-            //return null;
-
             response = null;
             var vars = new Dictionary<string, object> ();
             if (httpRequest.Query.ContainsKey ("regionid")) {
@@ -136,14 +129,17 @@ namespace Universe.Modules.Web
                                 else
                                     parcel.Add ("ParcelOwnerName", translator.GetTranslatedString ("NoAccountFound"));
                             }
+
                             parcels.Add (parcel);
                         }
                     }
+
                     vars.Add ("ParcelInRegion", parcels);
                     vars.Add ("NumberOfParcelsInRegion", parcels.Count);
                 }
-                IWebHttpTextureService webTextureService = webInterface.Registry.
-                    RequestModuleInterface<IWebHttpTextureService> ();
+
+                IWebHttpTextureService webTextureService = webInterface.Registry.RequestModuleInterface<IWebHttpTextureService> ();
+
                 if (webTextureService != null && region.TerrainMapImage != UUID.Zero)
                     vars.Add ("RegionImageURL", webTextureService.GetTextureURL (region.TerrainMapImage));
                 else
@@ -169,11 +165,9 @@ namespace Universe.Modules.Web
                 vars.Add ("NumberOfUsersInRegionText", translator.GetTranslatedString ("NumberOfUsersInRegionText"));
                 vars.Add ("ParcelsInRegionText", translator.GetTranslatedString ("ParcelsInRegionText"));
                 vars.Add ("MainServerURL", webInterface.GridURL);
-
             }
 
             return vars;
-
         }
 
         public bool AttemptFindPage (string filename, ref OSHttpResponse httpResponse, out string text)

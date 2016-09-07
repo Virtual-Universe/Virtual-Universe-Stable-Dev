@@ -109,7 +109,7 @@ namespace Universe.DataManager.SQLite
                 migrationManager.DetermineOperation ();
                 migrationManager.ExecuteOperation ();
             } catch {
-                MainConsole.Instance.Warn ("[Sqlite]: Unable to connect to database ("+m_connectionString+")");
+                MainConsole.Instance.Warn ("[SQLite]: Unable to connect to database ("+m_connectionString+")");
             }
 
             connection.Close();
@@ -147,17 +147,17 @@ namespace Universe.DataManager.SQLite
             catch (SqliteBusyException ex)
             {
                 if (retries++ > 5)
-                    MainConsole.Instance.WarnFormat("[Sqlite]: Exception processing command: {0}, Exception: {1}", cmd.CommandText, ex);
+                    MainConsole.Instance.WarnFormat("[SQLite]: Exception processing command: {0}, Exception: {1}", cmd.CommandText, ex);
                 else
                     goto restart;
             }
             catch (SqliteException ex)
             {
-                MainConsole.Instance.WarnFormat("[Sqlite]: Exception processing command: {0}, Exception: {1}", cmd.CommandText, ex);
+                MainConsole.Instance.WarnFormat("[SQLite]: Exception processing command: {0}, Exception: {1}", cmd.CommandText, ex);
             }
             catch (Exception ex)
             {
-                MainConsole.Instance.WarnFormat("[Sqlite]: Exception processing command: {0}, Exception: {1}", cmd.CommandText, ex);
+                MainConsole.Instance.WarnFormat("[SQLite]: Exception processing command: {0}, Exception: {1}", cmd.CommandText, ex);
             }
         }
 
@@ -173,12 +173,13 @@ namespace Universe.DataManager.SQLite
             }
             catch (SqliteException ex)
             {
-                MainConsole.Instance.WarnFormat ("[Sqlite]: Exception prepping reader command: {0}, Exception: {1}", query, ex);
+                MainConsole.Instance.WarnFormat ("[SQLite]: Exception prepping reader command: {0}, Exception: {1}", query, ex);
             }
             catch (Exception ex)
             {
-                MainConsole.Instance.WarnFormat ("[Sqlite]: Exception prepping reader command: {0}, Exception: {1}", query, ex);
+                MainConsole.Instance.WarnFormat ("[SQLite]: Exception prepping reader command: {0}, Exception: {1}", query, ex);
             }
+
             return null;
         }
 
@@ -202,18 +203,18 @@ namespace Universe.DataManager.SQLite
             catch (SqliteBusyException ex)
             {
                 if (retries++ > 5)
-                    MainConsole.Instance.WarnFormat("[Sqlite]: Exception processing command: {0}, Exception: {1}", cmd.CommandText, ex);
+                    MainConsole.Instance.WarnFormat("[SQLite]: Exception processing command: {0}, Exception: {1}", cmd.CommandText, ex);
                 else
                     goto restart;
                 return 0;
             }
             catch (SqliteException ex)
             {
-                MainConsole.Instance.WarnFormat("[Sqlite]: Exception processing command: {0}, Exception: {1}", cmd.CommandText, ex);
+                MainConsole.Instance.WarnFormat("[SQLite]: Exception processing command: {0}, Exception: {1}", cmd.CommandText, ex);
             }
             catch (Exception ex)
             {
-                MainConsole.Instance.WarnFormat("[Sqlite]: Exception processing command: {0}, Exception: {1}", cmd.CommandText, ex); 
+                MainConsole.Instance.WarnFormat("[SQLite]: Exception processing command: {0}, Exception: {1}", cmd.CommandText, ex); 
             }
 
             return 0;
@@ -238,7 +239,7 @@ namespace Universe.DataManager.SQLite
         {
             cmd.Connection.Close();
             cmd.Parameters.Clear();
-            cmd.Dispose ();                 // previously commented but this is a resource leak if not cleared out - greythane - 20160427
+            cmd.Dispose ();                 // previously commented but this is a resource leak if not cleared out
         }
 
         void AddParams(ref SqliteCommand cmd, Dictionary<string, object> ps)
@@ -469,7 +470,7 @@ namespace Universe.DataManager.SQLite
         {
             if ((values == null || values.Count < 1) && (incrementValue == null || incrementValue.Count < 1))
             {
-                MainConsole.Instance.Warn("[Sqlite]: Update attempted with no values");
+                MainConsole.Instance.Warn("[SQLite]: Update attempted with no values");
                 return false;
             }
 
@@ -523,7 +524,7 @@ namespace Universe.DataManager.SQLite
             }
             catch (SqliteException e)
             {
-                MainConsole.Instance.Error("[Sqlite]: Update (" + query + "), " + e);
+                MainConsole.Instance.Error("[SQLite]: Update (" + query + "), " + e);
             }
 
             CloseReaderCommand(cmd);
@@ -558,7 +559,7 @@ namespace Universe.DataManager.SQLite
             try {
                 ExecuteNonQuery (cmd);
             } catch (SqliteException e) {
-                MainConsole.Instance.Error ("[Sqlite]: Insert multiple (" + query + "), " + e);
+                MainConsole.Instance.Error ("[SQLite]: Insert multiple (" + query + "), " + e);
             }
 
             CloseReaderCommand(cmd);
@@ -584,7 +585,7 @@ namespace Universe.DataManager.SQLite
             try {
                 ExecuteNonQuery(cmd);
             } catch (SqliteException e) {
-                MainConsole.Instance.Error ("[Sqlite]: Insert (" + query + "), " + e);
+                MainConsole.Instance.Error ("[SQLite]: Insert (" + query + "), " + e);
             }
 
             CloseReaderCommand(cmd);
@@ -612,7 +613,7 @@ namespace Universe.DataManager.SQLite
             }
             catch (Exception e)
             {
-                MainConsole.Instance.Error("[Sqlite]: " + (insert ? "Insert" : "Replace") + "(" + query + "), " + e);
+                MainConsole.Instance.Error("[SQLite]: " + (insert ? "Insert" : "Replace") + "(" + query + "), " + e);
             }
 
             CloseReaderCommand(cmd);
@@ -678,7 +679,7 @@ namespace Universe.DataManager.SQLite
             }
             catch (Exception e)
             {
-                MainConsole.Instance.Error("[Sqlite]: INSERT .. SELECT (" + cmd.CommandText + "), " + e);
+                MainConsole.Instance.Error("[SQLite]: INSERT .. SELECT (" + cmd.CommandText + "), " + e);
             }
 
             CloseReaderCommand(cmd);
@@ -719,7 +720,7 @@ namespace Universe.DataManager.SQLite
             }
             catch (Exception e)
             {
-                MainConsole.Instance.Error("[Sqlite]: Delete(" + query + "), " + e);
+                MainConsole.Instance.Error("[SQLite]: Delete(" + query + "), " + e);
                 return false;
             }
 
@@ -805,7 +806,7 @@ namespace Universe.DataManager.SQLite
             try {
                 ExecuteNonQuery (cmd);
             } catch (SqliteException e) {
-                MainConsole.Instance.Error ("[Sqlite]: Create table (" + table + "), " + e);
+                MainConsole.Instance.Error ("[SQLite]: Create table (" + table + "), " + e);
             }
 
             CloseReaderCommand(cmd);
@@ -838,7 +839,7 @@ namespace Universe.DataManager.SQLite
                     try {
                     ExecuteNonQuery(cmd);
                     } catch (SqliteException e) {
-                        MainConsole.Instance.Error ("[Sqlite]: Create index (" + query + "), " + e);
+                        MainConsole.Instance.Error ("[SQLite]: Create index (" + query + "), " + e);
                     }
 
                     CloseReaderCommand(cmd);
@@ -885,27 +886,24 @@ namespace Universe.DataManager.SQLite
 
             var cmd = new SqliteCommand
                           {
-                              CommandText =
-                                  "CREATE TABLE " + table + "__temp(" + renamedTempTableColumnDefinition + ");"
+                              CommandText = "CREATE TABLE " + table + "__temp(" + renamedTempTableColumnDefinition + ");"
                           };
             try {
                 ExecuteNonQuery(cmd);
             } catch (SqliteException e) {
-                MainConsole.Instance.Error ("[Sqlite]: Create temporary table, " + e);
+                MainConsole.Instance.Error ("[SQLite]: Create temporary table, " + e);
             }
 
             CloseReaderCommand(cmd);
 
             cmd = new SqliteCommand
                       {
-                          CommandText =
-                              "INSERT INTO " + table + "__temp SELECT " + renamedTempTableColumn + " from " + table +
-                              ";"
+                          CommandText = "INSERT INTO " + table + "__temp SELECT " + renamedTempTableColumn + " from " + table + ";"
                       };
             try {
                 ExecuteNonQuery(cmd);
             } catch (SqliteException e) {
-                MainConsole.Instance.Error ("[Sqlite]: Copy to tempory table, " + e);
+                MainConsole.Instance.Error ("[SQLite]: Copy to tempory table, " + e);
             }
 
             CloseReaderCommand(cmd);
@@ -917,7 +915,7 @@ namespace Universe.DataManager.SQLite
             try {
                 ExecuteNonQuery(cmd);
             } catch (SqliteException e) {
-                MainConsole.Instance.Error ("[Sqlite]: Drop table, " + e);
+                MainConsole.Instance.Error ("[SQLite]: Drop table, " + e);
             }
 
             CloseReaderCommand(cmd);
@@ -948,13 +946,12 @@ namespace Universe.DataManager.SQLite
 
             cmd = new SqliteCommand
                       {
-                          CommandText =
-                              string.Format("create table " + table + " ({0}) ", string.Join(", ", newTableColumnDefinition.ToArray()))
+                          CommandText = string.Format("create table " + table + " ({0}) ", string.Join(", ", newTableColumnDefinition.ToArray()))
                       };
             try {
                 ExecuteNonQuery(cmd);
             } catch (SqliteException e) {
-                MainConsole.Instance.Error ("[Sqlite]: Create new table, " + e);
+                MainConsole.Instance.Error ("[SQLite]: Create new table, " + e);
             }
 
             CloseReaderCommand(cmd);
@@ -987,7 +984,7 @@ namespace Universe.DataManager.SQLite
                     try {
                         ExecuteNonQuery(cmd);
                     } catch (SqliteException e) {
-                        MainConsole.Instance.Error ("[Sqlite]: Create new index, " + e);
+                        MainConsole.Instance.Error ("[SQLite]: Create new index, " + e);
                     }
 
                     CloseReaderCommand(cmd);
@@ -1022,7 +1019,7 @@ namespace Universe.DataManager.SQLite
             try {
                 ExecuteNonQuery(cmd);
             } catch (SqliteException e) {
-                MainConsole.Instance.Error ("[Sqlite]: Copy to new table, " + e);
+                MainConsole.Instance.Error ("[SQLite]: Copy to new table, " + e);
             }
 
             CloseReaderCommand(cmd);
@@ -1034,7 +1031,7 @@ namespace Universe.DataManager.SQLite
             try {
                 ExecuteNonQuery(cmd);
             } catch (SqliteException e) {
-                MainConsole.Instance.Error ("[Sqlite]: Drop temporary table, " + e);
+                MainConsole.Instance.Error ("[SQLite]: Drop temporary table, " + e);
             }
 
             CloseReaderCommand(cmd);

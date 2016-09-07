@@ -31,6 +31,7 @@ using System;
 using System.Collections.Generic;
 using Nini.Config;
 using OpenMetaverse;
+using Universe.Framework.ConsoleFramework;
 using Universe.Framework.Modules;
 using Universe.Framework.PresenceInfo;
 using Universe.Framework.SceneInfo;
@@ -62,22 +63,18 @@ namespace Universe.Modules.Agent.AssetTransaction
         public void AddRegion(IScene scene)
         {
             scene.RegisterModuleInterface<IAgentAssetTransactions>(this);
-
             scene.EventManager.OnNewClient += NewClient;
             scene.EventManager.OnClosingClient += OnClosingClient;
             scene.EventManager.OnRemovePresence += OnRemovePresence;
-
             m_scene = scene;
         }
 
         public void RemoveRegion(IScene scene)
         {
             scene.UnregisterModuleInterface<IAgentAssetTransactions>(this);
-
             scene.EventManager.OnNewClient -= NewClient;
             scene.EventManager.OnClosingClient -= OnClosingClient;
             scene.EventManager.OnRemovePresence -= OnRemovePresence;
-
             m_scene = null;
         }
 
@@ -128,7 +125,7 @@ namespace Universe.Modules.Agent.AssetTransaction
         /// <param name="userID"></param>
         public void RemoveAgentAssetTransactions(UUID userID)
         {
-            // MainConsole.Instance.DebugFormat("Removing agent asset transactions structure for agent {0}", userID);
+            // MainConsole.Instance.DebugFormat("[Transactions Manager]: Removing agent asset transactions structure for agent {0}", userID);
 
             lock (AgentTransactions)
             {
@@ -155,8 +152,7 @@ namespace Universe.Modules.Agent.AssetTransaction
                                                       uint callbackID, string description, string name, sbyte invType,
                                                       sbyte type, byte wearableType, uint nextOwnerMask)
         {
-            //            MainConsole.Instance.DebugFormat(
-            //                "[TRANSACTIONS MANAGER] Called HandleItemCreationFromTransaction with item {0}", name);
+            //MainConsole.Instance.DebugFormat("[Transactions Manager]: Called HandleItemCreationFromTransaction with item {0}", name);
 
             AgentAssetTransactions transactions = GetUserTransactions(remoteClient.AgentId);
 
@@ -180,12 +176,9 @@ namespace Universe.Modules.Agent.AssetTransaction
         /// <param name="remoteClient"></param>
         /// <param name="transactionID"></param>
         /// <param name="item"></param>
-        public void HandleItemUpdateFromTransaction(IClientAPI remoteClient, UUID transactionID,
-                                                    InventoryItemBase item)
+        public void HandleItemUpdateFromTransaction(IClientAPI remoteClient, UUID transactionID, InventoryItemBase item)
         {
-            //            MainConsole.Instance.DebugFormat(
-            //                "[TRANSACTIONS MANAGER] Called HandleItemUpdateFromTransaction with item {0}",
-            //                item.Name);
+            //MainConsole.Instance.DebugFormat("[Transactions Manager]: Called HandleItemUpdateFromTransaction with item {0}", item.Name);
 
             AgentAssetTransactions transactions = GetUserTransactions(remoteClient.AgentId);
 
@@ -209,12 +202,9 @@ namespace Universe.Modules.Agent.AssetTransaction
         /// <param name="part"></param>
         /// <param name="transactionID"></param>
         /// <param name="item"></param>
-        public void HandleTaskItemUpdateFromTransaction(
-            IClientAPI remoteClient, ISceneChildEntity part, UUID transactionID, TaskInventoryItem item)
+        public void HandleTaskItemUpdateFromTransaction(IClientAPI remoteClient, ISceneChildEntity part, UUID transactionID, TaskInventoryItem item)
         {
-            //            MainConsole.Instance.DebugFormat(
-            //                "[TRANSACTIONS MANAGER] Called HandleTaskItemUpdateFromTransaction with item {0}",
-            //                item.Name);
+            //MainConsole.Instance.DebugFormat("[Transactions Manager]: Called HandleTaskItemUpdateFromTransaction with item {0}", item.Name);
 
             AgentAssetTransactions transactions = GetUserTransactions(remoteClient.AgentId);
 
@@ -261,7 +251,13 @@ namespace Universe.Modules.Agent.AssetTransaction
         public void HandleUDPUploadRequest(IClientAPI remoteClient, UUID assetID, UUID transaction, sbyte type,
                                            byte[] data, bool storeLocal, bool tempFile)
         {
-//            MainConsole.Instance.Debug("HandleUDPUploadRequest - assetID: " + assetID.ToString() + " transaction: " + transaction.ToString() + " type: " + type.ToString() + " storelocal: " + storeLocal + " tempFile: " + tempFile);
+            MainConsole.Instance.Debug(
+                "[Agent Asset Transactions]: HandleUDPUploadRequest - assetID: " 
+                + assetID.ToString() + " transaction: " 
+                + transaction.ToString() + " type: " 
+                + type.ToString() + " storelocal: " 
+                + storeLocal + " tempFile: " 
+                + tempFile);
 
             if (((AssetType)type == AssetType.Texture ||
                 (AssetType)type == AssetType.Sound ||
@@ -301,7 +297,7 @@ namespace Universe.Modules.Agent.AssetTransaction
         /// <param name="data"></param>
         public void HandleXfer(IClientAPI remoteClient, ulong xferID, uint packetID, byte[] data)
         {
-            //MainConsole.Instance.Debug("xferID: " + xferID + "  packetID: " + packetID + "  data!");
+            //MainConsole.Instance.Debug("[Agent Asset Transactions]: xferID: " + xferID + "  packetID: " + packetID + "  data!");
             AgentAssetTransactions transactions = GetUserTransactions(remoteClient.AgentId);
 
             IMonitorModule monitorModule = m_scene.RequestModuleInterface<IMonitorModule>();

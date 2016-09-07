@@ -108,12 +108,12 @@ namespace Universe.Modules.Web
             }
 
             // Library
-            //            config =  configSrc.Configs ["LibraryService"];
-            //            if (config != null)
-            //            {
-            //                _settingsGrid.LibraryName = config.GetString("LibraryName", _settingsGrid.LibraryName);
-            //                _settingsGrid.LibraryOwnerName = config.GetString("LibraryOwnerName", _settingsGrid.LibraryOwnerName);
-            //            }
+            //config =  configSrc.Configs ["LibraryService"];
+            //if (config != null)
+            //{
+            //    _settingsGrid.LibraryName = config.GetString("LibraryName", _settingsGrid.LibraryName);
+            //    _settingsGrid.LibraryOwnerName = config.GetString("LibraryOwnerName", _settingsGrid.LibraryOwnerName);
+            //}
 
             // System users
             config = configSrc.Configs ["SystemUserService"];
@@ -130,8 +130,6 @@ namespace Universe.Modules.Web
                 _settingsGrid.SystemEstateName = config.GetString ("MainlandEstateName", _settingsGrid.MainlandEstateName);
                 _settingsGrid.SystemEstateName = config.GetString ("SystemEstateName", _settingsGrid.SystemEstateName);
             }
-
-
         }
 
         public static void ResetToDefaults (WebInterface webinterface)

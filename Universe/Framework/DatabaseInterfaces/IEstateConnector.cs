@@ -67,7 +67,7 @@ namespace Universe.Framework.DatabaseInterfaces
         /// </summary>
         /// <returns>The the estateID</returns>
         /// <param name="es">Es.</param>
-        int CreateNewEstate (EstateSettings es);
+        int CreateNewEstate(EstateSettings es);
 
         /// <summary>
         ///     Creates a new estate from the given info, and link to a region
@@ -109,7 +109,14 @@ namespace Universe.Framework.DatabaseInterfaces
         ///     Gets all available estates
         /// </summary>
         /// <returns>List of estates</returns>
-        List<string> GetEstates();
+        List<string> GetEstateNames();
+
+        /// <summary>
+        ///     Gets all user estates
+        /// </summary>
+        /// <param name="ownerID"></param>
+        /// <returns>List of estates</returns>
+        List<string> GetEstateNames(UUID ownerId);
 
         /// <summary>
         ///     Gets the estates that have the given owner
@@ -160,7 +167,7 @@ namespace Universe.Framework.DatabaseInterfaces
         /// </summary>
         /// <returns><c>true</c>, if exists, <c>false</c> otherwise.</returns>
         /// <param name="name">Name.</param>
-        bool EstateExists (string name);
+        bool EstateExists(string name);
 
         /// <summary>
         /// Cheks to see if region is part of an estate.

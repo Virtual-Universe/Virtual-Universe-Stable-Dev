@@ -39,7 +39,7 @@ namespace Universe.Framework.Servers.HttpServer
     public class PollServiceRequestManager
     {
         static Queue m_requests = Queue.Synchronized (new Queue ());
-        uint m_WorkerThreadCount = 0;
+        uint m_WorkerThreadCount = 50;
         Thread [] m_workerThreads;
         Thread m_watcherThread;
         PollServiceWorkerThread [] m_PollServiceWorkerThreads;

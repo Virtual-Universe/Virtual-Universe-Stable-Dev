@@ -71,7 +71,7 @@ namespace Universe.Modules.Web
             IGenericsConnector generics = Framework.Utilities.DataManager.RequestPlugin<IGenericsConnector>();
             GridPage rootPage = generics.GetGeneric<GridPage>(UUID.Zero, "WebPages", "Root");
             if (rootPage == null)
-                return null;            // major bummer !!
+                return null;            // major bummer
             
             rootPage.Children.Sort((a, b) => a.MenuPosition.CompareTo(b.MenuPosition));
             List<GridPage> allPages = new List<GridPage>(rootPage.Children);
@@ -109,12 +109,13 @@ namespace Universe.Modules.Web
                            "</script>";
                 return null;
             }
+
             if (requestParameters.ContainsKey("AddItem"))
             {
-                //generics.AddGeneric(UUID.Zero, "WebPages", "Root", rootPage.ToOSD());
                 vars.Add("EdittingPageID", -2);
                 vars.Add("DisplayEdit", true);
             }
+
             if (requestParameters.ContainsKey("SelectItem"))
             {
                 GridPage page = rootPage.GetPageByLocation(MenuItem);
@@ -159,6 +160,7 @@ namespace Universe.Modules.Web
                                       }
                                   });
                 }
+
                 vars.Add("ParentPagesList", pages);
             }
 
@@ -197,6 +199,7 @@ namespace Universe.Modules.Web
                                       {"PageSelected", ""}
                                   });
                 }
+
                 vars.Add("ParentPagesList", pages);
             }
 

@@ -83,7 +83,6 @@ namespace Universe.Modules.Archivers
         ///     Used to collect the uuids of the assets that we need to save into the archive
         /// </value>
         protected Dictionary<UUID, AssetType> m_assetUuids = new Dictionary<UUID, AssetType>();
-
         protected List<AssetBase> m_assetsToAdd;
         protected InventoryFolderBase m_defaultFolderToSave;
 
@@ -91,7 +90,6 @@ namespace Universe.Modules.Archivers
         ///     ID of this request
         /// </value>
         protected Guid m_id;
-
         string m_invPath;
 
         /// <value>
@@ -153,7 +151,6 @@ namespace Universe.Modules.Archivers
 
             // lastly as it is dependant       
             m_assetGatherer = new UuidGatherer(m_assetService);
-
         }
 
         protected void ReceivedAllAssets(ICollection<UUID> assetsFoundUuids, ICollection<UUID> assetsNotFoundUuids)
@@ -190,8 +187,7 @@ namespace Universe.Modules.Archivers
             if (!CanUserArchiveObject(m_userInfo.PrincipalID, inventoryItem))
             {
                 MainConsole.Instance.InfoFormat(
-                    "[Inventory Archiver]: Insufficient permissions, skipping inventory item {0} {1} at {2}",
-                    inventoryItem.Name, inventoryItem.ID, path);
+                    "[Inventory Archiver]: Insufficient permissions, skipping inventory item {0} {1} at {2}", inventoryItem.Name, inventoryItem.ID, path);
 
                 // Count Items Excluded
                 CountFiltered++;
@@ -210,7 +206,6 @@ namespace Universe.Modules.Archivers
             string serialization = UserInventoryItemSerializer.Serialize(saveItem);
             m_archiveWriter.WriteFile(filename, serialization);
 
-            //m_assetGatherer.GatherAssetUuids(saveItem.AssetID, (AssetType) saveItem.AssetType, m_assetUuids);
             AssetType itemAssetType = (AssetType)inventoryItem.AssetType;
 
             // Don't chase down link asset items as they actually point to their target item IDs rather than an asset
@@ -229,7 +224,6 @@ namespace Universe.Modules.Archivers
             // ignore viewer folders (special folders?)
             if (inventoryFolder.Name.StartsWith("#", StringComparison.Ordinal))
                 return;
-
 
             if (saveThisFolderItself)
             {
@@ -281,7 +275,6 @@ namespace Universe.Modules.Archivers
             return permitted;
         }
 
-
         /// <summary>
         ///     Execute the inventory write request
         /// </summary>
@@ -295,8 +288,7 @@ namespace Universe.Modules.Archivers
 
                 if (rootFolder == null)
                 {
-                    MainConsole.Instance.ErrorFormat("[Inventory Archiver]: Unable to fine root folder for {0}",
-                                               m_userInfo.PrincipalID);
+                    MainConsole.Instance.ErrorFormat("[Inventory Archiver]: Unable to fine root folder for {0}", m_userInfo.PrincipalID);
                     return;
                 }
 
@@ -321,7 +313,7 @@ namespace Universe.Modules.Archivers
                 {
                     // If the user has just specified "/", then don't save the root "My Inventory" folder.  This is
                     // more intuitive then requiring the user to specify "/*" for this.
-                    // 20141119-greythane- This breaks saving default inventory //  saveFolderContentsOnly = true;
+                    // This breaks saving default inventory //  saveFolderContentsOnly = true;
                 }
 
                 m_invPath = string.Empty;
@@ -347,9 +339,7 @@ namespace Universe.Modules.Archivers
                 // The path may point to an item instead
                 if (inventoryFolder == null)
                 {
-                    inventoryItem =
-                        InventoryArchiveUtils.FindItemByPath(m_inventoryService, rootFolder, m_invPath);
-                    //inventoryItem = m_userInfo.RootFolder.FindItemByPath(m_invPath);
+                    inventoryItem = InventoryArchiveUtils.FindItemByPath(m_inventoryService, rootFolder, m_invPath);
                 }
 
                 if (null == inventoryFolder && null == inventoryItem)
@@ -377,29 +367,25 @@ namespace Universe.Modules.Archivers
                 }
                 else if (inventoryItem != null)
                 {
-                    MainConsole.Instance.DebugFormat(
-                        "[Inventory Archiver]: Found item {0} {1} at {2}",
-                        inventoryItem.Name, inventoryItem.ID, m_invPath);
+                    MainConsole.Instance.DebugFormat("[Inventory Archiver]: Found item {0} {1} at {2}", inventoryItem.Name, inventoryItem.ID, m_invPath);
 
                     SaveInvItem(inventoryItem, ArchiveConstants.INVENTORY_PATH);
                 }
-
-                // Don't put all this profile information into the archive right now.
-                //SaveUsers();
             }
             catch (Exception)
             {
                 m_saveStream.Close();
                 throw;
             }
+
             if (m_saveAssets)
             {
                 foreach (AssetBase asset in m_assetsToAdd)
                 {
                     m_assetUuids[asset.ID] = (AssetType)asset.Type;
                 }
-                new AssetsRequest(
-                    new AssetsArchiver(m_archiveWriter), m_assetUuids, m_assetService, ReceivedAllAssets).Execute();
+
+                new AssetsRequest(new AssetsArchiver(m_archiveWriter), m_assetUuids, m_assetService, ReceivedAllAssets).Execute();
 
             }
             else
@@ -414,8 +400,7 @@ namespace Universe.Modules.Archivers
         /// </summary>
         protected void SaveUsers()
         {
-            MainConsole.Instance.InfoFormat("[Inventory Archiver]: Saving user information for {0} users",
-                                            m_userUuids.Count);
+            MainConsole.Instance.InfoFormat("[Inventory Archiver]: Saving user information for {0} users", m_userUuids.Count);
 
             foreach (UUID creatorId in m_userUuids.Keys)
             {
@@ -430,8 +415,7 @@ namespace Universe.Modules.Archivers
                 }
                 else
                 {
-                    MainConsole.Instance.WarnFormat("[Inventory Archiver]: Failed to get creator profile for {0}",
-                                                    creatorId);
+                    MainConsole.Instance.WarnFormat("[Inventory Archiver]: Failed to get creator profile for {0}", creatorId);
                 }
             }
         }
@@ -502,15 +486,11 @@ namespace Universe.Modules.Archivers
             xtw.WriteStartElement("archive");
             xtw.WriteAttributeString("major_version", "0");
             xtw.WriteAttributeString("minor_version", "3");
-
             var includeAssets = saveAssets ? "True" : "False";
             xtw.WriteElementString("assets_included", includeAssets);
-
             xtw.WriteEndElement();
-
             xtw.Flush();
             xtw.Close();
-
             string s = sw.ToString();
             sw.Close();
 

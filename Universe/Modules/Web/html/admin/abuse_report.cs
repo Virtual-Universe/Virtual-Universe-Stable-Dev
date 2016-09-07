@@ -81,7 +81,6 @@ namespace Universe.Modules.Web
                 ? int.Parse (httpRequest.Query ["cardid"].ToString ())
                 : int.Parse (requestParameters ["cardid"].ToString ());
             
-
             rpt = abuseModule.GetAbuseReport (cardID);
             if (rpt == null)
             {
@@ -117,46 +116,41 @@ namespace Universe.Modules.Web
             var adminUsersList = new List<Dictionary<string, object>> ();
             if (adminUsers != null)
             {
-
                 foreach (var user in adminUsers)
                 {
                     if (!Utilities.IsSystemUser (user.PrincipalID))
                         adminUsersList.Add (new Dictionary<string, object> { { "Value", user.Name } });
                 }
+
                 adminUsersList.Add (new Dictionary<string, object> { { "Value", "No One" } });
             }
+
             vars.Add ("AdminUsersList", adminUsersList);
                 
             // details
             vars.Add ("CardNumber", rpt.Number);
-            //vars.Add("Date"), Culture.LocaleDate (transaction.TransferDate.ToLocalTime(), "MMM dd, hh:mm:ss tt");
             vars.Add ("Details", rpt.AbuseDetails);
             vars.Add ("AbuseLocation", rpt.AbuseLocation);
             vars.Add ("Summary", rpt.AbuseSummary);
             vars.Add ("AbuserName", rpt.AbuserName);
             vars.Add ("IsActive", rpt.Active);
             vars.Add ("IsNotActive", !rpt.Active);
-
             vars.Add ("AssignedTo", rpt.AssignedTo);
             vars.Add ("Category", rpt.Category);
-
             vars.Add ("IsChecked", rpt.Checked);
             vars.Add ("IsNotChecked", !rpt.Checked);
-
             vars.Add ("Notes", rpt.Notes);
             vars.Add ("ObjectName", rpt.ObjectName);
             vars.Add ("ObjectPosition", rpt.ObjectPosition);
             vars.Add ("ObjectUUID", rpt.ObjectUUID);
             vars.Add ("RegionName", rpt.RegionName);
             vars.Add ("ReporterName", rpt.ReporterName);
-            vars.Add ("ScreenshotURL", snapshotURL);
-            
+            vars.Add ("ScreenshotURL", snapshotURL);          
             vars.Add ("NoDetailsText", noDetails);
             vars.Add ("InfoMessage", infoMessage);
 
             // labels
             vars.Add ("AbuseReportText", translator.GetTranslatedString ("AbuseReportText"));
-
             vars.Add ("DateText", translator.GetTranslatedString ("DateText"));
             vars.Add ("CategoryText", translator.GetTranslatedString ("CategoryText"));
             vars.Add ("SummaryText", translator.GetTranslatedString ("SummaryText"));

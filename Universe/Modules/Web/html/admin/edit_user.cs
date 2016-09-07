@@ -57,7 +57,6 @@ namespace Universe.Modules.Web
             get { return true; }
         }
 
-
         public Dictionary<string, object> Fill (WebInterface webInterface, string filename, OSHttpRequest httpRequest,
                                                OSHttpResponse httpResponse, Dictionary<string, object> requestParameters,
                                                ITranslator translator, out string response)
@@ -87,7 +86,7 @@ namespace Universe.Modules.Web
                 requestParameters ["Submit"].ToString () == "SubmitSetUserType") {
 
                 string UserType = requestParameters ["UserType"].ToString ();
-                int UserFlags = webInterface.UserTypeToUserFlags (UserType);
+                int UserFlags = WebHelpers.UserTypeToUserFlags (UserType);
 
                 // set the user account type
                 if (account != null) {
@@ -115,7 +114,7 @@ namespace Universe.Modules.Web
                         profile = profileData.GetUserProfile (userID);
                     }
 
-                    profile.MembershipGroup = webInterface.UserFlagToType (UserFlags, webInterface.EnglishTranslator);    // membership is english
+                    profile.MembershipGroup = WebHelpers.UserFlagToType (UserFlags, webInterface.EnglishTranslator);    // membership is english
                     profileData.UpdateUserProfile (profile);
                 }
 
@@ -141,6 +140,7 @@ namespace Universe.Modules.Web
                     else
                         response = "No authentication service was available to change the account passwor!";
                 }
+
                 return null;
             }
 
@@ -242,6 +242,7 @@ namespace Universe.Modules.Web
                     response = "User has been kicked.";
                 } else
                     response = "Unable to determine user to  kick!";
+
                 return null;
             }
 
@@ -268,10 +269,12 @@ namespace Universe.Modules.Web
             if (agent != null)
                 userBanned =  ((agent.Flags & IAgentFlags.PermBan) == IAgentFlags.PermBan ||
                                (agent.Flags & IAgentFlags.TempBan) == IAgentFlags.TempBan);
+
             bool TempUserBanned = false;
+
             if (userBanned) {
                 if ((agent.Flags & IAgentFlags.TempBan) == IAgentFlags.TempBan &&
-                    agent.OtherAgentInformation ["Temperory BanInfo"].AsDate () < DateTime.Now.ToUniversalTime ()) {
+                    agent.OtherAgentInformation ["Temporary BanInfo"].AsDate () < DateTime.Now.ToUniversalTime ()) {
                     userBanned = false;
                     agent.Flags &= ~IAgentFlags.TempBan;
                     agent.Flags &= ~IAgentFlags.PermBan;
@@ -283,8 +286,10 @@ namespace Universe.Modules.Web
                     bannedUntil = string.Format ("{0} {1}", bannedTime.ToShortDateString (), bannedTime.ToLongTimeString ());
                 }
             }
+
             bool userOnline = false;
             IAgentInfoService agentInfoService = webInterface.Registry.RequestModuleInterface<IAgentInfoService> ();
+
             if (agentInfoService != null) {
                 UserInfo Info = null;
                 if (account != null)
@@ -369,7 +374,7 @@ namespace Universe.Modules.Web
             vars.Add ("HoursText", translator.GetTranslatedString ("HoursText"));
             vars.Add ("MinutesText", translator.GetTranslatedString ("MinutesText"));
 
-            vars.Add ("UserType", webInterface.UserTypeArgs (translator));
+            vars.Add ("UserType", WebHelpers.UserTypeArgs (translator));
 
             return vars;
         }

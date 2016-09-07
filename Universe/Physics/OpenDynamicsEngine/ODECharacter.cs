@@ -685,7 +685,7 @@ namespace Universe.Physics.OpenDynamicsEngine
             float xTiltComponent = -movementVector.X * m_tiltMagnitudeWhenProjectedOnXYPlane;
             float yTiltComponent = -movementVector.Y * m_tiltMagnitudeWhenProjectedOnXYPlane;
             //MainConsole.Instance.Debug(movementVector.X + " " + movementVector.Y);
-            //MainConsole.Instance.Debug("[PHYSICS] changing avatar tilt");
+            //MainConsole.Instance.Debug("[Physics] changing avatar tilt");
             d.JointSetAMotorAngle(Amotor, 0, xTiltComponent);
             d.JointSetAMotorAngle(Amotor, 1, yTiltComponent);
             d.JointSetAMotorAngle(Amotor, 2, 0);

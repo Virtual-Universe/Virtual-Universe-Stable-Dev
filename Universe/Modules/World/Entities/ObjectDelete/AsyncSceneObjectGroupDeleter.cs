@@ -130,7 +130,7 @@ namespace Universe.Modules.Entities.ObjectDelete
 
             if (!DeleteLoopInUse) {
                 DeleteLoopInUse = true;
-                //MainConsole.Instance.Debug("[SCENE]: Starting delete loop");
+                //MainConsole.Instance.Debug("[Scene]: Starting delete loop");
                 Util.FireAndForget (DoDeleteObject);
             }
         }
@@ -157,7 +157,7 @@ namespace Universe.Modules.Entities.ObjectDelete
                 DoDeleteObject (o);
             } else {
                 DeleteLoopInUse = false;
-                //MainConsole.Instance.Debug("[SCENE]: Ending delete loop");
+                //MainConsole.Instance.Debug("[Scene]: Ending delete loop");
             }
         }
 
@@ -200,7 +200,7 @@ namespace Universe.Modules.Entities.ObjectDelete
                     (x != null ? x.agentId.ToString () : "unavailable"), e);
             }
 
-            //MainConsole.Instance.Debug("[SCENE]: No objects left in delete queue.");
+            //MainConsole.Instance.Debug("[Scene]: No objects left in delete queue.");
             return false;
         }
 

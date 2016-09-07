@@ -75,10 +75,8 @@ namespace Universe.Modules.CallingCards
                 return;
 
             m_Scene = null;
-
             scene.EventManager.OnNewClient -= OnNewClient;
             scene.EventManager.OnClosingClient -= OnClosingClient;
-
             scene.UnregisterModuleInterface<ICallingCardModule>(this);
         }
 
@@ -86,6 +84,7 @@ namespace Universe.Modules.CallingCards
         {
             if (!m_Enabled)
                 return;
+
             scene.EventManager.OnNewClient += OnNewClient;
             scene.EventManager.OnClosingClient -= OnClosingClient;
         }
@@ -160,7 +159,6 @@ namespace Universe.Modules.CallingCards
                                              SaleType = (byte) SaleType.Not
                                          };
 
-
             ILLClientInventory inventory = client.Scene.RequestModuleInterface<ILLClientInventory>();
             if (inventory != null)
                 inventory.AddInventoryItemAsync(client, item);
@@ -174,9 +172,7 @@ namespace Universe.Modules.CallingCards
         /// <param name="transactionID"></param>
         void OnOfferCallingCard(IClientAPI client, UUID destID, UUID transactionID)
         {
-            MainConsole.Instance.DebugFormat(
-                "[Calling card module]: Got offer from {0} for {1}, transaction {2}",
-                client.AgentId, destID, transactionID);
+            MainConsole.Instance.DebugFormat("[Calling Cards Module]: Got offer from {0} for {1}, transaction {2}", client.AgentId, destID, transactionID);
 
             IClientAPI friendClient = LocateClientObject(destID);
             if (friendClient == null)
@@ -189,6 +185,7 @@ namespace Universe.Modules.CallingCards
             {
                 m_pendingCallingcardRequests[transactionID] = client.AgentId;
             }
+
             // inform the destination agent about the offer
             friendClient.SendOfferCallingCard(client.AgentId, transactionID);
         }
@@ -202,7 +199,7 @@ namespace Universe.Modules.CallingCards
         void OnAcceptCallingCard(IClientAPI client, UUID transactionID, UUID folderID)
         {
             MainConsole.Instance.DebugFormat(
-                "[Calling card module]: User {0} ({1}) accepted tid {2}, folder {3}",
+                "[Calling Cards Module]: User {0} ({1}) accepted tid {2}, folder {3}",
                 client.AgentId,
                 client.Name,
                 transactionID, folderID);
@@ -211,15 +208,13 @@ namespace Universe.Modules.CallingCards
             {
                 if (!m_pendingCallingcardRequests.TryGetValue(transactionID, out destID))
                 {
-                    MainConsole.Instance.WarnFormat(
-                        "[Calling card module]: Got a AcceptCallingCard from {0} without an offer before.",
-                        client.Name);
+                    MainConsole.Instance.WarnFormat("[Calling Cards Module]: Got a AcceptCallingCard from {0} without an offer before.", client.Name);
                     return;
                 }
+
                 // else found pending calling card request with that transaction.
                 m_pendingCallingcardRequests.Remove(transactionID);
             }
-
 
             IClientAPI friendClient = LocateClientObject(destID);
             // inform sender of the card that destination accepted the offer
@@ -230,7 +225,6 @@ namespace Universe.Modules.CallingCards
                 CreateCallingCard (client, destID, folderID, friendClient.Name);
             } else
                 client.SendAlertMessage ("The person you have offered a card to can't be found anymore.");
-
         }
 
         /// <summary>
@@ -240,18 +234,16 @@ namespace Universe.Modules.CallingCards
         /// <param name="transactionID"></param>
         void OnDeclineCallingCard(IClientAPI client, UUID transactionID)
         {
-            MainConsole.Instance.DebugFormat("[Calling card module]: User {0} (ID:{1}) declined card, tid {2}",
-                                             client.Name, client.AgentId, transactionID);
+            MainConsole.Instance.DebugFormat("[Calling Cards Module]: User {0} (ID:{1}) declined card, tid {2}", client.Name, client.AgentId, transactionID);
             UUID destID;
             lock (m_pendingCallingcardRequests)
             {
                 if (!m_pendingCallingcardRequests.TryGetValue(transactionID, out destID))
                 {
-                    MainConsole.Instance.WarnFormat(
-                        "[Calling card module]: Got a AcceptCallingCard from {0} without an offer before.",
-                        client.Name);
+                    MainConsole.Instance.WarnFormat("[Calling Cards Module]: Got a AcceptCallingCard from {0} without an offer before.", client.Name);
                     return;
                 }
+
                 // else found pending calling card request with that transaction.
                 m_pendingCallingcardRequests.Remove(transactionID);
             }
@@ -260,7 +252,6 @@ namespace Universe.Modules.CallingCards
             // inform sender of the card that destination declined the offer
             if (friendClient != null)
                 friendClient.SendDeclineCallingCard(transactionID);
-
         }
 
         #endregion

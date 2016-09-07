@@ -43,7 +43,8 @@ namespace Universe.DataManager.MySQL
     {
         string m_connectionString = "";
 
-        public override string Identifier {
+        public override string Identifier
+        {
             get { return "MySQLData"; }
         }
 

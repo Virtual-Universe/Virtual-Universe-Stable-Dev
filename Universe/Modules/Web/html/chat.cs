@@ -34,11 +34,10 @@ namespace Universe.Modules.Web
 {
     public class ChatMain : IWebInterfacePage
     {
-        public string[] FilePath
+        public string [] FilePath
         {
-            get
-            {
-                return new[]
+            get {
+                return new []
                            {
                                "html/chat.html"
                            };
@@ -55,17 +54,17 @@ namespace Universe.Modules.Web
             get { return false; }
         }
 
-        public Dictionary<string, object> Fill(WebInterface webInterface, string filename, OSHttpRequest httpRequest,
+        public Dictionary<string, object> Fill (WebInterface webInterface, string filename, OSHttpRequest httpRequest,
                                                OSHttpResponse httpResponse, Dictionary<string, object> requestParameters,
                                                ITranslator translator, out string response)
         {
             response = null;
-            var vars = new Dictionary<string, object>();
-            vars.Add("ChatText", translator.GetTranslatedString("ChatText"));
+            var vars = new Dictionary<string, object> ();
+            vars.Add ("ChatText", translator.GetTranslatedString ("ChatText"));
             return vars;
         }
 
-        public bool AttemptFindPage(string filename, ref OSHttpResponse httpResponse, out string text)
+        public bool AttemptFindPage (string filename, ref OSHttpResponse httpResponse, out string text)
         {
             text = "";
             return false;

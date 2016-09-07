@@ -35,7 +35,7 @@ namespace Universe.Framework.Utilities
 {
     public class Culture
     {
-        private static readonly CultureInfo m_cultureInfo = new CultureInfo("en-US", false);
+        static readonly CultureInfo m_cultureInfo = new CultureInfo("en-US", false);
 
         public static NumberFormatInfo NumberFormatInfo
         {
@@ -59,7 +59,8 @@ namespace Universe.Framework.Utilities
         /// The base system culture info before it is locked to "en_US".
         ///   Used for log date/time formatting
         /// </summary>
-        public static CultureInfo SystemCultureInfo { get; set; }
+        public static CultureInfo SystemCultureInfo
+        { get; set; }
 
         /// <summary>
         /// Returns a formatted date string depending upon the system Locale.
@@ -67,7 +68,7 @@ namespace Universe.Framework.Utilities
         /// <returns>Local date string.</returns>
         public static string LocaleDate(DateTime userDateTime)
         {
-            return LocaleDate (userDateTime, null);
+            return LocaleDate(userDateTime, null);
         }
 
         /// <summary>
@@ -76,7 +77,7 @@ namespace Universe.Framework.Utilities
         /// <returns>The localized date.</returns>
         /// <param name="userDateTime">User date time.</param>
         /// <param name="dtFormat">DateTime format if required.</param>
-        public static string LocaleDate(DateTime userDateTime, string dtFormat )
+        public static string LocaleDate(DateTime userDateTime, string dtFormat)
         {
             const string defFormat = "MMM dd, yyyy";
 
@@ -84,23 +85,28 @@ namespace Universe.Framework.Utilities
                 dtFormat = defFormat;
 
             string dt;
-
             if (userDateTime > DateTime.MinValue)
-                dt = userDateTime.ToString (dtFormat,Culture.SystemCultureInfo);
+                dt = userDateTime.ToString(dtFormat, SystemCultureInfo);
             else
-                dt = DateTime.Now.ToString (dtFormat,Culture.SystemCultureInfo);
-
+                dt = DateTime.Now.ToString(dtFormat, SystemCultureInfo);
             return dt;
         }
 
         /// <summary>
         /// Returns a formatted date time string depending upon the system Locale.
         /// </summary>
-        /// <returns>Local time & date string.</returns>
+        /// <returns>Local time and date string.</returns>
         public static string LocaleTimeDate()
         {
-            string dt = DateTime.Now.ToString ("hh:mm:ss MMM dd",Culture.SystemCultureInfo);
+            string dt = DateTime.Now.ToString("hh:mm:ss MMM dd", SystemCultureInfo);
             return dt;
+        }
+
+        public static string LocaleShortDateTime(DateTime userDateTime)
+        {
+            const string defFormat = "MMM dd, hh:mm tt";
+            string ts = userDateTime.ToString(defFormat, SystemCultureInfo);
+            return ts;
         }
 
         /// <summary>
@@ -110,7 +116,7 @@ namespace Universe.Framework.Utilities
         /// <returns>Local date time string.</returns>
         public static string LocaleLogStamp()
         {
-            string ts = DateTime.Now.ToString ("MMM dd hh:mm:ss",Culture.SystemCultureInfo);
+            string ts = DateTime.Now.ToString("MMM dd hh:mm:ss", SystemCultureInfo);
             return ts;
         }
     }

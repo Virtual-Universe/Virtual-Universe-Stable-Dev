@@ -64,7 +64,6 @@ namespace Universe.Modules.Archivers
         ///     Asset service used to request the assets
         /// </value>
         protected IAssetService m_assetService;
-
         protected AssetsArchiver m_assetsArchiver;
 
         /// <value>
@@ -81,7 +80,6 @@ namespace Universe.Modules.Archivers
         ///     Maintain a list of assets that could not be found.  This will be passed back to the requester.
         /// </value>
         protected List<UUID> m_notFoundAssetUuids = new List<UUID>();
-
         protected Timer m_requestCallbackTimer;
 
         /// <value>
@@ -113,8 +111,7 @@ namespace Universe.Modules.Archivers
             lock(this) {
                 m_requestState = RequestState.Running;
 
-                MainConsole.Instance.DebugFormat ("[Archiver]: AssetsRequest executed looking for {0} assets",
-                                                 m_repliesRequired);
+                MainConsole.Instance.DebugFormat ("[Archiver]: AssetsRequest executed looking for {0} assets", m_repliesRequired);
 
                 // We can stop here if there are no assets to fetch
                 if (m_repliesRequired == 0) {
@@ -155,8 +152,7 @@ namespace Universe.Modules.Archivers
                 foreach (UUID uuid in m_notFoundAssetUuids)
                     uuids.Remove(uuid);
 
-                MainConsole.Instance.ErrorFormat(
-                    "[Archiver]: Asset service failed to return information about {0} requested assets", uuids.Count);
+                MainConsole.Instance.ErrorFormat("[Archiver]: Asset service failed to return information about {0} requested assets", uuids.Count);
 
                 int i = 0;
                 foreach (UUID uuid in uuids)
@@ -168,8 +164,7 @@ namespace Universe.Modules.Archivers
                 }
 
                 if (uuids.Count > MAX_UUID_DISPLAY_ON_TIMEOUT)
-                    MainConsole.Instance.ErrorFormat(
-                        "[Archiver]: (... {0} more not shown)", uuids.Count - MAX_UUID_DISPLAY_ON_TIMEOUT);
+                    MainConsole.Instance.ErrorFormat("[Archiver]: (... {0} more not shown)", uuids.Count - MAX_UUID_DISPLAY_ON_TIMEOUT);
 
                 MainConsole.Instance.Error("[Archiver]: OAR save aborted.");
             }
@@ -189,8 +184,7 @@ namespace Universe.Modules.Archivers
             if (fetchedAsset != null && fetchedAsset.Type == (sbyte) AssetType.Unknown)
             {
                 AssetType type = (AssetType) assetType;
-                MainConsole.Instance.InfoFormat("[Archiver]: Rewriting broken asset type for {0} to {1}",
-                                                fetchedAsset.ID, type);
+                MainConsole.Instance.InfoFormat("[Archiver]: Rewriting broken asset type for {0} to {1}", fetchedAsset.ID, type);
                 fetchedAsset.Type = (sbyte) type;
             }
 
@@ -215,9 +209,7 @@ namespace Universe.Modules.Archivers
 
                     if (m_requestState == RequestState.Aborted)
                     {
-                        MainConsole.Instance.WarnFormat(
-                            "[Archiver]: Received information about asset {0} after archive save abortion.  Ignoring.",
-                            assetID);
+                        MainConsole.Instance.WarnFormat("[Archiver]: Received information about asset {0} after archive save abortion.  Ignoring.", assetID);
 
                         return;
                     }
@@ -267,8 +259,7 @@ namespace Universe.Modules.Archivers
             }
             catch (Exception e)
             {
-                MainConsole.Instance.ErrorFormat(
-                    "[Archiver]: Terminating archive creation since asset requster callback failed with {0}", e);
+                MainConsole.Instance.ErrorFormat("[Archiver]: Terminating archive creation since asset requster callback failed with {0}", e);
             }
         }
 

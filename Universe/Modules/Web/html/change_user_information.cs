@@ -92,16 +92,15 @@ namespace Universe.Modules.Web
                         response = authService.SetPassword(user.PrincipalID, "UserAccount", password)
                             ? "Your password has been updated"
                             : "Failed to set your password, try again later";
-
                     else
                         response = "No authentication service was available to change your password";
                 }
+
                 return null;
             }
 
             // email change
-            if (requestParameters.ContainsKey("Submit") &&
-                     requestParameters["Submit"].ToString() == "SubmitEmailChange")
+            if (requestParameters.ContainsKey("Submit") && requestParameters["Submit"].ToString() == "SubmitEmailChange")
             {
                 string email = requestParameters["email"].ToString();
 
@@ -114,17 +113,18 @@ namespace Universe.Modules.Web
                 }
                 else
                     response = "No authentication service was available to change your password";
+
                 return null;
             }
 
             // Delete User
-            if (requestParameters.ContainsKey("Submit") &&
-                     requestParameters["Submit"].ToString() == "SubmitDeleteUser")
+            if (requestParameters.ContainsKey("Submit") && requestParameters["Submit"].ToString() == "SubmitDeleteUser")
             {
                 string username = requestParameters["username"].ToString();
                 string password = requestParameters["password"].ToString();
 
                 ILoginService loginService = webInterface.Registry.RequestModuleInterface<ILoginService>();
+
                 if (loginService.VerifyClient(UUID.Zero, username, "UserAccount", password))
                 {
                     IUserAccountService userService =
@@ -139,6 +139,7 @@ namespace Universe.Modules.Web
                 }
                 else
                     response = "Wrong username or password";
+
                 return null;
             }
 

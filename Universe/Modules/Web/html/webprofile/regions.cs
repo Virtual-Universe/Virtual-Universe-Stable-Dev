@@ -79,8 +79,7 @@ namespace Universe.Modules.Web
                 UUID userUUID = UUID.Parse (userid);
                 scopeUUID.Add (userUUID);
                   
-                account = webInterface.Registry.RequestModuleInterface<IUserAccountService>().
-                    GetUserAccount(null, userUUID);
+                account = webInterface.Registry.RequestModuleInterface<IUserAccountService>().GetUserAccount(null, userUUID);
 
                 IGridService gridService = webInterface.Registry.RequestModuleInterface<IGridService>();
                 IWebHttpTextureService webTextureService = webInterface.Registry.RequestModuleInterface<IWebHttpTextureService>();
@@ -133,6 +132,7 @@ namespace Universe.Modules.Web
              }
 
             vars.Add("NoDetailsText", noDetails);
+
             if (account != null)
                 vars.Add ("UserName", account.Name);
             else
@@ -154,9 +154,8 @@ namespace Universe.Modules.Web
         public bool AttemptFindPage(string filename, ref OSHttpResponse httpResponse, out string text)
         {
             httpResponse.ContentType = "text/html";
-            //text = "";
             text = File.ReadAllText("html/webprofile/index.html");
-                      return false;
+            return false;
         }
     }
 }

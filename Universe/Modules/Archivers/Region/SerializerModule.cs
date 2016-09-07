@@ -48,8 +48,7 @@ namespace Universe.Modules.Archivers
 
             XmlTextReader reader = new XmlTextReader(new StringReader(xmlString))
                                        {
-                                           WhitespaceHandling =
-                                               WhitespaceHandling.None
+                                           WhitespaceHandling = WhitespaceHandling.None
                                        };
             doc.Load(reader);
             reader.Close();

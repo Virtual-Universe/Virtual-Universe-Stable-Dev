@@ -60,10 +60,10 @@ namespace Universe.Modules.Selection
 
         public void Initialize(IConfigSource source)
         {
-			IConfig universestartupConfig = source.Configs["UniverseStartup"];
-			if (universestartupConfig != null)
+            IConfig universestartupConfig = source.Configs["UniverseStartup"];
+            if (universestartupConfig != null)
             {
-				m_UseSelectionParticles = universestartupConfig.GetBoolean("UseSelectionParticles", true);
+                m_UseSelectionParticles = universestartupConfig.GetBoolean("UseSelectionParticles", true);
             }
         }
 
@@ -154,13 +154,13 @@ namespace Universe.Modules.Selection
                 {
                     IScenePresence SP = remoteClient.Scene.GetScenePresence(remoteClient.AgentId);
                     //We send a forced because we MUST send a full update, as the client doesn't have this prim
-                    ((ISceneEntity) entity).ScheduleGroupUpdateToAvatar(SP, PrimUpdateFlags.ForcedFullUpdate);
+                    ((ISceneEntity)entity).ScheduleGroupUpdateToAvatar(SP, PrimUpdateFlags.ForcedFullUpdate);
                     IObjectCache cache = remoteClient.Scene.RequestModuleInterface<IObjectCache>();
+
                     if (cache != null)
                         cache.RemoveObject(remoteClient.AgentId, entity.LocalId, cacheMissType);
                     MainConsole.Instance.WarnFormat("[ObjectCache]: Avatar didn't have {0}, miss type {1}, CRC {2}",
-                                                    primLocalID,
-                                                    cacheMissType, ((ISceneEntity) entity).RootChild.CRC);
+                                                    primLocalID, cacheMissType, ((ISceneEntity)entity).RootChild.CRC);
                 }
             }
         }
@@ -188,10 +188,10 @@ namespace Universe.Modules.Selection
                         // so "edit link parts" keep the object select and not moved by physics
                         // similar changes on deselect
                         // part.IsSelect is on SceneObjectPart.cs
-                        // Ubit
                         prim.ParentEntity.IsSelected = true;
                     }
                 }
+
                 //Check for avatars! They aren't prims!
                 if (scene.GetScenePresence(primLocalID) != null)
                     continue;
@@ -203,22 +203,25 @@ namespace Universe.Modules.Selection
                 }
                 else
                 {
-                    MainConsole.Instance.ErrorFormat(
-                        "[SCENEPACKETHANDLER]: Could not find prim {0} in SelectPrim, killing prim.",
-                        primLocalID);
+                    MainConsole.Instance.ErrorFormat("[Scene Packet Handler]: Could not find prim {0} in SelectPrim, killing prim.", primLocalID);
+                    
                     //Send a kill packet to the viewer so it doesn't come up again
-                    remoteClient.SendKillObject(scene.RegionInfo.RegionHandle, new uint[1] {primLocalID});
+                    remoteClient.SendKillObject(scene.RegionInfo.RegionHandle, new uint[1] { primLocalID });
                 }
             }
+
             IScenePresence SP;
             scene.TryGetScenePresence(remoteClient.AgentId, out SP);
             if (SP == null)
                 return;
+
             if (EntitiesToUpdate.Count != 0)
             {
                 SP.SceneViewer.QueuePartsForPropertiesUpdate(EntitiesToUpdate.ToArray());
             }
+
             PerClientSelectionParticles selection = SP.RequestModuleInterface<PerClientSelectionParticles>();
+
             if (selection != null)
             {
                 selection.SelectedUUID = prim;
@@ -259,7 +262,7 @@ namespace Universe.Modules.Selection
             part.ParentEntity.IsSelected = false;
 
             if (!part.ParentEntity.IsAttachment)
-                //This NEEDS to be done because otherwise rotationalVelocity will break! Only for the editing av as the client stops the rotation for them when they are in edit
+            //This NEEDS to be done because otherwise rotationalVelocity will break! Only for the editing av as the client stops the rotation for them when they are in edit
             {
                 if (part.AngularVelocity != Vector3.Zero && !part.ParentEntity.IsDeleted)
                     SP.SceneViewer.QueuePartForUpdate(part, PrimUpdateFlags.ForcedFullUpdate);
@@ -276,18 +279,19 @@ namespace Universe.Modules.Selection
             for (int i = 0; i < args.Count; i++)
             {
                 ViewerEffectPacket.EffectBlock effect = new ViewerEffectPacket.EffectBlock
-                                                            {
-                                                                AgentID = args[i].AgentID,
-                                                                Color = args[i].Color,
-                                                                Duration = args[i].Duration,
-                                                                ID = args[i].ID,
-                                                                Type = args[i].Type,
-                                                                TypeData = args[i].TypeData
-                                                            };
+                {
+                    AgentID = args[i].AgentID,
+                    Color = args[i].Color,
+                    Duration = args[i].Duration,
+                    ID = args[i].ID,
+                    Type = args[i].Type,
+                    TypeData = args[i].TypeData
+                };
+
                 effectBlockArray[i] = effect;
+                
                 //Save the color
-                if (effect.Type == (int) EffectType.Beam || effect.Type == (int) EffectType.Point
-                    || effect.Type == (int) EffectType.Sphere)
+                if (effect.Type == (int)EffectType.Beam || effect.Type == (int)EffectType.Point || effect.Type == (int)EffectType.Sphere)
                 {
                     Color4 color = new Color4(effect.Color, 0, false);
                     if (SP != null && !(color.R == 0 && color.G == 0 && color.B == 0))
@@ -365,9 +369,7 @@ namespace Universe.Modules.Selection
                 if (m_presence == null)
                     return;
                 //We can't deregister ourselves... our reference is lost... so just hope we stop getting called soon
-                if (!m_presence.IsChildAgent && m_module.UseSelectionParticles && (m_effectsLastSent == 0 ||
-                                                                                   Util.EnvironmentTickCountSubtract(
-                                                                                       m_effectsLastSent) > 900))
+                if (!m_presence.IsChildAgent && m_module.UseSelectionParticles && (m_effectsLastSent == 0 || Util.EnvironmentTickCountSubtract(m_effectsLastSent) > 900))
                 {
                     SendViewerEffects();
                     m_effectsLastSent = Util.EnvironmentTickCount();
@@ -383,7 +385,7 @@ namespace Universe.Modules.Selection
                     return;
 
                 ISceneChildEntity SOP = m_SelectedUUID;
-                if (SOP == null) //This IS necessary, this is how we can clear this out
+                if (SOP == null) //This is necessary, this is how we can clear this out
                 {
                     IsSelecting = false;
                     return;
@@ -392,13 +394,14 @@ namespace Universe.Modules.Selection
                 ViewerEffectPacket.EffectBlock[] effectBlockArray = new ViewerEffectPacket.EffectBlock[1];
 
                 ViewerEffectPacket.EffectBlock effect = new ViewerEffectPacket.EffectBlock
-                                                            {
-                                                                AgentID = m_presence.UUID,
-                                                                Color = EffectColor,
-                                                                Duration = 0.9f,
-                                                                ID = UUID.Random(),
-                                                                Type = (int) EffectType.Beam
-                                                            };
+                {
+                    AgentID = m_presence.UUID,
+                    Color = EffectColor,
+                    Duration = 0.9f,
+                    ID = UUID.Random(),
+                    Type = (int)EffectType.Beam
+                };
+
                 //This seems to be what is passed by SL when its send from the server
                 //Bean is the line from hand to object
 

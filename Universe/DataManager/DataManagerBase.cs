@@ -149,7 +149,7 @@ namespace Universe.DataManager
         {
             if (!TableExists(tableName))
             {
-                MainConsole.Instance.Warn("[DataMigrator]: Issue finding table " + tableName + " when verifying tables exist!"); 
+                MainConsole.Instance.Warn("[Data Migrator]: Issue finding table " + tableName + " when verifying tables exist!"); 
                 return false;
             }
 
@@ -182,7 +182,8 @@ namespace Universe.DataManager
                                                   GetColumnTypeStringSymbol(columnDefinition.Type));
                         
                     }
-                    MainConsole.Instance.Warn("[DataMigrator]: Issue verifying table " + tableName + " column " +
+
+                    MainConsole.Instance.Warn("[Data Migrator]: Issue verifying table " + tableName + " column " +
                                               columnDefinition.Name +
                                               " when verifying tables exist, problem with new column definitions");
                     return false;
@@ -204,9 +205,8 @@ namespace Universe.DataManager
                         }
                     }
 
-                    MainConsole.Instance.Warn("[DataMigrator]: Issue verifying table " + tableName + " column " +
-                                              columnDefinition.Name +
-                                              " when verifying tables exist, problem with old column definitions");
+                    MainConsole.Instance.Warn("[Data Migrator]: Issue verifying table " + tableName + " column " +
+                                              columnDefinition.Name + " when verifying tables exist, problem with old column definitions");
                     return false;
                 }
             }
@@ -236,7 +236,7 @@ namespace Universe.DataManager
 
                     if (thisDef == null)
                     {
-                        MainConsole.Instance.Warn("[DataMigrator]: Issue verifying table " + tableName + " index " +
+                        MainConsole.Instance.Warn("[Data Migrator]: Issue verifying table " + tableName + " index " +
                                                   indexDefinition.Type + " (" +
                                                   string.Join(", ", indexDefinition.Fields) +
                                                   ") when verifying tables exist");
@@ -261,7 +261,7 @@ namespace Universe.DataManager
 
                     if (thisDef == null)
                     {
-                        MainConsole.Instance.Warn("[DataMigrator]: Issue verifying table " + tableName + " index " +
+                        MainConsole.Instance.Warn("[Data Migrator]: Issue verifying table " + tableName + " index " +
                                                   indexDefinition.Type + " (" +
                                                   string.Join(", ", indexDefinition.Fields) +
                                                   ") when verifying tables exist");

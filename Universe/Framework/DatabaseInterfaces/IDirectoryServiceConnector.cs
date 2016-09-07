@@ -99,7 +99,8 @@ namespace Universe.Framework.DatabaseInterfaces
         /// <param name="flags"></param>
         /// <param name="category"></param>
         /// <returns></returns>
-        List<LandData> GetParcelsByRegion(uint start, uint count, UUID RegionID, UUID owner, ParcelFlags flags, ParcelCategory category);
+        List<LandData> GetParcelsByRegion(uint start, uint count, UUID RegionID, UUID owner, ParcelFlags flags,
+                                          ParcelCategory category);
 
         /// <summary>
         ///     Get the number of parcels in the specified region that match the specified filters.
@@ -150,7 +151,8 @@ namespace Universe.Framework.DatabaseInterfaces
         /// <param name="Flags"></param>
         /// <param name="scopeID"></param>
         /// <returns></returns>
-        List<DirLandReplyData> FindLandForSale(string searchType, uint price, uint area, int StartQuery, uint Flags, UUID scopeID);
+        List<DirLandReplyData> FindLandForSale(string searchType, uint price, uint area, int StartQuery, uint Flags,
+                                               UUID scopeID);
 
         /// <summary>
         ///     Searches for parcels for sale around the grid
@@ -162,7 +164,8 @@ namespace Universe.Framework.DatabaseInterfaces
         /// <param name="Flags"></param>
         /// <param name="regionID"></param>
         /// <returns></returns>
-        List<DirLandReplyData> FindLandForSaleInRegion(string searchType, uint price, uint area, int StartQuery, uint Flags, UUID regionID);
+        List<DirLandReplyData> FindLandForSaleInRegion(string searchType, uint price, uint area, int StartQuery,
+                                                       uint Flags, UUID regionID);
 
         /// <summary>
         ///     Searches for the most popular places around the grid
@@ -185,14 +188,15 @@ namespace Universe.Framework.DatabaseInterfaces
         /// <param name="StartQuery"></param>
         /// <param name="scopeID"></param>
         /// <returns></returns>
-        List<DirClassifiedReplyData> FindClassifieds(string queryText, string category, uint queryFlags, int StartQuery, UUID scopeID);
+        List<DirClassifiedReplyData> FindClassifieds(string queryText, string category, uint queryFlags, int StartQuery,
+                                                     UUID scopeID);
         /// <summary>
         /// Gets a lost of all classifieds.
         /// </summary>
         /// <returns>The classifieds.</returns>
         /// <param name="category">Category.</param>
         /// <param name="classifiedFlags">Classified maturity flags.</param>
-        List<Classified> GetAllClassifieds (int category, uint classifiedFlags);
+        List<Classified> GetAllClassifieds(int category, uint classifiedFlags);
 
         /// <summary>
         ///     Gets all classifieds in the given region
@@ -226,9 +230,29 @@ namespace Universe.Framework.DatabaseInterfaces
         /// Gets all events.
         /// </summary>
         /// <returns>The all events.</returns>
-        /// <param name="dayQuery">Day query. 'u' for today or date</param>
-        /// <param name="eventFlags">Event flags.</param>
-        List<EventData> GetAllEvents (string dayQuery, uint eventFlags);
+        /// <param name="queryHours">Query hours.</param>
+        /// <param name="category">Category.</param>
+        /// <param name="maturityLevel">Maturity level.</param>
+        List<EventData> GetAllEvents(int queryHours, int category, int maturityLevel);
+
+        /// <summary>
+        /// Gets the user events.
+        /// </summary>
+        /// <returns>The user events.</returns>
+        /// <param name="userId">User identifier.</param>
+        /// <param name="queryHours">Query hours.</param>
+        /// <param name="category">Category.</param>
+        /// <param name="maturityLevel">Maturity level.</param>
+        List<EventData> GetUserEvents(string userId, int queryHours, int category, int maturityLevel);
+
+        /// <summary>
+        /// Gets all events.
+        /// </summary>
+        /// <returns>The all events.</returns>
+        /// <param name="userId">Creator ID.(Ignored if null)</param>
+        /// <param name="queryHours">Next nn hours.</param>
+        /// <param name="maturityLevel">Event flags.</param>
+        List<EventData> GetEventsList(string userId, int queryHours, int categoriy, int maturityLevel);
 
         /// <summary>
         ///     Retrieves all events in the given region by their maturity level
@@ -266,6 +290,22 @@ namespace Universe.Framework.DatabaseInterfaces
                               string name, string description, string category);
 
         /// <summary>
+        /// Updates or adds an event.
+        /// </summary>
+        /// <returns><c>true</c>, if add event was updated, <c>false</c> otherwise.</returns>
+        /// <param name="eventData">Event data.</param>
+        /// <param name="regionId">Region identifier.</param>
+        /// <param name="parcelId">Parcel identifier.</param>
+        bool UpdateAddEvent(EventData eventData);
+
+        /// <summary>
+        /// Deletes an event.
+        /// </summary>
+        /// <returns><c>true</c>, if event was deleted, <c>false</c> otherwise.</returns>
+        /// <param name="eventId">Event identifier.</param>
+        bool DeleteEvent(string eventId);
+
+        /// <summary>
         ///     Gets a list of events with optional filters
         /// </summary>
         /// <param name="start"></param>
@@ -273,7 +313,8 @@ namespace Universe.Framework.DatabaseInterfaces
         /// <param name="sort"></param>
         /// <param name="filter"></param>
         /// <returns></returns>
-        List<EventData> GetEvents(uint start, uint count, Dictionary<string, bool> sort, Dictionary<string, object> filter);
+        List<EventData> GetEvents(uint start, uint count, Dictionary<string, bool> sort,
+                                  Dictionary<string, object> filter);
 
         /// <summary>
         ///     Get the number of events matching the specified filters

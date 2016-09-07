@@ -79,7 +79,7 @@ namespace Universe.Framework.SceneInfo
         List<ISceneEntity> LoadObjects();
 
         /// <summary>
-        ///     Load the latest terrain revision from region storage
+        ///     Load the latest terrain reuniverse from region storage
         /// </summary>
         /// <param name="RevertMap"></param>
         /// <param name="RegionSizeX"></param>
@@ -88,7 +88,7 @@ namespace Universe.Framework.SceneInfo
         void LoadTerrain(bool RevertMap, int RegionSizeX, int RegionSizeY);
 
         /// <summary>
-        ///     Load the latest water revision from region storage
+        ///     Load the latest water reuniverse from region storage
         /// </summary>
         /// <param name="RevertMap"></param>
         /// <param name="RegionSizeX"></param>

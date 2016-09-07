@@ -87,8 +87,7 @@ namespace Universe.Framework.Modules
 
         #region FollowAvatar
 
-        void FollowAvatar(UUID botID, string avatarName, float startFollowDistance, float endFollowDistance,
-                          bool requireLOS, Vector3 offsetFromAvatar, UUID userAttempting);
+        void FollowAvatar(UUID botID, string avatarName, float startFollowDistance, float endFollowDistance, bool requireLOS, Vector3 offsetFromAvatar, UUID userAttempting);
         void StopFollowAvatar(UUID botID, UUID userAttempting);
 
         #endregion

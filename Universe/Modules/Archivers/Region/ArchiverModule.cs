@@ -117,54 +117,64 @@ namespace Universe.Modules.Archivers
                     skipAssets = true;
                     newParams.Remove(param);
                 }
+
                 if (param.StartsWith("--skip-terrain", StringComparison.CurrentCultureIgnoreCase))
                 {
                     skipTerrain = true;
                     newParams.Remove(param);
                 }
+
                 if (param.StartsWith("--merge", StringComparison.CurrentCultureIgnoreCase))
                 {
                     mergeOar = true;
                     newParams.Remove(param);
                 }
+
                 if (param.StartsWith("--OffsetX", StringComparison.CurrentCultureIgnoreCase))
                 {
                     string retVal = param.Remove(0, 10);
                     int.TryParse(retVal, out offsetX);
                     newParams.Remove(param);
                 }
+
                 if (param.StartsWith("--OffsetY", StringComparison.CurrentCultureIgnoreCase))
                 {
                     string retVal = param.Remove(0, 10);
                     int.TryParse(retVal, out offsetY);
                     newParams.Remove(param);
                 }
+
                 if (param.StartsWith("--OffsetZ", StringComparison.CurrentCultureIgnoreCase))
                 {
                     string retVal = param.Remove(0, 10);
                     int.TryParse(retVal, out offsetZ);
                     newParams.Remove(param);
                 }
+
                 if (param.StartsWith("--FlipX", StringComparison.CurrentCultureIgnoreCase))
                 {
                     flipX = true;
                     newParams.Remove(param);
                 }
+
                 if (param.StartsWith("--FlipY", StringComparison.CurrentCultureIgnoreCase))
                 {
                     flipY = true;
                     newParams.Remove(param);
                 }
+
                 if (param.StartsWith("--UseParcelOwnership", StringComparison.CurrentCultureIgnoreCase))
                 {
                     useParcelOwnership = true;
                     newParams.Remove(param);
                 }
+
                 if (param.StartsWith("--CheckOwnership", StringComparison.CurrentCultureIgnoreCase))
                 {
                     checkOwnership = true;
                     newParams.Remove(param);
                 }
+
                 i++;
             }
 
@@ -192,6 +202,7 @@ namespace Universe.Modules.Archivers
                     permissions = param.Remove(0, 7);
                     newParams.Remove(param);
                 }
+
                 ArchiveRegion(newParams[2], Guid.Empty, permissions);
             }
             else
@@ -207,9 +218,7 @@ namespace Universe.Modules.Archivers
 
         public void ArchiveRegion(string savePath, Guid requestId, string permissions)
         {
-            MainConsole.Instance.InfoFormat(
-                "[Archiver]: Writing archive for region {0} to {1}", m_scene.RegionInfo.RegionName, savePath);
-
+            MainConsole.Instance.InfoFormat("[Archiver]: Writing archive for region {0} to {1}", m_scene.RegionInfo.RegionName, savePath);
             new ArchiveWriteRequestPreparation(m_scene, savePath, requestId, permissions).ArchiveRegion();
         }
 
@@ -227,8 +236,7 @@ namespace Universe.Modules.Archivers
                                     int offsetX, int offsetY, int offsetZ, bool flipX, bool flipY,
                                     bool useParcelOwnership, bool checkOwnership)
         {
-            MainConsole.Instance.InfoFormat(
-                "[Archiver]: Loading archive to region {0} from {1}", m_scene.RegionInfo.RegionName, loadPath);
+            MainConsole.Instance.InfoFormat("[Archiver]: Loading archive to region {0} from {1}", m_scene.RegionInfo.RegionName, loadPath);
 
             var archiveRead = new ArchiveReadRequest (m_scene, loadPath, merge, skipAssets, skipTerrain, offsetX,
                                   offsetY, offsetZ, flipX, flipY, useParcelOwnership, checkOwnership);

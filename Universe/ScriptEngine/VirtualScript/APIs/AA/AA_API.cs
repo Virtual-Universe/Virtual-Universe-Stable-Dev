@@ -714,8 +714,8 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
 
             if (lease.CurrentState == LeaseState.Initial) {
                 lease.InitialLeaseTime = TimeSpan.FromMinutes (0);
-                //lease.RenewOnCallTime = TimeSpan.FromSeconds(10.0);
-                //lease.SponsorshipTimeout = TimeSpan.FromMinutes(1.0);
+                // lease.RenewOnCallTime = TimeSpan.FromSeconds(10.0);
+                // lease.SponsorshipTimeout = TimeSpan.FromMinutes(1.0);
             }
 
             return lease;

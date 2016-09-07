@@ -316,7 +316,6 @@ namespace Universe.Simulation.Base
                         conf = data_ini.AddConfig ("UniverseConnectors");
                         conf.Set ("ValidateTables", true);
 
-
                         data_ini.Save ();
                         Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine ("Your Data.ini has been successfully configured");
@@ -604,8 +603,7 @@ namespace Universe.Simulation.Base
             return mode;
         }
 
-        public static void Startup (IConfigSource originalConfigSource, IConfigSource configSource,
-                                   ISimulationBase simBase, string [] cmdParameters)
+        public static void Startup (IConfigSource originalConfigSource, IConfigSource configSource, ISimulationBase simBase, string [] cmdParameters)
         {
             //Get it ready to run
             simBase.Initialize (originalConfigSource, configSource, cmdParameters, m_configLoader);

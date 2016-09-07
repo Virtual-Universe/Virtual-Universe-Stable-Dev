@@ -227,7 +227,7 @@ namespace Universe.Modules.Terrain.FileLoaders
 
             double horizontalScale = Math.Ceiling ((heightMax - heightMin));
 
-            // if we are completely flat add 1cm range to avoid NaN divisions
+            // if we are completely flat add 1cm range to avoid NaN diuniverses
             if (horizontalScale < 0.01d)
                 horizontalScale = 0.01d;
 

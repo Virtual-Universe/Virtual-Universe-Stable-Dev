@@ -53,7 +53,6 @@ namespace Universe.Modules.Gestures
         public void AddRegion(IScene scene)
         {
             m_scene = scene;
-
             m_scene.EventManager.OnNewClient += OnNewClient;
             m_scene.EventManager.OnClosingClient += OnClosingClient;
         }
@@ -99,36 +98,39 @@ namespace Universe.Modules.Gestures
         public virtual void ActivateGesture(IClientAPI client, UUID assetId, UUID gestureId)
         {
             IInventoryService invService = m_scene.InventoryService;
-			UUID libOwner = new UUID (Constants.LibraryOwner);
+            UUID libOwner = new UUID(Constants.LibraryOwner);
 
             InventoryItemBase item = invService.GetItem(client.AgentId, gestureId);
             if (item != null)
             {
-                item.Flags |= (uint) 1;
+                item.Flags |= (uint)1;
                 invService.UpdateItem(item);
             }
-            else {
-				if(invService.GetItem(libOwner, gestureId) == null) {
-					MainConsole.Instance.WarnFormat("[GESTURES]: Unable to find gesture {0} to activate for {1}", gestureId, client.Name);
-				}
-			}
+            else
+            {
+                if (invService.GetItem(libOwner, gestureId) == null)
+                {
+                    MainConsole.Instance.WarnFormat("[Gestures]: Unable to find gesture {0} to activate for {1}", gestureId, client.Name);
+                }
+            }
         }
 
         public virtual void DeactivateGesture(IClientAPI client, UUID gestureId)
         {
             IInventoryService invService = m_scene.InventoryService;
-			UUID libOwner = new UUID (Constants.LibraryOwner);
+            UUID libOwner = new UUID(Constants.LibraryOwner);
 
             InventoryItemBase item = invService.GetItem(client.AgentId, gestureId);
             if (item != null)
             {
-                item.Flags &= ~(uint) 1;
+                item.Flags &= ~(uint)1;
                 invService.UpdateItem(item);
             }
             else
-				if(invService.GetItem(libOwner, gestureId) == null) {
-					MainConsole.Instance.ErrorFormat("[GESTURES]: Unable to find gesture to deactivate {0} for {1}", gestureId, client.Name);
-				}
+                if (invService.GetItem(libOwner, gestureId) == null)
+            {
+                MainConsole.Instance.ErrorFormat("[GESTURES]: Unable to find gesture to deactivate {0} for {1}", gestureId, client.Name);
+            }
         }
     }
 }

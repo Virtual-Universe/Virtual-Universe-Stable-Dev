@@ -52,7 +52,6 @@ namespace Universe.Modules.Chat
         public void AddRegion (IScene scene)
         {
             m_Scene = scene;
-
             scene.EventManager.OnNewClient += OnNewClient;
             scene.EventManager.OnClosingClient += OnClosingClient;
         }
@@ -64,7 +63,6 @@ namespace Universe.Modules.Chat
         public void RemoveRegion (IScene scene)
         {
             m_Scene = scene;
-
             scene.EventManager.OnNewClient -= OnNewClient;
             scene.EventManager.OnClosingClient -= OnClosingClient;
         }
@@ -73,11 +71,13 @@ namespace Universe.Modules.Chat
         {
         }
 
-        public string Name {
+        public string Name
+        {
             get { return "PresenceModule"; }
         }
 
-        public Type ReplaceableInterface {
+        public Type ReplaceableInterface
+        {
             get { return null; }
         }
 
@@ -99,7 +99,7 @@ namespace Universe.Modules.Chat
                 return;
 
             IClientAPI client = (IClientAPI)sender;
-            MainConsole.Instance.DebugFormat ("[PRESENCE MODULE]: OnlineNotification requested by {0}", client.Name);
+            MainConsole.Instance.DebugFormat ("[Presence Module]: Online Notification requested by {0}", client.Name);
 
             List<UserInfo> status = m_Scene.RequestModuleInterface<IAgentInfoService> ().GetUserInfos (args);
             if (status == null)

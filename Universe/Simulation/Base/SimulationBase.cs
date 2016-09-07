@@ -258,6 +258,7 @@ namespace Universe.Simulation.Base
             MainConsole.Instance.Info(
 				        string.Format("==================== Starting Virtual Universe ({0}) ======================",
                               (IntPtr.Size == 4 ? "x86" : "x64")));
+            MainConsole.Instance.Info("====================================================================");
             MainConsole.Instance.Info("[Virtual Universe Startup]: Version : " + Version + "\n");
             MainConsole.Instance.Info("[Virtual Universe Startup]: Git Base: " + VersionInfo.GitVersion + "\n");
             if (Environment.Is64BitOperatingSystem)
@@ -271,12 +272,6 @@ namespace Universe.Simulation.Base
                 var bytes = pc.RawValue;
                 MainConsole.Instance.InfoFormat ("[Virtual Universe Startup]: Physical RAM (Mbytes): {0}", bytes / 1024000);
             }
-
-            MainConsole.Instance.Info("[Virtual Universe Startup]: If you find a bug or other issue, please");
-            MainConsole.Instance.Info("report it to: https://github.com/Virtual-Universe/Virtual-Universe/issues");
-            MainConsole.Instance.Info("Please do not report Virtual Universe related issues to our upstream providers");
-            MainConsole.Instance.Info("as they will not be able to help you");
-            MainConsole.Instance.Info("====================================================================");
 
             SetUpHTTPServer();
 
@@ -320,7 +315,7 @@ namespace Universe.Simulation.Base
             if (m_Servers.TryGetValue(port, out server) && server.Secure == useHTTPS)
                 return server;
 
-            uint threadCount = m_config.Configs["Network"].GetUInt("HttpThreadCount", 10);
+            uint threadCount = m_config.Configs["Network"].GetUInt("HttpThreadCount", 50);
 
             // find out where we live
             string hostName;

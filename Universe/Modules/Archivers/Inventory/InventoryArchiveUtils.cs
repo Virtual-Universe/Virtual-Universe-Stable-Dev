@@ -104,8 +104,7 @@ namespace Universe.Modules.Archivers
         ///     It this is empty or consists only of the PATH_DELIMTER then this folder itself is returned.
         /// </param>
         /// <returns>An empty list if the folder is not found, otherwise a list of all folders that match the name</returns>
-        public static List<InventoryFolderBase> FindFolderByPath(
-            IInventoryService inventoryService, InventoryFolderBase startFolder, string path)
+        public static List<InventoryFolderBase> FindFolderByPath(IInventoryService inventoryService, InventoryFolderBase startFolder, string path)
         {
             List<InventoryFolderBase> foundFolders = new List<InventoryFolderBase>();
 
@@ -126,12 +125,10 @@ namespace Universe.Modules.Archivers
             // If the path isn't just / then trim any starting extraneous slashes
             path = path.TrimStart(new[] { PATH_DELIMITER });
 
-            //MainConsole.Instance.DebugFormat("[INVENTORY ARCHIVE UTILS]: Adjusted path in FindFolderByPath() is [{0}]", path);
+            //MainConsole.Instance.DebugFormat("[Inventory Archive Utils]: Adjusted path in FindFolderByPath() is [{0}]", path);
 
             string[] components = SplitEscapedPath(path);
             components[0] = UnescapePath(components[0]);
-
-            //string[] components = path.Split(new string[] { PATH_DELIMITER.ToString() }, 2, StringSplitOptions.None);
 
             InventoryCollection contents = inventoryService.GetFolderContent(startFolder.Owner, startFolder.ID);
 
@@ -142,6 +139,7 @@ namespace Universe.Modules.Archivers
                 else
                     foundFolders.Add(folder);
             }
+
             return foundFolders;
         }
 
@@ -162,8 +160,7 @@ namespace Universe.Modules.Archivers
         ///     The path to the required item.
         /// </param>
         /// <returns>null if the item is not found</returns>
-        public static InventoryItemBase FindItemByPath(
-            IInventoryService inventoryService, UUID userId, string path)
+        public static InventoryItemBase FindItemByPath(IInventoryService inventoryService, UUID userId, string path)
         {
             InventoryFolderBase rootFolder = inventoryService.GetRootFolder(userId);
 
@@ -176,6 +173,7 @@ namespace Universe.Modules.Archivers
                 if (rootFolder == null)                                         // really wrong!!
                     return null;
             }
+
             return FindItemByPath(inventoryService, rootFolder, path);
         }
 
@@ -196,8 +194,7 @@ namespace Universe.Modules.Archivers
         ///     The path to the required item.
         /// </param>
         /// <returns>null if the item is not found</returns>
-        public static InventoryItemBase FindItemByPath(
-            IInventoryService inventoryService, InventoryFolderBase startFolder, string path)
+        public static InventoryItemBase FindItemByPath(IInventoryService inventoryService, InventoryFolderBase startFolder, string path)
         {
             // If the path isn't just / then trim any starting extraneous slashes
             path = path.TrimStart(new[] { PATH_DELIMITER });
@@ -205,16 +202,13 @@ namespace Universe.Modules.Archivers
             string[] components = SplitEscapedPath(path);
             components[0] = UnescapePath(components[0]);
 
-            //string[] components = path.Split(new string[] { PATH_DELIMITER }, 2, StringSplitOptions.None);
-
             if (components.Length == 1)
             {
-                //MainConsole.Instance.DebugFormat(
-                //    "FOUND SINGLE COMPONENT [{0}].  Looking for this in [{1}] {2}", components[0], startFolder.Name, startFolder.ID);
+                //MainConsole.Instance.DebugFormat("FOUND SINGLE COMPONENT [{0}].  Looking for this in [{1}] {2}", components[0], startFolder.Name, startFolder.ID);
 
                 List<InventoryItemBase> items = inventoryService.GetFolderItems(startFolder.Owner, startFolder.ID);
 
-                //MainConsole.Instance.DebugFormat("[INVENTORY ARCHIVE UTILS]: Found {0} items in FindItemByPath()", items.Count);
+                //MainConsole.Instance.DebugFormat("[Inventory Archive Utils]: Found {0} items in FindItemByPath()", items.Count);
 
                 return items.FirstOrDefault(item => item.Name == components[0]);
             }

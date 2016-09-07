@@ -65,76 +65,64 @@ namespace Universe.Modules.Web
             response = null;
             var vars = new Dictionary<string, object>();
             var usersList = new List<Dictionary<string, object>>();
+            var IsAdmin = Authenticator.CheckAdminAuthentication(httpRequest);
 
-            uint amountPerQuery = 10;
-            string noDetails = translator.GetTranslatedString ("NoDetailsText");
+            string noDetails = translator.GetTranslatedString("NoDetailsText");
 
             if (requestParameters.ContainsKey("Submit"))
             {
                 IUserAccountService accountService = webInterface.Registry.RequestModuleInterface<IUserAccountService>();
-                var IsAdmin = Authenticator.CheckAdminAuthentication (httpRequest);
 
                 string userName = requestParameters["username"].ToString();
                 // allow '*' wildcards
-                var username = userName.Replace ('*', '%');
-
-                int start = httpRequest.Query.ContainsKey ("Start")
-                    ? int.Parse (httpRequest.Query ["Start"].ToString ())
-                    : 0;
-                uint count = accountService.NumberOfUserAccounts (null, username);
-                int maxPages = (int)(count / amountPerQuery) - 1;
-
-                if (start == -1)
-                    start = (int)(maxPages < 0 ? 0 : maxPages);
-
-                vars.Add ("CurrentPage", start);
-                vars.Add ("NextOne", start + 1 > maxPages ? start : start + 1);
-                vars.Add ("BackOne", start - 1 < 0 ? 0 : start - 1);
+                var username = userName.Replace('*', '%');
 
                 // check for admin wildcard search
-                if ((username.Trim ().Length > 0) || IsAdmin)
+                if ((username.Trim().Length > 0) || IsAdmin)
                 {
-                    var users = accountService.GetUserAccounts (null, username, (uint)start, amountPerQuery);
+                    var users = accountService.GetUserAccounts(null, username, null, null);
                     var searchUsersList = new List<UUID>();
 
                     if (IsAdmin)        // display all users
                     {
                         foreach (var user in users)
                         {
-                            searchUsersList.Add (user.PrincipalID);
+                            searchUsersList.Add(user.PrincipalID);
                         }
 
-                    } else             // only show the users friends
+                    }
+                    else             // only show the users friends
                     {
+                        UserAccount ourAccount = Authenticator.GetAuthentication(httpRequest);
 
-                        UserAccount ourAccount = Authenticator.GetAuthentication (httpRequest);
                         if (ourAccount != null)
                         {
-                            IFriendsService friendsService = webInterface.Registry.RequestModuleInterface<IFriendsService> ();
-                            var friends = friendsService.GetFriends (ourAccount.PrincipalID);
+                            IFriendsService friendsService = webInterface.Registry.RequestModuleInterface<IFriendsService>();
+                            var friends = friendsService.GetFriends(ourAccount.PrincipalID);
                             foreach (var friend in friends)
                             {
                                 UUID friendID = UUID.Zero;
-                                UUID.TryParse (friend.Friend, out friendID);
+                                UUID.TryParse(friend.Friend, out friendID);
 
-                                if (friendID != UUID.Zero) 
-                                    searchUsersList.Add (friendID);
+                                if (friendID != UUID.Zero)
+                                    searchUsersList.Add(friendID);
                             }
                         }
                     }
+
                     if (searchUsersList.Count > 0)
                     {
-                       noDetails = "";
+                        noDetails = "";
 
                         foreach (var user in users)
                         {
-                            if ( ! searchUsersList.Contains(user.PrincipalID))
+                            if (!searchUsersList.Contains(user.PrincipalID))
                                 continue;
 
-                            if (Utilities.IsSystemUser (user.PrincipalID))
+                            if (Utilities.IsSystemUser(user.PrincipalID))
                                 continue;
 
-                            usersList.Add (new Dictionary<string, object> {
+                            usersList.Add(new Dictionary<string, object> {
                                 { "UserName", user.Name },
                                 { "UserID", user.PrincipalID },
                                 { "CanEdit", IsAdmin }
@@ -144,35 +132,24 @@ namespace Universe.Modules.Web
 
                     if (usersList.Count == 0)
                     {
-                        usersList.Add (new Dictionary<string, object> {
+                        usersList.Add(new Dictionary<string, object> {
                             { "UserName", translator.GetTranslatedString ("NoDetailsText") },
                             { "UserID", "" },
                             { "CanEdit", false }
                         });
                     }
                 }
-            } else
-            {
-                vars.Add("CurrentPage", 0);
-                vars.Add("NextOne", 0);
-                vars.Add("BackOne", 0);
             }
 
             vars.Add("NoDetailsText", noDetails);
             vars.Add("UsersList", usersList);
-            vars.Add("UserSearchText", translator.GetTranslatedString("UserSearchText"));
+            vars.Add("UserSearchText", translator.GetTranslatedString("UserSearchText") + (IsAdmin ? "" : " (Friends)"));
             vars.Add("SearchForUserText", translator.GetTranslatedString("SearchForUserText"));
             vars.Add("UserNameText", translator.GetTranslatedString("UserNameText"));
             vars.Add("Search", translator.GetTranslatedString("Search"));
             vars.Add("SearchResultForUserText", translator.GetTranslatedString("SearchResultForUserText"));
             vars.Add("EditText", translator.GetTranslatedString("EditText"));
             vars.Add("EditUserAccountText", translator.GetTranslatedString("EditUserAccountText"));
-
-            vars.Add("FirstText", translator.GetTranslatedString("FirstText"));
-            vars.Add("BackText", translator.GetTranslatedString("BackText"));
-            vars.Add("NextText", translator.GetTranslatedString("NextText"));
-            vars.Add("LastText", translator.GetTranslatedString("LastText"));
-            vars.Add("CurrentPageText", translator.GetTranslatedString("CurrentPageText"));
 
             return vars;
         }

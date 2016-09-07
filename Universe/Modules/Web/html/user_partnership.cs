@@ -32,43 +32,47 @@ using Universe.Framework.Servers.HttpServer.Implementation;
 
 namespace Universe.Modules.Web
 {
-	public class UserPartnershipPage : IWebInterfacePage
-	{
-		public string [] FilePath {
-			get {
-				return new [] {
-					"html/user_partnership.html"
-				};
-			}
-		}
+    public class UserPartnershipPage : IWebInterfacePage
+    {
+        public string[] FilePath
+        {
+            get
+            {
+                return new[] {
+                    "html/user_partnership.html"
+                };
+            }
+        }
 
-		public bool RequiresAuthentication {
-			get { return true; }
-		}
+        public bool RequiresAuthentication
+        {
+            get { return true; }
+        }
 
-		public bool RequiresAdminAuthentication {
-			get { return false; }
-		}
-        
-		public Dictionary<string, object> Fill(WebInterface webInterface, string filename, OSHttpRequest httpRequest,
-			OSHttpResponse httpResponse, Dictionary<string, object> requestParameters, ITranslator translator, out string response)
-		{
-			response = null;
-        	
-			var vars = new Dictionary<string, object>();
-        	
-			// This page should show if a user already has a partner and show the ability to cancel the Partnership (with a payment defined in Economy.ini)
-			// 
-			// If the user doesn't have a partner, allow the user to send an Partnership invite to a person (internally send a message inworld to the person)
-			//
-			
-			return vars;
-		}
-        
-		public bool AttemptFindPage(string filename, ref OSHttpResponse httpResponse, out string text)
-		{
-			text = "";
-			return false;
-		}
-	}
+        public bool RequiresAdminAuthentication
+        {
+            get { return false; }
+        }
+
+        public Dictionary<string, object> Fill(WebInterface webInterface, string filename, OSHttpRequest httpRequest,
+            OSHttpResponse httpResponse, Dictionary<string, object> requestParameters,
+            ITranslator translator, out string response)
+        {
+            response = null;
+
+            var vars = new Dictionary<string, object>();
+
+            // This page should show if a user already has a partner and show the ability to cancel the Partnership (with a payment defined in Economy.ini)
+            // 
+            // If the user doesn't have a partner, allow the user to send an Partnership invite to a person (internally send a message inworld to the person)
+
+            return vars;
+        }
+
+        public bool AttemptFindPage(string filename, ref OSHttpResponse httpResponse, out string text)
+        {
+            text = "";
+            return false;
+        }
+    }
 }

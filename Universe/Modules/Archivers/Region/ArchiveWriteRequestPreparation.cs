@@ -125,15 +125,11 @@ namespace Universe.Modules.Archivers
                 assetGatherer.GatherAssetUuids(sceneObject, assetUuids);
             }
 
-            MainConsole.Instance.InfoFormat(
-                "[Archiver]: {0} scene objects to serialize requiring save of {1} assets",
-                sceneObjects.Count, assetUuids.Count);
+            MainConsole.Instance.InfoFormat("[Archiver]: {0} scene objects to serialize requiring save of {1} assets", sceneObjects.Count, assetUuids.Count);
 
             if (numObjectsSkippedPermissions > 0)
             {
-                MainConsole.Instance.DebugFormat(
-                    "[Archiver]: {0} scene objects skipped due to lack of permissions",
-                    numObjectsSkippedPermissions);
+                MainConsole.Instance.DebugFormat("[Archiver]: {0} scene objects skipped due to lack of permissions", numObjectsSkippedPermissions);
             }
 
             // Make sure that we also request terrain texture assets
@@ -163,9 +159,7 @@ namespace Universe.Modules.Archivers
                     archiveWriter,
                     m_requestId);
 
-            new AssetsRequest(
-                new AssetsArchiver(archiveWriter), assetUuids,
-                m_scene.AssetService, awre.ReceivedAllAssets).Execute();
+            new AssetsRequest(new AssetsArchiver(archiveWriter), assetUuids, m_scene.AssetService, awre.ReceivedAllAssets).Execute();
         }
 
         /// <summary>
@@ -188,7 +182,6 @@ namespace Universe.Modules.Archivers
             // part can't be exported then the entire SOG can't be exported.
 
             bool permitted = true;
-            //int primNumber = 1;
 
             foreach (ISceneChildEntity obj in objGroup.ChildrenEntities())
             {
@@ -224,21 +217,15 @@ namespace Universe.Modules.Archivers
                 bool partPermitted = true;
                 if (checkPermissions.Contains("C") && !canCopy)
                     partPermitted = false;
+
                 if (checkPermissions.Contains("T") && !canTransfer)
                     partPermitted = false;
-
-                //string name = (objGroup.PrimCount == 1) ? objGroup.Name : string.Format("{0} ({1}/{2})", obj.Name, primNumber, objGroup.PrimCount);
-                //MainConsole.Instance.DebugFormat("[Archiver]: Object permissions: {0}: Base={1:X4}, Owner={2:X4}, Everyone={3:X4}, permissionClass={4}, checkPermissions={5}, canCopy={6}, canTransfer={7}, permitted={8}",
-                //    name, obj.BaseMask, obj.OwnerMask, obj.EveryoneMask,
-                //    permissionClass, checkPermissions, canCopy, canTransfer, permitted);
 
                 if (!partPermitted)
                 {
                     permitted = false;
                     break;
                 }
-
-                //++primNumber;
             }
 
             return permitted;

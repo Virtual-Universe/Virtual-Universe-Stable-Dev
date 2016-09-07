@@ -76,9 +76,7 @@ namespace Universe.Modules.Web
                 if (loginService.VerifyClient(UUID.Zero, username, "UserAccount", password))
                 {
                     UUID sessionID = UUID.Random();
-                    UserAccount account =
-                        webInterface.Registry.RequestModuleInterface<IUserAccountService>()
-                            .GetUserAccount(null, username);
+                    UserAccount account = webInterface.Registry.RequestModuleInterface<IUserAccountService>().GetUserAccount(null, username);
                     Authenticator.AddAuthentication(sessionID, account);
                     if (account.UserLevel > 0)
                         Authenticator.AddAdminAuthentication(sessionID, account);
@@ -118,20 +116,21 @@ namespace Universe.Modules.Web
             vars.Add("ForgotPassword", translator.GetTranslatedString("ForgotPassword"));
             vars.Add("Submit", translator.GetTranslatedString("Login"));
 
+            // Do menu and setting updates
             var settings = webInterface.GetWebUISettings();
 
             if (PagesMigrator.RequiresUpdate() &&
                 PagesMigrator.CheckWhetherIgnoredVersionUpdate(settings.LastPagesVersionUpdateIgnored))
                 vars.Add("PagesUpdateRequired",
                          translator.GetTranslatedString("Pages") + " " +
-                         translator.GetTranslatedString("DefaultsUpdated"));
+                         translator.GetTranslatedString("UpdateRequired"));
             else
                 vars.Add("PagesUpdateRequired", "");
             if (SettingsMigrator.RequiresUpdate() &&
                 SettingsMigrator.CheckWhetherIgnoredVersionUpdate(settings.LastSettingsVersionUpdateIgnored))
                 vars.Add("SettingsUpdateRequired",
                          translator.GetTranslatedString("Settings") + " " +
-                         translator.GetTranslatedString("DefaultsUpdated"));
+                         translator.GetTranslatedString("UpdateRequired"));
             else
                 vars.Add("SettingsUpdateRequired", "");
 
@@ -140,13 +139,13 @@ namespace Universe.Modules.Web
             // user setup news inclusion
             if (settings.LocalFrontPage == "")
             {
-                vars.Add ("LocalPage", false);
-                vars.Add ("LocalFrontPage", "");
+                vars.Add("LocalPage", false);
+                vars.Add("LocalFrontPage", "");
             }
             else
             {
-                vars.Add ("LocalPage", true);
-                vars.Add ("LocalFrontPage", settings.LocalFrontPage);
+                vars.Add("LocalPage", true);
+                vars.Add("LocalFrontPage", settings.LocalFrontPage);
             }
 
             return vars;

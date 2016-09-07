@@ -81,6 +81,7 @@ namespace Universe.Modules.Web
                     "setTimeout(function() {window.location.href = \"index.html?page=news_manager\";}, 0);" +
                     "</script>";
                 }
+
                 return null;
             }
 
@@ -90,12 +91,12 @@ namespace Universe.Modules.Web
                 vars.Add ("NewsTitle", news.Title);
                 vars.Add ("NewsText", news.Text);
                 vars.Add ("NewsID", news.ID.ToString ());
-
                 vars.Add ("NewsItemTitle", translator.GetTranslatedString ("NewsItemTitle"));
                 vars.Add ("NewsItemText", translator.GetTranslatedString ("NewsItemText"));
                 vars.Add ("EditNewsText", translator.GetTranslatedString ("EditNewsText"));
                 vars.Add ("Submit", translator.GetTranslatedString ("Submit"));
             }
+
             return vars;
         }
 

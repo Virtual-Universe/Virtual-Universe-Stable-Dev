@@ -391,7 +391,7 @@ namespace Universe.Physics.OpenDynamicsEngine
             //  spaces grid for static objects
 
             if (WorldExtents.X < WorldExtents.Y)
-                // // constant is 1/log(2),  -3 for division by 8 plus 0.5 for rounding
+                // // constant is 1/log(2),  -3 for diuniverse by 8 plus 0.5 for rounding
                 GridSpaceScaleBits = (int) (Math.Log(WorldExtents.X)*1.4426950f - 2.5f);
             else
                 GridSpaceScaleBits = (int) (Math.Log(WorldExtents.Y)*1.4426950f - 2.5f);

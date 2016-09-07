@@ -78,7 +78,7 @@ namespace Universe.Framework.Services
         string MarketplaceOwnerName { get; }
 
         /// <summary>
-        /// Get name of a system estate owner.
+        /// Get name of a system estate.
         /// </summary>
         /// <returns>The estate owner name.</returns>
         /// <param name="estateID">Estate ID.</param>

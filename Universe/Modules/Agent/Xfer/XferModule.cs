@@ -55,7 +55,6 @@ namespace Universe.Modules.Agent.Xfer
             m_scene = scene;
             m_scene.EventManager.OnNewClient += NewClient;
             m_scene.EventManager.OnClosingClient += OnClosingClient;
-
             m_scene.RegisterModuleInterface<IXfer>(this);
         }
 
@@ -63,7 +62,6 @@ namespace Universe.Modules.Agent.Xfer
         {
             m_scene.EventManager.OnNewClient -= NewClient;
             m_scene.EventManager.OnClosingClient -= OnClosingClient;
-
             m_scene.UnregisterModuleInterface<IXfer>(this);
         }
 
@@ -182,7 +180,6 @@ namespace Universe.Modules.Agent.Xfer
             if (Transfers.ContainsKey(xferID))
             {
                 XferDownLoad xferItem = Transfers[xferID];
-                //string filename = xferItem.FileName;
                 Transfers.Remove(xferID);
                 xferItem.Data = new byte[0]; // Clear the data
                 xferItem.DataPointer = 0;
@@ -203,7 +200,6 @@ namespace Universe.Modules.Agent.Xfer
         private void RemoveOrDecrement(string fileName)
         {
             // NewFiles must be locked
-
             if (NewFiles.ContainsKey(fileName))
             {
                 if (NewFiles[fileName].Count == 1)

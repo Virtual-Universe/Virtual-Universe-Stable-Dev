@@ -272,10 +272,6 @@ namespace Universe.Simulation.Base
             MainConsole.Instance.InfoFormat ("[Mini Virtual Universe]: Starting Mini Virtual Universe ({0})...", (IntPtr.Size == 4 ? "x86" : "x64"));
             MainConsole.Instance.Info ("[Mini Virtual Universe]: Version : " + Version + "\n");
             MainConsole.Instance.Info ("[Mini Virtual Universe]: Git Base: " + VersionInfo.GitVersion + "\n");
-            MainConsole.Instance.Info ("[Mini Virtual Universe]: If you find a bug or other issue, please");
-            MainConsole.Instance.Info ("report it to: https://github.com/Virtual-Universe/Virtual-Universe/issues");
-            MainConsole.Instance.Info ("Please do not report Virtual Universe related issues to our upstream providers");
-            MainConsole.Instance.Info ("as they will not be able to help you");
             MainConsole.Instance.Info ("[Mini Virtual Universe]: Startup completed in " + (DateTime.Now - StartupTime).TotalSeconds);
         }
 
@@ -308,7 +304,7 @@ namespace Universe.Simulation.Base
             if (m_Servers.TryGetValue(port, out server) && server.Secure == useHTTPS)
                 return server;
 
-            uint threadCount = m_config.Configs["Network"].GetUInt("HttpThreadCount", 5);
+            uint threadCount = m_config.Configs["Network"].GetUInt("HttpThreadCount", 50);
 
             // find out where we live
             string hostName;

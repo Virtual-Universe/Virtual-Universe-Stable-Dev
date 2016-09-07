@@ -71,25 +71,23 @@ namespace Universe.Modules.Web
 
             string username = filename.Split('/').LastOrDefault();
             UserAccount account = null;
+
             if (httpRequest.Query.ContainsKey("userid"))
             {
                 string userid = httpRequest.Query["userid"].ToString();
 
-                account = webInterface.Registry.RequestModuleInterface<IUserAccountService>().
-                                       GetUserAccount(null, UUID.Parse(userid));
+                account = webInterface.Registry.RequestModuleInterface<IUserAccountService>().GetUserAccount(null, UUID.Parse(userid));
             }
             else if (httpRequest.Query.ContainsKey("name") || username.Contains('.'))
             {
                 string name = httpRequest.Query.ContainsKey("name") ? httpRequest.Query["name"].ToString() : username;
                 name = name.Replace('.', ' ');
-                account = webInterface.Registry.RequestModuleInterface<IUserAccountService>().
-                                       GetUserAccount(null, name);
+                account = webInterface.Registry.RequestModuleInterface<IUserAccountService>().GetUserAccount(null, name);
             }
             else
             {
                 username = username.Replace("%20", " ");
-                account = webInterface.Registry.RequestModuleInterface<IUserAccountService>().
-                                       GetUserAccount(null, username);
+                account = webInterface.Registry.RequestModuleInterface<IUserAccountService>().GetUserAccount(null, username);
             }
 
             if (account == null)
@@ -102,8 +100,8 @@ namespace Universe.Modules.Web
             IUserProfileInfo profile = profileConnector == null
                                            ? null
                                            : profileConnector.GetUserProfile(account.PrincipalID);
-            IWebHttpTextureService webhttpService =
-                webInterface.Registry.RequestModuleInterface<IWebHttpTextureService>();
+
+            IWebHttpTextureService webhttpService = webInterface.Registry.RequestModuleInterface<IWebHttpTextureService>();
 
             List<Dictionary<string, object>> picks = new List<Dictionary<string, object>>();
             if (profile != null)
@@ -112,16 +110,18 @@ namespace Universe.Modules.Web
 
                 if (profile.Partner != UUID.Zero)
                 {
-                    account = webInterface.Registry.RequestModuleInterface<IUserAccountService>().
-                                           GetUserAccount(null, profile.Partner);
+                    account = webInterface.Registry.RequestModuleInterface<IUserAccountService>().GetUserAccount(null, profile.Partner);
                     vars.Add("UserPartner", account.Name);
                 }
                 else
                     vars.Add("UserPartner", "No partner");
+
                 vars.Add("UserAboutMe", profile.AboutText == "" ? "Nothing here" : profile.AboutText);
                 string url = "../images/icons/no_avatar.jpg";
+
                 if (webhttpService != null && profile.Image != UUID.Zero)
                     url = webhttpService.GetTextureURL(profile.Image);
+
                 vars.Add("UserPictureURL", url);
 
                 foreach (var pick in profileConnector.GetPicks(profile.PrincipalID))

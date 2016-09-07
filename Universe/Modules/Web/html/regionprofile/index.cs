@@ -39,6 +39,7 @@ using Universe.Framework.Services;
 using Universe.Framework.Utilities;
 using RegionFlags = Universe.Framework.Services.RegionFlags;
 
+
 namespace Universe.Modules.Web
 {
     public class RegionInfoPage : IWebInterfacePage
@@ -74,8 +75,10 @@ namespace Universe.Modules.Web
 
                 IEstateConnector estateConnector = Framework.Utilities.DataManager.RequestPlugin<IEstateConnector> ();
                 EstateSettings estate = null;
+
                 if (estateConnector != null)
                     estate = estateConnector.GetEstateSettings (region.RegionID);
+
                 if (estate != null) {
                     vars.Add ("OwnerUUID", estate.EstateOwner);
                     var estateOwnerAccount = webInterface.Registry.RequestModuleInterface<IUserAccountService> ().
@@ -126,8 +129,8 @@ namespace Universe.Modules.Web
                     vars.Add ("UsersInRegion", new List<Dictionary<string, object>> ());
                 }
 
-                IDirectoryServiceConnector directoryConnector = Framework.Utilities.DataManager.RequestPlugin<IDirectoryServiceConnector> ();
-
+                IDirectoryServiceConnector directoryConnector =
+                    Framework.Utilities.DataManager.RequestPlugin<IDirectoryServiceConnector> ();
                 if (directoryConnector != null) {
                     List<LandData> parcelData = directoryConnector.GetParcelsByRegion (0, 10, region.RegionID, UUID.Zero,
                         ParcelFlags.None, ParcelCategory.Any);
@@ -142,6 +145,7 @@ namespace Universe.Modules.Web
                         parcel.Add("ParcelOwnerUUID", p.OwnerID);
                         IUserAccountService accountService =
                             webInterface.Registry.RequestModuleInterface<IUserAccountService>();
+
                         if (accountService != null)
                         {
                             var account = accountService.GetUserAccount(null, p.OwnerID);
@@ -150,12 +154,12 @@ namespace Universe.Modules.Web
                             else
                                 parcel.Add("ParcelOwnerName", account.Name);
                         }
+
                         parcels.Add(parcel);
                     }
 
                     vars.Add("ParcelInRegion", parcels);
-                    */
-
+*/
                     if (parcelData != null)
                         vars.Add ("NumberOfParcelsInRegion", parcelData.Count);
                     else
@@ -190,7 +194,6 @@ namespace Universe.Modules.Web
                 vars.Add ("TooltipsMenuParcel", translator.GetTranslatedString ("TooltipsMenuParcel"));
                 vars.Add ("MenuOwnerTitle", translator.GetTranslatedString ("MenuOwnerTitle"));
                 vars.Add ("TooltipsMenuOwner", translator.GetTranslatedString ("TooltipsMenuOwner"));
-
 
                 vars.Add ("RegionInformationText", translator.GetTranslatedString ("RegionInformationText"));
                 vars.Add ("OwnerNameText", translator.GetTranslatedString ("OwnerNameText"));

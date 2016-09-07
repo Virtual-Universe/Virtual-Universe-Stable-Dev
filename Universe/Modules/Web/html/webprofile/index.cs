@@ -74,20 +74,19 @@ namespace Universe.Modules.Web
 
             string username = filename.Split('/').LastOrDefault();
             UserAccount account = null;
+
             if (httpRequest.Query.ContainsKey("userid"))
             {
                 string userid = httpRequest.Query["userid"].ToString();
 
-                account = webInterface.Registry.RequestModuleInterface<IUserAccountService>().
-                                       GetUserAccount(null, UUID.Parse(userid));
+                account = webInterface.Registry.RequestModuleInterface<IUserAccountService>().GetUserAccount(null, UUID.Parse(userid));
             }
             else if (httpRequest.Query.ContainsKey("name"))
             {
                 string name = httpRequest.Query.ContainsKey("name") ? httpRequest.Query["name"].ToString() : username;
                 name = name.Replace('.', ' ');
                 name = name.Replace("%20", " ");
-                account = webInterface.Registry.RequestModuleInterface<IUserAccountService>().
-                                       GetUserAccount(null, name);
+                account = webInterface.Registry.RequestModuleInterface<IUserAccountService>().GetUserAccount(null, name);
             }
             else
             {
@@ -99,11 +98,6 @@ namespace Universe.Modules.Web
             if (account == null)
                 return vars;
 
-			/* Allow access to the system user info - needed for Estate owner Profiles of regions
-            if ( Utilities.IsSystemUser(account.PrincipalID) )
-				return vars;
-            */
-
             vars.Add("UserName", account.Name);
             //  TODO: User Profile inworld shows this as the standard mm/dd/yyyy
             //  Do we want this to be localised into the users Localisation or keep it as standard ?
@@ -111,8 +105,7 @@ namespace Universe.Modules.Web
             //  vars.Add("UserBorn", Culture.LocaleDate(Util.ToDateTime(account.Created)));
             vars.Add("UserBorn", Util.ToDateTime(account.Created).ToShortDateString());
 
-            IUserProfileInfo profile = Framework.Utilities.DataManager.RequestPlugin<IProfileConnector>().
-                                              GetUserProfile(account.PrincipalID);
+            IUserProfileInfo profile = Framework.Utilities.DataManager.RequestPlugin<IProfileConnector>().GetUserProfile(account.PrincipalID);
             string picUrl = "../images/icons/no_avatar.jpg";
             if (profile != null)
             {
@@ -120,14 +113,14 @@ namespace Universe.Modules.Web
 
                 if (profile.Partner != UUID.Zero)
                 {
-                    account = webInterface.Registry.RequestModuleInterface<IUserAccountService> ().
-                                           GetUserAccount (null, profile.Partner);
+                    account = webInterface.Registry.RequestModuleInterface<IUserAccountService> ().GetUserAccount (null, profile.Partner);
                     vars.Add ("UserPartner", account.Name);
                 } else
                     vars.Add ("UserPartner", "No partner");
+
                 vars.Add ("UserAboutMe", profile.AboutText == "" ? "Nothing here" : profile.AboutText);
-                IWebHttpTextureService webhttpService =
-                    webInterface.Registry.RequestModuleInterface<IWebHttpTextureService> ();
+                IWebHttpTextureService webhttpService = webInterface.Registry.RequestModuleInterface<IWebHttpTextureService> ();
+
                 if (webhttpService != null && profile.Image != UUID.Zero)
                     picUrl = webhttpService.GetTextureURL (profile.Image);
             } else
@@ -146,14 +139,16 @@ namespace Universe.Modules.Web
                 IFriendsService friendsService = webInterface.Registry.RequestModuleInterface<IFriendsService>();
                 var friends = friendsService.GetFriends(account.PrincipalID);
                 UUID friendID = UUID.Zero;
+
                 if (friends.Any(f => UUID.TryParse(f.Friend, out friendID) && friendID == ourAccount.PrincipalID))
                 {
-                    IAgentInfoService agentInfoService =
-                        webInterface.Registry.RequestModuleInterface<IAgentInfoService>();
+                    IAgentInfoService agentInfoService = webInterface.Registry.RequestModuleInterface<IAgentInfoService>();
                     IGridService gridService = webInterface.Registry.RequestModuleInterface<IGridService>();
                     UserInfo ourInfo = agentInfoService.GetUserInfo(account.PrincipalID.ToString());
+
                     if (ourInfo != null && ourInfo.IsOnline)
                         vars.Add("OnlineLocation", gridService.GetRegionByUUID(null, ourInfo.CurrentRegionID).RegionName);
+
                     vars.Add("UserIsOnline", ourInfo != null && ourInfo.IsOnline);
                     vars.Add("IsOnline",
                              ourInfo != null && ourInfo.IsOnline

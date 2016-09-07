@@ -27,9 +27,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+using System;
 using OpenMetaverse;
 using OpenMetaverse.StructuredData;
 using Universe.Framework.Modules;
+using Universe.Framework.Utilities;
 
 namespace Universe.Framework.ClientInterfaces
 {
@@ -50,6 +52,8 @@ namespace Universe.Framework.ClientInterfaces
         public int maturity;
         public string name;
         public string simName;
+        public string regionId;
+        public string parcelId;
 
         public EventData()
         {
@@ -69,10 +73,16 @@ namespace Universe.Framework.ClientInterfaces
             map["cover"] = cover;
             map["amount"] = amount;
             map["simName"] = simName;
-            map["globalPos"] = globalPos;
-            map["regionPos"] = regionPos;
+            map["GPosX"] = OSD.FromReal(globalPos.X).ToString();
+            map["GPosY"] = OSD.FromReal(globalPos.Y).ToString();
+            map["GPosZ"] = OSD.FromReal(globalPos.Z).ToString();
+            map["RPosX"] = OSD.FromReal(regionPos.X).ToString();
+            map["RPosY"] = OSD.FromReal(regionPos.Y).ToString();
+            map["RPosZ"] = OSD.FromReal(regionPos.Z).ToString();
             map["eventFlags"] = eventFlags;
             map["maturity"] = maturity;
+            map["regionId"] = regionId;
+            map["parcelId"] = parcelId;
             return map;
         }
 
@@ -89,10 +99,33 @@ namespace Universe.Framework.ClientInterfaces
             cover = map["cover"];
             amount = map["amount"];
             simName = map["simName"];
-            globalPos = map["globalPos"];
-            regionPos = map["regionPos"];
+
+            if (map.ContainsKey("globalPos"))
+            {
+                globalPos = map["globalPos"].AsVector3();
+            }
+            else
+            {
+                globalPos.X = (float)Convert.ToDecimal(map["GPosX"].AsString(), Culture.NumberFormatInfo);
+                globalPos.Y = (float)Convert.ToDecimal(map["GPosY"].AsString(), Culture.NumberFormatInfo);
+                globalPos.Z = (float)Convert.ToDecimal(map["GPosZ"].AsString(), Culture.NumberFormatInfo);
+            }
+
+            if (map.ContainsKey("regionPos"))
+            {
+                regionPos = map["regionPos"].AsVector3();
+            }
+            else
+            {
+                regionPos.X = (float)Convert.ToDecimal(map["RPosX"].AsString(), Culture.NumberFormatInfo);
+                regionPos.Y = (float)Convert.ToDecimal(map["RPosY"].AsString(), Culture.NumberFormatInfo);
+                regionPos.Z = (float)Convert.ToDecimal(map["RPosZ"].AsString(), Culture.NumberFormatInfo);
+            }
+
             eventFlags = map["eventFlags"];
             maturity = map["maturity"];
+            regionId = map["regionId"];
+            parcelId = map["parcelId"];
         }
     }
 }

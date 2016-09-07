@@ -37,15 +37,15 @@ using Universe.Framework.ClientInterfaces;
 using Universe.Framework.Modules;
 using Universe.Framework.PresenceInfo;
 using Universe.Framework.SceneInfo;
-using Universe.ScriptEngine.UniverseScript;
-using LSL_Float = Universe.ScriptEngine.UniverseScript.LSL_Types.LSLFloat;
-using LSL_Integer = Universe.ScriptEngine.UniverseScript.LSL_Types.LSLInteger;
-using LSL_Key = Universe.ScriptEngine.UniverseScript.LSL_Types.LSLString;
-using LSL_List = Universe.ScriptEngine.UniverseScript.LSL_Types.list;
-using LSL_Rotation = Universe.ScriptEngine.UniverseScript.LSL_Types.Quaternion;
-using LSL_String = Universe.ScriptEngine.UniverseScript.LSL_Types.LSLString;
-using LSL_Vector = Universe.ScriptEngine.UniverseScript.LSL_Types.Vector3;
-using ThreatLevel = Universe.ScriptEngine.UniverseScript.ThreatLevel;
+using Universe.ScriptEngine.VirtualScript;
+using LSL_Float = Universe.ScriptEngine.VirtualScript.LSL_Types.LSLFloat;
+using LSL_Integer = Universe.ScriptEngine.VirtualScript.LSL_Types.LSLInteger;
+using LSL_Key = Universe.ScriptEngine.VirtualScript.LSL_Types.LSLString;
+using LSL_List = Universe.ScriptEngine.VirtualScript.LSL_Types.list;
+using LSL_Rotation = Universe.ScriptEngine.VirtualScript.LSL_Types.Quaternion;
+using LSL_String = Universe.ScriptEngine.VirtualScript.LSL_Types.LSLString;
+using LSL_Vector = Universe.ScriptEngine.VirtualScript.LSL_Types.Vector3;
+using ThreatLevel = Universe.ScriptEngine.VirtualScript.ThreatLevel;
 
 namespace Universe.BotManager
 {

@@ -101,26 +101,20 @@ namespace Universe.Modules.Archivers
             while (reader.Name.Equals("asset"))
             {
                 reader.Read();
-
                 AssetMetadata metadata = new AssetMetadata();
-
                 string filename = reader.ReadElementString("filename");
-                MainConsole.Instance.DebugFormat("[DEARCHIVER]: Reading node {0}", filename);
-
+                MainConsole.Instance.DebugFormat("[De-Archiver]: Reading node {0}", filename);
                 metadata.Name = reader.ReadElementString("name");
                 metadata.Description = reader.ReadElementString("description");
                 metadata.AssetType = Convert.ToSByte(reader.ReadElementString("asset-type"));
-
                 m_metadata[filename] = metadata;
 
                 // Read asset end tag
                 reader.ReadEndElement();
-
                 reader.Read();
             }
 
-            MainConsole.Instance.DebugFormat("[DEARCHIVER]: Resolved {0} items of asset metadata", m_metadata.Count);
-
+            MainConsole.Instance.DebugFormat("[De-Archiver]: Resolved {0} items of asset metadata", m_metadata.Count);
             ResolvePendingAssetData();
         }
 
@@ -164,8 +158,7 @@ namespace Universe.Modules.Archivers
             else
             {
                 MainConsole.Instance.ErrorFormat(
-                    "[De-Archiver]: Tried to de-archive data with filename {0} without any corresponding metadata",
-                    assetPath);
+                    "[De-Archiver]: Tried to de-archive data with filename {0} without any corresponding metadata", assetPath);
             }
         }
 

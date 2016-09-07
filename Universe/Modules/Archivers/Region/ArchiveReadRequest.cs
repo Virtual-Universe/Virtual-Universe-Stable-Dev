@@ -68,7 +68,6 @@ namespace Universe.Modules.Archivers
         ///     Should the archive being loaded be merged with what is already on the region?
         /// </value>
         protected bool m_merge;
-
         protected UniverseThreadPool m_threadpool;
 
         /// <value>
@@ -95,8 +94,7 @@ namespace Universe.Modules.Archivers
         bool m_useParcelOwnership = false;
         bool m_checkOwnership = false;
 
-        const string sPattern =
-            @"(\{{0,1}([0-9a-fA-F]){8}-([0-9a-f]){4}-([0-9a-f]){4}-([0-9a-f]){4}-([0-9a-f]){12}\}{0,1})";
+        const string sPattern = @"(\{{0,1}([0-9a-fA-F]){8}-([0-9a-f]){4}-([0-9a-f]){4}-([0-9a-f]){4}-([0-9a-f]){12}\}{0,1})";
 
         readonly Dictionary<UUID, AssetBase> assetNonBinaryCollection = new Dictionary<UUID, AssetBase> ();
 
@@ -107,10 +105,10 @@ namespace Universe.Modules.Archivers
             try {
                 var stream = ArchiveHelpers.GetStream (loadPath);
                 if (stream == null) {
-                    MainConsole.Instance.Error (
-                        "[Archiver]: We could not find the file specified, or the file was invalid: " + loadPath);
+                    MainConsole.Instance.Error ("[Archiver]: We could not find the file specified, or the file was invalid: " + loadPath);
                     return;
                 }
+
                 m_loadStream = new GZipStream (stream, CompressionMode.Decompress);
             } catch (EntryPointNotFoundException e) {
                 MainConsole.Instance.ErrorFormat (
@@ -118,8 +116,8 @@ namespace Universe.Modules.Archivers
                     + "If you've manually installed Mono, have you appropriately updated zlib1g as well?");
                 MainConsole.Instance.Error (e);
             }
-            Init (scene, m_loadStream, merge, skipAssets, skipTerrain, offsetX, offsetY, offsetZ, flipX, flipY, useParcelOwnership,
-                 checkOwnership);
+
+            Init (scene, m_loadStream, merge, skipAssets, skipTerrain, offsetX, offsetY, offsetZ, flipX, flipY, useParcelOwnership, checkOwnership);
         }
 
         public void Init (IScene scene, Stream stream, bool merge, bool skipAssets, bool skipTerrain,
@@ -145,8 +143,7 @@ namespace Universe.Modules.Archivers
                                   int offsetX, int offsetY, int offsetZ, bool flipX, bool flipY, bool useParcelOwnership,
                                   bool checkOwnership)
         {
-            Init (scene, stream, merge, skipAssets, skipTerrain, offsetX, offsetY, offsetZ, flipX, flipY, useParcelOwnership,
-                 checkOwnership);
+            Init (scene, stream, merge, skipAssets, skipTerrain, offsetX, offsetY, offsetZ, flipX, flipY, useParcelOwnership, checkOwnership);
         }
 
         /// <summary>
@@ -192,6 +189,7 @@ namespace Universe.Modules.Archivers
             foreach (IScriptModule module in modules) {
                 module.Disabled = true;
             }
+
             //Disable backup for now as well
             if (backup != null)
                 backup.LoadingPrims = true;
@@ -330,6 +328,7 @@ namespace Universe.Modules.Archivers
                             didChange = true;
                         }
                     }
+
                     if (didChange)
                         data3 = Utils.StringToBytes (stringData);
 
@@ -337,8 +336,7 @@ namespace Universe.Modules.Archivers
 
                     if (sceneObject == null) {
                         //! big error!
-                        MainConsole.Instance.Error ("Error reading SOP XML (Please mantis this!): " +
-                                                   m_asciiEncoding.GetString (data3));
+                        MainConsole.Instance.Error ("Error reading SOP XML (Please mantis this!): " + m_asciiEncoding.GetString (data3));
                         continue;
                     }
 
@@ -404,18 +402,19 @@ namespace Universe.Modules.Archivers
                         sceneObject.ScheduleGroupUpdate (PrimUpdateFlags.ForcedFullUpdate);
                         sceneObject.CreateScriptInstances (0, false, StateSource.RegionStart, UUID.Zero, true);
                     }
+
                     sceneObjectsLoadedCount++;
                     if (sceneObjectsLoadedCount % 100 == 0)
                         MainConsole.Instance.Ticker (
                             string.Format("[Archiver]: Saved {0} objects...", sceneObjectsLoadedCount), true);
                 }
+
                 assetNonBinaryCollection.Clear ();
                 assetBinaryChangeRecord.Clear ();
                 seneObjectGroups.Clear ();
 
             } catch (Exception e) {
-                MainConsole.Instance.ErrorFormat (
-                    "[Archiver]: Aborting load with error in archive file {0}.  {1}", filePath, e);
+                MainConsole.Instance.ErrorFormat ("[Archiver]: Aborting load with error in archive file {0}.  {1}", filePath, e);
                 m_errorMessage += e.ToString ();
                 m_scene.EventManager.TriggerOarFileLoaded (UUID.Zero.Guid, m_errorMessage);
                 return false;
@@ -432,6 +431,7 @@ namespace Universe.Modules.Archivers
                 foreach (IScriptModule module in modules) {
                     module.Disabled = false;
                 }
+
                 // Reset backup too
                 if (backup != null)
                     backup.LoadingPrims = false;
@@ -468,6 +468,7 @@ namespace Universe.Modules.Archivers
 
                 MainConsole.Instance.InfoFormat ("[Archiver]: Restored {0} parcels.", landData.Count);
             }
+
             // Clean it out
             landData.Clear ();
 
@@ -504,15 +505,18 @@ namespace Universe.Modules.Archivers
                         stringData = stringData.Replace (thematch.ToString (), newvalue.ToString ());
                         didChange = true;
                     }
+
                     if (didChange) {
                         asset.Data = Utils.StringToBytes (stringData);
                         // so it doesn't try to find the old file
                         asset.LastHashCode = asset.HashCode;
                     }
                 }
+
                 asset.ID = m_scene.AssetService.Store (asset);
                 asset.HasBeenSaved = true;
             }
+
             if (assetNonBinaryCollection.ContainsKey (key))
                 assetNonBinaryCollection [key] = asset;
             return asset;
@@ -537,7 +541,9 @@ namespace Universe.Modules.Archivers
                     m_validUserUuids.Add (uuid, uuid);
                     return uuid;
                 }
+
                 UUID id = UUID.Zero;
+
                 if (m_checkOwnership || (m_useParcelOwnership && parcels == null))
                 //parcels == null is a parcel owner, ask for it if useparcel is on
                 {
@@ -554,6 +560,7 @@ namespace Universe.Modules.Archivers
                                                          new List<string> (new [] { "no", "yes" }))) == "yes")
                             goto tryAgain;
                 }
+
                 if (m_useParcelOwnership && id == UUID.Zero && location != Vector3.Zero && parcels != null) {
                     foreach (LandData data in parcels) {
                         if (ContainsPoint (data, (int)location.X + m_offsetX, (int)location.Y + m_offsetY))
@@ -561,6 +568,7 @@ namespace Universe.Modules.Archivers
                                 id = data.OwnerID;
                     }
                 }
+
                 if (id == UUID.Zero)
                     id = m_scene.RegionInfo.EstateSettings.EstateOwner;
                 m_validUserUuids.Add (uuid, id);
@@ -583,6 +591,7 @@ namespace Universe.Modules.Archivers
                     else
                         m_validGroupUuids.Add (GroupID, UUID.Zero);         // GroupID does not exist.. keep track
                 }
+
                 return m_validGroupUuids [GroupID];
             }
 
@@ -610,6 +619,7 @@ namespace Universe.Modules.Archivers
                     }
                 }
             }
+
             return false;
         }
 
@@ -645,6 +655,7 @@ namespace Universe.Modules.Archivers
                 asset = new AssetBase (UUID.Parse (uuid), string.Empty, assetType, UUID.Zero) { Data = data };
                 return true;
             }
+
             MainConsole.Instance.ErrorFormat (
                 "[Archiver]: Tried to de-archive data with path {0} with an unknown type extension {1}",
                 assetPath, extension);
@@ -660,6 +671,7 @@ namespace Universe.Modules.Archivers
                     asset.ID = m_scene.AssetService.Store (asset);
                 }
             }
+
             AssetsToAdd.Clear ();
             AssetSaverIsRunning = false;
         }
@@ -763,6 +775,7 @@ namespace Universe.Modules.Archivers
                 if (agentID != estateOwnerId)
                     parcelAccess.Add (pal);
             }
+
             parcel.ParcelAccessList = parcelAccess;
 
             return parcel;

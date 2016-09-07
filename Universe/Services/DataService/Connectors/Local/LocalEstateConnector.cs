@@ -48,7 +48,7 @@ namespace Universe.Services.DataService
         #region IEstateConnector Members
         public bool RemoteCalls()
         {
-            return m_doRemoteCalls; 
+            return m_doRemoteCalls;
         }
 
         public void Initialize(IGenericData GenericData, IConfigSource source, IRegistryCore registry, string defaultConnectionString)
@@ -68,7 +68,6 @@ namespace Universe.Services.DataService
             {
                 Framework.Utilities.DataManager.RegisterPlugin(this);
             }
-
             Init(registry, Name);
         }
 
@@ -80,18 +79,17 @@ namespace Universe.Services.DataService
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
         public EstateSettings GetEstateSettings(UUID regionID)
         {
-            EstateSettings settings = new EstateSettings () { EstateID = 0 };
+            EstateSettings settings = new EstateSettings() { EstateID = 0 };
 
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemote (regionID);
+                object remoteValue = DoRemote(regionID);
                 return remoteValue != null ? (EstateSettings)remoteValue : settings;
             }
 
             int estateID = GetEstateID(regionID);
             if (estateID == 0)
                 return settings;
-
             settings = GetEstate(estateID);
             return settings;
         }
@@ -100,7 +98,7 @@ namespace Universe.Services.DataService
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemote (EstateID);
+                object remoteValue = DoRemote(EstateID);
                 return remoteValue != null ? (EstateSettings)remoteValue : new EstateSettings { EstateID = 0 };
             }
 
@@ -111,23 +109,25 @@ namespace Universe.Services.DataService
         {
             QueryFilter filter = new QueryFilter();
             filter.andFilters["EstateName"] = name;
+
             List<string> estate = GD.Query(new string[1] { "EstateID" }, m_estateSettingsTable, filter, null, null, null);
 
             if (estate.Count == 0)              // not found!!
                 return null;
 
             int EstateID;
-            if (!int.TryParse (estate[0], out EstateID))
+            if (!int.TryParse(estate[0], out EstateID))
                 return null;
-            
-            return GetEstate (EstateID);
+
+            return GetEstate(EstateID);
         }
 
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
         public int CreateNewEstate(EstateSettings es)
         {
-            if (m_doRemoteOnly) {
-                object remoteValue = DoRemote (es.ToOSD ());
+            if (m_doRemoteOnly)
+            {
+                object remoteValue = DoRemote(es.ToOSD());
                 return remoteValue != null ? (int)remoteValue : 0;      // TODO: 0 may be incorrect??
             }
 
@@ -141,24 +141,24 @@ namespace Universe.Services.DataService
             if ((es.EstateOwner == (UUID)Constants.GovernorUUID))                  // Mainland?
             {
                 es.EstateID = Constants.MainlandEstateID;
-            } else if ( (es.EstateOwner == (UUID) Constants.GovernorUUID))         // Universe Homes Estate?
+            }
+            else if ((es.EstateOwner == (UUID)Constants.RealEstateOwnerUUID))  // System Estate?
             {
-                es.EstateID = (uint) Constants.HomesEstateID;
-            } else if ( (es.EstateOwner == (UUID) Constants.RealEstateOwnerUUID) )  // System Estate?
-            {
-                es.EstateID = (uint) Constants.SystemEstateID;                       
-            } else                                                                  // must be a new user estate then
+                es.EstateID = (uint)Constants.SystemEstateID;
+            }
+            else                                                                  // must be a new user estate then
                 es.EstateID = GetNewEstateID();
 
             SaveEstateSettings(es, true);
-            return (int) es.EstateID;
+            return (int)es.EstateID;
         }
 
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
         public int CreateNewEstate(EstateSettings es, UUID RegionID)
         {
-            if (m_doRemoteOnly) {
-                object remoteValue = DoRemote (es.ToOSD (), RegionID);
+            if (m_doRemoteOnly)
+            {
+                object remoteValue = DoRemote(es.ToOSD(), RegionID);
                 return remoteValue != null ? (int)remoteValue : 0;
             }
 
@@ -172,15 +172,16 @@ namespace Universe.Services.DataService
 
             es.EstateID = GetNewEstateID();
             SaveEstateSettings(es, true);
-            LinkRegion(RegionID, (int) es.EstateID);
-            return (int) es.EstateID;
+            LinkRegion(RegionID, (int)es.EstateID);
+            return (int)es.EstateID;
         }
 
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
         public void SaveEstateSettings(EstateSettings es)
         {
-            if (m_doRemoteOnly) {
-                DoRemote (es.ToOSD ());
+            if (m_doRemoteOnly)
+            {
+                DoRemote(es.ToOSD());
                 return;
             }
 
@@ -192,7 +193,7 @@ namespace Universe.Services.DataService
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemote (regionID, estateID);
+                object remoteValue = DoRemote(regionID, estateID);
                 return remoteValue != null ? (bool)remoteValue : false;
             }
 
@@ -209,7 +210,7 @@ namespace Universe.Services.DataService
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemote (regionID);
+                object remoteValue = DoRemote(regionID);
                 return remoteValue != null ? (bool)remoteValue : false;
             }
 
@@ -225,7 +226,7 @@ namespace Universe.Services.DataService
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemote (estateID);
+                object remoteValue = DoRemote(estateID);
                 return remoteValue != null ? (bool)remoteValue : false;
             }
 
@@ -242,7 +243,7 @@ namespace Universe.Services.DataService
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemote (name);
+                object remoteValue = DoRemote(name);
                 return remoteValue != null ? (bool)remoteValue : false;
             }
 
@@ -258,19 +259,19 @@ namespace Universe.Services.DataService
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemote (estateID, regionID);
+                object remoteValue = DoRemote(estateID, regionID);
                 return remoteValue != null ? (bool)remoteValue : false;
             }
 
             bool found = false;
-            var eRegions = GetRegions (estateID);
+            var eRegions = GetRegions(estateID);
             if (eRegions.Count == 0)
                 return found;
 
             foreach (UUID rId in eRegions)
                 if (rId == regionID)
                     found = true;
-            
+
             return found;
         }
 
@@ -279,7 +280,7 @@ namespace Universe.Services.DataService
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemote (name);
+                object remoteValue = DoRemote(name);
                 return remoteValue != null ? (int)remoteValue : 0;
             }
 
@@ -297,10 +298,10 @@ namespace Universe.Services.DataService
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemote (ownerID, name);
+                object remoteValue = DoRemote(ownerID, name);
                 return remoteValue != null ? (int)remoteValue : 0;
             }
-                
+
             QueryFilter filter = new QueryFilter();
             filter.andFilters["EstateName"] = name;
             filter.andFilters["EstateOwner"] = ownerID;
@@ -317,21 +318,30 @@ namespace Universe.Services.DataService
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemote (estateID);
-                return remoteValue != null ? (List<UUID>)remoteValue : new List<UUID> ();
+                object remoteValue = DoRemote(estateID);
+                return remoteValue != null ? (List<UUID>)remoteValue : new List<UUID>();
             }
 
             QueryFilter filter = new QueryFilter();
             filter.andFilters["EstateID"] = estateID;
             return
-                GD.Query(new string[1] {"RegionID"}, m_estateRegionsTable, filter, null, null, null)
+                GD.Query(new string[1] { "RegionID" }, m_estateRegionsTable, filter, null, null, null)
                   .ConvertAll(x => UUID.Parse(x));
         }
 
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
-        public List<string> GetEstates()
+        public List<string> GetEstateNames()
         {
             List<string> estates = GD.Query(new string[1] { "EstateName" }, m_estateSettingsTable, null, null, null, null);
+            return estates;
+        }
+
+        [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
+        public List<string> GetEstateNames(UUID ownerID)
+        {
+            QueryFilter filter = new QueryFilter();
+            filter.andFilters["EstateOwner"] = ownerID;
+            List<string> estates = GD.Query(new string[1] { "EstateName" }, m_estateSettingsTable, filter, null, null, null);
             return estates;
         }
 
@@ -344,9 +354,10 @@ namespace Universe.Services.DataService
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
         public List<EstateSettings> GetEstates(UUID OwnerID, Dictionary<string, bool> boolFields)
         {
-            if (m_doRemoteOnly) {
-                object remoteValue = DoRemote (OwnerID, boolFields);
-                return remoteValue != null ? (List<EstateSettings>)remoteValue : new List<EstateSettings> ();
+            if (m_doRemoteOnly)
+            {
+                object remoteValue = DoRemote(OwnerID, boolFields);
+                return remoteValue != null ? (List<EstateSettings>)remoteValue : new List<EstateSettings>();
             }
 
             List<EstateSettings> settings = new List<EstateSettings>();
@@ -390,7 +401,7 @@ namespace Universe.Services.DataService
             QueryFilter filter = new QueryFilter();
             filter.andFilters["RegionID"] = regionID;
 
-            List<string> retVal = GD.Query(new string[1] {"EstateID"}, m_estateRegionsTable, filter, null, null, null);
+            List<string> retVal = GD.Query(new string[1] { "EstateID" }, m_estateRegionsTable, filter, null, null, null);
 
             return (retVal.Count > 0) ? int.Parse(retVal[0]) : 0;
         }
@@ -401,10 +412,10 @@ namespace Universe.Services.DataService
             filter.andFilters["EstateID"] = estateID;
 
             List<string> retVals = GD.Query(new string[1] { "*" }, m_estateSettingsTable, filter, null, null, null);
-            EstateSettings settings = new EstateSettings {EstateID = 0};
+            EstateSettings settings = new EstateSettings { EstateID = 0 };
 
             if (retVals.Count > 0)
-                settings.FromOSD((OSDMap) OSDParser.DeserializeJson(retVals[4]));
+                settings.FromOSD((OSDMap)OSDParser.DeserializeJson(retVals[4]));
 
             return settings;
         }
@@ -416,10 +427,10 @@ namespace Universe.Services.DataService
                                                          "COUNT(EstateID)",
                                                          "MAX(EstateID)"
                                                      }, m_estateSettingsTable, null, null, null, null);
-            if (uint.Parse (QueryResults [0]) > 0)
+            if (uint.Parse(QueryResults[0]) > 0)
             {
-                uint esID = uint.Parse (QueryResults [1]);
-                if (esID > 99)                                 // Mainland is #1, Homes Estate is #2 and system estate is #10, user estates start at 100
+                uint esID = uint.Parse(QueryResults[1]);
+                if (esID > 99)                                 // Mainland is @#1, system estate is #10, user estates start at 100
                     return esID + 1;
             }
 
