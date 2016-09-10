@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) Contributors, http://virtual-planets.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
  * For an explanation of the license of each contributor and the content it 
@@ -34,10 +34,10 @@ using Universe.Simulation.Base;
 
 namespace Universe.Server
 {
-    public class UniverseBase : SimulationBase
-    {
+	public class UniverseBase : SimulationBase
+	{
         /// <summary>
-        ///     Performs initialisation of the scene, such as loading configuration from disk.
+        ///     Performs initialization of the scene, such as loading configuration from disk.
         /// </summary>
         public override void Startup()
         {
