@@ -27,33 +27,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* The MIT License
- * 
- * Copyright (c) 2010 Intel Corporation.
- * All rights reserved.
- *
- * Based on the convexdecomposition library from 
- * <http://codesuppository.googlecode.com> by John W. Ratcliff and Stan Melax.
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -253,7 +226,6 @@ namespace Universe.Physics.ConvexDecompositionDotNet
             getMesh(a.mResult, vc, indices);
             getMesh(b.mResult, vc, indices);
 
-// 20131224 not used            int vcount = vc.GetSize();
             List<float3> vertices = vc.GetVertices();
             int tcount = indices.Count / 3;
 
@@ -309,7 +281,6 @@ namespace Universe.Physics.ConvexDecompositionDotNet
 
                     if (cr != match) // don't try to merge a hull with itself, that be stoopid
                     {
-
                         CHull merge = canMerge(cr, match); // if we can merge these two....
 
                         if (merge != null)
@@ -365,9 +336,8 @@ namespace Universe.Physics.ConvexDecompositionDotNet
 
             ConvexDecomposition.calcConvexDecomposition(desc.mVertices, desc.mIndices, ConvexDecompResult, 0f, 0, MAXDEPTH, CONCAVE_PERCENT, MERGE_PERCENT);
 
-            while (combineHulls()) // keep combinging hulls until I can't combine any more...
-                ;
-
+            while (combineHulls()); // keep combinging hulls until I can't combine any more...
+                
             int i;
             for (i = 0; i < mChulls.Count; i++)
             {
@@ -399,18 +369,6 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                     ConvexResult r = new ConvexResult(result.OutputVertices, result.Indices);
 
                     r.mHullVolume = Concavity.computeMeshVolume(result.OutputVertices, result.Indices); // the volume of the hull.
-
-                    // compute the best fit OBB
-                    //computeBestFitOBB(result.mNumOutputVertices, result.mOutputVertices, sizeof(float) * 3, r.mOBBSides, r.mOBBTransform);
-
-                    //r.mOBBVolume = r.mOBBSides[0] * r.mOBBSides[1] * r.mOBBSides[2]; // compute the OBB volume.
-
-                    //fm_getTranslation(r.mOBBTransform, r.mOBBCenter); // get the translation component of the 4x4 matrix.
-
-                    //fm_matrixToQuat(r.mOBBTransform, r.mOBBOrientation); // extract the orientation as a quaternion.
-
-                    //r.mSphereRadius = computeBoundingSphere(result.mNumOutputVertices, result.mOutputVertices, r.mSphereCenter);
-                    //r.mSphereVolume = fm_sphereVolume(r.mSphereRadius);
 
                     mCallback(r);
                 }

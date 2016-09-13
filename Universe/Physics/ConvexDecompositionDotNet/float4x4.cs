@@ -27,33 +27,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* The MIT License
- * 
- * Copyright (c) 2010 Intel Corporation.
- * All rights reserved.
- *
- * Based on the convexdecomposition library from 
- * <http://codesuppository.googlecode.com> by John W. Ratcliff and Stan Melax.
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
-
 using System;
 using System.Linq;
 
@@ -109,6 +82,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                     case 2: return z;
                     case 3: return w;
                 }
+
                 throw new ArgumentOutOfRangeException();
             }
             set
@@ -120,6 +94,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                     case 2: z = value; return;
                     case 3: w = value; return;
                 }
+
                 throw new ArgumentOutOfRangeException();
             }
         }
@@ -156,7 +131,6 @@ namespace Universe.Physics.ConvexDecompositionDotNet
         public static float4x4 Inverse(float4x4 m)
 	    {
 		    float4x4 d = new float4x4();
-		    //float dst = d.x.x;
 		    float[] tmp = new float[12]; // temp array for pairs
 		    float[] src = new float[16]; // array of transpose source matrix
 		    float det; // determinant
@@ -168,6 +142,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
 			    src[i + 8] = m[i].z;
 			    src[i + 12] = m[i].w;
 		    }
+
 		    // calculate pairs for first 8 elements (cofactors)
 		    tmp[0] = src[10] * src[15];
 		    tmp[1] = src[11] * src[14];
@@ -244,26 +219,31 @@ namespace Universe.Physics.ConvexDecompositionDotNet
             rot.w = new float4(0f, 0f, 0f, 1f);
             return trans_inverse * MatrixTranspose(rot);
         }
+
         public static float4x4 MatrixTranspose(float4x4 m)
         {
             return new float4x4(m.x.x, m.y.x, m.z.x, m.w.x, m.x.y, m.y.y, m.z.y, m.w.y, m.x.z, m.y.z, m.z.z, m.w.z, m.x.w, m.y.w, m.z.w, m.w.w);
         }
+
         public static float4x4 MatrixPerspectiveFov(float fovy, float aspect, float zn, float zf)
         {
             float h = 1.0f / (float)Math.Tan(fovy / 2.0f); // view space height
             float w = h / aspect; // view space width
             return new float4x4(w, 0, 0, 0, 0, h, 0, 0, 0, 0, zf / (zn - zf), -1, 0, 0, zn * zf / (zn - zf), 0);
         }
+
         public static float4x4 MatrixTranslation(float3 t)
         {
             return new float4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, t.x, t.y, t.z, 1);
         }
+
         public static float4x4 MatrixRotationZ(float angle_radians)
         {
             float s = (float)Math.Sin(angle_radians);
             float c = (float)Math.Cos(angle_radians);
             return new float4x4(c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
         }
+
         public static float4x4 MatrixLookAt(float3 eye, float3 at, float3 up)
         {
             float4x4 m = new float4x4();

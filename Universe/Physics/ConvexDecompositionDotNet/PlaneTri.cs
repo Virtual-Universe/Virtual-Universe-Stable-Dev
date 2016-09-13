@@ -27,33 +27,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* The MIT License
- * 
- * Copyright (c) 2010 Intel Corporation.
- * All rights reserved.
- *
- * Based on the convexdecomposition library from 
- * <http://codesuppository.googlecode.com> by John W. Ratcliff and Stan Melax.
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
-
 using System;
 using System.Diagnostics;
 
@@ -137,6 +110,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                     add(p2, back, ref bcount);
                     add(p3, back, ref bcount);
                 }
+
                 return r1; // if all three points are on the same side of the plane return result
             }
 
@@ -169,7 +143,6 @@ namespace Universe.Physics.ConvexDecompositionDotNet
 
                     add(split, back, ref bcount);
                     add(p2, back, ref bcount);
-
                 }
                 else
                 {
@@ -179,7 +152,6 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                     add(split, front, ref fcount);
                     add(p2, front, ref fcount);
                 }
-
             }
 
             // Next test ray segment P2 to P3

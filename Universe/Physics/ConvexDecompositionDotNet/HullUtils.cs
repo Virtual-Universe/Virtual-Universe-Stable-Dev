@@ -27,33 +27,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* The MIT License
- * 
- * Copyright (c) 2010 Intel Corporation.
- * All rights reserved.
- *
- * Based on the convexdecomposition library from 
- * <http://codesuppository.googlecode.com> by John W. Ratcliff and Stan Melax.
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -72,6 +45,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                     r = i;
                 }
             }
+
             return r;
         }
 
@@ -112,6 +86,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                 if (t[i] == a && t[i1] == b)
                     return 1;
             }
+
             return 0;
         }
 
@@ -129,6 +104,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                 if (hasedge(a, b[i1], b[i]) != 0)
                     return 1;
             }
+
             return 0;
         }
 
@@ -186,12 +162,16 @@ namespace Universe.Physics.ConvexDecompositionDotNet
             checkit(ta, tris);
             checkit(tb, tris);
             checkit(tc, tris);
+
             if (hasvert(tris[ta.n[0]], v))
                 removeb2b(ta, tris[ta.n[0]], tris);
+
             if (hasvert(tris[tb.n[0]], v))
                 removeb2b(tb, tris[tb.n[0]], tris);
+
             if (hasvert(tris[tc.n[0]], v))
                 removeb2b(tc, tris[tc.n[0]], tris);
+
             t0.Dispose();
         }
 
@@ -220,10 +200,12 @@ namespace Universe.Physics.ConvexDecompositionDotNet
             v1 = float3.normalize(v1); // If vector is already unit length then why do it again?
             float3 c = float3.cross(v0, v1);
             float d = float3.dot(v0, v1);
+
             if (d <= -1.0f) // 180 about x axis
             {
                 return new Quaternion(1f, 0f, 0f, 0f);
             }
+
             float s = (float)Math.Sqrt((1 + d) * 2f);
             q.x = c.x / s;
             q.y = c.y / s;
@@ -304,6 +286,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
             {
                 return false;
             }
+
             nrml = nrml * (1.0f / m);
             float dist = -float3.dot(nrml, vert[0]);
             float d0;
@@ -319,7 +302,6 @@ namespace Universe.Physics.ConvexDecompositionDotNet
             float a = d0 / (d0 - d1);
             the_point = v0 * (1 - a) + v1 * a;
 
-
             bool inside = true;
             for (int j = 0; inside && j < vert.Count; j++)
             {
@@ -332,6 +314,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                 side = float3.cross((pp2 - pp1), (the_point - pp1));
                 inside = (float3.dot(nrml, side) >= 0.0);
             }
+
             if (inside)
             {
                 if (normal != null)
@@ -343,6 +326,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                     impact = the_point;
                 }
             }
+
             return inside;
         }
 
@@ -358,10 +342,10 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                 impact = v0;
                 return true;
             }
+
             if (v0.x <= bmin.x && v1.x >= bmin.x)
             {
                 float a = (bmin.x - v0.x) / (v1.x - v0.x);
-                //v.x = bmin.x;
                 float vy = (1 - a) * v0.y + a * v1.y;
                 float vz = (1 - a) * v0.z + a * v1.z;
                 if (vy >= bmin.y && vy <= bmax.y && vz >= bmin.z && vz <= bmax.z)
@@ -375,7 +359,6 @@ namespace Universe.Physics.ConvexDecompositionDotNet
             else if (v0.x >= bmax.x && v1.x <= bmax.x)
             {
                 float a = (bmax.x - v0.x) / (v1.x - v0.x);
-                //v.x = bmax.x;
                 float vy = (1 - a) * v0.y + a * v1.y;
                 float vz = (1 - a) * v0.z + a * v1.z;
                 if (vy >= bmin.y && vy <= bmax.y && vz >= bmin.z && vz <= bmax.z)
@@ -386,11 +369,11 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                     return true;
                 }
             }
+
             if (v0.y <= bmin.y && v1.y >= bmin.y)
             {
                 float a = (bmin.y - v0.y) / (v1.y - v0.y);
                 float vx = (1 - a) * v0.x + a * v1.x;
-                //v.y = bmin.y;
                 float vz = (1 - a) * v0.z + a * v1.z;
                 if (vx >= bmin.x && vx <= bmax.x && vz >= bmin.z && vz <= bmax.z)
                 {
@@ -404,7 +387,6 @@ namespace Universe.Physics.ConvexDecompositionDotNet
             {
                 float a = (bmax.y - v0.y) / (v1.y - v0.y);
                 float vx = (1 - a) * v0.x + a * v1.x;
-                // vy = bmax.y;
                 float vz = (1 - a) * v0.z + a * v1.z;
                 if (vx >= bmin.x && vx <= bmax.x && vz >= bmin.z && vz <= bmax.z)
                 {
@@ -414,12 +396,12 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                     return true;
                 }
             }
+
             if (v0.z <= bmin.z && v1.z >= bmin.z)
             {
                 float a = (bmin.z - v0.z) / (v1.z - v0.z);
                 float vx = (1 - a) * v0.x + a * v1.x;
                 float vy = (1 - a) * v0.y + a * v1.y;
-                // v.z = bmin.z;
                 if (vy >= bmin.y && vy <= bmax.y && vx >= bmin.x && vx <= bmax.x)
                 {
                     impact.x = vx;
@@ -433,7 +415,6 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                 float a = (bmax.z - v0.z) / (v1.z - v0.z);
                 float vx = (1 - a) * v0.x + a * v1.x;
                 float vy = (1 - a) * v0.y + a * v1.y;
-                // v.z = bmax.z;
                 if (vy >= bmin.y && vy <= bmax.y && vx >= bmin.x && vx <= bmax.x)
                 {
                     impact.x = vx;
@@ -442,6 +423,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                     return true;
                 }
             }
+
             return false;
         }
 
@@ -469,6 +451,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                 plane.dist = -float3.dot(plane.normal, vstart);
                 upoint = PlaneLineIntersection(plane, ustart, ustart + udir);
             }
+
             if (vpoint != null)
             {
                 Plane plane = new Plane();
@@ -476,6 +459,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                 plane.dist = -float3.dot(plane.normal, ustart);
                 vpoint = PlaneLineIntersection(plane, vstart, vstart + vdir);
             }
+
             return dist;
         }
 
@@ -504,6 +488,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
             {
                 flag |= PlaneTest(plane, convex.vertices[i], planetestepsilon);
             }
+
             return flag;
         }
 
@@ -548,6 +533,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
             {
                 v = v - (nrml * (float)Math.Sqrt(1 - m * m));
             }
+
             return RotationArc(u, v);
         }
 
@@ -600,6 +586,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                 if (float3.dot(localnormal, convex.facets[convex.edges[i].p].normal) <= 0)
                     return false;
             }
+
             return true;
         }
 
@@ -704,9 +691,6 @@ namespace Universe.Physics.ConvexDecompositionDotNet
             int i;
             int vertcountunder = 0;
             int vertcountover = 0;
-// 20131224 not used            List<int> vertscoplanar = new List<int>(); // existing vertex members of convex that are coplanar
-// 20131224 not used            List<int> edgesplit = new List<int>(); // existing edges that members of convex that cross the splitplane
-
             Debug.Assert(convex.edges.Count < 480);
 
             EdgeFlag[] edgeflag = new EdgeFlag[512];
@@ -725,7 +709,6 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                 vertflag[i].planetest = (byte)PlaneTest(slice, convex.vertices[i], planetestepsilon);
                 if (vertflag[i].planetest == (0))
                 {
-                    // ? vertscoplanar.Add(i);
                     vertflag[i].undermap = (byte)vertcountunder++;
                     vertflag[i].overmap = (byte)vertcountover++;
                 }
@@ -740,6 +723,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                     vertflag[i].undermap = 255; // for debugging purposes
                 }
             }
+
             int vertcountunderold = vertcountunder; // for debugging only
 
             int under_edge_count = 0;
@@ -757,21 +741,17 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                 int coplanaredge = -1;
                 do
                 {
-
                     if (e1 >= convex.edges.Count || convex.edges[e1].p != currentplane)
                     {
                         enextface = e1;
                         e1 = estart;
                     }
+
                     ConvexH.HalfEdge edge0 = convex.edges[e0];
                     ConvexH.HalfEdge edge1 = convex.edges[e1];
                     ConvexH.HalfEdge edgea = convex.edges[edge0.ea];
 
                     planeside |= vertflag[edge0.v].planetest;
-                    //if((vertflag[edge0.v].planetest & vertflag[edge1.v].planetest)  == COPLANAR) {
-                    //	assert(ecop==-1);
-                    //	ecop=e;
-                    //}
 
                     if (vertflag[edge0.v].planetest == (2) && vertflag[edge1.v].planetest == (2))
                     {
@@ -792,6 +772,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                             tmpunderedges[under_edge_count].ea = edgeflag[edge0.ea].undermap;
                             tmpunderedges[edgeflag[edge0.ea].undermap].ea = (short)under_edge_count;
                         }
+
                         under_edge_count++;
                     }
                     else if ((vertflag[edge0.v].planetest | vertflag[edge1.v].planetest) == (0))
@@ -803,11 +784,11 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                         {
                             e2 = estart;
                         }
+
                         Debug.Assert(convex.edges[e2].p == currentplane);
                         ConvexH.HalfEdge edge2 = convex.edges[e2];
                         if (vertflag[edge2.v].planetest == (1))
                         {
-
                             edgeflag[e0].undermap = (short)under_edge_count;
                             tmpunderedges[under_edge_count].v = vertflag[edge0.v].undermap;
                             tmpunderedges[under_edge_count].p = (byte)underplanescount;
@@ -843,8 +824,6 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                             Plane p0 = convex.facets[edge0.p];
                             Plane pa = convex.facets[edgea.p];
                             createdverts.Add(ThreePlaneIntersection(p0, pa, slice));
-                            //createdverts.Add(PlaneProject(slice,PlaneLineIntersection(slice,convex.vertices[edge0.v],convex.vertices[edgea.v])));
-                            //createdverts.Add(PlaneLineIntersection(slice,convex.vertices[edge0.v],convex.vertices[edgea.v]));
                             vout = vertcountunder++;
                         }
                         under_edge_count++;
@@ -879,6 +858,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                             planeside |= vertflag[convex.edges[k].v].planetest;
                             k++;
                         }
+
                         if ((planeside & 1) != 0)
                         {
                             tmpunderedges[under_edge_count].v = (byte)vout;
@@ -899,8 +879,6 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                             Plane p0 = convex.facets[edge0.p];
                             Plane pa = convex.facets[edgea.p];
                             createdverts.Add(ThreePlaneIntersection(p0, pa, slice));
-                            //createdverts.Add(PlaneLineIntersection(slice,convex.vertices[edge0.v],convex.vertices[edgea.v]));
-                            //createdverts.Add(PlaneProject(slice,PlaneLineIntersection(slice,convex.vertices[edge0.v],convex.vertices[edgea.v])));
                             vin = vertcountunder++;
                         }
                         else
@@ -912,12 +890,14 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                             Debug.Assert(vin < vertcountunder);
                             Debug.Assert(vin >= vertcountunderold); // for debugging only
                         }
+
                         if (vout != -1)
                         {
                             // we previously processed an edge  where we went over
                             // now we know vin too
                             // ADD THIS EDGE TO THE LIST OF EDGES THAT NEED NEIGHBOR ON PARTITION PLANE!!
                         }
+
                         // output edge
                         tmpunderedges[under_edge_count].v = (byte)vin;
                         tmpunderedges[under_edge_count].p = (byte)underplanescount;
@@ -929,6 +909,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                             tmpunderedges[under_edge_count].ea = edgeflag[edge0.ea].undermap;
                             tmpunderedges[edgeflag[edge0.ea].undermap].ea = (short)under_edge_count;
                         }
+
                         Debug.Assert(edgeflag[e0].undermap == under_edge_count);
                         under_edge_count++;
                     }
@@ -945,19 +926,17 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                             // now we know both endpoints
                             // ADD THIS EDGE TO THE LIST OF EDGES THAT NEED NEIGHBOR ON PARTITION PLANE!!
                         }
-
                     }
                     else
                     {
                         Debug.Assert(false);
                     }
 
-
                     e0 = e1;
                     e1++; // do the modulo at the beginning of the loop
-
                 } while (e0 != estart);
                 e0 = enextface;
+
                 if ((planeside & 1) != 0)
                 {
                     planeflag[currentplane].undermap = (byte)underplanescount;
@@ -968,6 +947,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                 {
                     planeflag[currentplane].undermap = 0;
                 }
+
                 if (vout >= 0 && (planeside & 1) != 0)
                 {
                     Debug.Assert(vin >= 0);
@@ -1000,6 +980,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                             break;
                         }
                     }
+
                     if (j >= coplanaredges_num)
                     {
                         Debug.Assert(j < coplanaredges_num);
@@ -1020,11 +1001,13 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                         under.vertices[k++] = convex.vertices[i];
                     }
                 }
+
                 i = 0;
                 while (k < vertcountunder)
                 {
                     under.vertices[k++] = createdverts[i++];
                 }
+
                 Debug.Assert(i == createdverts.Count);
             }
 
@@ -1071,12 +1054,14 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                 {
                     d = Math.Max(d, float3.dot(convex.vertices[j], planes[i].normal) + planes[i].dist);
                 }
+
                 if (i == 0 || d > md)
                 {
                     p = i;
                     md = d;
                 }
             }
+
             return (md > epsilon) ? p : -1;
         }
 
@@ -1101,12 +1086,12 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                     m = i;
                 }
             }
+
             return m;
         }
 
         public static int maxdirfiltered(List<float3> p, int count, float3 dir, byte[] allow)
         {
-            //Debug.Assert(count != 0);
             int m = 0;
             float currDotm = float3.dot(p[0], dir);
             float currDoti;
@@ -1126,7 +1111,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                     }
                 }
             }
-            //Debug.Assert(m != -1);
+
             return m;
         }
 
@@ -1149,11 +1134,13 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                         float c = (float)Math.Cos((3.14159264f / 180.0f) * (x));
                         mb = maxdirfiltered(p, count, dir + (u * s + v * c) * 0.025f, allow);
                     }
+
                     if (ma == m && mb == m)
                     {
                         allow[m] = 3;
                         return m;
                     }
+
                     if (ma != -1 && ma != mb) // Yuck - this is really ugly
                     {
                         int mc = ma;
@@ -1162,16 +1149,20 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                             float s = (float)Math.Sin((3.14159264f / 180.0f) * (xx));
                             float c = (float)Math.Cos((3.14159264f / 180.0f) * (xx));
                             int md = maxdirfiltered(p, count, dir + (u * s + v * c) * 0.025f, allow);
+
                             if (mc == m && md == m)
                             {
                                 allow[m] = 3;
                                 return m;
                             }
+
                             mc = md;
                         }
                     }
+
                     ma = mb;
                 }
+
                 allow[m] = 0;
                 m = -1;
             }
@@ -1187,30 +1178,40 @@ namespace Universe.Physics.ConvexDecompositionDotNet
             int p0 = maxdirsterid(verts, verts.Count, basis[0], allow);
             int p1 = maxdirsterid(verts, verts.Count, -basis[0], allow);
             basis[0] = verts[p0] - verts[p1];
+
             if (p0 == p1 || basis[0] == new float3(0, 0, 0))
                 return new int4(-1, -1, -1, -1);
+
             basis[1] = float3.cross(new float3(1, 0.02f, 0), basis[0]);
             basis[2] = float3.cross(new float3(-0.02f, 1, 0), basis[0]);
             basis[1] = float3.normalize((float3.magnitude(basis[1]) > float3.magnitude(basis[2])) ? basis[1] : basis[2]);
             int p2 = maxdirsterid(verts, verts.Count, basis[1], allow);
+
             if (p2 == p0 || p2 == p1)
             {
                 p2 = maxdirsterid(verts, verts.Count, -basis[1], allow);
             }
+
             if (p2 == p0 || p2 == p1)
                 return new int4(-1, -1, -1, -1);
+
             basis[1] = verts[p2] - verts[p0];
             basis[2] = float3.normalize(float3.cross(basis[1], basis[0]));
             int p3 = maxdirsterid(verts, verts.Count, basis[2], allow);
+
             if (p3 == p0 || p3 == p1 || p3 == p2)
                 p3 = maxdirsterid(verts, verts.Count, -basis[2], allow);
+
             if (p3 == p0 || p3 == p1 || p3 == p2)
                 return new int4(-1, -1, -1, -1);
+
             Debug.Assert(!(p0 == p1 || p0 == p2 || p0 == p3 || p1 == p2 || p1 == p3 || p2 == p3));
+
             if (float3.dot(verts[p3] - verts[p0], float3.cross(verts[p1] - verts[p0], verts[p2] - verts[p0])) < 0)
             {
                 Swap(ref p2, ref p3);
             }
+
             return new int4(p0, p1, p2, p3);
         }
 
@@ -1227,6 +1228,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
         {
             if (result.Indices != null)
                 result.Indices = null;
+
             if (result.Vertices != null)
                 result.Vertices = null;
         }
@@ -1235,8 +1237,10 @@ namespace Universe.Physics.ConvexDecompositionDotNet
         {
             if (verts.Count < 4)
                 return 0;
+
             if (vlimit == 0)
                 vlimit = 1000000000;
+
             int j;
             float3 bmin = new float3(verts[0]);
             float3 bmax = new float3(verts[0]);
@@ -1249,6 +1253,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                 bmin = float3.VectorMin(bmin, verts[j]);
                 bmax = float3.VectorMax(bmax, verts[j]);
             }
+
             float epsilon = float3.magnitude(bmax - bmin) * 0.001f;
 
             int4 p = FindSimplex(verts, allow);
@@ -1279,15 +1284,14 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                 t.vmax = maxdirsterid(verts, verts.Count, n, allow);
                 t.rise = float3.dot(n, verts[t.vmax] - verts[(t)[0]]);
             }
+
             HullTriangle te;
             vlimit -= 4;
             while (vlimit > 0 && (te = extrudable(epsilon, tris)) != null)
             {
-// 20131224 not used                int3 ti = te;
                 int v = te.vmax;
                 Debug.Assert(isextreme[v] == 0); // wtf we've already done this vertex
                 isextreme[v] = 1;
-                //if(v==p0 || v==p1 || v==p2 || v==p3) continue; // done these already
                 j = tris.Count;
                 while (j-- != 0)
                 {
@@ -1299,14 +1303,17 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                         extrude(tris[j], v, tris);
                     }
                 }
+
                 // now check for those degenerate cases where we have a flipped triangle or a really skinny triangle
                 j = tris.Count;
                 while (j-- != 0)
                 {
                     if (tris.Count <= j || (object)tris[j] == null)
                         continue;
+
                     if (!hasvert(tris[j], v))
                         break;
+
                     int3 nt = tris[j];
                     if (above(verts, nt, center, 0.01f * epsilon) || float3.magnitude(float3.cross(verts[nt[1]] - verts[nt[0]], verts[nt[2]] - verts[nt[1]])) < epsilon * epsilon * 0.1f)
                     {
@@ -1318,16 +1325,21 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                         j = tris.Count;
                     }
                 }
+
                 j = tris.Count;
                 while (j-- != 0)
                 {
                     HullTriangle t = tris[j];
+
                     if (t == null)
                         continue;
+
                     if (t.vmax >= 0)
                         break;
+
                     float3 n = TriNormal(verts[(t)[0]], verts[(t)[1]], verts[(t)[2]]);
                     t.vmax = maxdirsterid(verts, verts.Count, n, allow);
+
                     if (isextreme[t.vmax] != 0)
                     {
                         t.vmax = -1; // already done that vertex - algorithm needs to be able to terminate.
@@ -1337,8 +1349,10 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                         t.rise = float3.dot(n, verts[t.vmax] - verts[(t)[0]]);
                     }
                 }
+
                 vlimit--;
             }
+
             return 1;
         }
 
@@ -1347,8 +1361,10 @@ namespace Universe.Physics.ConvexDecompositionDotNet
             tris_out = null;
 
             int rc = calchullgen(verts, vlimit, tris);
+
             if (rc == 0)
                 return false;
+
             List<int> ts = new List<int>();
             for (int i = 0; i < tris.Count; i++)
             {
@@ -1371,8 +1387,10 @@ namespace Universe.Physics.ConvexDecompositionDotNet
             int j;
             planes = new List<Plane>();
             int rc = calchullgen(verts, vlimit, tris);
+
             if (rc == 0)
                 return 0;
+
             for (i = 0; i < tris.Count; i++)
             {
                 if (tris[i] != null)
@@ -1407,8 +1425,10 @@ namespace Universe.Physics.ConvexDecompositionDotNet
 
             int i;
             int j;
+
             if (verts.Count < 4)
                 return 0;
+
             maxplanes = Math.Min(maxplanes, planes.Count);
             float3 bmin = new float3(verts[0]);
             float3 bmax = new float3(verts[0]);
@@ -1417,14 +1437,14 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                 bmin = float3.VectorMin(bmin, verts[i]);
                 bmax = float3.VectorMax(bmax, verts[i]);
             }
-            //	float diameter = magnitude(bmax-bmin);
-            //	inflate *=diameter;   // RELATIVE INFLATION
+
             bmin -= new float3(inflate, inflate, inflate);
             bmax += new float3(inflate, inflate, inflate);
             for (i = 0; i < planes.Count; i++)
             {
                 planes[i].dist -= inflate;
             }
+
             float3 emin = new float3(bmin);
             float3 emax = new float3(bmax);
             float epsilon = float3.magnitude(emax - emin) * 0.025f;
@@ -1437,23 +1457,26 @@ namespace Universe.Physics.ConvexDecompositionDotNet
             {
                 ConvexH tmp = c;
                 c = ConvexHCrop(ref tmp, planes[k], planetestepsilon);
+
                 if (c == null) // might want to debug this case better!!!
                 {
                     c = tmp;
                     break;
                 }
+
                 if (AssertIntact(c, planetestepsilon) == false) // might want to debug this case better too!!!
                 {
                     c = tmp;
                     break;
                 }
+
                 tmp.edges = null;
                 tmp.facets = null;
                 tmp.vertices = null;
             }
 
             Debug.Assert(AssertIntact(c, planetestepsilon));
-            //return c;
+
             //C++ TO C# CONVERTER TODO TASK: The memory management function 'malloc' has no equivalent in C#:
             faces_out = new List<int>(); //(int)malloc(sizeof(int) * (1 + c.facets.Count + c.edges.Count)); // new int[1+c->facets.count+c->edges.count];
             int faces_count_out = 0;
@@ -1467,14 +1490,17 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                 {
                     j++;
                 }
+
                 faces_out[faces_count_out++] = j;
                 while (j-- != 0)
                 {
                     faces_out[faces_count_out++] = c.edges[i].v;
                     i++;
                 }
+
                 k++;
             }
+
             faces_out[0] = k; // number of faces.
             Debug.Assert(k == c.facets.Count);
             Debug.Assert(faces_count_out == 1 + c.facets.Count + c.edges.Count);
@@ -1498,10 +1524,13 @@ namespace Universe.Physics.ConvexDecompositionDotNet
 
             if (verts.Count == 0)
                 return 0;
+
             List<Plane> planes = new List<Plane>();
             int rc = calchullpbev(verts, vlimit, out planes, bevangle, tris);
+
             if (rc == 0)
                 return 0;
+
             return overhull(planes, verts, maxplanes, out verts_out, out faces_out, inflate);
         }
 
@@ -1544,6 +1573,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                         tris2.Add(new int3(faces[k], faces[k + j - 1], faces[k + j]));
                     k += pn;
                 }
+
                 Debug.Assert(tris2.Count == faces.Count - 1 - (n * 3));
 
                 result.Indices = new List<int>(tris2.Count * 3);
@@ -1553,6 +1583,7 @@ namespace Universe.Physics.ConvexDecompositionDotNet
                     result.Indices.Add(tris2[i].y);
                     result.Indices.Add(tris2[i].z);
                 }
+
                 result.Vertices = verts_out;
 
                 return true;
@@ -1605,8 +1636,10 @@ namespace Universe.Physics.ConvexDecompositionDotNet
 
                 if (dx > EPSILON && dx < len)
                     len = dx;
+
                 if (dy > EPSILON && dy < len)
                     len = dy;
+
                 if (dz > EPSILON && dz < len)
                     len = dz;
 
