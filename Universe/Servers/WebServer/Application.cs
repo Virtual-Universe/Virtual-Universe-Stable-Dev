@@ -29,10 +29,10 @@
 
 using Universe.Simulation.Base;
 
-namespace Universe.Servers.InventoryServer
+namespace Universe.Server.WebServer
 {
     /// <summary>
-    ///     This is the starting class for the Virtual Universe Server
+    ///     Starting class for the Virtual Universe Server
     /// </summary>
     public class Application
     {

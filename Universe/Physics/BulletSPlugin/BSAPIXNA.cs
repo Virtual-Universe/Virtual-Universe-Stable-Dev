@@ -2326,7 +2326,7 @@ namespace Universe.Physics.BulletSPlugin
                 false);
   //          terrainShape.SetMargin(collisionMargin + 0.5f);
             terrainShape.SetMargin(collisionMargin);
-            terrainShape.SetUseDiamondSubdiuniverse(true);
+            terrainShape.SetUseDiamondSubdivision(true);
             terrainShape.SetUserPointer(id);
             return new BulletShapeXNA(terrainShape, BSPhysicsShapeType.SHAPE_TERRAIN);
         }
