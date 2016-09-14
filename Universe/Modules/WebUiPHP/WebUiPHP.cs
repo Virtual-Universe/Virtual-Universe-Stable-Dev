@@ -161,7 +161,7 @@ namespace Universe.Addon.WebUI
             if (httpRequest.QueryString.Get("method") != "GridTexture")
                 return MainServer.BlankResponse;
 
-            MainConsole.Instance.Debug("[WebUI]: Sending image jpeg");
+            MainConsole.Instance.Debug("[Web Interface]: Sending image jpeg");
             byte[] jpeg = new byte[0];
             IAssetService m_AssetService = m_registry.RequestModuleInterface<IAssetService>();
             IJ2KDecoder m_j2kDecoder = m_registry.RequestModuleInterface<IJ2KDecoder>();
@@ -195,7 +195,7 @@ namespace Universe.Addon.WebUI
             catch (Exception)
             {
                 // Dummy!
-                MainConsole.Instance.Warn("[WebUI]: Unable to post image.");
+                MainConsole.Instance.Warn("[Web Interface]: Unable to post image.");
             }
             finally
             {
@@ -383,7 +383,7 @@ namespace Universe.Addon.WebUI
         {
             string body = HttpServerHandlerHelpers.ReadString(requestData).Trim();
 
-            MainConsole.Instance.TraceFormat("[WebUI]: query String: {0}", body);
+            MainConsole.Instance.TraceFormat("[Web Interface]: query String: {0}", body);
             string method = string.Empty;
             OSDMap resp = new OSDMap();
             try
@@ -409,7 +409,7 @@ namespace Universe.Addon.WebUI
                     }
                     else
                     {
-                        MainConsole.Instance.TraceFormat("[WebUI] Unsupported method called ({0})", method);
+                        MainConsole.Instance.TraceFormat("[Web Interface] Unsupported method called ({0})", method);
                     }
                 }
                 else
@@ -420,7 +420,7 @@ namespace Universe.Addon.WebUI
 
             catch (Exception e)
             {
-                MainConsole.Instance.TraceFormat("[WebUI] Exception thrown: " + e.ToString());
+                MainConsole.Instance.TraceFormat("[Web Interface] Exception thrown: " + e.ToString());
             }
 
             if (resp.Count == 0)
@@ -577,7 +577,7 @@ namespace Universe.Addon.WebUI
                 }
                 else
                 {
-                    MainConsole.Instance.DebugFormat("[WebUI]: Could not set home position for user {0}, region \"{1}\" did not produce a result from the grid service", user.PrincipalID.ToString(), HomeRegion);
+                    MainConsole.Instance.DebugFormat("[Web Interface]: Could not set home position for user {0}, region \"{1}\" did not produce a result from the grid service", user.PrincipalID.ToString(), HomeRegion);
                 }
             }
 
@@ -660,7 +660,7 @@ namespace Universe.Addon.WebUI
             OSDArray names = new OSDArray();
             OSDArray snapshot = new OSDArray();
 
-            MainConsole.Instance.DebugFormat("[WebUI] {0} avatar archives found", temp.Count);
+            MainConsole.Instance.DebugFormat("[Web Interface] {0} avatar archives found", temp.Count);
 
             foreach (AvatarArchive a in temp)
             {

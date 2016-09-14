@@ -108,7 +108,7 @@ namespace Universe.Modules.WorldMap
                 drawPrimVolume = false;
             }
 
-            MainConsole.Instance.InfoFormat ("[MapTile generator]: Generating Maptile for {0}, using {1} ",
+            MainConsole.Instance.InfoFormat ("[Map Tile Generator]: Generating Maptile for {0}, using {1} ",
                 m_scene.RegionInfo.RegionName, tileRenderer);
 
             terrainRenderer.Initialize (m_scene, m_config);
@@ -131,7 +131,7 @@ namespace Universe.Modules.WorldMap
 
             terrainRenderer = null;
 
-            MainConsole.Instance.InfoFormat ("[MapTile generator]: Maptile generation took {0} ms",
+            MainConsole.Instance.InfoFormat ("[Map Tile Generator]: Maptile generation took {0} ms",
                 (Environment.TickCount - start));
 
         }
@@ -160,13 +160,13 @@ namespace Universe.Modules.WorldMap
             int start = Environment.TickCount;
             var renderer = new WarpTileRenderer ();
 
-            MainConsole.Instance.InfoFormat ("[MapTile generator]: Generating worldview for {0}",
+            MainConsole.Instance.InfoFormat ("[Map Tile Generator]: Generating worldview for {0}",
                 m_scene.RegionInfo.RegionName);
 
             renderer.Initialize (m_scene, m_config);
             Bitmap worldView = renderer.CreateViewImage (camPos, camDir, fov, width, height, useTextures);
 
-            MainConsole.Instance.InfoFormat ("[MapTile generator]: Worldview generation took {0} ms",
+            MainConsole.Instance.InfoFormat ("[Map Tile Generator]: Worldview generation took {0} ms",
                 (Environment.TickCount - start));
 
             return worldView;
@@ -177,12 +177,12 @@ namespace Universe.Modules.WorldMap
             int start = Environment.TickCount;
             var renderer = new WarpTileRenderer ();
 
-            MainConsole.Instance.InfoFormat ("[MapTile generator]: Generating world maptile for {0}",
+            MainConsole.Instance.InfoFormat ("[Map Tile Generator]: Generating world maptile for {0}",
                        m_scene.RegionInfo.RegionName);
             renderer.Initialize (m_scene, m_config);
             Bitmap worldMap = renderer.TerrainToBitmap (null, size);
 
-            MainConsole.Instance.InfoFormat ("[MapTile generator]: World maptile generation took {0} ms",
+            MainConsole.Instance.InfoFormat ("[Map Tile Generator]: World maptile generation took {0} ms",
                 (Environment.TickCount - start));
 
             return worldMap;
