@@ -65,7 +65,7 @@ using RegionFlags = Universe.Framework.Services.RegionFlags;
 
 namespace Universe.Addon.WebUI
 {
-    public class WebUIHandler : IService
+    public class PHPWeb : IService
     {
         public IHttpServer m_server = null;
         public IHttpServer m_server2 = null;
@@ -88,11 +88,11 @@ namespace Universe.Addon.WebUI
             if (config.Configs["GridInfoService"] != null)
                 m_servernick = config.Configs["GridInfoService"].GetString("gridnick", m_servernick);
             m_registry = registry;
-            IConfig handlerConfig = config.Configs["Handlers"];
-            string name = handlerConfig.GetString("WebUIHandler", "");
+            IConfig handlerConfig = config.Configs["WebInterface"];
+            string name = handlerConfig.GetString("Module", "");
             if (name != Name)
                 return;
-            string Password = handlerConfig.GetString("WebUIHandlerPassword", String.Empty);
+            string Password = handlerConfig.GetString("WebUIPassword", String.Empty);
             if (Password != "")
             {
                 IConfig gridCfg = config.Configs["GridInfoService"];
@@ -108,7 +108,7 @@ namespace Universe.Addon.WebUI
                     }
                 }
 
-                m_server = registry.RequestModuleInterface<ISimulationBase>().GetHttpServer(handlerConfig.GetUInt("WebUIHandlerPort"));
+                m_server = registry.RequestModuleInterface<ISimulationBase>().GetHttpServer(handlerConfig.GetUInt("WebUIPort"));
                 //This handler allows sims to post CAPS for their sims on the CAPS server.
                 m_server.AddStreamHandler(new WebUIHTTPHandler(Password, registry, gridInfo, UUID.Zero));
                 m_server2 = registry.RequestModuleInterface<ISimulationBase>().GetHttpServer(handlerConfig.GetUInt("WebUITextureServerPort"));
@@ -117,13 +117,14 @@ namespace Universe.Addon.WebUI
 
                 MainConsole.Instance.Commands.AddCommand("webui promote user", "Grants the specified user administrative powers within webui.", "webui promote user", PromoteUser, false, true);
                 MainConsole.Instance.Commands.AddCommand("webui demote user", "Revokes administrative powers for webui from the specified user.", "webui demote user", DemoteUser, false, true);
-                MainConsole.Instance.Commands.AddCommand("webui add user", "Deprecated alias for webui promote user.", "webui add user", PromoteUser, false, true);
-                MainConsole.Instance.Commands.AddCommand("webui remove user", "Deprecated alias for webui demote user.", "webui remove user", DemoteUser, false, true);
             }
         }
 
         public void FinishedStartup()
         {
+            var WebUIBase = m_registry.RequestModuleInterface<ISimulationBase>();
+            if (!WebUIBase.IsGridServer)
+                return;
         }
 
         #endregion
@@ -243,48 +244,6 @@ namespace Universe.Addon.WebUI
             DataPlugins.RequestPlugin<IAgentConnector>().UpdateAgent(agent);
             MainConsole.Instance.Warn("Admin added");
         }
-
-        #region newcommands
-        //Bit of Sanitizing
-        public static string CleanCommandStrings(string dirtyString)
-        {
-            string removeChars = " ?&^$#@!()+-,:;<>’\'-_*";
-            string result = dirtyString;
-
-            foreach (char c in removeChars)
-            {
-                result = result.Replace(c.ToString(), string.Empty);
-            }
-
-            return result;
-        }
-        //Provides additional commands to be sent directly to the GridServer
-        private void WipeDeadRegions(IScene scene)
-        {
-            MainConsole.Instance.RunCommand("grid clear down regions");
-        }
-        private void WipeRegionByName(IScene scene, string regionname)
-        {
-            MainConsole.Instance.RunCommand("grid clear region " + regionname);
-        }
-
-
-
-        private void GetUserMoney(IScene scene, UUID User)
-        {
-            m_connector.GetUserCurrency(User);
-        }
-
-        private void TransferMoney(IScene scene, UUID from, UUID to, uint amount)
-        {
-            m_connector.UserCurrencyTransfer(to, from, amount, "Money Transfer from" + from, TransactionType.MoveMoney,
-                UUID.Zero);
-        }
-        private void SetLoginText(IScene scene, string text)
-        {
-            MainConsole.Instance.RunCommand("set login text " + CleanCommandStrings(text));
-        }
-
         #endregion
         private void DemoteUser(IScene scene, string[] cmd)
         {
@@ -312,7 +271,6 @@ namespace Universe.Addon.WebUI
             MainConsole.Instance.Warn("Admin removed");
         }
 
-        #endregion
     }
 
     public class WebUIHTTPHandler : BaseRequestHandler, IStreamedRequestHandler
@@ -436,27 +394,6 @@ namespace Universe.Addon.WebUI
             return resp;
         }
 
-        private OSDMap GiveUserMoney(OSDMap map)
-        {
-            OSDMap web_values = new OSDMap();
-            OSD user = map["user"];
-
-            uint amount = map["amount"];
-            BaseCurrencyConnector m_connector = Framework.Utilities.DataManager.RequestPlugin<IBaseCurrencyConnector>() as BaseCurrencyConnector;
-            m_connector.UserCurrencyTransfer(user, UUID.Zero, amount, "Money Transfer",
-                TransactionType.BuyMoney, UUID.Zero);
-            MainConsole.Instance.InfoFormat("[WEBUI]: Transferring Money to " + user + " with the amount " + amount);
-            return map;
-        }
-                private OSDMap GetUserMoney(OSDMap map)
-        {
-            OSDMap web_values = new OSDMap();
-            OSD user = map["user"];
-            BaseCurrencyConnector m_connector = Framework.Utilities.DataManager.RequestPlugin<IBaseCurrencyConnector>() as BaseCurrencyConnector;
-            int money = (int)m_connector.GetUserCurrency(user).Amount;
-            web_values["Amount"] = OSD.FromInteger(money);
-            return web_values;
-        }
         private OSDMap CreateAccount(OSDMap map)
         {
             bool Verified = false;
@@ -683,6 +620,29 @@ namespace Universe.Addon.WebUI
             return resp;
         }
 
+        #endregion
+        #region Currency
+        private OSDMap GiveUserMoney(OSDMap map)
+        {
+            OSDMap web_values = new OSDMap();
+            OSD user = map["user"];
+
+            uint amount = map["amount"];
+            BaseCurrencyConnector m_connector = Framework.Utilities.DataManager.RequestPlugin<IBaseCurrencyConnector>() as BaseCurrencyConnector;
+            m_connector.UserCurrencyTransfer(user, UUID.Zero, amount, "Money Transfer",
+                TransactionType.BuyMoney, UUID.Zero);
+            MainConsole.Instance.InfoFormat("[WEBUI]: Transferring Money to " + user + " with the amount " + amount);
+            return map;
+        }
+        private OSDMap GetUserMoney(OSDMap map)
+        {
+            OSDMap web_values = new OSDMap();
+            OSD user = map["user"];
+            BaseCurrencyConnector m_connector = Framework.Utilities.DataManager.RequestPlugin<IBaseCurrencyConnector>() as BaseCurrencyConnector;
+            int money = (int)m_connector.GetUserCurrency(user).Amount;
+            web_values["Amount"] = OSD.FromInteger(money);
+            return web_values;
+        }
         #endregion
 
         #region Login
