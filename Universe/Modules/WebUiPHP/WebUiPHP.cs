@@ -448,6 +448,15 @@ namespace Universe.Addon.WebUI
             MainConsole.Instance.InfoFormat("[WEBUI]: Transferring Money to " + user + " with the amount " + amount);
             return map;
         }
+                private OSDMap GetUserMoney(OSDMap map)
+        {
+            OSDMap web_values = new OSDMap();
+            OSD user = map["user"];
+            BaseCurrencyConnector m_connector = Framework.Utilities.DataManager.RequestPlugin<IBaseCurrencyConnector>() as BaseCurrencyConnector;
+            int money = (int)m_connector.GetUserCurrency(user).Amount;
+            web_values["Amount"] = OSD.FromInteger(money);
+            return web_values;
+        }
         private OSDMap CreateAccount(OSDMap map)
         {
             bool Verified = false;
