@@ -15,6 +15,6 @@ If you would like to help by contributing code please see our How to contribute 
 
 Thank you
 
-The Virtual Universe Developmetn Team
+The Virtual Universe Development Team
 
 The Virtual Universe project is owned by the Second Galaxy Development Team.  A group dedicated to the development of virtual world grid architecture that promotes the future of virtual worlds.
