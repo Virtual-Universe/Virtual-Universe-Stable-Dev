@@ -63,7 +63,7 @@ using FriendInfo = Universe.Framework.Services.FriendInfo;
 using GridRegion = Universe.Framework.Services.GridRegion;
 using RegionFlags = Universe.Framework.Services.RegionFlags;
 
-namespace Universe.Addon.WebUI
+namespace Universe.PHP.WebUI
 {
     public class PHPWeb : IService
     {
