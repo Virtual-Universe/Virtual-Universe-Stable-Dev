@@ -114,7 +114,7 @@ namespace Universe.Modules.Scripting
         public void FinishedStartup ()
         {
             var simBase = m_registry.RequestModuleInterface<ISimulationBase> ();
-            if (!simBase.IsGridServer)
+            if (simBase.IsGridServer)
                 return;
 
             //start XMLRPC Server
