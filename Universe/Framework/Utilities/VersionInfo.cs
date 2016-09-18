@@ -47,13 +47,14 @@ namespace Universe.Framework.Utilities
 
         #endregion
 
-        public const string VERSION_NUMBER = "1.0.2.1";
-        public const Flavour VERSION_FLAVOUR = Flavour.Release;
+        public const string VERSION_NUMBER = "1.0.3";
+        public const Flavour VERSION_FLAVOUR = Flavour.Development;
         public const string VERSION_NAME = "Universe";
+        public const string CODE_NAME = "Earth";
 
         public static string Version
         {
-            get { return GetVersionString(VERSION_NUMBER, VERSION_FLAVOUR); }
+            get { return GetVersionString(VERSION_NUMBER, CODE_NAME, VERSION_FLAVOUR); }
         }
 
         public static string GitVersion
@@ -63,7 +64,7 @@ namespace Universe.Framework.Utilities
 
         static string GetVersionString(string versionNumber, Flavour flavour)
         {
-            string versionString = VERSION_NAME + " " + versionNumber + " " + flavour;
+            string versionString = VERSION_NAME + " " + CODE_NAME " " + versionNumber + " " + flavour;
             return versionString;
         }
 
@@ -82,6 +83,7 @@ namespace Universe.Framework.Utilities
                 versionString = CommitFile.ReadLine();
                 CommitFile.Close();
             }
+
             return versionString;
         }
     }
