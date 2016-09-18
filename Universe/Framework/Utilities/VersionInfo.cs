@@ -50,11 +50,11 @@ namespace Universe.Framework.Utilities
         public const string VERSION_NUMBER = "1.0.3";
         public const Flavour VERSION_FLAVOUR = Flavour.Development;
         public const string VERSION_NAME = "Universe";
-        public const string CODE_NAME = "Earth";
+        //public const string CODE_NAME = "Earth";
 
         public static string Version
         {
-            get { return GetVersionString(VERSION_NUMBER, CODE_NAME, VERSION_FLAVOUR); }
+            get { return GetVersionString(VERSION_NUMBER, /*CODE_NAME,*/ VERSION_FLAVOUR); }
         }
 
         public static string GitVersion
@@ -64,7 +64,7 @@ namespace Universe.Framework.Utilities
 
         static string GetVersionString(string versionNumber, Flavour flavour)
         {
-            string versionString = VERSION_NAME + " " + CODE_NAME " " + versionNumber + " " + flavour;
+            string versionString = VERSION_NAME + " " + /*CODE_NAME " " +*/ versionNumber + " " + flavour;
             return versionString;
         }
 
