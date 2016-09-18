@@ -34,8 +34,8 @@ using Universe.Simulation.Base;
 
 namespace Universe.Server
 {
-	public class UniverseBase : SimulationBase
-	{
+    public class UniverseBase : SimulationBase
+    {
         /// <summary>
         ///     Performs initialization of the scene, such as loading configuration from disk.
         /// </summary>

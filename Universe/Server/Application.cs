@@ -31,7 +31,7 @@ using Universe.Simulation.Base;
 
 namespace Universe.Server
 {
-	/// <summary>
+    /// <summary>
     ///     This is the starting class for the Virtual Universe Server
     /// </summary>
     public class Application
