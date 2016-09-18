@@ -128,8 +128,8 @@ namespace Universe.BotManager.AStar
                 return false;
             }
 
-            return ((((AStarNode2D) aNode).X == FX) &&
-                    (((AStarNode2D) aNode).Y == FY));
+            return ((((AStarNode2D)aNode).X == FX) &&
+                    (((AStarNode2D)aNode).Y == FY));
         }
 
         /// <summary>
@@ -139,8 +139,8 @@ namespace Universe.BotManager.AStar
         {
             if (GoalNode != null)
             {
-                double xd = Math.Abs(FX - ((AStarNode2D) GoalNode).X);
-                double yd = Math.Abs(FY - ((AStarNode2D) GoalNode).Y);
+                double xd = Math.Abs(FX - ((AStarNode2D)GoalNode).X);
+                double yd = Math.Abs(FY - ((AStarNode2D)GoalNode).Y);
 
                 // "Manhattan Distance" - Used when search can only move vertically and 
                 // horizontally.
@@ -262,7 +262,7 @@ namespace Universe.BotManager.AStar
             // This works because each character is internally represented by a number. 
             // The characters '0' to '9' are represented by consecutive numbers, so finding 
             // the difference between the characters '0' and '2' results in the number 2.if char = 2 or whatever.
-            int[,] mapArray = new int[mapx,mapy];
+            int[,] mapArray = new int[mapx, mapy];
             XLimit = mapx;
             YLimit = mapy;
 
@@ -301,7 +301,7 @@ namespace Universe.BotManager.AStar
             AStar astar = new AStar();
 
             AStarNode2D GoalNode = new AStarNode2D(null, null, 0, endx, endy);
-            AStarNode2D StartNode = new AStarNode2D(null, GoalNode, 0, startx, starty) {GoalNode = GoalNode};
+            AStarNode2D StartNode = new AStarNode2D(null, GoalNode, 0, startx, starty) { GoalNode = GoalNode };
 
             // Prepare the final List that will become the waypoints for him to leaf through
             List<string> botPoint = new List<string>();
@@ -333,7 +333,7 @@ namespace Universe.BotManager.AStar
             ArrayList Nodes = new ArrayList(astar.Solution);
             foreach (AStarNode nn in Nodes)
             {
-                AStarNode2D n = (AStarNode2D) nn;
+                AStarNode2D n = (AStarNode2D)nn;
                 // Return x and y from printinfo
                 int[] XYreturn = new int[2];
                 XYreturn = n.PrintNodeInfo();
@@ -366,10 +366,10 @@ namespace Universe.BotManager.AStar
             ytemp = Y1 + csy;
             string temp2 = xtemp + "," + ytemp + "," + Z;
             botPoint.Add(temp2);
-            
+
             // This removes the first point of the steps so they turn and go right to the first bend point(slope)
             botPoint.RemoveRange(0, 1);
-            
+
             // Let em have it - return to Botme path with slopes only no start point but with end point always   
             return botPoint;
         }
@@ -384,7 +384,7 @@ namespace Universe.BotManager.AStar
                 return 88;
             }
 
-            return (y2 - y1)/(x2 - x1);
+            return (y2 - y1) / (x2 - x1);
         }
 
         #endregion

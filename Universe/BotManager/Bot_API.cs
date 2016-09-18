@@ -89,7 +89,7 @@ namespace Universe.BotManager
                     new LSL_String(
                         manager.CreateAvatar(firstName, lastName, m_host.ParentEntity.Scene,
                                              UUID.Parse(appearanceToClone), m_host.OwnerID,
-                                             new Vector3((float) startPos.x, (float) startPos.y, (float) startPos.z)).
+                                             new Vector3((float)startPos.x, (float)startPos.y, (float)startPos.z)).
                                 ToString());
 
             return new LSL_String("");
@@ -142,7 +142,7 @@ namespace Universe.BotManager
             for (int i = 0; i < positions.Length; i++)
             {
                 LSL_Vector pos = positions.GetVector3Item(i);
-                PositionsMap.Add(new Vector3((float) pos.x, (float) pos.y, (float) pos.z));
+                PositionsMap.Add(new Vector3((float)pos.x, (float)pos.y, (float)pos.z));
             }
 
             List<TravelMode> TravelMap = new List<TravelMode>();
@@ -150,7 +150,7 @@ namespace Universe.BotManager
             for (int i = 0; i < movementType.Length; i++)
             {
                 LSL_Integer travel = movementType.GetLSLIntegerItem(i);
-                TravelMap.Add((TravelMode) travel.value);
+                TravelMap.Add((TravelMode)travel.value);
             }
 
             IBotManager manager = World.RequestModuleInterface<IBotManager>();
@@ -189,9 +189,8 @@ namespace Universe.BotManager
             IBotManager manager = World.RequestModuleInterface<IBotManager>();
 
             if (manager != null)
-                manager.FollowAvatar(UUID.Parse(bot), avatarName, (float) startFollowDistance, (float) endFollowDistance,
-                                     false, Vector3.Zero,
-                                     m_host.OwnerID);
+                manager.FollowAvatar(UUID.Parse(bot), avatarName, (float)startFollowDistance, (float)endFollowDistance,
+                                     false, Vector3.Zero, m_host.OwnerID);
         }
 
         public void botStopFollowAvatar(string bot)
@@ -264,7 +263,7 @@ namespace Universe.BotManager
             if (child == null)
                 throw new Exception("Failed to find entity to sit on");
 
-            sp.HandleAgentRequestSit(sp.ControllingClient, UUID.Parse(objectID), new Vector3((float) offset.x, (float) offset.y, (float) offset.z));
+            sp.HandleAgentRequestSit(sp.ControllingClient, UUID.Parse(objectID), new Vector3((float)offset.x, (float)offset.y, (float)offset.z));
         }
 
         public void botStandUp(string bot)
@@ -385,7 +384,7 @@ namespace Universe.BotManager
         /// </summary>
         public string[] NamespaceAdditions
         {
-            get { return new string[1] {"Universe.BotManager"}; }
+            get { return new string[1] { "Universe.BotManager" }; }
         }
 
         #endregion
@@ -396,7 +395,7 @@ namespace Universe.BotManager
 
         public override Object InitializeLifetimeService()
         {
-            ILease lease = (ILease) base.InitializeLifetimeService();
+            ILease lease = (ILease)base.InitializeLifetimeService();
 
             if (lease.CurrentState == LeaseState.Initial)
             {

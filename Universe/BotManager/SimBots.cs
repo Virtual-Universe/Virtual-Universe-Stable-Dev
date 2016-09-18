@@ -71,7 +71,7 @@ namespace Universe.BotManager
                     {
                         double distx = botx - i;
                         double disty = boty - j;
-                        double goalDist = Math.Sqrt((distx*distx) + (disty*disty));
+                        double goalDist = Math.Sqrt((distx * distx) + (disty * disty));
 
                         if (goalDist < DistTarget)
                         {

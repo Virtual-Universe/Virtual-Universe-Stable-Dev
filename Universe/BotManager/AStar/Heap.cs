@@ -134,7 +134,8 @@ namespace Universe.BotManager.AStar
         public object Clone()
         {
             Heap newClone = new Heap(FComparer, FList.Capacity)
-                             {FList = (ArrayList) FList.Clone(), FAddDuplicates = FAddDuplicates};
+            { FList = (ArrayList)FList.Clone(), FAddDuplicates = FAddDuplicates };
+
             return newClone;
         }
 
@@ -155,6 +156,7 @@ namespace Universe.BotManager.AStar
             {
                 if (index >= FList.Count || index < 0)
                     throw new ArgumentOutOfRangeException("Index is less than zero or Index is greater than Count.");
+
                 return FList[index];
             }
 
@@ -349,7 +351,7 @@ namespace Universe.BotManager.AStar
         /// <returns>true if object is equal to this, otherwise false.</returns>
         public override bool Equals(object obj)
         {
-            Heap SL = (Heap) obj;
+            Heap SL = (Heap)obj;
             if (SL.Count != Count)
                 return false;
 

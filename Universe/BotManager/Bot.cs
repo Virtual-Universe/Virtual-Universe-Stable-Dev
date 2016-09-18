@@ -211,8 +211,7 @@ namespace Universe.BotManager
 
         public void SendInstantMessage(GridInstantMessage im)
         {
-            if (im.Dialog == (byte)InstantMessageDialog.GodLikeRequestTeleport ||
-                im.Dialog == (byte)InstantMessageDialog.RequestTeleport)
+            if (im.Dialog == (byte)InstantMessageDialog.GodLikeRequestTeleport || im.Dialog == (byte)InstantMessageDialog.RequestTeleport)
             {
                 if (m_bot.AvatarCreatorID == im.FromAgentID || m_scenePresence.Scene.Permissions.IsGod(im.FromAgentID))
                 {
@@ -444,7 +443,6 @@ namespace Universe.BotManager
             }
 
             m_movementFlag = (uint)AgentManager.ControlFlags.AGENT_CONTROL_AT_POS;
-
             m_controller.OnBotAgentUpdate(Vector3.Zero, m_movementFlag, m_bodyDirection);
             m_movementFlag = (uint)AgentManager.ControlFlags.NONE;
         }
@@ -762,8 +760,8 @@ namespace Universe.BotManager
                                select s.Split(',')
                                into Vector
                                where Vector.Length == 3
-                               select
-                                   new Vector3(float.Parse(Vector[0]), float.Parse(Vector[1]), float.Parse(Vector[2])));
+                               select new Vector3(float.Parse(Vector[0]), float.Parse(Vector[1]), float.Parse(Vector[2])));
+
             return waypoints;
         }
 
@@ -1007,6 +1005,7 @@ namespace Universe.BotManager
                 {
                     if (jumpTry <= 5)
                         jumpTry = 6;
+
                     fly = true;
                 }
                 else
@@ -1027,6 +1026,7 @@ namespace Universe.BotManager
                         {
                             if (jumpTry < 0)
                                 jumpTry = 0;
+
                             jumpTry++;
                         }
                     }
@@ -1129,6 +1129,7 @@ namespace Universe.BotManager
                     {
                         if (entitybaseX + x > 0 && entitybaseY + y > 0 &&
                             entitybaseX + x < (22 * resolution) && entitybaseY + y < (22 * resolution))
+
                             if (x < 0 || y < 0 || x > (entity.OOBsize.X * 2) * resolution ||
                                 y > (entity.OOBsize.Y * 2) * resolution)
                                 map[entitybaseX + x, entitybaseY + y] = 3; //Its a side hit, lock it down a bit
@@ -1280,17 +1281,10 @@ namespace Universe.BotManager
                     entity.AbsolutePosition.Z > m_controller.AbsolutePosition.Z - 2)
                 {
                     //If this position is inside an entity + its size + avatar size, move it out!
-                    float sizeXPlus = (entity.AbsolutePosition.X + (entity.Scale.X / 2) +
-                                       (m_controller.PhysicsActor.Size.X / 2));
-
-                    float sizeXNeg = (entity.AbsolutePosition.X - (entity.Scale.X / 2) -
-                                      (m_controller.PhysicsActor.Size.X / 2));
-
-                    float sizeYPlus = (entity.AbsolutePosition.Y + (entity.Scale.Y / 2) +
-                                       (m_controller.PhysicsActor.Size.Y / 2));
-
-                    float sizeYNeg = (entity.AbsolutePosition.Y - (entity.Scale.Y / 2) -
-                                      (m_controller.PhysicsActor.Size.Y / 2));
+                    float sizeXPlus = (entity.AbsolutePosition.X + (entity.Scale.X / 2) + (m_controller.PhysicsActor.Size.X / 2));
+                    float sizeXNeg = (entity.AbsolutePosition.X - (entity.Scale.X / 2) - (m_controller.PhysicsActor.Size.X / 2));
+                    float sizeYPlus = (entity.AbsolutePosition.Y + (entity.Scale.Y / 2) + (m_controller.PhysicsActor.Size.Y / 2));
+                    float sizeYNeg = (entity.AbsolutePosition.Y - (entity.Scale.Y / 2) - (m_controller.PhysicsActor.Size.Y / 2));
 
                     if (pos.X < sizeXPlus && pos.X > sizeXNeg)
                     {
@@ -1298,6 +1292,7 @@ namespace Universe.BotManager
                             pos.X = sizeXNeg - (m_controller.PhysicsActor.Size.X / 2);
                         else
                             pos.X = sizeXPlus + (m_controller.PhysicsActor.Size.X / 2);
+
                         needsRestart = true;
                     }
 
@@ -1307,6 +1302,7 @@ namespace Universe.BotManager
                             pos.Y = sizeYNeg - (m_controller.PhysicsActor.Size.Y / 2);
                         else
                             pos.Y = sizeYPlus + (m_controller.PhysicsActor.Size.Y / 2);
+
                         needsRestart = true;
                     }
                 }
@@ -1380,6 +1376,7 @@ namespace Universe.BotManager
             {
                 if (i < 0)
                     continue;
+
                 vectors.Add(sigPos[i]);
             }
 
@@ -1404,6 +1401,7 @@ namespace Universe.BotManager
                     {
                         if (jumpTry <= 5)
                             jumpTry = 6;
+
                         fly = true;
                     }
                     else
@@ -1485,15 +1483,14 @@ namespace Universe.BotManager
             List<FollowingEventHolder> events = (from kvp in m_followDistance
                                                  let sp = m_controller.GetScene().GetScenePresence(kvp.Key)
                                                  where sp != null
-                                                 where
-                                                     Util.DistanceLessThan(sp.AbsolutePosition,
-                                                                           m_controller.AbsolutePosition, kvp.Value)
+                                                 where Util.DistanceLessThan(sp.AbsolutePosition, m_controller.AbsolutePosition, kvp.Value)
                                                  select new FollowingEventHolder
                                                  {
                                                      Event = m_followDistanceEvents[kvp.Key],
                                                      AvID = kvp.Key,
                                                      BotID = m_controller.UUID
                                                  }).ToList();
+
             foreach (FollowingEventHolder h in events)
             {
                 h.Event(h.AvID, h.BotID);
@@ -1526,18 +1523,16 @@ namespace Universe.BotManager
             List<FollowingEventHolder> events = (from kvp in m_LineOfSight
                                                  let sp = m_controller.GetScene().GetScenePresence(kvp.Key)
                                                  where sp != null
-                                                 let entities =
-                                                     llCastRay(sp.AbsolutePosition, m_controller.AbsolutePosition)
+                                                 let entities = llCastRay(sp.AbsolutePosition, m_controller.AbsolutePosition)
                                                  where entities.Count == 0
-                                                 where
-                                                     m_controller.AbsolutePosition.ApproxEquals(sp.AbsolutePosition,
-                                                                                                m_LineOfSight[kvp.Key])
+                                                 where m_controller.AbsolutePosition.ApproxEquals(sp.AbsolutePosition, m_LineOfSight[kvp.Key])
                                                  select new FollowingEventHolder
                                                  {
                                                      Event = m_LineOfSightEvents[kvp.Key],
                                                      AvID = kvp.Key,
                                                      BotID = m_controller.UUID
                                                  }).ToList();
+
             foreach (FollowingEventHolder h in events)
             {
                 h.Event(h.AvID, h.BotID);

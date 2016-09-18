@@ -91,7 +91,7 @@ namespace Universe.BotManager
         {
             IChatModule chatModule = m_object.Scene.RequestModuleInterface<IChatModule>();
             if (chatModule != null)
-                chatModule.SimChat(message, (ChatTypeEnum) sayType, channel,
+                chatModule.SimChat(message, (ChatTypeEnum)sayType, channel,
                                    m_object.RootChild.AbsolutePosition, m_object.Name, m_object.UUID, false,
                                    m_object.Scene);
         }
@@ -118,7 +118,7 @@ namespace Universe.BotManager
             if (isMoving)
                 m_hasStoppedMoving = false;
 
-            m_object.AbsolutePosition += toward * (m_speed * (1f/45f));
+            m_object.AbsolutePosition += toward * (m_speed * (1f / 45f));
             m_object.ScheduleGroupTerseUpdate();
         }
 
@@ -151,10 +151,10 @@ namespace Universe.BotManager
                 m_bot.m_nodeGraph.Clear();
 
             //Send the stop message
-            m_bot.m_movementFlag = (uint) AgentManager.ControlFlags.NONE;
+            m_bot.m_movementFlag = (uint)AgentManager.ControlFlags.NONE;
 
             if (fly)
-                m_bot.m_movementFlag |= (uint) AgentManager.ControlFlags.AGENT_CONTROL_FLY;
+                m_bot.m_movementFlag |= (uint)AgentManager.ControlFlags.AGENT_CONTROL_FLY;
 
             OnBotAgentUpdate(Vector3.Zero, m_bot.m_movementFlag, m_bot.m_bodyDirection, false);
 
