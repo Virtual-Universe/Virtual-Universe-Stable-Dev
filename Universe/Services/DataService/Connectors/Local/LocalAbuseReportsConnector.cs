@@ -130,7 +130,8 @@ namespace Universe.Services.DataService
                 AssignedTo = Reports [12],
                 Active = int.Parse (Reports [13]) == 1,
                 Checked = int.Parse (Reports [14]) == 1,
-                Notes = Reports [15]
+                Notes = Reports [15],
+                SystemType = "Abuse"
             };
         }
 
@@ -211,7 +212,7 @@ namespace Universe.Services.DataService
             InsertValues.Add(report.Active ? 1 : 0);
             InsertValues.Add(report.Checked ? 1 : 0);
             InsertValues.Add(report.Notes);
-
+            InsertValues.Add(report.SystemType);
             GD.Insert(m_abuseReportsTable, InsertValues.ToArray());
         }
 
