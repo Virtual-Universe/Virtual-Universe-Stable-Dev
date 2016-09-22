@@ -58,7 +58,8 @@ namespace Universe.DataManager.Migration.Migrators.AbuseReports
 				ColDef("Active", ColumnTypes.String100),
 				ColDef("Checked", ColumnTypes.String100),
 				ColDef("Notes", ColumnTypes.String1024),
-                ColDef("SystemType", ColumnTypes.String100)
+                ColDef("SystemType", ColumnTypes.String100),
+                ColDef("Priority", ColumnTypes.String100)
             ),
                 IndexDefs(
                     IndexDef(new string[1] { "Number" }, IndexType.Primary)

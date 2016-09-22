@@ -53,6 +53,7 @@ namespace Universe.Framework.Services
         public string ReporterName;
         public UUID ScreenshotID;
         public string SystemType;
+        public string Priority;
 
         public AbuseReport()
         {
@@ -73,6 +74,7 @@ namespace Universe.Framework.Services
             ReporterName = "";
             ScreenshotID = UUID.Zero;
             SystemType = "Abuse";
+            Priority = "Medium";
         }
 
         public override void FromOSD(OSDMap DicCol)
@@ -94,6 +96,7 @@ namespace Universe.Framework.Services
             ReporterName = DicCol["ReporterName"].AsString();
             ScreenshotID = DicCol["ScreenshotID"].AsUUID();
             SystemType = "Abuse";
+            Priority = "Medium";
         }
 
         public override OSDMap ToOSD()
@@ -109,7 +112,6 @@ namespace Universe.Framework.Services
             NewDicCol["Checked"] = Checked;
             NewDicCol["Notes"] = Notes;
             NewDicCol["Number"] = Number;
-            NewDicCol["SystemType"] = "Abuse";
             NewDicCol["ObjectName"] = ObjectName;
             NewDicCol["ObjectPosition"] = ObjectPosition;
             NewDicCol["ObjectUUID"] = ObjectUUID;
@@ -117,6 +119,7 @@ namespace Universe.Framework.Services
             NewDicCol["ReporterName"] = ReporterName;
             NewDicCol["ScreenshotID"] = ScreenshotID;
             NewDicCol["SystemType"] = "Abuse";
+            NewDicCol["Priority"] = "Medium";
             return NewDicCol;
         }
     }
