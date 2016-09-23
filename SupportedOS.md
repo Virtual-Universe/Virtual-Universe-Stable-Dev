@@ -50,6 +50,10 @@ The following operating systems have been tested by the Second Galaxy Developmen
    - Opensuse x64
    - Arch Linux x86
    - Arch Linux x64
+   - Manjaro 16.08 (Ellada) x86
+   - Manjaro 16.08 (Ellada) x64
+   - Manjaro 15.12 x86
+   - Manjaro 15.12 x64
    
    NOTE: Earlier versions of the Linux Operating Systems listed are not supported any longer!
    
