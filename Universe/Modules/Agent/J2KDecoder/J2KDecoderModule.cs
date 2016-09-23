@@ -45,386 +45,338 @@ using Universe.Framework.Utilities;
 
 namespace Universe.Modules.Agent.J2KDecoder
 {
-    public delegate void J2KDecodeDelegate(UUID assetID);
+	public delegate void J2KDecodeDelegate (UUID assetID);
 
-    public class J2KDecoderModule : IService, IJ2KDecoder
-    {
-        /// <summary>
-        ///     Temporarily holds de-serialized layer data information in memory
-        /// </summary>
-        readonly ExpiringCache<UUID, OpenJPEG.J2KLayerInfo[]> m_decodedCache = new ExpiringCache<UUID, OpenJPEG.J2KLayerInfo[]>();
+	public class J2KDecoderModule : IService, IJ2KDecoder
+	{
+		/// <summary>
+		///     Temporarily holds de-serialized layer data information in memory
+		/// </summary>
+		readonly ExpiringCache<UUID, OpenJPEG.J2KLayerInfo[]> m_decodedCache =
+			new ExpiringCache<UUID, OpenJPEG.J2KLayerInfo[]> ();
 
-        /// <summary>
-        ///     List of client methods to notify of results of decode
-        /// </summary>
-        readonly Dictionary<UUID, List<DecodedCallback>> m_notifyList = new Dictionary<UUID, List<DecodedCallback>>();
+		/// <summary>
+		///     List of client methods to notify of results of decode
+		/// </summary>
+		readonly Dictionary<UUID, List<DecodedCallback>> m_notifyList =
+			new Dictionary<UUID, List<DecodedCallback>> ();
 
-        /// <summary>
-        ///     Cache that will store decoded JPEG2000 layer boundary data
-        /// </summary>
-        IImprovedAssetCache m_cache;
+		/// <summary>
+		///     Cache that will store decoded JPEG2000 layer boundary data
+		/// </summary>
+		IImprovedAssetCache m_cache;
 
-        bool m_useCache = true;
-        bool m_useCSJ2K = true;
+		bool m_useCache = true;
+		bool m_useCSJ2K = true;
 
-        #region IJ2KDecoder
+		#region IJ2KDecoder
 
-        public void BeginDecode(UUID assetID, byte[] j2kData, DecodedCallback callback)
-        {
-            OpenJPEG.J2KLayerInfo[] result;
+		public void BeginDecode (UUID assetID, byte[] j2kData, DecodedCallback callback)
+		{
+			OpenJPEG.J2KLayerInfo[] result;
 
-            // If it's cached, return the cached results
-            if (m_decodedCache.TryGetValue(assetID, out result))
-            {
-                callback(assetID, result);
-            }
-            else
-            {
-                // Not cached, we need to decode it.
-                // Add to notify list and start decoding.
-                // Next request for this asset while it's decoding will only be added to the notify list
-                // once this is decoded, requests will be served from the cache and all clients in the notifylist will be updated
-                bool decode = false;
-                lock (m_notifyList)
-                {
-                    if (m_notifyList.ContainsKey(assetID))
-                    {
-                        m_notifyList[assetID].Add(callback);
-                    }
-                    else
-                    {
-                        List<DecodedCallback> notifylist = new List<DecodedCallback> {callback};
-                        m_notifyList.Add(assetID, notifylist);
-                        decode = true;
-                    }
-                }
+			// If it's cached, return the cached results
+			if (m_decodedCache.TryGetValue (assetID, out result)) {
+				callback (assetID, result);
+			} else {
+				// Not cached, we need to decode it.
+				// Add to notify list and start decoding.
+				// Next request for this asset while it's decoding will only be added to the notify list
+				// once this is decoded, requests will be served from the cache and all clients in the notifylist will be updated
+				bool decode = false;
+				lock (m_notifyList) {
+					if (m_notifyList.ContainsKey (assetID)) {
+						m_notifyList [assetID].Add (callback);
+					} else {
+						List<DecodedCallback> notifylist = new List<DecodedCallback> { callback };
+						m_notifyList.Add (assetID, notifylist);
+						decode = true;
+					}
+				}
 
-                // Do Decode!
-                if (decode)
-                    DoJ2KDecode(assetID, j2kData);
-            }
-        }
+				// Do Decode!
+				if (decode)
+					DoJ2KDecode (assetID, j2kData);
+			}
+		}
 
-        /// <summary>
-        ///     Provides a synchronous decode so that caller can be assured that this executes before the next line
-        /// </summary>
-        /// <param name="assetID"></param>
-        /// <param name="j2kData"></param>
-        public bool Decode(UUID assetID, byte[] j2kData)
-        {
-            return DoJ2KDecode(assetID, j2kData);
-        }
+		/// <summary>
+		///     Provides a synchronous decode so that caller can be assured that this executes before the next line
+		/// </summary>
+		/// <param name="assetID"></param>
+		/// <param name="j2kData"></param>
+		public bool Decode (UUID assetID, byte[] j2kData)
+		{
+			return DoJ2KDecode (assetID, j2kData);
+		}
 
-        #endregion IJ2KDecoder
+		#endregion IJ2KDecoder
 
-        #region IJ2KDecoder Members
+		#region IJ2KDecoder Members
 
-        public Image DecodeToImage(byte[] j2kData)
-        {
-            if (m_useCSJ2K)
-                return J2kImage.FromBytes(j2kData);
-            else
-            {
-                ManagedImage mimage;
-                Image image;
-                if (OpenJPEG.DecodeToImage(j2kData, out mimage, out image))
-                {
-                    mimage = null;
-                    return image;
-                }
+		public Image DecodeToImage (byte[] j2kData)
+		{
+			if (m_useCSJ2K)
+				return J2kImage.FromBytes (j2kData);
+			else {
+				ManagedImage mimage;
+				Image image;
+				if (OpenJPEG.DecodeToImage (j2kData, out mimage, out image)) {
+					mimage = null;
+					return image;
+				}
 
-                return null;
-            }
-        }
+				return null;
+			}
+		}
 
-        #endregion
+		#endregion
 
-        /// <summary>
-        ///     Decode Jpeg2000 Asset Data
-        /// </summary>
-        /// <param name="assetID">UUID of Asset</param>
-        /// <param name="j2kData">JPEG2000 data</param>
-        bool DoJ2KDecode(UUID assetID, byte[] j2kData)
-        {
-            return DoJ2KDecode(assetID, j2kData, m_useCSJ2K);
-        }
+		/// <summary>
+		///     Decode Jpeg2000 Asset Data
+		/// </summary>
+		/// <param name="assetID">UUID of Asset</param>
+		/// <param name="j2kData">JPEG2000 data</param>
+		bool DoJ2KDecode (UUID assetID, byte[] j2kData)
+		{
+			return DoJ2KDecode (assetID, j2kData, m_useCSJ2K);
+		}
 
-        bool DoJ2KDecode(UUID assetID, byte[] j2kData, bool useCSJ2K)
-        {
-            //int DecodeTime = 0;
-            //DecodeTime = Environment.TickCount;
-            OpenJPEG.J2KLayerInfo[] layers;
+		bool DoJ2KDecode (UUID assetID, byte[] j2kData, bool useCSJ2K)
+		{
+			//int DecodeTime = 0;
+			//DecodeTime = Environment.TickCount;
+			OpenJPEG.J2KLayerInfo[] layers;
 
-            if (!TryLoadCacheForAsset(assetID, out layers))
-            {
-                // not in cache. If no data try to decode with some defaults
-                if (j2kData == null || j2kData.Length == 0)
-                {
-                    // Layer decoding completely failed. Guess at sane defaults for the layer boundaries
-                    if (j2kData != null)
-                        layers = CreateDefaultLayers(j2kData.Length);
-                    else
-                        layers = CreateDefaultLayers (0);
+			if (!TryLoadCacheForAsset (assetID, out layers)) {
+				// not in cache. If no data try to decode with some defaults
+				if (j2kData == null || j2kData.Length == 0) {
+					// Layer decoding completely failed. Guess at sane defaults for the layer boundaries
+					if (j2kData != null)
+						layers = CreateDefaultLayers (j2kData.Length);
+					else
+						layers = CreateDefaultLayers (0);
 
-                    // Notify Interested Parties
-                    lock (m_notifyList)
-                    {
-                        if (m_notifyList.ContainsKey(assetID))
-                        {
-                            foreach (DecodedCallback d in m_notifyList[assetID].Where(d => d != null))
-                                d.DynamicInvoke(assetID, layers);
+					// Notify Interested Parties
+					lock (m_notifyList) {
+						if (m_notifyList.ContainsKey (assetID)) {
+							foreach (DecodedCallback d in m_notifyList[assetID].Where(d => d != null))
+								d.DynamicInvoke (assetID, layers);
 
-                            m_notifyList.Remove(assetID);
-                        }
-                    }
+							m_notifyList.Remove (assetID);
+						}
+					}
+					return false;
+				}
 
-                    return false;
-                }
+				if (m_useCSJ2K) {
+					try {
+						List<int> layerStarts = J2kImage.GetLayerBoundaries (new MemoryStream (j2kData));
 
-                if (m_useCSJ2K)
-                {
-                    try
-                    {
-                        List<int> layerStarts = J2kImage.GetLayerBoundaries(new MemoryStream(j2kData));
+						if (layerStarts != null && layerStarts.Count > 0) {
+							layers = new OpenJPEG.J2KLayerInfo[layerStarts.Count];
 
-                        if (layerStarts != null && layerStarts.Count > 0)
-                        {
-                            layers = new OpenJPEG.J2KLayerInfo[layerStarts.Count];
-
-                            for (int i = 0; i < layerStarts.Count; i++)
-                            {
-                                OpenJPEG.J2KLayerInfo layer = new OpenJPEG.J2KLayerInfo
-                                                                  {Start = i == 0 ? 0 : layerStarts[i]};
+							for (int i = 0; i < layerStarts.Count; i++) {
+								OpenJPEG.J2KLayerInfo layer = new OpenJPEG.J2KLayerInfo
+                                                                  { Start = i == 0 ? 0 : layerStarts [i] };
 
 
-                                if (i == layerStarts.Count - 1)
-                                    layer.End = j2kData.Length;
-                                else
-                                    layer.End = layerStarts[i + 1] - 1;
+								if (i == layerStarts.Count - 1)
+									layer.End = j2kData.Length;
+								else
+									layer.End = layerStarts [i + 1] - 1;
 
-                                layers[i] = layer;
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        MainConsole.Instance.Warn("[J2K Decoder Module]: CSJ2K threw an exception decoding texture " +
-                                                  assetID + ": " + ex.Message);
-                    }
-                }
-                else
-                {
-                    int components;
-                    if (!OpenJPEG.DecodeLayerBoundaries(j2kData, out layers, out components))
-                    {
-                        MainConsole.Instance.Warn("[J2K Decoder Module]: OpenJPEG failed to decode texture " + assetID);
-                    }
-                }
+								layers [i] = layer;
+							}
+						}
+					} catch (Exception ex) {
+						MainConsole.Instance.Warn ("[J2KDecoderModule]: CSJ2K threw an exception decoding texture " +
+						assetID + ": " + ex.Message);
+					}
+				} else {
+					int components;
+					if (!OpenJPEG.DecodeLayerBoundaries (j2kData, out layers, out components)) {
+						MainConsole.Instance.Warn ("[J2KDecoderModule]: OpenJPEG failed to decode texture " + assetID);
+					}
+				}
 
-                if (layers == null || layers.Length == 0)
-                {
-                    if (useCSJ2K == m_useCSJ2K)
-                    {
-                        MainConsole.Instance.Warn("[J2K Decoder Module]: Failed to decode layer data with (" +
-                                                  (m_useCSJ2K ? "CSJ2K" : "OpenJPEG") + ") for texture " + assetID +
-                                                  ", length " + j2kData.Length +
-                                                  " trying " + (!m_useCSJ2K ? "CSJ2K" : "OpenJPEG"));
-                        DoJ2KDecode(assetID, j2kData, !m_useCSJ2K);
-                    }
-                    else
-                    {
-                        //Second attempt at decode with the other j2k decoder, give up
-                        MainConsole.Instance.Warn("[J2K Decoder Module]: Failed to decode layer data (" +
-                                                  (m_useCSJ2K ? "CSJ2K" : "OpenJPEG") + ") for texture " + assetID +
-                                                  ", length " + j2kData.Length + " guessing sane defaults");
+				if (layers == null || layers.Length == 0) {
+					if (useCSJ2K == m_useCSJ2K) {
+						MainConsole.Instance.Warn ("[J2KDecoderModule]: Failed to decode layer data with (" +
+						(m_useCSJ2K ? "CSJ2K" : "OpenJPEG") + ") for texture " + assetID +
+						", length " + j2kData.Length +
+						" trying " + (!m_useCSJ2K ? "CSJ2K" : "OpenJPEG"));
+						DoJ2KDecode (assetID, j2kData, !m_useCSJ2K);
+					} else {
+						//Second attempt at decode with the other j2k decoder, give up
+						MainConsole.Instance.Warn ("[J2KDecoderModule]: Failed to decode layer data (" +
+						(m_useCSJ2K ? "CSJ2K" : "OpenJPEG") + ") for texture " + assetID +
+						", length " + j2kData.Length + " guessing sane defaults");
                         
-                        // Layer decoding completely failed. Guess at sane defaults for the layer boundaries
-                        layers = CreateDefaultLayers(j2kData.Length);
-                        // Notify Interested Parties
-                        lock (m_notifyList)
-                        {
-                            if (m_notifyList.ContainsKey(assetID))
-                            {
-                                foreach (DecodedCallback d in m_notifyList[assetID].Where(d => d != null))
-                                {
-                                    d.DynamicInvoke(assetID, layers);
-                                }
+						// Layer decoding completely failed. Guess at sane defaults for the layer boundaries
+						layers = CreateDefaultLayers (j2kData.Length);
+						// Notify Interested Parties
+						lock (m_notifyList) {
+							if (m_notifyList.ContainsKey (assetID)) {
+								foreach (DecodedCallback d in m_notifyList[assetID].Where(d => d != null)) {
+									d.DynamicInvoke (assetID, layers);
+								}
+								m_notifyList.Remove (assetID);
+							}
+						}
+						return false;
+					}
+				} else { //Don't save the corrupt texture!
+					// Cache Decoded layers
+					SaveFileCacheForAsset (assetID, layers);
+				}
+			}
 
-                                m_notifyList.Remove(assetID);
-                            }
-                        }
+			// Notify Interested Parties
+			lock (m_notifyList) {
+				if (m_notifyList.ContainsKey (assetID)) {
+					foreach (DecodedCallback d in m_notifyList[assetID].Where(d => d != null)) {
+						d.DynamicInvoke (assetID, layers);
+					}
+					m_notifyList.Remove (assetID);
+				}
+			}
+			return true;
+		}
 
-                        return false;
-                    }
-                }
-                else //Don't save the corrupt texture!
-                {
-                    // Cache Decoded layers
-                    SaveFileCacheForAsset(assetID, layers);
-                }
-            }
+		OpenJPEG.J2KLayerInfo[] CreateDefaultLayers (int j2kLength)
+		{
+			OpenJPEG.J2KLayerInfo[] layers = new OpenJPEG.J2KLayerInfo[5];
 
-            // Notify Interested Parties
-            lock (m_notifyList)
-            {
-                if (m_notifyList.ContainsKey(assetID))
-                {
-                    foreach (DecodedCallback d in m_notifyList[assetID].Where(d => d != null))
-                    {
-                        d.DynamicInvoke(assetID, layers);
-                    }
+			for (int i = 0; i < layers.Length; i++)
+				layers [i] = new OpenJPEG.J2KLayerInfo ();
 
-                    m_notifyList.Remove(assetID);
-                }
-            }
-            return true;
-        }
+			// These default layer sizes are based on a small sampling of real-world texture data
+			// with extra padding thrown in for good measure. This is a worst case fallback plan
+			// and may not gracefully handle all real world data
+			layers [0].Start = 0;
+			layers [1].Start = (int)(j2kLength * 0.02f);
+			layers [2].Start = (int)(j2kLength * 0.05f);
+			layers [3].Start = (int)(j2kLength * 0.20f);
+			layers [4].Start = (int)(j2kLength * 0.50f);
 
-        OpenJPEG.J2KLayerInfo[] CreateDefaultLayers(int j2kLength)
-        {
-            OpenJPEG.J2KLayerInfo[] layers = new OpenJPEG.J2KLayerInfo[5];
+			layers [0].End = layers [1].Start - 1;
+			layers [1].End = layers [2].Start - 1;
+			layers [2].End = layers [3].Start - 1;
+			layers [3].End = layers [4].Start - 1;
+			layers [4].End = j2kLength;
 
-            for (int i = 0; i < layers.Length; i++)
-                layers[i] = new OpenJPEG.J2KLayerInfo();
+			return layers;
+		}
 
-            // These default layer sizes are based on a small sampling of real-world texture data
-            // with extra padding thrown in for good measure. This is a worst case fallback plan
-            // and may not gracefully handle all real world data
-            layers[0].Start = 0;
-            layers[1].Start = (int) (j2kLength*0.02f);
-            layers[2].Start = (int) (j2kLength*0.05f);
-            layers[3].Start = (int) (j2kLength*0.20f);
-            layers[4].Start = (int) (j2kLength*0.50f);
+		void SaveFileCacheForAsset (UUID assetId, OpenJPEG.J2KLayerInfo[] layers)
+		{
+			if (m_useCache)
+				m_decodedCache.AddOrUpdate (assetId, layers, TimeSpan.FromMinutes (10));
 
-            layers[0].End = layers[1].Start - 1;
-            layers[1].End = layers[2].Start - 1;
-            layers[2].End = layers[3].Start - 1;
-            layers[3].End = layers[4].Start - 1;
-            layers[4].End = j2kLength;
+			if (m_cache != null) {
+				string assetID = "j2kCache_" + assetId;
 
-            return layers;
-        }
+				AssetBase layerDecodeAsset = new AssetBase (assetID, assetID, AssetType.Notecard,
+					                                         UUID.Zero)
+                                                 { Flags = AssetFlags.Local | AssetFlags.Temporary };
 
-        void SaveFileCacheForAsset(UUID assetId, OpenJPEG.J2KLayerInfo[] layers)
-        {
-            if (m_useCache)
-                m_decodedCache.AddOrUpdate(assetId, layers, TimeSpan.FromMinutes(10));
+				#region Serialize Layer Data
 
-            if (m_cache != null)
-            {
-                string assetID = "j2kCache_" + assetId;
+				StringBuilder stringResult = new StringBuilder ();
+				string strEnd = "\n";
+				for (int i = 0; i < layers.Length; i++) {
+					if (i == layers.Length - 1)
+						strEnd = string.Empty;
 
-                AssetBase layerDecodeAsset = new AssetBase(assetID, assetID, AssetType.Notecard, UUID.Zero)
-                                                 {Flags = AssetFlags.Local | AssetFlags.Temporary};
+					stringResult.AppendFormat ("{0}|{1}|{2}{3}", layers [i].Start, layers [i].End,
+						layers [i].End - layers [i].Start, strEnd);
+				}
 
-                #region Serialize Layer Data
+				layerDecodeAsset.Data = Util.UTF8.GetBytes (stringResult.ToString ());
 
-                StringBuilder stringResult = new StringBuilder();
-                string strEnd = "\n";
-                for (int i = 0; i < layers.Length; i++)
-                {
-                    if (i == layers.Length - 1)
-                        strEnd = string.Empty;
+				#endregion Serialize Layer Data
 
-                    stringResult.AppendFormat("{0}|{1}|{2}{3}", layers[i].Start, layers[i].End, layers[i].End - layers[i].Start, strEnd);
-                }
+				m_cache.Cache (assetID, layerDecodeAsset);
+			}
+		}
 
-                layerDecodeAsset.Data = Util.UTF8.GetBytes(stringResult.ToString());
+		bool TryLoadCacheForAsset (UUID assetId, out OpenJPEG.J2KLayerInfo[] layers)
+		{
+			if (m_decodedCache.TryGetValue (assetId, out layers)) {
+				return true;
+			} else if (m_cache != null) {
+				string assetName = "j2kCache_" + assetId;
+				AssetBase layerDecodeAsset = m_cache.Get (assetName);
 
-                #endregion Serialize Layer Data
+				if (layerDecodeAsset != null) {
+					#region Deserialize Layer Data
 
-                m_cache.Cache(assetID, layerDecodeAsset);
-            }
-        }
+					string readResult = Util.UTF8.GetString (layerDecodeAsset.Data);
+					string[] lines = readResult.Split (new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
-        bool TryLoadCacheForAsset(UUID assetId, out OpenJPEG.J2KLayerInfo[] layers)
-        {
-            if (m_decodedCache.TryGetValue(assetId, out layers))
-            {
-                return true;
-            }
-            else if (m_cache != null)
-            {
-                string assetName = "j2kCache_" + assetId;
-                AssetBase layerDecodeAsset = m_cache.Get(assetName);
+					if (lines.Length == 0) {
+						MainConsole.Instance.Warn ("[J2KDecodeCache]: Expiring corrupted layer data (empty) " + assetName);
+						m_cache.Expire (assetName);
+						return false;
+					}
 
-                if (layerDecodeAsset != null)
-                {
-                    #region Deserialize Layer Data
+					layers = new OpenJPEG.J2KLayerInfo[lines.Length];
 
-                    string readResult = Util.UTF8.GetString(layerDecodeAsset.Data);
-                    string[] lines = readResult.Split(new[] {'\n'}, StringSplitOptions.RemoveEmptyEntries);
+					for (int i = 0; i < lines.Length; i++) {
+						string[] elements = lines [i].Split ('|');
+						if (elements.Length == 3) {
+							int element1, element2;
 
-                    if (lines.Length == 0)
-                    {
-                        MainConsole.Instance.Warn("[J2K Decode Cache]: Expiring corrupted layer data (empty) " + assetName);
-                        m_cache.Expire(assetName);
-                        return false;
-                    }
+							try {
+								element1 = Convert.ToInt32 (elements [0]);
+								element2 = Convert.ToInt32 (elements [1]);
+							} catch (FormatException) {
+								MainConsole.Instance.Warn ("[J2KDecodeCache]: Expiring corrupted layer data (format) " +
+								assetName);
+								m_cache.Expire (assetName);
+								return false;
+							}
 
-                    layers = new OpenJPEG.J2KLayerInfo[lines.Length];
+							layers [i] = new OpenJPEG.J2KLayerInfo { Start = element1, End = element2 };
+						} else {
+							MainConsole.Instance.Warn ("[J2KDecodeCache]: Expiring corrupted layer data (layout) " +
+							assetName);
+							m_cache.Expire (assetName);
+							return false;
+						}
+					}
 
-                    for (int i = 0; i < lines.Length; i++)
-                    {
-                        string[] elements = lines[i].Split('|');
-                        if (elements.Length == 3)
-                        {
-                            int element1, element2;
+					#endregion Deserialize Layer Data
 
-                            try
-                            {
-                                element1 = Convert.ToInt32(elements[0]);
-                                element2 = Convert.ToInt32(elements[1]);
-                            }
-                            catch (FormatException)
-                            {
-                                MainConsole.Instance.Warn("[J2K Decode Cache]: Expiring corrupted layer data (format) " + assetName);
-                                m_cache.Expire(assetName);
-                                return false;
-                            }
+					return true;
+				}
+			}
 
-                            layers[i] = new OpenJPEG.J2KLayerInfo {Start = element1, End = element2};
-                        }
-                        else
-                        {
-                            MainConsole.Instance.Warn("[J2K Decode Cache]: Expiring corrupted layer data (layout) " +
-                                                      assetName);
-                            m_cache.Expire(assetName);
-                            return false;
-                        }
-                    }
+			return false;
+		}
 
-                    #endregion Deserialize Layer Data
+		#region IService Members
 
-                    return true;
-                }
-            }
+		public void Initialize (IConfigSource config, IRegistryCore registry)
+		{
+			IConfig imageConfig = config.Configs ["ImageDecoding"];
+			if (imageConfig != null) {
+				m_useCSJ2K = imageConfig.GetBoolean ("UseCSJ2K", m_useCSJ2K);
+				m_useCache = imageConfig.GetBoolean ("UseJ2KCache", m_useCache);
+			}
+			registry.RegisterModuleInterface<IJ2KDecoder> (this);
+		}
 
-            return false;
-        }
+		public void Start (IConfigSource config, IRegistryCore registry)
+		{
+			m_cache = registry.RequestModuleInterface<IImprovedAssetCache> ();
+		}
 
-        #region IService Members
+		public void FinishedStartup ()
+		{
+		}
 
-        public void Initialize(IConfigSource config, IRegistryCore registry)
-        {
-            IConfig imageConfig = config.Configs["ImageDecoding"];
-            if (imageConfig != null)
-            {
-                m_useCSJ2K = imageConfig.GetBoolean("UseCSJ2K", m_useCSJ2K);
-                m_useCache = imageConfig.GetBoolean("UseJ2KCache", m_useCache);
-            }
-            registry.RegisterModuleInterface<IJ2KDecoder>(this);
-        }
-
-        public void Start(IConfigSource config, IRegistryCore registry)
-        {
-            m_cache = registry.RequestModuleInterface<IImprovedAssetCache>();
-        }
-
-        public void FinishedStartup()
-        {
-        }
-
-        #endregion
-    }
+		#endregion
+	}
 }

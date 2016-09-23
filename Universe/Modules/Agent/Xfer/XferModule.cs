@@ -28,7 +28,7 @@
  */
 
 using System;
-using System.Collections.Generic;
+using System.Colllections.Generic;
 using Nini.Config;
 using OpenMetaverse;
 using Universe.Framework.ConsoleFramework;
@@ -38,286 +38,267 @@ using Universe.Framework.SceneInfo;
 
 namespace Universe.Modules.Agent.Xfer
 {
-    public class XferModule : INonSharedRegionModule, IXfer
-    {
-        private readonly Dictionary<string, FileData> NewFiles = new Dictionary<string, FileData>();
-        private readonly Dictionary<ulong, XferDownLoad> Transfers = new Dictionary<ulong, XferDownLoad>();
-        private IScene m_scene;
+	public class XferModule : INonSharedRegionModule, IXfer
+	{
+		private readonly Dictionary<string, FileData> NewFiles = new Dictionary<string, FileData> ();
+		private readonly Dictionary<ulong, XferDownLoad> Transfers = new Dictionary<ulong, XferDownLoad> ();
+		private IScene m_scene;
 
-        #region INonSharedRegionModule Members
+		#region INonSharedRegionModule Members
 
-        public void Initialize(IConfigSource config)
-        {
-        }
+		public void Initialize (IConfigSource config)
+		{
+		}
 
-        public void AddRegion(IScene scene)
-        {
-            m_scene = scene;
-            m_scene.EventManager.OnNewClient += NewClient;
-            m_scene.EventManager.OnClosingClient += OnClosingClient;
-            m_scene.RegisterModuleInterface<IXfer>(this);
-        }
+		public void AddRegion (IScene scene)
+		{
+			m_scene = scene;
+			m_scene.EventManager.OnNewClient += NewClient;
+			m_scene.EventManager.OnClosingClient += OnClosingClient;
 
-        public void RemoveRegion(IScene scene)
-        {
-            m_scene.EventManager.OnNewClient -= NewClient;
-            m_scene.EventManager.OnClosingClient -= OnClosingClient;
-            m_scene.UnregisterModuleInterface<IXfer>(this);
-        }
+			m_scene.RegisterModuleInterface<IXfer> (this);
+		}
 
-        public void RegionLoaded(IScene scene)
-        {
-        }
+		public void RemoveRegion (IScene scene)
+		{
+			m_scene.EventManager.OnNewClient -= NewClient;
+			m_scene.EventManager.OnClosingClient -= OnClosingClient;
 
-        public Type ReplaceableInterface
-        {
-            get { return null; }
-        }
+			m_scene.UnregisterModuleInterface<IXfer> (this);
+		}
 
-        public void Close()
-        {
-        }
+		public void RegionLoaded (IScene scene)
+		{
+		}
 
-        public string Name
-        {
-            get { return "XferModule"; }
-        }
+		public Type ReplaceableInterface {
+			get { return null; }
+		}
 
-        #endregion
+		public void Close ()
+		{
+		}
 
-        #region IXfer Members
+		public string Name {
+			get { return "XferModule"; }
+		}
 
-        /// <summary>
-        ///     Let the Xfer module know about a file that the client is about to request.
-        ///     Caller is responsible for making sure that the file is here before
-        ///     the client starts the XferRequest.
-        /// </summary>
-        /// <param name="fileName"></param>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        public bool AddNewFile(string fileName, byte[] data)
-        {
-            lock (NewFiles)
-            {
-                if (NewFiles.ContainsKey(fileName))
-                {
-                    NewFiles[fileName].Count++;
-                    NewFiles[fileName].Data = data;
-                }
-                else
-                {
-                    FileData fd = new FileData {Count = 1, Data = data};
-                    NewFiles.Add(fileName, fd);
-                }
-            }
+		#endregion
 
-            return true;
-        }
+		#region IXfer Members
 
-        #endregion
+		/// <summary>
+		///     Let the Xfer module know about a file that the client is about to request.
+		///     Caller is responsible for making sure that the file is here before
+		///     the client starts the XferRequest.
+		/// </summary>
+		/// <param name="fileName"></param>
+		/// <param name="data"></param>
+		/// <returns></returns>
+		public bool AddNewFile (string fileName, byte[] data)
+		{
+			lock (NewFiles) {
+				if (NewFiles.ContainsKey (fileName)) {
+					NewFiles [fileName].Count++;
+					NewFiles [fileName].Data = data;
+				} else {
+					FileData fd = new FileData { Count = 1, Data = data };
+					NewFiles.Add (fileName, fd);
+				}
+			}
 
-        public void NewClient(IClientAPI client)
-        {
-            client.OnRequestXfer += RequestXfer;
-            client.OnConfirmXfer += AckPacket;
-        }
+			return true;
+		}
 
-        private void OnClosingClient(IClientAPI client)
-        {
-            client.OnRequestXfer -= RequestXfer;
-            client.OnConfirmXfer -= AckPacket;
-        }
+		#endregion
 
-        /// <summary>
-        /// </summary>
-        /// <param name="remoteClient"></param>
-        /// <param name="xferID"></param>
-        /// <param name="fileName"></param>
-        public void RequestXfer(IClientAPI remoteClient, ulong xferID, string fileName)
-        {
-            lock (NewFiles)
-            {
-                if (NewFiles.ContainsKey(fileName))
-                {
-                    if (!Transfers.ContainsKey(xferID))
-                    {
-                        byte[] fileData = NewFiles[fileName].Data;
-                        XferDownLoad transaction = new XferDownLoad(fileName, fileData, xferID, remoteClient);
+		public void NewClient (IClientAPI client)
+		{
+			client.OnRequestXfer += RequestXfer;
+			client.OnConfirmXfer += AckPacket;
+		}
 
-                        Transfers.Add(xferID, transaction);
+		private void OnClosingClient (IClientAPI client)
+		{
+			client.OnRequestXfer -= RequestXfer;
+			client.OnConfirmXfer -= AckPacket;
+		}
 
-                        if (transaction.StartSend())
-                            RemoveXferData(xferID);
+		/// <summary>
+		/// </summary>
+		/// <param name="remoteClient"></param>
+		/// <param name="xferID"></param>
+		/// <param name="fileName"></param>
+		public void RequestXfer (IClientAPI remoteClient, ulong xferID, string fileName)
+		{
+			lock (NewFiles) {
+				if (NewFiles.ContainsKey (fileName)) {
+					if (!Transfers.ContainsKey (xferID)) {
+						byte[] fileData = NewFiles [fileName].Data;
+						XferDownLoad transaction = new XferDownLoad (fileName, fileData, xferID, remoteClient);
 
-                        // The transaction for this file is either complete or on its way
-                        RemoveOrDecrement(fileName);
-                    }
-                }
-                else
-                    MainConsole.Instance.WarnFormat("[Xfer]: {0} not found", fileName);
-            }
-        }
+						Transfers.Add (xferID, transaction);
 
-        public void AckPacket(IClientAPI remoteClient, ulong xferID, uint packet)
-        {
-            lock (NewFiles) // This is actually to lock Transfers
-            {
-                if (Transfers.ContainsKey(xferID))
-                {
-                    XferDownLoad dl = Transfers[xferID];
-                    if (Transfers[xferID].AckPacket(packet))
-                    {
-                        RemoveXferData(xferID);
-                        RemoveOrDecrement(dl.FileName);
-                    }
-                }
-            }
-        }
+						if (transaction.StartSend ())
+							RemoveXferData (xferID);
 
-        private void RemoveXferData(ulong xferID)
-        {
-            // NewFiles must be locked!
-            if (Transfers.ContainsKey(xferID))
-            {
-                XferDownLoad xferItem = Transfers[xferID];
-                Transfers.Remove(xferID);
-                xferItem.Data = new byte[0]; // Clear the data
-                xferItem.DataPointer = 0;
-            }
-        }
+						// The transaction for this file is either complete or on its way
+						RemoveOrDecrement (fileName);
+					}
+				} else
+					MainConsole.Instance.WarnFormat ("[Xfer]: {0} not found", fileName);
+			}
+		}
 
-        public void AbortXfer(IClientAPI remoteClient, ulong xferID)
-        {
-            lock (NewFiles)
-            {
-                if (Transfers.ContainsKey(xferID))
-                    RemoveOrDecrement(Transfers[xferID].FileName);
+		public void AckPacket (IClientAPI remoteClient, ulong xferID, uint packet)
+		{
+			lock (NewFiles) { // This is actually to lock Transfers
+				if (Transfers.ContainsKey (xferID)) {
+					XferDownLoad dl = Transfers [xferID];
+					if (Transfers [xferID].AckPacket (packet)) {
+						RemoveXferData (xferID);
+						RemoveOrDecrement (dl.FileName);
+					}
+				}
+			}
+		}
 
-                RemoveXferData(xferID);
-            }
-        }
+		private void RemoveXferData (ulong xferID)
+		{
+			// NewFiles must be locked!
+			if (Transfers.ContainsKey (xferID)) {
+				XferDownLoad xferItem = Transfers [xferID];
+				//string filename = xferItem.FileName;
+				Transfers.Remove (xferID);
+				xferItem.Data = new byte[0]; // Clear the data
+				xferItem.DataPointer = 0;
+			}
+		}
 
-        private void RemoveOrDecrement(string fileName)
-        {
-            // NewFiles must be locked
-            if (NewFiles.ContainsKey(fileName))
-            {
-                if (NewFiles[fileName].Count == 1)
-                    NewFiles.Remove(fileName);
-                else
-                    NewFiles[fileName].Count--;
-            }
-        }
+		public void AbortXfer (IClientAPI remoteClient, ulong xferID)
+		{
+			lock (NewFiles) {
+				if (Transfers.ContainsKey (xferID))
+					RemoveOrDecrement (Transfers [xferID].FileName);
 
-        #region Nested type: FileData
+				RemoveXferData (xferID);
+			}
+		}
 
-        private class FileData
-        {
-            public int Count;
-            public byte[] Data;
-        }
+		private void RemoveOrDecrement (string fileName)
+		{
+			// NewFiles must be locked
 
-        #endregion
+			if (NewFiles.ContainsKey (fileName)) {
+				if (NewFiles [fileName].Count == 1)
+					NewFiles.Remove (fileName);
+				else
+					NewFiles [fileName].Count--;
+			}
+		}
 
-        #region Nested type: XferDownLoad
+		#region Nested type: FileData
 
-        public class XferDownLoad
-        {
-            public IClientAPI Client;
-            public byte[] Data = new byte[0];
-            public int DataPointer;
-            public string FileName = String.Empty;
-            public uint Packet;
-            public uint Serial = 1;
-            public ulong XferID;
-            private bool complete;
+		private class FileData
+		{
+			public int Count;
+			public byte[] Data;
+		}
 
-            public XferDownLoad(string fileName, byte[] data, ulong xferID, IClientAPI client)
-            {
-                FileName = fileName;
-                Data = data;
-                XferID = xferID;
-                Client = client;
-            }
+		#endregion
 
-            public XferDownLoad()
-            {
-            }
+		#region Nested type: XferDownLoad
 
-            /// <summary>
-            ///     Start a transfer
-            /// </summary>
-            /// <returns>True if the transfer is complete, false if not</returns>
-            public bool StartSend()
-            {
-                if (Data.Length < 1000)
-                {
-                    // for now (testing) we only support files under 1000 bytes
-                    byte[] transferData = new byte[Data.Length + 4];
-                    Array.Copy(Utils.IntToBytes(Data.Length), 0, transferData, 0, 4);
-                    Array.Copy(Data, 0, transferData, 4, Data.Length);
-                    Client.SendXferPacket(XferID, 0 + 0x80000000, transferData);
-                    complete = true;
-                }
-                else
-                {
-                    byte[] transferData = new byte[1000 + 4];
-                    Array.Copy(Utils.IntToBytes(Data.Length), 0, transferData, 0, 4);
-                    Array.Copy(Data, 0, transferData, 4, 1000);
-                    Client.SendXferPacket(XferID, 0, transferData);
-                    Packet++;
-                    DataPointer = 1000;
-                }
+		public class XferDownLoad
+		{
+			public IClientAPI Client;
+			public byte[] Data = new byte[0];
+			public int DataPointer;
+			public string FileName = String.Empty;
+			public uint Packet;
+			public uint Serial = 1;
+			public ulong XferID;
+			private bool complete;
 
-                return complete;
-            }
+			public XferDownLoad (string fileName, byte[] data, ulong xferID, IClientAPI client)
+			{
+				FileName = fileName;
+				Data = data;
+				XferID = xferID;
+				Client = client;
+			}
 
-            /// <summary>
-            ///     Respond to an ack packet from the client
-            /// </summary>
-            /// <param name="packet"></param>
-            /// <returns>True if the transfer is complete, false otherwise</returns>
-            public bool AckPacket(uint packet)
-            {
-                if (!complete)
-                {
-                    if ((Data.Length - DataPointer) > 1000)
-                    {
-                        byte[] transferData = new byte[1000];
-                        Array.Copy(Data, DataPointer, transferData, 0, 1000);
-                        Client.SendXferPacket(XferID, Packet, transferData);
-                        Packet++;
-                        DataPointer += 1000;
-                    }
-                    else
-                    {
-                        byte[] transferData = new byte[Data.Length - DataPointer];
-                        Array.Copy(Data, DataPointer, transferData, 0, Data.Length - DataPointer);
-                        uint endPacket = Packet |= 0x80000000;
-                        Client.SendXferPacket(XferID, endPacket, transferData);
-                        Packet++;
-                        DataPointer += (Data.Length - DataPointer);
+			public XferDownLoad ()
+			{
+			}
 
-                        complete = true;
-                    }
-                }
+			/// <summary>
+			///     Start a transfer
+			/// </summary>
+			/// <returns>True if the transfer is complete, false if not</returns>
+			public bool StartSend ()
+			{
+				if (Data.Length < 1000) {
+					// for now (testing) we only support files under 1000 bytes
+					byte[] transferData = new byte[Data.Length + 4];
+					Array.Copy (Utils.IntToBytes (Data.Length), 0, transferData, 0, 4);
+					Array.Copy (Data, 0, transferData, 4, Data.Length);
+					Client.SendXferPacket (XferID, 0 + 0x80000000, transferData);
+					complete = true;
+				} else {
+					byte[] transferData = new byte[1000 + 4];
+					Array.Copy (Utils.IntToBytes (Data.Length), 0, transferData, 0, 4);
+					Array.Copy (Data, 0, transferData, 4, 1000);
+					Client.SendXferPacket (XferID, 0, transferData);
+					Packet++;
+					DataPointer = 1000;
+				}
 
-                return complete;
-            }
-        }
+				return complete;
+			}
 
-        #endregion
+			/// <summary>
+			///     Respond to an ack packet from the client
+			/// </summary>
+			/// <param name="packet"></param>
+			/// <returns>True if the transfer is complete, false otherwise</returns>
+			public bool AckPacket (uint packet)
+			{
+				if (!complete) {
+					if ((Data.Length - DataPointer) > 1000) {
+						byte[] transferData = new byte[1000];
+						Array.Copy (Data, DataPointer, transferData, 0, 1000);
+						Client.SendXferPacket (XferID, Packet, transferData);
+						Packet++;
+						DataPointer += 1000;
+					} else {
+						byte[] transferData = new byte[Data.Length - DataPointer];
+						Array.Copy (Data, DataPointer, transferData, 0, Data.Length - DataPointer);
+						uint endPacket = Packet |= 0x80000000;
+						Client.SendXferPacket (XferID, endPacket, transferData);
+						Packet++;
+						DataPointer += (Data.Length - DataPointer);
 
-        #region Nested type: XferRequest
+						complete = true;
+					}
+				}
 
-        public struct XferRequest
-        {
-            public string fileName;
-            public IClientAPI remoteClient;
-            public DateTime timeStamp;
-            public ulong xferID;
-        }
+				return complete;
+			}
+		}
 
-        #endregion
-    }
+		#endregion
+
+		#region Nested type: XferRequest
+
+		public struct XferRequest
+		{
+			public string fileName;
+			public IClientAPI remoteClient;
+			public DateTime timeStamp;
+			public ulong xferID;
+		}
+
+		#endregion
+	}
 }

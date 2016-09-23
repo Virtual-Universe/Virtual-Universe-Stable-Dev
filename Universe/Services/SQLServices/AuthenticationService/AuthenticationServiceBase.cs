@@ -35,108 +35,105 @@ using Universe.Framework.Utilities;
 
 namespace Universe.Services
 {
-    // Generic Authentication service used for identifying
-    // and authenticating principals.
-    // Principals may be clients acting on users' behalf,
-    // or any other components that need 
-    // verifiable identification.
-    public class AuthenticationServiceBase
-    {
-        protected IAuthenticationData m_Database;
-        protected bool m_authenticateUsers = true;
+	// Generic Authentication service used for identifying
+	// and authenticating principals.
+	// Principals may be clients acting on users' behalf,
+	// or any other components that need
+	// verifiable identification.
+	public class AuthenticationServiceBase
+	{
+		protected IAuthenticationData m_Database;
+		protected bool m_authenticateUsers = true;
 
-        public bool CheckExists(UUID principalID, string authType)
-        {
-            return m_Database.Get(principalID, authType) != null;
-        }
+		public bool CheckExists (UUID principalID, string authType)
+		{
+			return m_Database.Get (principalID, authType) != null;
+		}
 
-        public bool Verify(UUID principalID, string authType, string token, int lifetime)
-        {
-            return m_Database.CheckToken(principalID, token, lifetime);
-        }
+		public bool Verify (UUID principalID, string authType, string token, int lifetime)
+		{
+			return m_Database.CheckToken (principalID, token, lifetime);
+		}
 
-        public virtual bool Release(UUID principalID, string token, string authType)
-        {
-            return m_Database.CheckToken(principalID, token, 0);
-        }
+		public virtual bool Release (UUID principalID, string token, string authType)
+		{
+			return m_Database.CheckToken (principalID, token, 0);
+		}
 
-        public virtual bool SetPassword(UUID principalID, string authType, string password)
-        {
-            string passwordSalt = Util.Md5Hash(UUID.Random().ToString());
-            string md5PasswdHash = Util.Md5Hash(Util.Md5Hash(password) + ":" + passwordSalt);
+		public virtual bool SetPassword (UUID principalID, string authType, string password)
+		{
+			string passwordSalt = Util.Md5Hash (UUID.Random ().ToString ());
+			string md5PasswdHash = Util.Md5Hash (Util.Md5Hash (password) + ":" + passwordSalt);
 
-            AuthData auth = m_Database.Get(principalID, authType);
-            if (auth == null)
-            {
-                auth = new AuthData {PrincipalID = principalID, AccountType = authType};
-            }
-            auth.PasswordHash = md5PasswdHash;
-            auth.PasswordSalt = passwordSalt;
-            return SaveAuth (auth, principalID);
-        }
+			AuthData auth = m_Database.Get (principalID, authType);
+			if (auth == null) {
+				auth = new AuthData { PrincipalID = principalID, AccountType = authType };
+			}
+			auth.PasswordHash = md5PasswdHash;
+			auth.PasswordSalt = passwordSalt;
+			return SaveAuth (auth, principalID);
+		}
 
-        public virtual bool Remove(UUID principalID, string authType)
-        {
-            return m_Database.Delete(principalID, authType);
-        }
+		public virtual bool Remove (UUID principalID, string authType)
+		{
+			return m_Database.Delete (principalID, authType);
+		}
 
-        protected string GetToken(UUID principalID, int lifetime)
-        {
-            UUID token = UUID.Random();
+		protected string GetToken (UUID principalID, int lifetime)
+		{
+			UUID token = UUID.Random ();
 
-            if (m_Database.SetToken(principalID, token.ToString(), lifetime))
-                return token.ToString();
+			if (m_Database.SetToken (principalID, token.ToString (), lifetime))
+				return token.ToString ();
 
-            return string.Empty;
-        }
+			return string.Empty;
+		}
 
-        public virtual bool SetPasswordHashed(UUID principalID, string authType, string Hashedpassword)
-        {
-            string passwordSalt = Util.Md5Hash(UUID.Random().ToString());
-            string md5PasswdHash = Util.Md5Hash(Hashedpassword + ":" + passwordSalt);
+		public virtual bool SetPasswordHashed (UUID principalID, string authType, string Hashedpassword)
+		{
+			string passwordSalt = Util.Md5Hash (UUID.Random ().ToString ());
+			string md5PasswdHash = Util.Md5Hash (Hashedpassword + ":" + passwordSalt);
 
-            AuthData auth = m_Database.Get(principalID, authType);
-            if (auth == null)
-            {
-                auth = new AuthData {PrincipalID = principalID, AccountType = authType};
-            }
-            auth.PasswordHash = md5PasswdHash;
-            auth.PasswordSalt = passwordSalt;
-            return SaveAuth (auth, principalID);
-        }
+			AuthData auth = m_Database.Get (principalID, authType);
+			if (auth == null) {
+				auth = new AuthData { PrincipalID = principalID, AccountType = authType };
+			}
+			auth.PasswordHash = md5PasswdHash;
+			auth.PasswordSalt = passwordSalt;
+			return SaveAuth (auth, principalID);
+		}
 
-        public virtual bool SetPlainPassword(UUID principalID, string authType, string pass)
-        {
-            AuthData auth = m_Database.Get(principalID, authType);
-            if (auth == null)
-            {
-                auth = new AuthData {PrincipalID = principalID, AccountType = authType};
-            }
-            auth.PasswordHash = pass;
-            auth.PasswordSalt = "";
-            return SaveAuth (auth, principalID);
-        }
+		public virtual bool SetPlainPassword (UUID principalID, string authType, string pass)
+		{
+			AuthData auth = m_Database.Get (principalID, authType);
+			if (auth == null) {
+				auth = new AuthData { PrincipalID = principalID, AccountType = authType };
+			}
+			auth.PasswordHash = pass;
+			auth.PasswordSalt = "";
+			return SaveAuth (auth, principalID);
+		}
 
-        public virtual bool SetSaltedPassword (UUID principalID, string authType, string salt, string pass)
-        {
-            AuthData auth = m_Database.Get (principalID, authType);
-            if (auth == null) {
-                auth = new AuthData { PrincipalID = principalID, AccountType = authType };
-            }
-            auth.PasswordHash = pass;
-            auth.PasswordSalt = salt;
-            return SaveAuth (auth, principalID);
-        }
+		public virtual bool SetSaltedPassword (UUID principalID, string authType, string salt, string pass)
+		{
+			AuthData auth = m_Database.Get (principalID, authType);
+			if (auth == null) {
+				auth = new AuthData { PrincipalID = principalID, AccountType = authType };
+			}
+			auth.PasswordHash = pass;
+			auth.PasswordSalt = salt;
+			return SaveAuth (auth, principalID);
+		}
 
-        bool SaveAuth (AuthData auth, UUID principalID)
-        {
-            if (!m_Database.Store (auth)) {
-                MainConsole.Instance.DebugFormat ("[Authentication DB]: Failed to store authentication data");
-                return false;
-            }
+		bool SaveAuth (AuthData auth, UUID principalID)
+		{
+			if (!m_Database.Store (auth)) {
+				MainConsole.Instance.DebugFormat ("[Authentication DB]: Failed to store authentication data");
+				return false;
+			}
 
-            MainConsole.Instance.InfoFormat ("[Authentication DB]: Set password for principalID {0}", principalID);
-            return true;
-        }
-    }
+			MainConsole.Instance.InfoFormat ("[Authentication DB]: Set password for principalID {0}", principalID);
+			return true;
+		}
+	}
 }

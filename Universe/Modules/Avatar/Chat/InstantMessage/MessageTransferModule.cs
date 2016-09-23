@@ -47,434 +47,406 @@ using GridRegion = Universe.Framework.Services.GridRegion;
 
 namespace Universe.Modules.Chat
 {
-    public class MessageTransferModule : INonSharedRegionModule, IMessageTransferModule
-    {
-        #region Delegates
+	public class MessageTransferModule : INonSharedRegionModule, IMessageTransferModule
+	{
+		#region Delegates
 
-        /// <summary>
-        ///     delegate for sending a grid instant message asynchronously
-        /// </summary>
-        public delegate void GridInstantMessageDelegate (GridInstantMessage im, GridRegion prevRegion);
+		/// <summary>
+		///     delegate for sending a grid instant message asynchronously
+		/// </summary>
+        public delegate void GridInstantMessageDelegate (
+            GridInstantMessage im, GridRegion prevRegion);
 
-        #endregion
+		#endregion
 
-        /// <summary>
-        ///     Param UUID - AgentID
-        ///     Param string - HTTP path to the region the user is in, blank if not found
-        /// </summary>
-        protected static Dictionary<UUID, string> IMUsersCache = new Dictionary<UUID, string> ();
+		/// <summary>
+		///     Param UUID - AgentID
+		///     Param string - HTTP path to the region the user is in, blank if not found
+		/// </summary>
+		protected static Dictionary<UUID, string> IMUsersCache = new Dictionary<UUID, string> ();
 
-        bool m_Enabled;
-        protected static List<IScene> m_scenes = new List<IScene> ();
-        protected bool m_addedHttpHandler;
-        protected IAgentInfoService m_agentInfoService;
+		bool m_Enabled;
+		protected static List<IScene> m_scenes = new List<IScene> ();
+		protected bool m_addedHttpHandler;
+		protected IAgentInfoService m_agentInfoService;
 
-        #region IMessageTransferModule Members
+		#region IMessageTransferModule Members
 
-        public event UndeliveredMessage OnUndeliveredMessage;
+		public event UndeliveredMessage OnUndeliveredMessage;
 
-        public virtual void SendInstantMessages (GridInstantMessage im, List<UUID> AgentsToSendTo)
-        {
-            //Check for local users first
-            List<UUID> RemoveUsers = new List<UUID> ();
-            foreach (UUID t in AgentsToSendTo) {
-                IScenePresence user;
-                foreach (IScene scene in m_scenes) {
-                    if (!RemoveUsers.Contains (t) &&
-                        scene.TryGetScenePresence (t, out user)) {
-                        // Local message
-                        user.ControllingClient.SendInstantMessage (im);
-                        RemoveUsers.Add (t);
-                    }
-                }
-            }
+		public virtual void SendInstantMessages (GridInstantMessage im, List<UUID> AgentsToSendTo)
+		{
+			//Check for local users first
+			List<UUID> RemoveUsers = new List<UUID> ();
+			foreach (UUID t in AgentsToSendTo) {
+				IScenePresence user;
+				foreach (IScene scene in m_scenes) {
+					if (!RemoveUsers.Contains (t) &&
+					                   scene.TryGetScenePresence (t, out user)) {
+						// Local message
+						user.ControllingClient.SendInstantMessage (im);
+						RemoveUsers.Add (t);
+					}
+				}
+			}
+			//Clear the local users out
+			foreach (UUID agentID in RemoveUsers) {
+				AgentsToSendTo.Remove (agentID);
+			}
 
-            //Clear the local users out
-            foreach (UUID agentID in RemoveUsers) {
-                AgentsToSendTo.Remove (agentID);
-            }
+			SendMultipleGridInstantMessageViaXMLRPC (im, AgentsToSendTo);
+		}
 
-            SendMultipleGridInstantMessageViaXMLRPC (im, AgentsToSendTo);
-        }
+		public virtual void SendInstantMessage (GridInstantMessage im)
+		{
+			UUID toAgentID = im.ToAgentID;
 
-        public virtual void SendInstantMessage (GridInstantMessage im)
-        {
-            UUID toAgentID = im.ToAgentID;
+			//Look locally first
+			IScenePresence user;
+			foreach (IScene scene in m_scenes) {
+				if (scene.TryGetScenePresence (toAgentID, out user)) {
+					user.ControllingClient.SendInstantMessage (im);
+					return;
+				}
+			}
+			ISceneChildEntity childPrim = null;
+			foreach (IScene scene in m_scenes) {
+				if ((childPrim = scene.GetSceneObjectPart (toAgentID)) != null) {
+					im.ToAgentID = childPrim.OwnerID;
+					SendInstantMessage (im);
+					return;
+				}
+			}
+			//MainConsole.Instance.DebugFormat("[INSTANT MESSAGE]: Delivering IM to {0} via XMLRPC", im.toAgentID);
+			SendGridInstantMessageViaXMLRPC (im);
+		}
 
-            //Look locally first
-            IScenePresence user;
-            foreach (IScene scene in m_scenes) {
-                if (scene.TryGetScenePresence (toAgentID, out user)) {
-                    user.ControllingClient.SendInstantMessage (im);
-                    return;
-                }
-            }
+		#endregion
 
-            ISceneChildEntity childPrim = null;
-            foreach (IScene scene in m_scenes) {
-                if ((childPrim = scene.GetSceneObjectPart (toAgentID)) != null) {
-                    im.ToAgentID = childPrim.OwnerID;
-                    SendInstantMessage (im);
-                    return;
-                }
-            }
+		#region INonSharedRegionModule Members
 
-            //MainConsole.Instance.DebugFormat("[Instant Messaging Module]: Delivering IM to {0} via XMLRPC", im.toAgentID);
-            SendGridInstantMessageViaXMLRPC (im);
-        }
+		public virtual void Initialize (IConfigSource config)
+		{
+			IConfig cnf = config.Configs ["Messaging"];
+			if (cnf != null) {
+				m_Enabled = (cnf.GetString ("MessageTransferModule", Name) == Name);
 
-        #endregion
+				// only add one http handler !
+				if (!m_addedHttpHandler) {
+					m_addedHttpHandler = true;
+					MainServer.Instance.AddStreamHandler (new GenericStreamHandler ("POST", "/gridinstantmessages/", processGridInstantMessage));
+				}
+			}
 
-        #region INonSharedRegionModule Members
+			if (!m_Enabled) {
+				MainConsole.Instance.Debug ("[MESSAGE TRANSFER]: Disabled by configuration");
+				return;
+			}
 
-        public virtual void Initialize (IConfigSource config)
-        {
-            IConfig cnf = config.Configs ["Messaging"];
-            if (cnf != null) {
-                m_Enabled = (cnf.GetString ("MessageTransferModule", Name) == Name);
+		}
 
-                // only add one http handler !
-                if (!m_addedHttpHandler)
-                {
-                    m_addedHttpHandler = true;
-                    MainServer.Instance.AddStreamHandler (new GenericStreamHandler ("POST", "/gridinstantmessages/", processGridInstantMessage));
-                }
-            }
+		public virtual void AddRegion (IScene scene)
+		{
+			if (!m_Enabled)
+				return;
 
-            if (!m_Enabled)
-            {
-                MainConsole.Instance.Debug ("[Instant Messaging Transfer]: Disabled by configuration");
-                return;
-            }
+			m_scenes.Add (scene);
+			//MainConsole.Instance.Debug("[MESSAGE TRANSFER]: Message transfer module active");
+			scene.RegisterModuleInterface<IMessageTransferModule> (this);
+		}
 
-        }
+		public virtual void RegionLoaded (IScene scene)
+		{
+			m_agentInfoService = scene.RequestModuleInterface<IAgentInfoService> ();
+		}
 
-        public virtual void AddRegion (IScene scene)
-        {
-            if (!m_Enabled)
-                return;
+		public virtual void RemoveRegion (IScene scene)
+		{
+			if (!m_Enabled)
+				return;
 
-            m_scenes.Add (scene);
-            //MainConsole.Instance.Debug("[Instant Messaging Transfer]: Message transfer module active");
-            scene.RegisterModuleInterface<IMessageTransferModule> (this);
-        }
+			m_scenes.Remove (scene);
+		}
 
-        public virtual void RegionLoaded (IScene scene)
-        {
-            m_agentInfoService = scene.RequestModuleInterface<IAgentInfoService> ();
-        }
+		public virtual void Close ()
+		{
+		}
 
-        public virtual void RemoveRegion (IScene scene)
-        {
-            if (!m_Enabled)
-                return;
+		public virtual string Name {
+			get { return "MessageTransferModule"; }
+		}
 
-            m_scenes.Remove (scene);
-        }
+		public virtual Type ReplaceableInterface {
+			get { return null; }
+		}
 
-        public virtual void Close ()
-        {
-        }
+		#endregion
 
-        public virtual string Name
-        {
-            get { return "MessageTransferModule"; }
-        }
+		void HandleUndeliveredMessage (GridInstantMessage im, string reason)
+		{
+			UndeliveredMessage handlerUndeliveredMessage = OnUndeliveredMessage;
 
-        public virtual Type ReplaceableInterface
-        {
-            get { return null; }
-        }
+			// If this event has handlers, then an IM from an agent will be
+			// considered delivered. This will suppress the error message.
+			//
+			if (handlerUndeliveredMessage != null) {
+				handlerUndeliveredMessage (im, reason);
+				return;
+			}
 
-        #endregion
+			//MainConsole.Instance.DebugFormat("[INSTANT MESSAGE]: Undeliverable");
+		}
 
-        void HandleUndeliveredMessage (GridInstantMessage im, string reason)
-        {
-            UndeliveredMessage handlerUndeliveredMessage = OnUndeliveredMessage;
+		protected virtual byte [] processGridInstantMessage (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+		{
+			GridInstantMessage gim = ProtoBuf.Serializer.Deserialize<GridInstantMessage> (request);
 
-            // If this event has handlers, then an IM from an agent will be
-            // considered delivered. This will suppress the error message.
-            if (handlerUndeliveredMessage != null)
-            {
-                handlerUndeliveredMessage (im, reason);
-                return;
-            }
+			// Trigger the Instant message in the scene.
+			IScenePresence user;
+			bool successful = false;
 
-            //MainConsole.Instance.DebugFormat("[Instant Messaging Module]: Undeliverable");
-        }
+			foreach (IScene scene in m_scenes) {
+				if (scene.TryGetScenePresence (gim.ToAgentID, out user)) {
+					if (!user.IsChildAgent) {
+						scene.EventManager.TriggerIncomingInstantMessage (gim);
+						successful = true;
+						break;
+					}
+				}
+			}
 
-        protected virtual byte [] processGridInstantMessage (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
-        {
-            GridInstantMessage gim = ProtoBuf.Serializer.Deserialize<GridInstantMessage> (request);
+			//Send response back to region calling if it was successful
+			// calling region uses this to know when to look up a user's location again.
+			return new byte [] { successful ? (byte)1 : (byte)0 };
+		}
 
-            // Trigger the Instant message in the scene.
-            IScenePresence user;
-            bool successful = false;
+		protected virtual void GridInstantMessageCompleted (IAsyncResult iar)
+		{
+			GridInstantMessageDelegate icon =
+				(GridInstantMessageDelegate)iar.AsyncState;
+			icon.EndInvoke (iar);
+		}
 
-            foreach (IScene scene in m_scenes)
-            {
-                if (scene.TryGetScenePresence (gim.ToAgentID, out user))
-                {
-                    if (!user.IsChildAgent)
-                    {
-                        scene.EventManager.TriggerIncomingInstantMessage (gim);
-                        successful = true;
-                        break;
-                    }
-                }
-            }
+		protected virtual void SendGridInstantMessageViaXMLRPC (GridInstantMessage im)
+		{
+			GridInstantMessageDelegate d = SendGridInstantMessageViaXMLRPCAsync;
 
-            //Send response back to region calling if it was successful
-            // calling region uses this to know when to look up a user's location again.
-            return new byte [] { successful ? (byte)1 : (byte)0 };
-        }
+			d.BeginInvoke (im, null, GridInstantMessageCompleted, d);
+		}
 
-        protected virtual void GridInstantMessageCompleted (IAsyncResult iar)
-        {
-            GridInstantMessageDelegate icon = (GridInstantMessageDelegate)iar.AsyncState;
-            icon.EndInvoke (iar);
-        }
+		protected virtual void SendMultipleGridInstantMessageViaXMLRPC (GridInstantMessage im, List<UUID> users)
+		{
+			Dictionary<UUID, string> HTTPPaths = new Dictionary<UUID, string> ();
 
-        protected virtual void SendGridInstantMessageViaXMLRPC (GridInstantMessage im)
-        {
-            GridInstantMessageDelegate d = SendGridInstantMessageViaXMLRPCAsync;
-            d.BeginInvoke (im, null, GridInstantMessageCompleted, d);
-        }
+			foreach (UUID agentID in users) {
+				lock (IMUsersCache) {
+					string HTTPPath = "";
+					if (!IMUsersCache.TryGetValue (agentID, out HTTPPath))
+						HTTPPath = "";
+					else
+						HTTPPaths.Add (agentID, HTTPPath);
+				}
+			}
+			List<UUID> CompletedUsers = new List<UUID> ();
+			foreach (KeyValuePair<UUID, string> kvp in HTTPPaths) {
+				//Fix the agentID
+				im.ToAgentID = kvp.Key;
+				//We've tried to send an IM to them before, pull out their info
+				//Send the IM to their last location
+				if (!doIMSending (kvp.Value, im)) {
+					//If this fails, the user has either moved from their stored location or logged out
+					//Since it failed, let it look them up again and rerun
+					lock (IMUsersCache) {
+						IMUsersCache.Remove (kvp.Key);
+					}
+				} else {
+					//Send the IM, and it made it to the user, return true
+					CompletedUsers.Add (kvp.Key);
+				}
+			}
 
-        protected virtual void SendMultipleGridInstantMessageViaXMLRPC (GridInstantMessage im, List<UUID> users)
-        {
-            Dictionary<UUID, string> HTTPPaths = new Dictionary<UUID, string> ();
+			//Remove the finished users
+			foreach (UUID agentID in CompletedUsers) {
+				users.Remove (agentID);
+			}
+			HTTPPaths.Clear ();
 
-            foreach (UUID agentID in users)
-            {
-                lock (IMUsersCache)
-                {
-                    string HTTPPath = "";
-                    if (!IMUsersCache.TryGetValue (agentID, out HTTPPath))
-                        HTTPPath = "";
-                    else
-                        HTTPPaths.Add (agentID, HTTPPath);
-                }
-            }
+			//Now query the grid server for the agents
+			List<string> Queries = users.Select (agentID => agentID.ToString ()).ToList ();
 
-            List<UUID> CompletedUsers = new List<UUID> ();
-            foreach (KeyValuePair<UUID, string> kvp in HTTPPaths) {
-                //Fix the agentID
-                im.ToAgentID = kvp.Key;
-                //We've tried to send an IM to them before, pull out their info
-                //Send the IM to their last location
-                if (!doIMSending (kvp.Value, im)) {
-                    //If this fails, the user has either moved from their stored location or logged out
-                    //Since it failed, let it look them up again and rerun
-                    lock (IMUsersCache) {
-                        IMUsersCache.Remove (kvp.Key);
-                    }
-                } else {
-                    //Send the IM, and it made it to the user, return true
-                    CompletedUsers.Add (kvp.Key);
-                }
-            }
+			if (Queries.Count == 0)
+				return; //All done
 
-            //Remove the finished users
-            foreach (UUID agentID in CompletedUsers) {
-                users.Remove (agentID);
-            }
-            HTTPPaths.Clear ();
+			//Ask for the user new style first
+			List<string> AgentLocations = m_agentInfoService.GetAgentsLocations (im.FromAgentID.ToString (),
+				                                       Queries);
+			//If this is false, this doesn't exist on the presence server and we use the legacy way
+			if (AgentLocations != null && AgentLocations.Count != 0) {
+				for (int i = 0; i < users.Count; i++) {
+					//No agents, so this user is offline
+					if (AgentLocations [i] == "NotOnline") {
+						IMUsersCache.Remove (users [i]);
+						MainConsole.Instance.Debug ("[GRID INSTANT MESSAGE]: Unable to deliver an instant message to " +
+						users [i] +
+						", user was not online");
+						im.ToAgentID = users [i];
+						HandleUndeliveredMessage (im, "User is not online.");
+						continue;
+					}
+					if (AgentLocations [i] == "NonExistant") {
+						IMUsersCache.Remove (users [i]);
+						MainConsole.Instance.Info ("[GRID INSTANT MESSAGE]: Unable to deliver an instant message to " +
+						users [i] +
+						", user does not exist");
+						im.ToAgentID = users [i];
+						HandleUndeliveredMessage (im, "User does not exist.");
+						continue;
+					}
+					HTTPPaths.Add (users [i], AgentLocations [i]);
+				}
+			} else {
+				MainConsole.Instance.Info (
+					"[GRID INSTANT MESSAGE]: Unable to deliver an instant message, no users found.");
+				return;
+			}
 
-            //Now query the grid server for the agents
-            List<string> Queries = users.Select (agentID => agentID.ToString ()).ToList ();
+			//We found the agent's location, now ask them about the user
+			foreach (KeyValuePair<UUID, string> kvp in HTTPPaths) {
+				if (kvp.Value != "") {
+					im.ToAgentID = kvp.Key;
+					if (!doIMSending (kvp.Value, im)) {
+						//It failed
+						lock (IMUsersCache) {
+							//Remove them so we keep testing against the db
+							IMUsersCache.Remove (kvp.Key);
+						}
+						HandleUndeliveredMessage (im, "Failed to send IM to destination.");
+					} else {
+						//Add to the cache
+						if (!IMUsersCache.ContainsKey (kvp.Key))
+							IMUsersCache.Add (kvp.Key, kvp.Value);
+						//Send the IM, and it made it to the user, return true
+						continue;
+					}
+				} else {
+					lock (IMUsersCache) {
+						//Remove them so we keep testing against the db
+						IMUsersCache.Remove (kvp.Key);
+					}
+					HandleUndeliveredMessage (im, "Agent Location was blank.");
+				}
+			}
+		}
 
-            if (Queries.Count == 0)
-                return; //All done
+		/// <summary>
+		///     Recursive SendGridInstantMessage over XMLRPC method.
+		///     This is called from within a dedicated thread.
+		///     The first time this is called, prevRegionHandle will be 0 Subsequent times this is called from
+		///     itself, prevRegionHandle will be the last region handle that we tried to send.
+		///     If the handles are the same, we look up the user's location using the grid.
+		///     If the handles are still the same, we end.  The send failed.
+		/// </summary>
+		/// <param name="im"></param>
+		/// <param name="prevRegion">
+		///     Pass in 0 the first time this method is called.  It will be called recursively with the last
+		///     regionhandle tried
+		/// </param>
+		protected virtual void SendGridInstantMessageViaXMLRPCAsync (GridInstantMessage im,
+		                                                                   GridRegion prevRegion)
+		{
+			UUID toAgentID = im.ToAgentID;
+			string HTTPPath = "";
 
-            //Ask for the user new style first
-            List<string> AgentLocations = m_agentInfoService.GetAgentsLocations (im.FromAgentID.ToString (), Queries);
-            //If this is false, this doesn't exist on the presence server and we use the legacy way
-            if (AgentLocations != null && AgentLocations.Count != 0)
-            {
-                for (int i = 0; i < users.Count; i++)
-                {
-                    //No agents, so this user is offline
-                    if (AgentLocations [i] == "NotOnline")
-                    {
-                        IMUsersCache.Remove (users [i]);
-                        MainConsole.Instance.Debug ("[Grid Instant Message]: Unable to deliver an instant message to " + users [i] + ", user was not online");
-                        im.ToAgentID = users [i];
-                        HandleUndeliveredMessage (im, "User is not online.");
-                        continue;
-                    }
+			lock (IMUsersCache) {
+				if (!IMUsersCache.TryGetValue (toAgentID, out HTTPPath))
+					HTTPPath = "";
+			}
 
-                    if (AgentLocations [i] == "NonExistant")
-                    {
-                        IMUsersCache.Remove (users [i]);
-                        MainConsole.Instance.Info ("[Grid Instant Message]: Unable to deliver an instant message to " + users [i] + ", user does not exist");
-                        im.ToAgentID = users [i];
-                        HandleUndeliveredMessage (im, "User does not exist.");
-                        continue;
-                    }
+			if (HTTPPath != "") {
+				//We've tried to send an IM to them before, pull out their info
+				//Send the IM to their last location
+				if (!doIMSending (HTTPPath, im)) {
+					//If this fails, the user has either moved from their stored location or logged out
+					//Since it failed, let it look them up again and rerun
+					lock (IMUsersCache) {
+						IMUsersCache.Remove (toAgentID);
+					}
+					//Clear the path and let it continue trying again.
+					HTTPPath = "";
+				} else {
+					//Send the IM, and it made it to the user, return true
+					return;
+				}
+			}
 
-                    HTTPPaths.Add (users [i], AgentLocations [i]);
-                }
-            } else {
-                MainConsole.Instance.Info ("[Grid Instant Message]: Unable to deliver an instant message, no users found.");
-                return;
-            }
+			//Now query the grid server for the agent
+			List<string> AgentLocations = m_agentInfoService.GetAgentsLocations (im.FromAgentID.ToString (),
+				                                       new List<string> (new [] { toAgentID.ToString () }));
+			if (AgentLocations != null && AgentLocations.Count > 0) {
+				//No agents, so this user is offline
+				if (AgentLocations [0] == "NotOnline") {
+					lock (IMUsersCache) {
+						//Remove them so we keep testing against the db
+						IMUsersCache.Remove (toAgentID);
+					}
+					MainConsole.Instance.Debug ("[GRID INSTANT MESSAGE]: Unable to deliver an instant message as user is not online");
+					HandleUndeliveredMessage (im, "User is not online.");
+					return;
+				}
+				if (AgentLocations [0] == "NonExistant") {
+					IMUsersCache.Remove (toAgentID);
+					MainConsole.Instance.Info ("[GRID INSTANT MESSAGE]: Unable to deliver an instant message to " +
+					toAgentID +
+					", user does not exist");
+					HandleUndeliveredMessage (im, "User does not exist.");
+					return;
+				}
+				HTTPPath = AgentLocations [0];
+			}
 
-            //We found the agent's location, now ask them about the user
-            foreach (KeyValuePair<UUID, string> kvp in HTTPPaths)
-            {
-                if (kvp.Value != "")
-                {
-                    im.ToAgentID = kvp.Key;
-                    if (!doIMSending (kvp.Value, im))
-                    {
-                        //It failed
-                        lock (IMUsersCache)
-                        {
-                            //Remove them so we keep testing against the db
-                            IMUsersCache.Remove (kvp.Key);
-                        }
+			//We found the agent's location, now ask them about the user
+			if (HTTPPath != "") {
+				if (!doIMSending (HTTPPath, im)) {
+					//It failed, stop now
+					lock (IMUsersCache) {
+						//Remove them so we keep testing against the db
+						IMUsersCache.Remove (toAgentID);
+					}
+					MainConsole.Instance.Info (
+						"[GRID INSTANT MESSAGE]: Unable to deliver an instant message as the region could not be found");
+					HandleUndeliveredMessage (im, "Failed to send IM to destination.");
+					return;
+				} else {
+					//Add to the cache
+					if (!IMUsersCache.ContainsKey (toAgentID))
+						IMUsersCache.Add (toAgentID, HTTPPath);
+					//Send the IM, and it made it to the user, return true
+					return;
+				}
+			} else {
+				//Couldn't find them, stop for now
+				lock (IMUsersCache) {
+					//Remove them so we keep testing against the db
+					IMUsersCache.Remove (toAgentID);
+				}
+				MainConsole.Instance.Info (
+					"[GRID INSTANT MESSAGE]: Unable to deliver an instant message as the region could not be found");
+				HandleUndeliveredMessage (im, "Agent Location was blank.");
+			}
+		}
 
-                        HandleUndeliveredMessage (im, "Failed to send IM to destination.");
-                    } else {
-                        //Add to the cache
-                        if (!IMUsersCache.ContainsKey (kvp.Key))
-                            IMUsersCache.Add (kvp.Key, kvp.Value);
-                        //Send the IM, and it made it to the user, return true
-                        continue;
-                    }
-                } else {
-                    lock (IMUsersCache)
-                    {
-                        //Remove them so we keep testing against the db
-                        IMUsersCache.Remove (kvp.Key);
-                    }
-
-                    HandleUndeliveredMessage (im, "Agent Location was blank.");
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Recursive SendGridInstantMessage over XMLRPC method.
-        ///     This is called from within a dedicated thread.
-        ///     The first time this is called, prevRegionHandle will be 0 Subsequent times this is called from
-        ///     itself, prevRegionHandle will be the last region handle that we tried to send.
-        ///     If the handles are the same, we look up the user's location using the grid.
-        ///     If the handles are still the same, we end.  The send failed.
-        /// </summary>
-        /// <param name="im"></param>
-        /// <param name="prevRegion">
-        ///     Pass in 0 the first time this method is called.  It will be called recursively with the last
-        ///     regionhandle tried
-        /// </param>
-        protected virtual void SendGridInstantMessageViaXMLRPCAsync (GridInstantMessage im, GridRegion prevRegion)
-        {
-            UUID toAgentID = im.ToAgentID;
-            string HTTPPath = "";
-
-            lock (IMUsersCache)
-            {
-                if (!IMUsersCache.TryGetValue (toAgentID, out HTTPPath))
-                    HTTPPath = "";
-            }
-
-            if (HTTPPath != "") {
-                //We've tried to send an IM to them before, pull out their info
-                //Send the IM to their last location
-                if (!doIMSending (HTTPPath, im))
-                {
-                    //If this fails, the user has either moved from their stored location or logged out
-                    //Since it failed, let it look them up again and rerun
-                    lock (IMUsersCache)
-                    {
-                        IMUsersCache.Remove (toAgentID);
-                    }
-
-                    //Clear the path and let it continue trying again.
-                    HTTPPath = "";
-                } else {
-                    //Send the IM, and it made it to the user, return true
-                    return;
-                }
-            }
-
-            //Now query the grid server for the agent
-            List<string> AgentLocations = m_agentInfoService.GetAgentsLocations (im.FromAgentID.ToString (), new List<string> (new [] { toAgentID.ToString () }));
-            if (AgentLocations != null && AgentLocations.Count > 0)
-            {
-                //No agents, so this user is offline
-                if (AgentLocations [0] == "NotOnline")
-                {
-                    lock (IMUsersCache)
-                    {
-                        //Remove them so we keep testing against the db
-                        IMUsersCache.Remove (toAgentID);
-                    }
-
-                    MainConsole.Instance.Debug ("[Grid Instant Message]: Unable to deliver an instant message as user is not online");
-                    HandleUndeliveredMessage (im, "User is not online.");
-                    return;
-                }
-
-                if (AgentLocations [0] == "NonExistant")
-                {
-                    IMUsersCache.Remove (toAgentID);
-                    MainConsole.Instance.Info ("[Grid Instant Message]: Unable to deliver an instant message to " + toAgentID + ", user does not exist");
-                    HandleUndeliveredMessage (im, "User does not exist.");
-                    return;
-                }
-
-                HTTPPath = AgentLocations [0];
-            }
-
-            //We found the agent's location, now ask them about the user
-            if (HTTPPath != "")
-            {
-                if (!doIMSending (HTTPPath, im))
-                {
-                    //It failed, stop now
-                    lock (IMUsersCache)
-                    {
-                        //Remove them so we keep testing against the db
-                        IMUsersCache.Remove (toAgentID);
-                    }
-
-                    MainConsole.Instance.Info ("[Grid Instant Message]: Unable to deliver an instant message as the region could not be found");
-                    HandleUndeliveredMessage (im, "Failed to send IM to destination.");
-                    return;
-                } else {
-                    //Add to the cache
-                    if (!IMUsersCache.ContainsKey (toAgentID))
-                        IMUsersCache.Add (toAgentID, HTTPPath);
-                    //Send the IM, and it made it to the user, return true
-                    return;
-                }
-            } else {
-                //Couldn't find them, stop for now
-                lock (IMUsersCache)
-                {
-                    //Remove them so we keep testing against the db
-                    IMUsersCache.Remove (toAgentID);
-                }
-
-                MainConsole.Instance.Info ("[Grid Instant Message]: Unable to deliver an instant message as the region could not be found");
-                HandleUndeliveredMessage (im, "Agent Location was blank.");
-            }
-        }
-
-        /// <summary>
-        ///     This actually does the XMLRPC Request
-        /// </summary>
-        /// <param name="httpInfo">RegionInfo we pull the data out of to send the request to</param>
-        /// <param name="xmlrpcdata">The Instant Message data Hashtable</param>
-        /// <returns>Bool if the message was successfully delivered at the other side.</returns>
-        protected virtual bool doIMSending (string httpInfo, GridInstantMessage message)
-        {
-            MemoryStream stream = new MemoryStream ();
-            ProtoBuf.Serializer.Serialize (stream, message);
-            byte [] data = WebUtils.PostToService (httpInfo + "/gridinstantmessages/", stream.ToArray ());
-            return data == null || data.Length == 0 || data [0] == 0 ? false : true;
-        }
-    }
+		/// <summary>
+		///     This actually does the XMLRPC Request
+		/// </summary>
+		/// <param name="httpInfo">RegionInfo we pull the data out of to send the request to</param>
+		/// <param name="xmlrpcdata">The Instant Message data Hashtable</param>
+		/// <returns>Bool if the message was successfully delivered at the other side.</returns>
+		protected virtual bool doIMSending (string httpInfo, GridInstantMessage message)
+		{
+			MemoryStream stream = new MemoryStream ();
+			ProtoBuf.Serializer.Serialize (stream, message);
+			byte[] data = WebUtils.PostToService (httpInfo + "/gridinstantmessages/", stream.ToArray ());
+			return data == null || data.Length == 0 || data [0] == 0 ? false : true;
+		}
+	}
 }

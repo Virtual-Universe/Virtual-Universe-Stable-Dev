@@ -31,82 +31,81 @@ using System.Collections.Generic;
 
 namespace Universe.Modules.Web.Translators
 {
-    public class ItalianTranslation : ITranslator
-    {
-        public string LanguageName {
-            get { return "it"; }
-        }
+	public class ItalianTranslation : ITranslator
+	{
+		public string LanguageName {
+			get { return "it"; }
+		}
 
-        public string GetTranslatedString (string key)
-        {
-            if (dictionary.ContainsKey (key))
-                return dictionary [key];
-            return ":" + key + ":";
-        }
+		public string GetTranslatedString (string key)
+		{
+			if (dictionary.ContainsKey (key))
+				return dictionary [key];
+			return ":" + key + ":";
+		}
 
-        readonly Dictionary<string, string> dictionary = new Dictionary<string, string> {
-            // Generic
-            { "No", "No"},
-            { "Yes", "Si"},
-            { "Submit", "Invia"},
-            { "Accept", "Accetto"},
-            { "Save", "Salva"},
-            { "Cancel", "Annulla"},
-            { "FirstText", "Primo"},
-            { "BackText", "Precedente"},
-            { "NextText", "Prossimo"},
-            { "LastText", "Ultimo"},
-            { "CurrentPageText", "Pagina corrente"},
-            { "MoreInfoText", "Piu informazioni"},
-            { "NoDetailsText", "Nessun dato trovato..."},
-            { "MoreInfo", "Piu informazioni"},
-            { "Name", "Nome"},
-            { "ObjectNameText", "Oggetto"},
-            { "LocationText", "Posizione"},
-            { "UUIDText", "UUID"},
-            { "DetailsText", "Descrizione"},
-            { "NotesText", "Nota"},
-            { "SaveUpdates", "Salva aggiornamenti"},
-            { "ActiveText", "Attivo"},
-            { "CheckedText", "Verificato"},
-            { "CategoryText", "Categoria"},
-            { "SummaryText", "Sommario"},
-            { "MaturityText", "Scadenza"},
-            { "DateText", "Data"},
-            { "TimeText", "Tempo"},
-            { "MinuteText", "minuto"},
-            { "MinutesText", "minuti"},
-            { "HourText", "ora"},
-            { "HoursText", "ore"},
-            { "EditText", "Modifica"},
-            { "EdittingText", "La modifica"},
+		readonly Dictionary<string, string> dictionary = new Dictionary<string, string> {
+			// Generic
+			{ "No", "No" },
+			{ "Yes", "Si" },
+			{ "Submit", "Invia" },
+			{ "Accept", "Accetto" },
+			{ "Save", "Salva" },
+			{ "Cancel", "Annulla" },
+			{ "FirstText", "Primo" },
+			{ "BackText", "Precedente" },
+			{ "NextText", "Prossimo" },
+			{ "LastText", "Ultimo" },
+			{ "CurrentPageText", "Pagina corrente" },
+			{ "MoreInfoText", "Piu informazioni" },
+			{ "NoDetailsText", "Nessun dato trovato..." },
+			{ "MoreInfo", "Piu informazioni" },
+			{ "Name", "Nome" },
+			{ "ObjectNameText", "Oggetto" },
+			{ "LocationText", "Posizione" },
+			{ "UUIDText", "UUID" },
+			{ "DetailsText", "Descrizione" },
+			{ "NotesText", "Nota" },
+			{ "SaveUpdates", "Salva aggiornamenti" },
+			{ "ActiveText", "Attivo" },
+			{ "CheckedText", "Verificato" },
+			{ "CategoryText", "Categoria" },
+			{ "SummaryText", "Sommario" },
+			{ "MaturityText", "Scadenza" },
+			{ "DateText", "Data" },
+			{ "TimeText", "Tempo" },
+			{ "MinuteText", "minuto" },
+			{ "MinutesText", "minuti" },
+			{ "HourText", "ora" },
+			{ "HoursText", "ore" },
+			{ "EditText", "Modifica" },
+			{ "EdittingText", "La modifica" },
 
-            // Status information
-            { "GridStatus", "Stato della Grid"},
-            { "Online", "Online"},
-            { "Offline", "Offline"},
-            { "TotalUserCount", "Utenti totali"},
-            { "TotalRegionCount", "Regioni totali"},
-            { "UniqueVisitors", "Visitatori unici ultimi 30 giorni"},
-            { "OnlineNow", "Online Adesso"},
-            { "InterWorld", "Inter World (IWC)"},
-            { "HyperGrid", "HyperGrid (HG)"},
-            { "Voice", "Voice"},
-            { "Currency", "Valuta"},
-            { "Disabled", "Disabilitato"},
-            { "Enabled", "Abilitato"},
-            { "News", " Notizie"},
-            { "Region", "Regione"},
+			// Status information
+			{ "GridStatus", "Stato della Grid" },
+			{ "Online", "Online" },
+			{ "Offline", "Offline" },
+			{ "TotalUserCount", "Utenti totali" },
+			{ "TotalRegionCount", "Regioni totali" },
+			{ "UniqueVisitors", "Visitatori unici ultimi 30 giorni" },
+			{ "OnlineNow", "Online Adesso" },
+			{ "InterWorld", "Inter World (IWC)" },
+			{ "HyperGrid", "HyperGrid (HG)" },
+			{ "Voice", "Voice" },
+			{ "Currency", "Valuta" },
+			{ "Disabled", "Disabilitato" },
+			{ "Enabled", "Abilitato" },
+			{ "News", " Notizie" },
+			{ "Region", "Regione" },
 
-            // User login
-            { "Login", "Login"},
-            { "UserName", "Nome Utente"},
-            { "UserNameText", "Nome Utente"},
-            { "Password", "Password"},
-            { "PasswordText", "Password"},
-            { "PasswordConfirmation", "Conferma Password"},
-            { "ForgotPassword", "Password dimenticata?"},
-            { "TypeUserNameToConfirm", "Si prega di inserire il nome utente di questo account per confermare che si desidera eliminare questo account"},
+			// User login
+			{ "Login", "Login" },
+			{ "UserName", "Nome Utente" },
+			{ "UserNameText", "Nome Utente" },
+			{ "Password", "Password" },
+			{ "PasswordText", "Password" },
+			{ "PasswordConfirmation", "Conferma Password" },
+			{ "ForgotPassword", "Password dimenticata?" }, { "TypeUserNameToConfirm", "Si prega di inserire il nome utente di questo account per confermare che si desidera eliminare questo account"},
 
             // Special windows
             { "SpecialWindowTitleText", "Titolo sezione Info Speciali"},

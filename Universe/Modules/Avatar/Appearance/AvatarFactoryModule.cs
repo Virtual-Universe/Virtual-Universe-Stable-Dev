@@ -47,26 +47,29 @@ using Timer = System.Timers.Timer;
 
 namespace Universe.Modules.Appearance
 {
-    public class AvatarFactoryModule : IAvatarFactory, INonSharedRegionModule
-    {
-        #region Declares
+	public class AvatarFactoryModule : IAvatarFactory, INonSharedRegionModule
+	{
+		#region Declares
 
-        readonly TimedSaving<AvatarAppearance> _saveQueue = new TimedSaving<AvatarAppearance> ();
-        readonly TimedSaving<AvatarAppearance> _sendQueue = new TimedSaving<AvatarAppearance> ();
-        readonly TimedSaving<AvatarAppearance> _initialSendQueue = new TimedSaving<AvatarAppearance> ();
-        readonly object m_setAppearanceLock = new object ();
-        int m_initialsendtime = 1; // seconds to wait before sending the initial appearance
-        int m_savetime = 5; // seconds to wait before saving changed appearance
-        int m_sendtime = 1; // seconds to wait before sending appearances
-        IScene m_scene;
+		readonly TimedSaving<AvatarAppearance> _saveQueue = new TimedSaving<AvatarAppearance> ();
+		readonly TimedSaving<AvatarAppearance> _sendQueue = new TimedSaving<AvatarAppearance> ();
+		readonly TimedSaving<AvatarAppearance> _initialSendQueue = new TimedSaving<AvatarAppearance> ();
+		readonly object m_setAppearanceLock = new object ();
+		int m_initialsendtime = 1;
+		// seconds to wait before sending the initial appearance
+		int m_savetime = 5;
+		// seconds to wait before saving changed appearance
+		int m_sendtime = 1;
+		// seconds to wait before sending appearances
+		IScene m_scene;
 
-        #endregion
+		#endregion
 
-        #region Default UnderClothes
+		#region Default UnderClothes
 
-        static UUID m_underShirtUUID = UUID.Zero;
-        static UUID m_underPantsUUID = UUID.Zero;
-        const string m_defaultUnderPants = @"LLWearable version 22
+		static UUID m_underShirtUUID = UUID.Zero;
+		static UUID m_underPantsUUID = UUID.Zero;
+		const string m_defaultUnderPants = @"LLWearable version 22
 New Underpants
 
     permissions 0
@@ -96,7 +99,7 @@ parameters 5
 textures 1
 17 5748decc-f629-461c-9a36-a35a221fe21f";
 
-        const string m_defaultUnderShirt = @"LLWearable version 22
+		const string m_defaultUnderShirt = @"LLWearable version 22
 New Undershirt
 
     permissions 0
@@ -128,801 +131,804 @@ parameters 7
 textures 1
 16 5748decc-f629-461c-9a36-a35a221fe21f";
 
-        #endregion
+		#endregion
 
-        #region INonSharedRegionModule Members
+		#region INonSharedRegionModule Members
 
-        public void Initialize (IConfigSource config)
-        {
-            if (config != null) {
-                IConfig sconfig = config.Configs ["Startup"];
-                if (sconfig != null) {
-                    m_savetime = sconfig.GetInt ("DelayBeforeAppearanceSave", m_savetime);
-                    m_sendtime = sconfig.GetInt ("DelayBeforeAppearanceSend", m_sendtime);
-                    m_initialsendtime = sconfig.GetInt ("DelayBeforeInitialAppearanceSend", m_initialsendtime);
-                    // MainConsole.Instance.InfoFormat("[Avatar Factory] configured for {0} save and {1} send",m_savetime,m_sendtime);
-                }
-            }
-        }
+		public void Initialize (IConfigSource config)
+		{
+			if (config != null) {
+				IConfig sconfig = config.Configs ["Startup"];
+				if (sconfig != null) {
+					m_savetime = sconfig.GetInt ("DelayBeforeAppearanceSave", m_savetime);
+					m_sendtime = sconfig.GetInt ("DelayBeforeAppearanceSend", m_sendtime);
+					m_initialsendtime = sconfig.GetInt ("DelayBeforeInitialAppearanceSend", m_initialsendtime);
+					// MainConsole.Instance.InfoFormat("[AVFACTORY] configured for {0} save and {1} send",m_savetime,m_sendtime);
+				}
+			}
+		}
 
-        public void AddRegion (IScene scene)
-        {
-            if (m_scene == null)
-                m_scene = scene;
+		public void AddRegion (IScene scene)
+		{
+			if (m_scene == null)
+				m_scene = scene;
 
-            scene.RegisterModuleInterface<IAvatarFactory> (this);
-            scene.EventManager.OnNewClient += NewClient;
-            scene.EventManager.OnClosingClient += RemoveClient;
-            scene.EventManager.OnNewPresence += EventManager_OnNewPresence;
-            scene.EventManager.OnRemovePresence += EventManager_OnRemovePresence;
+			scene.RegisterModuleInterface<IAvatarFactory> (this);
+			scene.EventManager.OnNewClient += NewClient;
+			scene.EventManager.OnClosingClient += RemoveClient;
+			scene.EventManager.OnNewPresence += EventManager_OnNewPresence;
+			scene.EventManager.OnRemovePresence += EventManager_OnRemovePresence;
 
-            if (MainConsole.Instance != null) {
-                MainConsole.Instance.Commands.AddCommand (
-                    "force send appearance",
-                    "force send appearance <first> <last>",
-                    "Force send the avatar's appearance",
-                    HandleConsoleForceSendAppearance, true, false);
-            }
+			if (MainConsole.Instance != null) {
+				MainConsole.Instance.Commands.AddCommand (
+					"force send appearance",
+					"force send appearance <first> <last>",
+					"Force send the avatar's appearance",
+					HandleConsoleForceSendAppearance, true, false);
+			}
 
-            _saveQueue.Start (m_savetime, HandleAppearanceSave);
-            _sendQueue.Start (m_sendtime, HandleAppearanceSend);
-            _initialSendQueue.Start (m_initialsendtime, HandleInitialAppearanceSend);
-        }
+			_saveQueue.Start (m_savetime, HandleAppearanceSave);
+			_sendQueue.Start (m_sendtime, HandleAppearanceSend);
+			_initialSendQueue.Start (m_initialsendtime, HandleInitialAppearanceSend);
+		}
 
-        public void RemoveRegion (IScene scene)
-        {
-            scene.UnregisterModuleInterface<IAvatarFactory> (this);
-            scene.EventManager.OnNewClient -= NewClient;
-            scene.EventManager.OnClosingClient -= RemoveClient;
-            scene.EventManager.OnNewPresence -= EventManager_OnNewPresence;
-            scene.EventManager.OnRemovePresence -= EventManager_OnRemovePresence;
-        }
+		public void RemoveRegion (IScene scene)
+		{
+			scene.UnregisterModuleInterface<IAvatarFactory> (this);
+			scene.EventManager.OnNewClient -= NewClient;
+			scene.EventManager.OnClosingClient -= RemoveClient;
+			scene.EventManager.OnNewPresence -= EventManager_OnNewPresence;
+			scene.EventManager.OnRemovePresence -= EventManager_OnRemovePresence;
+		}
 
-        public void RegionLoaded (IScene scene)
-        {
-        }
+		public void RegionLoaded (IScene scene)
+		{
+		}
 
-        public Type ReplaceableInterface
-        {
-            get { return null; }
-        }
+		public Type ReplaceableInterface {
+			get { return null; }
+		}
 
-        public void Close ()
-        {
-        }
+		public void Close ()
+		{
+		}
 
-        public string Name
-        {
-            get { return "Default Avatar Factory"; }
-        }
+		public string Name {
+			get { return "Default Avatar Factory"; }
+		}
 
-        #endregion
+		#endregion
 
-        #region OnNewClient Events
+		#region OnNewClient Events
 
-        public void NewClient (IClientAPI client)
-        {
-            client.OnRequestWearables += RequestWearables;
-            client.OnSetAppearance += SetAppearance;
-            client.OnAvatarNowWearing += AvatarIsWearing;
-            client.OnAgentCachedTextureRequest += AgentCachedTexturesRequest;
-        }
+		public void NewClient (IClientAPI client)
+		{
+			client.OnRequestWearables += RequestWearables;
+			client.OnSetAppearance += SetAppearance;
+			client.OnAvatarNowWearing += AvatarIsWearing;
+			client.OnAgentCachedTextureRequest += AgentCachedTexturesRequest;
+		}
 
-        public void RemoveClient (IClientAPI client)
-        {
-            client.OnRequestWearables -= RequestWearables;
-            client.OnSetAppearance -= SetAppearance;
-            client.OnAvatarNowWearing -= AvatarIsWearing;
-            client.OnAgentCachedTextureRequest -= AgentCachedTexturesRequest;
-        }
+		public void RemoveClient (IClientAPI client)
+		{
+			client.OnRequestWearables -= RequestWearables;
+			client.OnSetAppearance -= SetAppearance;
+			client.OnAvatarNowWearing -= AvatarIsWearing;
+			client.OnAgentCachedTextureRequest -= AgentCachedTexturesRequest;
+		}
 
-        void EventManager_OnNewPresence (IScenePresence presence)
-        {
-            AvatarAppearanceModule m = new AvatarAppearanceModule (presence);
-            presence.RegisterModuleInterface<IAvatarAppearanceModule> (m);
-        }
+		void EventManager_OnNewPresence (IScenePresence presence)
+		{
+			AvatarAppearanceModule m = new AvatarAppearanceModule (presence);
+			presence.RegisterModuleInterface<IAvatarAppearanceModule> (m);
+		}
 
-        void EventManager_OnRemovePresence (IScenePresence presence)
-        {
-            AvatarAppearanceModule m = (AvatarAppearanceModule)presence.RequestModuleInterface<IAvatarAppearanceModule> ();
-            if (m != null)
-            {
-                m.Close ();
-                presence.UnregisterModuleInterface<IAvatarAppearanceModule> (m);
-            }
-        }
+		void EventManager_OnRemovePresence (IScenePresence presence)
+		{
+			AvatarAppearanceModule m = (AvatarAppearanceModule)presence.RequestModuleInterface<IAvatarAppearanceModule> ();
+			if (m != null) {
+				m.Close ();
+				presence.UnregisterModuleInterface<IAvatarAppearanceModule> (m);
+			}
+		}
 
-        #endregion
+		#endregion
 
-        #region Set Appearance
+		#region Set Appearance
 
-        /// <summary>
-        ///     Set appearance data (textureentry and slider settings) received from the client
-        /// </summary>
-        /// <param name="textureEntry"></param>
-        /// <param name="visualParams"></param>
-        /// <param name="client"></param>
-        /// <param name="wearables"></param>
-        /// <param name="serial"></param>
-        public void SetAppearance (IClientAPI client, Primitive.TextureEntry textureEntry, byte [] visualParams, WearableCache [] wearables, uint serial)
-        {
-            IScenePresence sp = m_scene.GetScenePresence (client.AgentId);
-            IAvatarAppearanceModule appearance = sp.RequestModuleInterface<IAvatarAppearanceModule> ();
+		/// <summary>
+		///     Set appearance data (textureentry and slider settings) received from the client
+		/// </summary>
+		/// <param name="textureEntry"></param>
+		/// <param name="visualParams"></param>
+		/// <param name="client"></param>
+		/// <param name="wearables"></param>
+		/// <param name="serial"></param>
+		public void SetAppearance (IClientAPI client, Primitive.TextureEntry textureEntry, byte[] visualParams,
+		                                 WearableCache[] wearables, uint serial)
+		{
+			IScenePresence sp = m_scene.GetScenePresence (client.AgentId);
+			IAvatarAppearanceModule appearance = sp.RequestModuleInterface<IAvatarAppearanceModule> ();
 
-            appearance.Appearance.Serial = (int)serial;
-            //MainConsole.Instance.InfoFormat("[Avatar Factory]: start SetAppearance for {0}", client.AgentId);
+			appearance.Appearance.Serial = (int)serial;
+			//MainConsole.Instance.InfoFormat("[AVFACTORY]: start SetAppearance for {0}", client.AgentId);
 
-            bool texturesChanged = false;
-            bool visualParamsChanged = false;
+			bool texturesChanged = false;
+			bool visualParamsChanged = false;
 
-            // Process the texture entry transactionally, this doesn't guarantee that Appearance is
-            // going to be handled correctly but it does serialize the updates to the appearance
-            lock (m_setAppearanceLock) {
-                if (textureEntry != null) {
-                    List<UUID> ChangedTextures;
-                    texturesChanged = appearance.Appearance.SetTextureEntries (textureEntry, out ChangedTextures);
-                }
+			// Process the texture entry transactionally, this doesn't guarantee that Appearance is
+			// going to be handled correctly but it does serialize the updates to the appearance
+			lock (m_setAppearanceLock) {
+				if (textureEntry != null) {
+					List<UUID> ChangedTextures;
+					texturesChanged = appearance.Appearance.SetTextureEntries (textureEntry, out ChangedTextures);
+				}
+				appearance.Appearance.SetCachedWearables (wearables);
+				// Process the visual params, this may change height as well
+				if (visualParams != null) {
+					//Now update the visual params and see if they have changed
+					visualParamsChanged = appearance.Appearance.SetVisualParams (visualParams);
 
-                appearance.Appearance.SetCachedWearables (wearables);
-                // Process the visual params, this may change height as well
-                if (visualParams != null) {
-                    //Now update the visual params and see if they have changed
-                    visualParamsChanged = appearance.Appearance.SetVisualParams (visualParams);
+					//Fix the height only if the parameters have changed
+					if (visualParamsChanged && appearance.Appearance.AvatarHeight > 0)
+						sp.SetHeight (appearance.Appearance.AvatarHeight);
+				}
+			}
 
-                    //Fix the height only if the parameters have changed
-                    if (visualParamsChanged && appearance.Appearance.AvatarHeight > 0)
-                        sp.SetHeight (appearance.Appearance.AvatarHeight);
-                }
-            }
+			// If something changed in the appearance then queue an appearance save
+			if (texturesChanged || visualParamsChanged) {
+				QueueAppearanceSave (client.AgentId);
+				QueueAppearanceSend (client.AgentId);
+			}
+		}
 
-            // If something changed in the appearance then queue an appearance save
-            if (texturesChanged || visualParamsChanged) {
-                QueueAppearanceSave (client.AgentId);
-                QueueAppearanceSend (client.AgentId);
-            }
-        }
+		/// <summary>
+		///     The client wants to know whether we already have baked textures for the given items
+		/// </summary>
+		/// <param name="client"></param>
+		/// <param name="args"></param>
+		void AgentCachedTexturesRequest (IClientAPI client, List<CachedAgentArgs> args)
+		{
+			IScenePresence sp = m_scene.GetScenePresence (client.AgentId);
+			IAvatarAppearanceModule app = sp.RequestModuleInterface<IAvatarAppearanceModule> ();
+			// Look up hashes to make sure that the request is valid
 
-        /// <summary>
-        ///     The client wants to know whether we already have baked textures for the given items
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="args"></param>
-        void AgentCachedTexturesRequest (IClientAPI client, List<CachedAgentArgs> args)
-        {
-            IScenePresence sp = m_scene.GetScenePresence (client.AgentId);
-            IAvatarAppearanceModule app = sp.RequestModuleInterface<IAvatarAppearanceModule> ();
-            // Look up hashes to make sure that the request is valid
-
-            List<CachedAgentArgs> resp = new List<CachedAgentArgs> ();
-            foreach (CachedAgentArgs arg in args) {
-                CachedAgentArgs r = new CachedAgentArgs ();
-                r.TextureIndex = arg.TextureIndex;
-                //V2 changed to send the actual texture index, and not the baked texture index
-                int index = arg.TextureIndex >= 5
+			List<CachedAgentArgs> resp = new List<CachedAgentArgs> ();
+			foreach (CachedAgentArgs arg in args) {
+				CachedAgentArgs r = new CachedAgentArgs ();
+				r.TextureIndex = arg.TextureIndex;
+				//V2 changed to send the actual texture index, and not the baked texture index
+				int index = arg.TextureIndex >= 5
                     ? arg.TextureIndex
                     : (int)AppearanceManager.BakeTypeToAgentTextureIndex ((BakeType)arg.TextureIndex);
 
-                r.ID = (
-                    app.Appearance.Texture.FaceTextures [index] == null ||
-                    app.Appearance.WearableCache.Count == 0 ||
-                    !app.Appearance.WearableCache.ContainsKey (index.ToString ()) ||
-                    app.Appearance.WearableCache [index.ToString ()] != arg.ID
+				r.ID = (
+				    app.Appearance.Texture.FaceTextures [index] == null ||
+				    app.Appearance.WearableCache.Count == 0 ||
+				    !app.Appearance.WearableCache.ContainsKey (index.ToString ()) ||
+				    app.Appearance.WearableCache [index.ToString ()] != arg.ID
                         ? UUID.Zero
                         : app.Appearance.Texture.FaceTextures [index].TextureID);
 
-                resp.Add (r);
-            }
+				resp.Add (r);
+			}
 
-            client.SendAgentCachedTexture (resp);
-        }
+			client.SendAgentCachedTexture (resp);
+		}
 
-        #endregion
+		#endregion
 
-        #region UpdateAppearanceTimer
+		#region UpdateAppearanceTimer
 
-        /// <summary>
-        ///     Queue up a request to send appearance, makes it possible to
-        ///     accumulate changes without sending out each one separately.
-        /// </summary>
-        public void QueueAppearanceSend (UUID agentid)
-        {
-            MainConsole.Instance.DebugFormat ("[Avatar Factory]: Queue appearance send for {0}", agentid);
+		/// <summary>
+		///     Queue up a request to send appearance, makes it possible to
+		///     accumulate changes without sending out each one separately.
+		/// </summary>
+		public void QueueAppearanceSend (UUID agentid)
+		{
+			MainConsole.Instance.DebugFormat ("[AvatarFactory]: Queue appearance send for {0}", agentid);
 
-            _sendQueue.Add (agentid);
-        }
+			_sendQueue.Add (agentid);
+		}
 
-        public void QueueAppearanceSave (UUID agentid)
-        {
-            MainConsole.Instance.DebugFormat ("[Avatar Factory]: Queue appearance save for {0}", agentid);
+		public void QueueAppearanceSave (UUID agentid)
+		{
+			MainConsole.Instance.DebugFormat ("[AvatarFactory]: Queue appearance save for {0}", agentid);
 
-            IScenePresence sp = m_scene.GetScenePresence (agentid);
-            if (sp == null) {
-                MainConsole.Instance.WarnFormat ("[Avatar Factory]: Agent {0} no longer in the scene", agentid);
-                return;
-            }
-            IAvatarAppearanceModule appearance = sp.RequestModuleInterface<IAvatarAppearanceModule> ();
-            _saveQueue.Add (agentid, appearance.Appearance);
-        }
+			IScenePresence sp = m_scene.GetScenePresence (agentid);
+			if (sp == null) {
+				MainConsole.Instance.WarnFormat ("[AvatarFactory]: Agent {0} no longer in the scene", agentid);
+				return;
+			}
+			IAvatarAppearanceModule appearance = sp.RequestModuleInterface<IAvatarAppearanceModule> ();
+			_saveQueue.Add (agentid, appearance.Appearance);
+		}
 
-        public void QueueInitialAppearanceSend (UUID agentid)
-        {
-            MainConsole.Instance.DebugFormat ("[Avatar Factory]: Queue initial appearance send for {0}", agentid);
+		public void QueueInitialAppearanceSend (UUID agentid)
+		{
+			MainConsole.Instance.DebugFormat ("[AvatarFactory]: Queue initial appearance send for {0}", agentid);
 
-            IScenePresence sp = m_scene.GetScenePresence (agentid);
-            if (sp == null) {
-                MainConsole.Instance.WarnFormat ("[Avatar Factory]: Agent {0} no longer in the scene", agentid);
-                return;
-            }
+			IScenePresence sp = m_scene.GetScenePresence (agentid);
+			if (sp == null) {
+				MainConsole.Instance.WarnFormat ("[AvatarFactory]: Agent {0} no longer in the scene", agentid);
+				return;
+			}
+			IAvatarAppearanceModule appearance = sp.RequestModuleInterface<IAvatarAppearanceModule> ();
+			//We're waiting to send them, so mark it as true
+			appearance.InitialHasWearablesBeenSent = true;
 
-            IAvatarAppearanceModule appearance = sp.RequestModuleInterface<IAvatarAppearanceModule> ();
-            //We're waiting to send them, so mark it as true
-            appearance.InitialHasWearablesBeenSent = true;
+			_initialSendQueue.Add (agentid);
+		}
 
-            _initialSendQueue.Add (agentid);
-        }
+		/// <summary>
+		///     Sends an avatars appearance (only called by the TimeSender)
+		/// </summary>
+		/// <param name="agentid"></param>
+		/// <param name="app"></param>
+		void HandleAppearanceSend (UUID agentid, AvatarAppearance app)
+		{
+			IScenePresence sp = m_scene.GetScenePresence (agentid);
+			if (sp == null) {
+				MainConsole.Instance.WarnFormat (
+					"[AvatarFactory]: Agent {0} no longer in the scene to send appearance for.", agentid);
+				return;
+			}
+			IAvatarAppearanceModule appearance = sp.RequestModuleInterface<IAvatarAppearanceModule> ();
 
-        /// <summary>
-        ///     Sends an avatars appearance (only called by the TimeSender)
-        /// </summary>
-        /// <param name="agentid"></param>
-        /// <param name="app"></param>
-        void HandleAppearanceSend (UUID agentid, AvatarAppearance app)
-        {
-            IScenePresence sp = m_scene.GetScenePresence (agentid);
-            if (sp == null) {
-                MainConsole.Instance.WarnFormat ("[Avatar Factory]: Agent {0} no longer in the scene to send appearance for.", agentid);
-                return;
-            }
-            IAvatarAppearanceModule appearance = sp.RequestModuleInterface<IAvatarAppearanceModule> ();
+			// MainConsole.Instance.WarnFormat("[AvatarFactory]: Handle appearance send for {0}", agentid);
 
-            // MainConsole.Instance.WarnFormat("[Avatar Factory]: Handle appearance send for {0}", agentid);
+			// Send the appearance to everyone in the scene
+			appearance.SendAppearanceToAllOtherAgents ();
 
-            // Send the appearance to everyone in the scene
-            appearance.SendAppearanceToAllOtherAgents ();
+			// Send animations back to the avatar as well
+			sp.Animator.SendAnimPack ();
+		}
 
-            // Send animations back to the avatar as well
-            sp.Animator.SendAnimPack ();
-        }
+		/// <summary>
+		///     Saves a user's appearance
+		/// </summary>
+		/// <param name="agentid"></param>
+		/// <param name="app"></param>
+		void HandleAppearanceSave (UUID agentid, AvatarAppearance app)
+		{
+			IScenePresence sp = m_scene.GetScenePresence (agentid);
+			if (sp == null)
+				return;
 
-        /// <summary>
-        ///     Saves a user's appearance
-        /// </summary>
-        /// <param name="agentid"></param>
-        /// <param name="app"></param>
-        void HandleAppearanceSave (UUID agentid, AvatarAppearance app)
-        {
-            IScenePresence sp = m_scene.GetScenePresence (agentid);
-            if (sp == null)
-                return;
+			IAvatarAppearanceModule appearanceModule = sp.RequestModuleInterface<IAvatarAppearanceModule> ();
 
-            IAvatarAppearanceModule appearanceModule = sp.RequestModuleInterface<IAvatarAppearanceModule> ();
-
-            AvatarAppearance appearance = appearanceModule != null
+			AvatarAppearance appearance = appearanceModule != null
                                               ? appearanceModule.Appearance
                                               : app;
 
-            m_scene.AvatarService.SetAppearance (agentid, appearance);
-        }
+			m_scene.AvatarService.SetAppearance (agentid, appearance);
+		}
 
-        /// <summary>
-        ///     Do everything required once a client completes its movement into a region and becomes
-        ///     a root agent.
-        /// </summary>
-        /// <param name="agentid">Agent to send appearance for</param>
-        /// <param name="app"></param>
-        void HandleInitialAppearanceSend (UUID agentid, AvatarAppearance app)
-        {
-            IScenePresence sp = m_scene.GetScenePresence (agentid);
-            if (sp == null) {
-                MainConsole.Instance.WarnFormat ("[Avatar Factory]: Agent {0} no longer in the scene to send appearance for.", agentid);
-                return;
-            }
+		/// <summary>
+		///     Do everything required once a client completes its movement into a region and becomes
+		///     a root agent.
+		/// </summary>
+		/// <param name="agentid">Agent to send appearance for</param>
+		/// <param name="app"></param>
+		void HandleInitialAppearanceSend (UUID agentid, AvatarAppearance app)
+		{
+			IScenePresence sp = m_scene.GetScenePresence (agentid);
+			if (sp == null) {
+				MainConsole.Instance.WarnFormat (
+					"[AvatarFactory]: Agent {0} no longer in the scene to send appearance for.", agentid);
+				return;
+			}
+			IAvatarAppearanceModule appearance = sp.RequestModuleInterface<IAvatarAppearanceModule> ();
 
-            IAvatarAppearanceModule appearance = sp.RequestModuleInterface<IAvatarAppearanceModule> ();
+			MainConsole.Instance.InfoFormat ("[AvatarFactory]: Handle initial appearance send for {0}", agentid);
 
-            MainConsole.Instance.InfoFormat ("[Avatar Factory]: Handle initial appearance send for {0}", agentid);
+			// This agent just became root. We are going to tell everyone about it.
+			appearance.SendAvatarDataToAllAgents (true);
+			appearance.SendAppearanceToAgent (sp);
 
-            // This agent just became root. We are going to tell everyone about it.
-            appearance.SendAvatarDataToAllAgents (true);
-            appearance.SendAppearanceToAgent (sp);
+			sp.ControllingClient.SendWearables (appearance.Appearance.Wearables, appearance.Appearance.Serial);
 
-            sp.ControllingClient.SendWearables (appearance.Appearance.Wearables, appearance.Appearance.Serial);
+			// If the avatars baked textures are all in the cache, then we have a 
+			// complete appearance... send it out, if not, then we'll send it when
+			// the avatar finishes updating its appearance
+			appearance.SendAppearanceToAllOtherAgents ();
 
-            // If the avatars baked textures are all in the cache, then we have a 
-            // complete appearance... send it out, if not, then we'll send it when
-            // the avatar finishes updating its appearance
-            appearance.SendAppearanceToAllOtherAgents ();
+			// This agent just became root. We are going to tell everyone about it. The process of
+			// getting other avatars information was initiated in the constructor... don't do it 
+			// again here... 
+			appearance.SendAvatarDataToAllAgents (true);
 
-            // This agent just became root. We are going to tell everyone about it. The process of
-            // getting other avatars information was initiated in the constructor... don't do it 
-            // again here... 
-            appearance.SendAvatarDataToAllAgents (true);
+			//Tell us about everyone else as well now that we are here
+			appearance.SendOtherAgentsAppearanceToMe ();
+		}
 
-            //Tell us about everyone else as well now that we are here
-            appearance.SendOtherAgentsAppearanceToMe ();
-        }
+		#endregion
 
-        #endregion
+		#region Wearables
 
-        #region Wearables
+		/// <summary>
+		///     Tell the client for this scene presence what items it should be wearing now
+		/// </summary>
+		public void RequestWearables (IClientAPI client)
+		{
+			IScenePresence sp = m_scene.GetScenePresence (client.AgentId);
+			if (sp == null) {
+				MainConsole.Instance.WarnFormat ("[AvatarFactory]: SendWearables unable to find presence for {0}",
+					client.AgentId);
+				return;
+			}
 
-        /// <summary>
-        ///     Tell the client for this scene presence what items it should be wearing now
-        /// </summary>
-        public void RequestWearables (IClientAPI client)
-        {
-            IScenePresence sp = m_scene.GetScenePresence (client.AgentId);
-            if (sp == null) {
-                MainConsole.Instance.WarnFormat ("[Avatar Factory]: SendWearables unable to find presence for {0}", client.AgentId);
-                return;
-            }
+			//Don't send the wearables immediately, make sure that everything is loaded first
+			QueueInitialAppearanceSend (client.AgentId);
+		}
 
-            //Don't send the wearables immediately, make sure that everything is loaded first
-            QueueInitialAppearanceSend (client.AgentId);
-        }
+		/// <summary>
+		///     Update what the avatar is wearing using an item from their inventory.
+		/// </summary>
+		/// <param name="client"></param>
+		/// <param name="e"></param>
+		public void AvatarIsWearing (IClientAPI client, AvatarWearingArgs e)
+		{
+			IScenePresence sp = m_scene.GetScenePresence (client.AgentId);
+			if (sp == null) {
+				MainConsole.Instance.WarnFormat ("[AvatarFactory]: AvatarIsWearing unable to find presence for {0}",
+					client.AgentId);
+				return;
+			}
 
-        /// <summary>
-        ///     Update what the avatar is wearing using an item from their inventory.
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="e"></param>
-        public void AvatarIsWearing (IClientAPI client, AvatarWearingArgs e)
-        {
-            IScenePresence sp = m_scene.GetScenePresence (client.AgentId);
-            if (sp == null) {
-                MainConsole.Instance.WarnFormat ("[Avatar Factory]: AvatarIsWearing unable to find presence for {0}", client.AgentId);
-                return;
-            }
+			MainConsole.Instance.DebugFormat ("[AvatarFactory]: AvatarIsWearing called for {0}", client.AgentId);
 
-            MainConsole.Instance.DebugFormat ("[Avatar Factory]: AvatarIsWearing called for {0}", client.AgentId);
+			// operate on a copy of the appearance so we don't have to lock anything
+			IAvatarAppearanceModule appearance = sp.RequestModuleInterface<IAvatarAppearanceModule> ();
+			AvatarAppearance avatAppearance = new AvatarAppearance (appearance.Appearance, false);
 
-            // operate on a copy of the appearance so we don't have to lock anything
-            IAvatarAppearanceModule appearance = sp.RequestModuleInterface<IAvatarAppearanceModule> ();
-            AvatarAppearance avatAppearance = new AvatarAppearance (appearance.Appearance, false);
+			#region Teen Mode Stuff
 
-            #region Teen Mode Stuff
+			IOpenRegionSettingsModule module = m_scene.RequestModuleInterface<IOpenRegionSettingsModule> ();
 
-            IOpenRegionSettingsModule module = m_scene.RequestModuleInterface<IOpenRegionSettingsModule> ();
+			bool NeedsRebake = false;
+			if (module != null && module.EnableTeenMode) {
+				foreach (AvatarWearingArgs.Wearable wear in e.NowWearing) {
+					if (wear.Type == 10 & wear.ItemID == UUID.Zero && module.DefaultUnderpants != UUID.Zero) {
+						NeedsRebake = true;
+						wear.ItemID = module.DefaultUnderpants;
+						InventoryItemBase item = new InventoryItemBase (UUID.Random ()) {
+							InvType = (int)InventoryType.Wearable,
+							AssetType = (int)AssetType.Clothing,
+							Name = "Default Underpants",
+							Folder =
+                                m_scene.InventoryService.GetFolderForType (client.AgentId, InventoryType.Wearable, FolderType.Clothing).ID,
+							Owner = client.AgentId,
+							CurrentPermissions = 0,
+							CreatorId = UUID.Zero.ToString (),
+							AssetID = module.DefaultUnderpants
+						};
+						//Locked
+						client.SendInventoryItemCreateUpdate (item, 0);
+					} else if (wear.Type == 10 & wear.ItemID == UUID.Zero) {
+						NeedsRebake = true;
+						InventoryItemBase item = new InventoryItemBase (UUID.Random ()) {
+							InvType = (int)InventoryType.Wearable,
+							AssetType = (int)AssetType.Clothing,
+							Name = "Default Underpants",
+							Folder =
+                                m_scene.InventoryService.GetFolderForType (client.AgentId, InventoryType.Wearable, FolderType.Clothing).ID,
+							Owner = client.AgentId,
+							CurrentPermissions = 0
+						};
+						//Locked
+						if (m_underPantsUUID == UUID.Zero) {
+							m_underPantsUUID = UUID.Random ();
+							AssetBase asset = new AssetBase (m_underPantsUUID, "Default Underpants", AssetType.Clothing,
+								                                       UUID.Zero) { Data = Utils.StringToBytes (m_defaultUnderPants) };
+							asset.ID = m_scene.AssetService.Store (asset);
+							m_underPantsUUID = asset.ID;
+						}
+						item.CreatorId = UUID.Zero.ToString ();
+						item.AssetID = m_underPantsUUID;
+						m_scene.InventoryService.AddItemAsync (item, null);
+						client.SendInventoryItemCreateUpdate (item, 0);
+						wear.ItemID = item.ID;
+					}
+					if (wear.Type == 11 && wear.ItemID == UUID.Zero && module.DefaultUndershirt != UUID.Zero) {
+						NeedsRebake = true;
+						wear.ItemID = module.DefaultUndershirt;
+						InventoryItemBase item = new InventoryItemBase (UUID.Random ()) {
+							InvType = (int)InventoryType.Wearable,
+							AssetType = (int)AssetType.Clothing,
+							Name = "Default Undershirt",
+							Folder =
+                                m_scene.InventoryService.GetFolderForType (client.AgentId, InventoryType.Wearable, FolderType.Clothing).ID,
+							Owner = client.AgentId,
+							CurrentPermissions = 0,
+							CreatorId = UUID.Zero.ToString (),
+							AssetID = module.DefaultUndershirt
+						};
+						//Locked
+						client.SendInventoryItemCreateUpdate (item, 0);
+					} else if (wear.Type == 11 & wear.ItemID == UUID.Zero) {
+						NeedsRebake = true;
+						InventoryItemBase item = new InventoryItemBase (UUID.Random ()) {
+							InvType = (int)InventoryType.Wearable,
+							AssetType = (int)AssetType.Clothing,
+							Name = "Default Undershirt",
+							Folder =
+                                m_scene.InventoryService.GetFolderForType (client.AgentId, InventoryType.Wearable, FolderType.Clothing).ID,
+							Owner = client.AgentId,
+							CurrentPermissions = 0
+						};
+						//Locked
+						if (m_underShirtUUID == UUID.Zero) {
+							m_underShirtUUID = UUID.Random ();
+							AssetBase asset = new AssetBase (m_underShirtUUID, "Default Undershirt", AssetType.Clothing,
+								                                       UUID.Zero) { Data = Utils.StringToBytes (m_defaultUnderShirt) };
+							asset.ID = m_scene.AssetService.Store (asset);
+							m_underShirtUUID = asset.ID;
+						}
+						item.CreatorId = UUID.Zero.ToString ();
+						item.AssetID = m_underShirtUUID;
+						m_scene.InventoryService.AddItemAsync (item, null);
+						client.SendInventoryItemCreateUpdate (item, 0);
+						wear.ItemID = item.ID;
+					}
+				}
+			}
 
-            bool NeedsRebake = false;
-            if (module != null && module.EnableTeenMode) {
-                foreach (AvatarWearingArgs.Wearable wear in e.NowWearing) {
-                    if (wear.Type == 10 & wear.ItemID == UUID.Zero && module.DefaultUnderpants != UUID.Zero) {
-                        NeedsRebake = true;
-                        wear.ItemID = module.DefaultUnderpants;
-                        InventoryItemBase item = new InventoryItemBase (UUID.Random ()) {
-                            InvType = (int)InventoryType.Wearable,
-                            AssetType = (int)AssetType.Clothing,
-                            Name = "Default Underpants",
-                            Folder = m_scene.InventoryService.GetFolderForType (client.AgentId, InventoryType.Wearable, FolderType.Clothing).ID,
-                            Owner = client.AgentId,
-                            CurrentPermissions = 0,
-                            CreatorId = UUID.Zero.ToString (),
-                            AssetID = module.DefaultUnderpants
-                        };
-                        //Locked
-                        client.SendInventoryItemCreateUpdate (item, 0);
-                    } else if (wear.Type == 10 & wear.ItemID == UUID.Zero) {
-                        NeedsRebake = true;
-                        InventoryItemBase item = new InventoryItemBase (UUID.Random ()) {
-                            InvType = (int)InventoryType.Wearable,
-                            AssetType = (int)AssetType.Clothing,
-                            Name = "Default Underpants",
-                            Folder = m_scene.InventoryService.GetFolderForType (client.AgentId, InventoryType.Wearable, FolderType.Clothing).ID,
-                            Owner = client.AgentId,
-                            CurrentPermissions = 0
-                        };
+			#endregion
 
-                        //Locked
-                        if (m_underPantsUUID == UUID.Zero) {
-                            m_underPantsUUID = UUID.Random ();
-                            AssetBase asset = new AssetBase (m_underPantsUUID, "Default Underpants", AssetType.Clothing, UUID.Zero) { Data = Utils.StringToBytes (m_defaultUnderPants) };
-                            asset.ID = m_scene.AssetService.Store (asset);
-                            m_underPantsUUID = asset.ID;
-                        }
-
-                        item.CreatorId = UUID.Zero.ToString ();
-                        item.AssetID = m_underPantsUUID;
-                        m_scene.InventoryService.AddItemAsync (item, null);
-                        client.SendInventoryItemCreateUpdate (item, 0);
-                        wear.ItemID = item.ID;
-                    }
-
-                    if (wear.Type == 11 && wear.ItemID == UUID.Zero && module.DefaultUndershirt != UUID.Zero) {
-                        NeedsRebake = true;
-                        wear.ItemID = module.DefaultUndershirt;
-                        InventoryItemBase item = new InventoryItemBase (UUID.Random ()) {
-                            InvType = (int)InventoryType.Wearable,
-                            AssetType = (int)AssetType.Clothing,
-                            Name = "Default Undershirt",
-                            Folder = m_scene.InventoryService.GetFolderForType (client.AgentId, InventoryType.Wearable, FolderType.Clothing).ID,
-                            Owner = client.AgentId,
-                            CurrentPermissions = 0,
-                            CreatorId = UUID.Zero.ToString (),
-                            AssetID = module.DefaultUndershirt
-                        };
-
-                        //Locked
-                        client.SendInventoryItemCreateUpdate (item, 0);
-                    } else if (wear.Type == 11 & wear.ItemID == UUID.Zero) {
-                        NeedsRebake = true;
-                        InventoryItemBase item = new InventoryItemBase (UUID.Random ()) {
-                            InvType = (int)InventoryType.Wearable,
-                            AssetType = (int)AssetType.Clothing,
-                            Name = "Default Undershirt",
-                            Folder = m_scene.InventoryService.GetFolderForType (client.AgentId, InventoryType.Wearable, FolderType.Clothing).ID,
-                            Owner = client.AgentId,
-                            CurrentPermissions = 0
-                        };
-
-                        //Locked
-                        if (m_underShirtUUID == UUID.Zero) {
-                            m_underShirtUUID = UUID.Random ();
-                            AssetBase asset = new AssetBase (m_underShirtUUID, "Default Undershirt", AssetType.Clothing,
-                                                            UUID.Zero) { Data = Utils.StringToBytes (m_defaultUnderShirt) };
-                            asset.ID = m_scene.AssetService.Store (asset);
-                            m_underShirtUUID = asset.ID;
-                        }
-
-                        item.CreatorId = UUID.Zero.ToString ();
-                        item.AssetID = m_underShirtUUID;
-                        m_scene.InventoryService.AddItemAsync (item, null);
-                        client.SendInventoryItemCreateUpdate (item, 0);
-                        wear.ItemID = item.ID;
-                    }
-                }
-            }
-
-            #endregion
-
-            foreach (
+			foreach (
                 AvatarWearingArgs.Wearable wear in e.NowWearing.Where (wear => wear.Type < AvatarWearable.MAX_WEARABLES)) {
-                avatAppearance.Wearables [wear.Type].Add (wear.ItemID, UUID.Zero);
-            }
+				avatAppearance.Wearables [wear.Type].Add (wear.ItemID, UUID.Zero);
+			}
 
-            avatAppearance.GetAssetsFrom (appearance.Appearance);
+			avatAppearance.GetAssetsFrom (appearance.Appearance);
 
-            // This could take awhile since it needs to pull inventory
-            SetAppearanceAssets (sp.UUID, e.NowWearing, appearance.Appearance, ref avatAppearance);
+			// This could take awhile since it needs to pull inventory
+			SetAppearanceAssets (sp.UUID, e.NowWearing, appearance.Appearance, ref avatAppearance);
 
-            // could get fancier with the locks here, but in the spirit of "last write wins"
-            // this should work correctly, also, we don't need to send the appearance here
-            // since the "iswearing" will trigger a new set of visual param and baked texture changes
-            // when those complete, the new appearance will be sent
-            appearance.Appearance = avatAppearance;
+			// could get fancier with the locks here, but in the spirit of "last write wins"
+			// this should work correctly, also, we don't need to send the appearance here
+			// since the "iswearing" will trigger a new set of visual param and baked texture changes
+			// when those complete, the new appearance will be sent
+			appearance.Appearance = avatAppearance;
 
-            //This only occurs if something has been forced on afterwards (teen mode stuff)
-            if (NeedsRebake) {
-                //Tell the client about the new things it is wearing
-                sp.ControllingClient.SendWearables (appearance.Appearance.Wearables, appearance.Appearance.Serial);
-                //Then forcefully tell it to rebake
-                foreach (
+			//This only occurs if something has been forced on afterwards (teen mode stuff)
+			if (NeedsRebake) {
+				//Tell the client about the new things it is wearing
+				sp.ControllingClient.SendWearables (appearance.Appearance.Wearables, appearance.Appearance.Serial);
+				//Then forcefully tell it to rebake
+				foreach (
                     Primitive.TextureEntryFace face in
                         appearance.Appearance.Texture.FaceTextures.Select (t => (t)).Where (face => face != null)) {
-                    sp.ControllingClient.SendRebakeAvatarTextures (face.TextureID);
-                }
-            }
+					sp.ControllingClient.SendRebakeAvatarTextures (face.TextureID);
+				}
+			}
 
-            QueueAppearanceSave (sp.UUID);
-            //Send the wearables HERE so that the client knows what it is wearing
-            //sp.ControllingClient.SendWearables(sp.Appearance.Wearables, sp.Appearance.Serial);
-            //Do not save or send the appearance! The client loops back and sends a bunch of SetAppearance
-            //  (handled above) and that takes care of it
-        }
+			QueueAppearanceSave (sp.UUID);
+			//Send the wearables HERE so that the client knows what it is wearing
+			//sp.ControllingClient.SendWearables(sp.Appearance.Wearables, sp.Appearance.Serial);
+			//Do not save or send the appearance! The client loops back and sends a bunch of SetAppearance
+			//  (handled above) and that takes care of it
+		}
 
-        void SetAppearanceAssets (UUID userID, List<AvatarWearingArgs.Wearable> nowWearing,
-                                         AvatarAppearance oldAppearance, ref AvatarAppearance appearance)
-        {
-            IInventoryService invService = m_scene.InventoryService;
+		void SetAppearanceAssets (UUID userID, List<AvatarWearingArgs.Wearable> nowWearing,
+		                                AvatarAppearance oldAppearance, ref AvatarAppearance appearance)
+		{
+			IInventoryService invService = m_scene.InventoryService;
 
-            for (int i = 0; i < AvatarWearable.MAX_WEARABLES; i++) {
-                for (int j = 0; j < appearance.Wearables [j].Count; j++) {
-                    if (appearance.Wearables [i] [j].ItemID == UUID.Zero)
-                        continue;
+			for (int i = 0; i < AvatarWearable.MAX_WEARABLES; i++) {
+				for (int j = 0; j < appearance.Wearables [j].Count; j++) {
+					if (appearance.Wearables [i] [j].ItemID == UUID.Zero)
+						continue;
 
-                    // ItemIDs will be updated with new assetIDs if the avatar has just updated their clothing,
-                    //    so we can't assume this...
-                    UUID assetID = invService.GetItemAssetID (userID, appearance.Wearables [i] [j].ItemID);
+					// ItemIDs will be updated with new assetIDs if the avatar has just updated their clothing,
+					//    so we can't assume this...
+					//if (nowWearing[i].ItemID == oldAppearance.Wearables[i][j].ItemID)
+					//    continue; //Don't relookup items that are the same and have already been found earlier
 
-                    if (assetID != UUID.Zero)
-                        appearance.Wearables [i].Add (nowWearing [i].ItemID, assetID);
-                    else {
-                        MainConsole.Instance.ErrorFormat (
-                            "[Avatar Factory]: Can't find inventory item {0} for {1}, setting to default",
-                            appearance.Wearables [i] [j].ItemID, (WearableType)i);
+					UUID assetID = invService.GetItemAssetID (userID, appearance.Wearables [i] [j].ItemID);
 
-                        appearance.Wearables [i].RemoveItem (appearance.Wearables [i] [j].ItemID);
-                        appearance.Wearables [i].Add (AvatarWearable.DefaultWearables [i] [j].ItemID,
-                                                    AvatarWearable.DefaultWearables [i] [j].AssetID);
-                    }
-                }
-            }
-        }
+					if (assetID != UUID.Zero)
+						appearance.Wearables [i].Add (nowWearing [i].ItemID, assetID);
+					else {
+						MainConsole.Instance.ErrorFormat (
+							"[AvatarFactory]: Can't find inventory item {0} for {1}, setting to default",
+							appearance.Wearables [i] [j].ItemID, (WearableType)i);
 
-        #endregion
+						appearance.Wearables [i].RemoveItem (appearance.Wearables [i] [j].ItemID);
+						appearance.Wearables [i].Add (AvatarWearable.DefaultWearables [i] [j].ItemID,
+							AvatarWearable.DefaultWearables [i] [j].AssetID);
+					}
+				}
+			}
+		}
 
-        #region Console Commands
+		#endregion
 
-        public void ForceSendAvatarAppearance (UUID agentid)
-        {
-            //If the avatar changes appearance, then promptly logs out, this will break!
-            IScenePresence sp = m_scene.GetScenePresence (agentid);
-            if (sp == null || sp.IsChildAgent) {
-                MainConsole.Instance.WarnFormat ("[Avatar Factory]: Agent {0} no longer in the scene", agentid);
-                return;
-            }
+		#region Console Commands
 
-            //Force send!
-            IAvatarAppearanceModule appearance = sp.RequestModuleInterface<IAvatarAppearanceModule> ();
-            sp.ControllingClient.SendWearables (appearance.Appearance.Wearables, appearance.Appearance.Serial);
-            Thread.Sleep (100);
-            appearance.SendAvatarDataToAllAgents (true);
-            Thread.Sleep (100);
-            appearance.SendAppearanceToAgent (sp);
-            Thread.Sleep (100);
-            appearance.SendAppearanceToAllOtherAgents ();
-            MainConsole.Instance.Info ("Resent appearance");
-        }
+		public void ForceSendAvatarAppearance (UUID agentid)
+		{
+			//If the avatar changes appearance, then promptly logs out, this will break!
+			IScenePresence sp = m_scene.GetScenePresence (agentid);
+			if (sp == null || sp.IsChildAgent) {
+				MainConsole.Instance.WarnFormat ("[AvatarFactory]: Agent {0} no longer in the scene", agentid);
+				return;
+			}
 
-        void HandleConsoleForceSendAppearance (IScene scene, string [] cmds)
-        {
-            string firstName;
-            string lastName;
+			//Force send!
+			IAvatarAppearanceModule appearance = sp.RequestModuleInterface<IAvatarAppearanceModule> ();
+			sp.ControllingClient.SendWearables (appearance.Appearance.Wearables, appearance.Appearance.Serial);
+			Thread.Sleep (100);
+			appearance.SendAvatarDataToAllAgents (true);
+			Thread.Sleep (100);
+			appearance.SendAppearanceToAgent (sp);
+			Thread.Sleep (100);
+			appearance.SendAppearanceToAllOtherAgents ();
+			MainConsole.Instance.Info ("Resent appearance");
+		}
 
-            if (cmds.Length < 5) {
-                string name = "";
-                name = MainConsole.Instance.Prompt ("User Name <first last>: ", name);
-                if (name == "")
-                    return;
-                var names = name.Split (' ');
-                if (names.Length < 2)
-                    return;
-                firstName = names [0];
-                lastName = names [1];
+		void HandleConsoleForceSendAppearance (IScene scene, string[] cmds)
+		{
+			string firstName;
+			string lastName;
 
-            } else {
-                firstName = cmds [3];
-                lastName = cmds [4];
-            }
+			if (cmds.Length < 5) {
+				string name = "";
+				name = MainConsole.Instance.Prompt ("User Name <first last>: ", name);
+				if (name == "")
+					return;
+				var names = name.Split (' ');
+				if (names.Length < 2)
+					return;
+				firstName = names [0];
+				lastName = names [1];
 
-            IScenePresence SP;
-            if (scene.TryGetAvatarByName (firstName + " " + lastName, out SP)) {
-                ForceSendAvatarAppearance (SP.UUID);
-            } else
-                MainConsole.Instance.Info ("Could not find user's account.");
-        }
+			} else {
+				firstName = cmds [3];
+				lastName = cmds [4];
+			}
 
-        #endregion
+			IScenePresence SP;
+			if (scene.TryGetAvatarByName (firstName + " " + lastName, out SP)) {
+				ForceSendAvatarAppearance (SP.UUID);
+			} else
+				MainConsole.Instance.Info ("Could not find user's account.");
+		}
 
-        #region Nested type: AvatarAppearanceModule
+		#endregion
 
-        public class AvatarAppearanceModule : IAvatarAppearanceModule
-        {
-            bool m_InitialHasWearablesBeenSent;
-            protected AvatarAppearance m_appearance;
-            protected IAgentUpdateMonitor _updateMonitor;
-            public IScenePresence m_sp;
+		#region Nested type: AvatarAppearanceModule
 
-            public AvatarAppearanceModule (IScenePresence sp)
-            {
-                m_sp = sp;
-                m_sp.Scene.EventManager.OnMakeRootAgent += EventManager_OnMakeRootAgent;
+		public class AvatarAppearanceModule : IAvatarAppearanceModule
+		{
+			bool m_InitialHasWearablesBeenSent;
+			protected AvatarAppearance m_appearance;
+			protected IAgentUpdateMonitor _updateMonitor;
+			public IScenePresence m_sp;
 
-                AgentCircuitData circuitInfo = sp.Scene.AuthenticateHandler.GetAgentCircuitData (sp.UUID);
-                if (circuitInfo.CachedUserInfo != null)
-                    Appearance = circuitInfo.CachedUserInfo.Appearance;
-                if (Appearance == null)
-                    Appearance = sp.Scene.AvatarService.GetAppearance (sp.UUID);
-                if (Appearance == null) {
-                    MainConsole.Instance.Debug ("[Scene]: No avatar appearance found for " + sp.Name);
-                    Appearance = new AvatarAppearance (sp.UUID);
-                }
-                _updateMonitor = m_sp.Scene.RequestModuleInterface<IMonitorModule> ().GetMonitor<IAgentUpdateMonitor> (sp.Scene);
-            }
+			public AvatarAppearanceModule (IScenePresence sp)
+			{
+				m_sp = sp;
+				m_sp.Scene.EventManager.OnMakeRootAgent += EventManager_OnMakeRootAgent;
 
-            #region IAvatarAppearanceModule Members
+				AgentCircuitData circuitInfo = sp.Scene.AuthenticateHandler.GetAgentCircuitData (sp.UUID);
+				if (circuitInfo.CachedUserInfo != null)
+					Appearance = circuitInfo.CachedUserInfo.Appearance;
+				if (Appearance == null)
+					Appearance = sp.Scene.AvatarService.GetAppearance (sp.UUID);
+				if (Appearance == null) {
+					MainConsole.Instance.Debug ("[Scene]: No avatar appearance found for " + sp.Name);
+					Appearance = new AvatarAppearance (sp.UUID);
+				}
+				_updateMonitor = m_sp.Scene.RequestModuleInterface<IMonitorModule> ().GetMonitor<IAgentUpdateMonitor> (sp.Scene);
+			}
 
-            public bool InitialHasWearablesBeenSent {
-                get { return m_InitialHasWearablesBeenSent; }
-                set { m_InitialHasWearablesBeenSent = value; }
-            }
+			#region IAvatarAppearanceModule Members
 
-            /// <summary>
-            ///     Send this agent's avatar data to all other root and child agents in the scene
-            ///     This agent must be root. This avatar will receive its own update.
-            /// </summary>
-            public void SendAvatarDataToAllAgents (bool sendAppearance)
-            {
-                // only send update from root agents to other clients; children are only "listening posts"
-                if (m_sp.IsChildAgent) {
-                    MainConsole.Instance.Warn ("[Scene Presence]: Attempt to send avatar data from a child agent");
-                    return;
-                }
+			public bool InitialHasWearablesBeenSent {
+				get { return m_InitialHasWearablesBeenSent; }
+				set { m_InitialHasWearablesBeenSent = value; }
+			}
 
-                int count = 0;
-                m_sp.Scene.ForEachScenePresence (delegate (IScenePresence scenePresence) {
-                    if (scenePresence.UUID != m_sp.UUID) {
-                        SendAvatarDataToAgent (scenePresence, sendAppearance);
-                        count++;
-                    }
-                });
+			/// <summary>
+			///     Send this agent's avatar data to all other root and child agents in the scene
+			///     This agent must be root. This avatar will receive its own update.
+			/// </summary>
+			public void SendAvatarDataToAllAgents (bool sendAppearance)
+			{
+				// only send update from root agents to other clients; children are only "listening posts"
+				if (m_sp.IsChildAgent) {
+					MainConsole.Instance.Warn ("[Scene presence]: Attempt to send avatar data from a child agent");
+					return;
+				}
 
-                if (_updateMonitor != null)
-                    _updateMonitor.AddAgentUpdates (count);
-            }
+				int count = 0;
+				m_sp.Scene.ForEachScenePresence (delegate (IScenePresence scenePresence) {
+					if (scenePresence.UUID != m_sp.UUID) {
+						SendAvatarDataToAgent (scenePresence, sendAppearance);
+						count++;
+					}
+				});
 
-            /// <summary>
-            ///     Send avatar data to an agent.
-            /// </summary>
-            /// <param name="avatar"></param>
-            /// <param name="sendAppearance"></param>
-            public void SendAvatarDataToAgent (IScenePresence avatar, bool sendAppearance)
-            {
-                //MainConsole.Instance.WarnFormat("[Scene Presence] Send avatar data from {0} to {1}",m_uuid,avatar.ControllingClient.AgentId);
-                if (!sendAppearance)
-                    avatar.SceneViewer.SendPresenceFullUpdate (m_sp);
-                else
-                    avatar.SceneViewer.QueuePresenceForFullUpdate (m_sp, false);
-            }
+				if (_updateMonitor != null)
+					_updateMonitor.AddAgentUpdates (count);
+			}
 
-            /// <summary>
-            ///     Send this agent's appearance to all other root and child agents in the scene
-            ///     This agent must be root.
-            /// </summary>
-            public void SendAppearanceToAllOtherAgents ()
-            {
-                // only send update from root agents to other clients; children are only "listening posts"
-                if (m_sp.IsChildAgent) {
-                    MainConsole.Instance.Warn ("[Scene Presence] attempt to send avatar data from a child agent");
-                    return;
-                }
+			/// <summary>
+			///     Send avatar data to an agent.
+			/// </summary>
+			/// <param name="avatar"></param>
+			/// <param name="sendAppearance"></param>
+			public void SendAvatarDataToAgent (IScenePresence avatar, bool sendAppearance)
+			{
+				//MainConsole.Instance.WarnFormat("[SP] Send avatar data from {0} to {1}",m_uuid,avatar.ControllingClient.AgentId);
+				if (!sendAppearance)
+					avatar.SceneViewer.SendPresenceFullUpdate (m_sp);
+				else
+					avatar.SceneViewer.QueuePresenceForFullUpdate (m_sp, false);
+			}
 
-                int count = 0;
-                m_sp.Scene.ForEachScenePresence (delegate (IScenePresence scenePresence) {
-                    if (scenePresence.UUID == m_sp.UUID)
-                        return;
+			/// <summary>
+			///     Send this agent's appearance to all other root and child agents in the scene
+			///     This agent must be root.
+			/// </summary>
+			public void SendAppearanceToAllOtherAgents ()
+			{
+				// only send update from root agents to other clients; children are only "listening posts"
+				if (m_sp.IsChildAgent) {
+					MainConsole.Instance.Warn ("[Scene presence] attempt to send avatar data from a child agent");
+					return;
+				}
 
-                    SendAppearanceToAgent (scenePresence);
-                    count++;
-                });
+				int count = 0;
+				m_sp.Scene.ForEachScenePresence (delegate (IScenePresence scenePresence) {
+					if (scenePresence.UUID == m_sp.UUID)
+						return;
 
-                if (_updateMonitor != null)
-                    _updateMonitor.AddAgentUpdates (count);
-            }
+					SendAppearanceToAgent (scenePresence);
+					count++;
+				});
 
-            /// <summary>
-            ///     Send appearance from all other root agents to this agent. this agent
-            ///     can be either root or child
-            /// </summary>
-            public void SendOtherAgentsAppearanceToMe ()
-            {
-                int count = 0;
-                m_sp.Scene.ForEachScenePresence (delegate (IScenePresence scenePresence) {
-                    // only send information about root agents
-                    if (scenePresence.IsChildAgent)
-                        return;
+				if (_updateMonitor != null)
+					_updateMonitor.AddAgentUpdates (count);
+			}
 
-                    // only send information about other root agents
-                    if (scenePresence.UUID == m_sp.UUID)
-                        return;
+			/// <summary>
+			///     Send appearance from all other root agents to this agent. this agent
+			///     can be either root or child
+			/// </summary>
+			public void SendOtherAgentsAppearanceToMe ()
+			{
+				int count = 0;
+				m_sp.Scene.ForEachScenePresence (delegate (IScenePresence scenePresence) {
+					// only send information about root agents
+					if (scenePresence.IsChildAgent)
+						return;
 
-                    IAvatarAppearanceModule appearance =
-                        scenePresence.RequestModuleInterface
+					// only send information about other root agents
+					if (scenePresence.UUID == m_sp.UUID)
+						return;
+
+					IAvatarAppearanceModule appearance =
+						scenePresence.RequestModuleInterface
                             <IAvatarAppearanceModule> ();
-                    if (appearance != null)
-                        appearance.SendAppearanceToAgent (m_sp);
-                    count++;
-                });
+					if (appearance != null)
+						appearance.SendAppearanceToAgent (m_sp);
+					count++;
+				});
 
-                if (_updateMonitor != null)
-                    _updateMonitor.AddAgentUpdates (count);
-            }
+				if (_updateMonitor != null)
+					_updateMonitor.AddAgentUpdates (count);
+			}
 
-            /// <summary>
-            ///     Send appearance data to an agent.
-            /// </summary>
-            /// <param name="avatar"></param>
-            public void SendAppearanceToAgent (IScenePresence avatar)
-            {
-                Appearance.Owner = m_sp.UUID;
-                avatar.ControllingClient.SendAppearance (Appearance);
-            }
+			/// <summary>
+			///     Send appearance data to an agent.
+			/// </summary>
+			/// <param name="avatar"></param>
+			public void SendAppearanceToAgent (IScenePresence avatar)
+			{
+				Appearance.Owner = m_sp.UUID;
+				avatar.ControllingClient.SendAppearance (Appearance);
+			}
 
-            public AvatarAppearance Appearance
-            {
-                get { return m_appearance; }
-                set { m_appearance = value; }
-            }
+			public AvatarAppearance Appearance {
+				get { return m_appearance; }
+				set { m_appearance = value; }
+			}
 
-            #endregion
+			#endregion
 
-            public void Close ()
-            {
-                m_sp.Scene.EventManager.OnMakeRootAgent -= EventManager_OnMakeRootAgent;
-                m_sp = null;
-            }
+			public void Close ()
+			{
+				m_sp.Scene.EventManager.OnMakeRootAgent -= EventManager_OnMakeRootAgent;
+				m_sp = null;
+			}
 
-            Timer checkTimer;
-            void EventManager_OnMakeRootAgent (IScenePresence presence)
-            {
-                if (m_sp != null && presence.UUID == m_sp.UUID)
-                {
-                    //Send everyone to me!
-                    SendOtherAgentsAvatarDataToMe ();
-                    //Check to make sure that we have sent all the appearance info 10 seconds later
-                    checkTimer = new Timer (10 * 1000);
-                    checkTimer.Elapsed += CheckToMakeSureWearablesHaveBeenSent;
-                    checkTimer.AutoReset = false;
-                    checkTimer.Start ();
-                }
-            }
+			Timer checkTimer;
 
-            /// <summary>
-            ///     Send avatar data for all other root agents to this agent, this agent
-            ///     can be either a child or root
-            /// </summary>
-            public void SendOtherAgentsAvatarDataToMe ()
-            {
-                int count = 0;
-                m_sp.Scene.ForEachScenePresence (delegate (IScenePresence scenePresence) {
-                    // only send information about root agents
-                    if (scenePresence.IsChildAgent)
-                        return;
+			void EventManager_OnMakeRootAgent (IScenePresence presence)
+			{
+				if (m_sp != null && presence.UUID == m_sp.UUID) {
+					//Send everyone to me!
+					SendOtherAgentsAvatarDataToMe ();
+					//Check to make sure that we have sent all the appearance info 10 seconds later
+					checkTimer = new Timer (10 * 1000);
+					checkTimer.Elapsed += CheckToMakeSureWearablesHaveBeenSent;
+					checkTimer.AutoReset = false;
+					checkTimer.Start ();
+				}
+			}
 
-                    // only send information about other root agents
-                    if (scenePresence.UUID == m_sp.UUID)
-                        return;
+			/// <summary>
+			///     Send avatar data for all other root agents to this agent, this agent
+			///     can be either a child or root
+			/// </summary>
+			public void SendOtherAgentsAvatarDataToMe ()
+			{
+				int count = 0;
+				m_sp.Scene.ForEachScenePresence (delegate (IScenePresence scenePresence) {
+					// only send information about root agents
+					if (scenePresence.IsChildAgent)
+						return;
 
-                    IAvatarAppearanceModule appearance =
-                        scenePresence.RequestModuleInterface
+					// only send information about other root agents
+					if (scenePresence.UUID == m_sp.UUID)
+						return;
+
+					IAvatarAppearanceModule appearance =
+						scenePresence.RequestModuleInterface
                             <IAvatarAppearanceModule> ();
-                    if (appearance != null)
-                        appearance.SendAvatarDataToAgent (m_sp, true);
-                    count++;
-                });
+					if (appearance != null)
+						appearance.SendAvatarDataToAgent (m_sp, true);
+					count++;
+				});
 
-                if (_updateMonitor != null)
-                    _updateMonitor.AddAgentUpdates (count);
-            }
+				if (_updateMonitor != null)
+					_updateMonitor.AddAgentUpdates (count);
+			}
 
-            /// <summary>
-            ///     This makes sure that after the agent has entered the sim that they have their clothes and that they all exist
-            /// </summary>
-            /// <param name="sender"></param>
-            /// <param name="e"></param>
-            void CheckToMakeSureWearablesHaveBeenSent (object sender, ElapsedEventArgs e)
-            {
-                // clear up the timer that fires this
-                checkTimer.Dispose ();  
+			/// <summary>
+			///     This makes sure that after the agent has entered the sim that they have their clothes and that they all exist
+			/// </summary>
+			/// <param name="sender"></param>
+			/// <param name="e"></param>
+			void CheckToMakeSureWearablesHaveBeenSent (object sender, ElapsedEventArgs e)
+			{
+				// clear up the timer that fires this
+				checkTimer.Dispose ();  
 
-                if (m_sp == null || m_sp.IsChildAgent)
-                    return;
+				if (m_sp == null || m_sp.IsChildAgent)
+					return;
 
-                if (!m_InitialHasWearablesBeenSent)
-                {
-                    //Force send!
-                    m_InitialHasWearablesBeenSent = true;
-                    MainConsole.Instance.Warn ("[Avatar appearance]: Been 10 seconds since root agent " + m_sp.Name +
-                                              " was added and appearance was not sent, force sending now.");
+				if (!m_InitialHasWearablesBeenSent) {
+					//Force send!
+					m_InitialHasWearablesBeenSent = true;
+					MainConsole.Instance.Warn ("[Avatar appearance]: Been 10 seconds since root agent " + m_sp.Name +
+					" was added and appearance was not sent, force sending now.");
 
-                    m_sp.ControllingClient.SendWearables (Appearance.Wearables, Appearance.Serial);
+					m_sp.ControllingClient.SendWearables (Appearance.Wearables, Appearance.Serial);
 
-                    // If the avatars baked textures are all in the cache, then we have a 
-                    // complete appearance... send it out, if not, then we'll send it when
-                    // the avatar finishes updating its appearance
-                    SendAppearanceToAllOtherAgents ();
+					//Send rebakes if needed
+					// NOTE: Do NOT send this! It seems to make the client become a cloud
+					//sp.SendAppearanceToAgent(sp);
 
-                    // This agent just became root. We are going to tell everyone about it. The process of
-                    // getting other avatars information was initiated in the constructor... don't do it 
-                    // again here... 
-                    SendAvatarDataToAllAgents (true);
+					// If the avatars baked textures are all in the cache, then we have a 
+					// complete appearance... send it out, if not, then we'll send it when
+					// the avatar finishes updating its appearance
+					SendAppearanceToAllOtherAgents ();
 
-                    //Tell us about everyone else as well now that we are here
-                    SendOtherAgentsAppearanceToMe ();
-                }
-            }
-        }
+					// This agent just became root. We are going to tell everyone about it. The process of
+					// getting other avatars information was initiated in the constructor... don't do it 
+					// again here... 
+					SendAvatarDataToAllAgents (true);
 
-        #endregion
-    }
+					//Tell us about everyone else as well now that we are here
+					SendOtherAgentsAppearanceToMe ();
+				}
+			}
+		}
+
+		#endregion
+	}
 }

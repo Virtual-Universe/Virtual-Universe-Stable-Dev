@@ -37,163 +37,161 @@ using Universe.Framework.Utilities;
 
 namespace Universe.Modules.Web
 {
-    public class EventsMain : IWebInterfacePage
-    {
-        public string [] FilePath {
-            get {
-                return new []
-                           {
-                               "html/events/events.html"
-                           };
-            }
-        }
+	public class EventsMain : IWebInterfacePage
+	{
+		public string [] FilePath {
+			get {
+				return new [] {
+					"html/events/events.html"
+				};
+			}
+		}
 
-        public bool RequiresAuthentication {
-            get { return false; }
-        }
+		public bool RequiresAuthentication {
+			get { return false; }
+		}
 
-        public bool RequiresAdminAuthentication {
-            get { return false; }
-        }
+		public bool RequiresAdminAuthentication {
+			get { return false; }
+		}
 
-        public Dictionary<string, object> Fill (WebInterface webInterface, string filename, OSHttpRequest httpRequest,
-                                               OSHttpResponse httpResponse, Dictionary<string, object> requestParameters,
-                                               ITranslator translator, out string response)
-        {
-            response = null;
-            var vars = new Dictionary<string, object> ();
-            var directoryService = Framework.Utilities.DataManager.RequestPlugin<IDirectoryServiceConnector> ();
-            var eventListVars = new List<Dictionary<string, object>> ();
-            IMoneyModule moneyModule = webInterface.Registry.RequestModuleInterface<IMoneyModule> ();
+		public Dictionary<string, object> Fill (WebInterface webInterface, string filename, OSHttpRequest httpRequest,
+		                                              OSHttpResponse httpResponse, Dictionary<string, object> requestParameters,
+		                                              ITranslator translator, out string response)
+		{
+			response = null;
+			var vars = new Dictionary<string, object> ();
+			var directoryService = Framework.Utilities.DataManager.RequestPlugin<IDirectoryServiceConnector> ();
+			var eventListVars = new List<Dictionary<string, object>> ();
+			IMoneyModule moneyModule = webInterface.Registry.RequestModuleInterface<IMoneyModule> ();
 
-            var currencySymbol = "$";
-            if (moneyModule != null)
-                currencySymbol = moneyModule.InWorldCurrencySymbol;
+			var currencySymbol = "$";
+			if (moneyModule != null)
+				currencySymbol = moneyModule.InWorldCurrencySymbol;
 
-            var eventLevel = Util.ConvertEventMaturityToDBMaturity (DirectoryManager.EventFlags.PG);
-            var category = (int)DirectoryManager.EventCategories.All;
-            var timeframe = 24;
+			var eventLevel = Util.ConvertEventMaturityToDBMaturity (DirectoryManager.EventFlags.PG);
+			var category = (int)DirectoryManager.EventCategories.All;
+			var timeframe = 24;
 
-            var pg_checked = "checked";
-            var ma_checked = "";
-            var ao_checked = "";
+			var pg_checked = "checked";
+			var ma_checked = "";
+			var ao_checked = "";
 
-            if (requestParameters.ContainsKey ("Submit")) {
-                int level = 0;
-                pg_checked = "";
-                ma_checked = "";
-                ao_checked = "";
-                if (requestParameters.ContainsKey ("display_pg")) {
-                    level += Util.ConvertEventMaturityToDBMaturity (DirectoryManager.EventFlags.PG);
-                    pg_checked = "checked";
-                }
+			if (requestParameters.ContainsKey ("Submit")) {
+				int level = 0;
+				pg_checked = "";
+				ma_checked = "";
+				ao_checked = "";
+				if (requestParameters.ContainsKey ("display_pg")) {
+					//level += 1;
+					level += Util.ConvertEventMaturityToDBMaturity (DirectoryManager.EventFlags.PG);
+					pg_checked = "checked";
+				}
+				if (requestParameters.ContainsKey ("display_ma")) {
+					//level += 2;
+					level += Util.ConvertEventMaturityToDBMaturity (DirectoryManager.EventFlags.Mature);
+					ma_checked = "checked";
+				}
+				if (requestParameters.ContainsKey ("display_ao")) {
+					//level += 4;
+					level += Util.ConvertEventMaturityToDBMaturity (DirectoryManager.EventFlags.Adult);
+					ao_checked = "checked";
+				}
+				eventLevel = level;
 
-                if (requestParameters.ContainsKey ("display_ma")) {
-                    level += Util.ConvertEventMaturityToDBMaturity (DirectoryManager.EventFlags.Mature);
-                    ma_checked = "checked";
-                }
+				string cat = requestParameters ["category"].ToString ();
+				category = int.Parse (cat);
 
-                if (requestParameters.ContainsKey ("display_ao")) {
-                    level += Util.ConvertEventMaturityToDBMaturity (DirectoryManager.EventFlags.Adult);
-                    ao_checked = "checked";
-                }
+				string timsel = requestParameters ["timeframe"].ToString ();
+				timeframe = int.Parse (timsel);
+			}
 
-                eventLevel = level;
+			// maturity selections
+			vars.Add ("PG_checked", pg_checked);
+			vars.Add ("MA_checked", ma_checked);
+			vars.Add ("AO_checked", ao_checked);
 
-                string cat = requestParameters ["category"].ToString ();
-                category = int.Parse (cat);
+			// build category selection
+			vars.Add ("CategoryType", WebHelpers.EventCategorySelections (category, translator));
 
-                string timsel = requestParameters ["timeframe"].ToString ();
-                timeframe = int.Parse (timsel);
-            }
+			// build timeframes
+			vars.Add ("TimeFrame", WebHelpers.EventTimeframesSelections (timeframe, translator));
 
-            // maturity selections
-            vars.Add ("PG_checked", pg_checked);
-            vars.Add ("MA_checked", ma_checked);
-            vars.Add ("AO_checked", ao_checked);
+			// get some events
+			if (directoryService != null) {
 
-            // build category selection
-            vars.Add ("CategoryType", WebHelpers.EventCategorySelections (category, translator));
+				var events = new List<EventData> ();
+				events = directoryService.GetAllEvents (timeframe, category, eventLevel);
 
-            // build timeframes
-            vars.Add ("TimeFrame", WebHelpers.EventTimeframesSelections (timeframe, translator));
+				if (events.Count == 0) {
+					eventListVars.Add (new Dictionary<string, object> {
+						{ "EventID", "" },
+						{ "CreatorUUID", "" },
+						{ "EventDate", "" },
+						{ "EventDateUTC", "" },
+						{ "CoverCharge", "" },
+						{ "Duration", "" },
+						{ "Name", "" },
+						{ "Description", translator.GetTranslatedString ("NoDetailsText") },
+						{ "SimName", "" },
+						{ "GPosX", "" },
+						{ "GPosY", "" },
+						{ "GPosZ", "" },
+						{ "LocalPosX", "" },
+						{ "LocalPosY", "" },
+						{ "LocalPosZ", "" },
+						{ "Maturity", "" },
+						{ "EventFlags", "" },   // same as maturity??
+						{ "Category", "" }
+					});
+				} else {
+					foreach (var evnt in events) {
+						var evntDateTime = Util.ToDateTime (evnt.dateUTC).ToLocalTime ();
+						eventListVars.Add (new Dictionary<string, object> {
+							{ "EventID", evnt.eventID },
+							{ "CreatorUUID", evnt.creator },
+							{ "EventDate", evnt.date },
+							{ "EventDateUTC", Culture.LocaleShortDateTime (evntDateTime) },
+							{ "CoverCharge", currencySymbol + " " + evnt.amount },
+							{ "Duration", WebHelpers.EventDuration ((int)evnt.duration, translator) },
+							{ "Name", evnt.name },
+							{ "Description", evnt.description },
+							{ "SimName", evnt.simName },
+							{ "GPosX", evnt.globalPos.X.ToString () },
+							{ "GPosY", evnt.globalPos.Y.ToString () },
+							{ "GPosZ", evnt.globalPos.Z.ToString () },
+							{ "LocalPosX", evnt.regionPos.X.ToString () },
+							{ "LocalPosY", evnt.regionPos.Y.ToString () },
+							{ "LocalPosZ",evnt.regionPos.Z.ToString () },
+							{ "Maturity", WebHelpers.EventMaturity (evnt.maturity) },
+							{ "EventFlags", evnt.eventFlags },
+							{ "Category",  WebHelpers.EventCategory (int.Parse (evnt.category), translator) }
+						});
+					}
+				}
+				vars.Add ("EventList", eventListVars);
+			}
 
-            // get some events
-            if (directoryService != null) {
+			vars.Add ("Events", translator.GetTranslatedString ("Events"));
 
-                var events = new List<EventData> ();
-                events = directoryService.GetAllEvents (timeframe, category, eventLevel);
+			// labels
+			vars.Add ("EventsText", translator.GetTranslatedString ("EventsText"));
+			vars.Add ("AddEventText", translator.GetTranslatedString ("AddEventText"));
+			vars.Add ("EventDateText", translator.GetTranslatedString ("EventDateText"));
+			vars.Add ("CategoryText", translator.GetTranslatedString ("CategoryText"));
+			vars.Add ("LocationText", translator.GetTranslatedString ("LocationText"));
+			vars.Add ("DescriptionText", translator.GetTranslatedString ("DescriptionText"));
+			vars.Add ("MaturityText", translator.GetTranslatedString ("MaturityText"));
+			vars.Add ("CoverChargeText", translator.GetTranslatedString ("CoverChargeText"));
+			vars.Add ("DurationText", translator.GetTranslatedString ("DurationText"));
 
-                if (events.Count == 0) {
-                    eventListVars.Add (new Dictionary<string, object> {
-                        { "EventID", "" },
-                        { "CreatorUUID", "" },
-                        { "EventDate", "" },
-                        { "EventDateUTC", "" },
-                        { "CoverCharge", "" },
-                        { "Duration", "" },
-                        { "Name", "" },
-                        { "Description", translator.GetTranslatedString("NoDetailsText") },
-                        { "SimName", "" },
-                        { "GPosX", "" },
-                        { "GPosY", "" },
-                        { "GPosZ", "" },
-                        { "LocalPosX", "" },
-                        { "LocalPosY", "" },
-                        { "LocalPosZ", "" },
-                        { "Maturity", "" },
-                        { "EventFlags", "" },   // same as maturity??
-                        { "Category", "" }
-                });
-                } else {
-                    foreach (var evnt in events) {
-                        var evntDateTime = Util.ToDateTime (evnt.dateUTC).ToLocalTime ();
-                        eventListVars.Add (new Dictionary<string, object> {
-                            { "EventID", evnt.eventID },
-                            { "CreatorUUID", evnt.creator },
-                            { "EventDate", evnt.date },
-                            { "EventDateUTC", Culture.LocaleShortDateTime(evntDateTime)},
-                            { "CoverCharge", currencySymbol + " " + evnt.amount },
-                            { "Duration", WebHelpers.EventDuration((int)evnt.duration,translator) },
-                            { "Name", evnt.name },
-                            { "Description", evnt.description },
-                            { "SimName", evnt.simName },
-                            { "GPosX", evnt.globalPos.X.ToString () },
-                            { "GPosY", evnt.globalPos.Y.ToString () },
-                            { "GPosZ", evnt.globalPos.Z.ToString () },
-                            { "LocalPosX", evnt.regionPos.X.ToString () },
-                            { "LocalPosY", evnt.regionPos.Y.ToString () },
-                            { "LocalPosZ",evnt.regionPos.Z.ToString () },
-                            { "Maturity", WebHelpers.EventMaturity(evnt.maturity) },
-                            { "EventFlags", evnt.eventFlags },
-                            { "Category",  WebHelpers.EventCategory(int.Parse(evnt.category), translator) }
-                        });
-                    }
-                }
+			return vars;
+		}
 
-                vars.Add ("EventList", eventListVars);
-            }
-
-            vars.Add ("Events", translator.GetTranslatedString ("Events"));
-
-            // labels
-            vars.Add ("EventsText", translator.GetTranslatedString ("EventsText"));
-            vars.Add ("AddEventText", translator.GetTranslatedString ("AddEventText"));
-            vars.Add ("EventDateText", translator.GetTranslatedString ("EventDateText"));
-            vars.Add ("CategoryText", translator.GetTranslatedString ("CategoryText"));
-            vars.Add ("LocationText", translator.GetTranslatedString ("LocationText"));
-            vars.Add ("DescriptionText", translator.GetTranslatedString ("DescriptionText"));
-            vars.Add ("MaturityText", translator.GetTranslatedString ("MaturityText"));
-            vars.Add ("CoverChargeText", translator.GetTranslatedString ("CoverChargeText"));
-            vars.Add ("DurationText", translator.GetTranslatedString ("DurationText"));
-
-            return vars;
-        }
-
-        public bool AttemptFindPage (string filename, ref OSHttpResponse httpResponse, out string text)
-        {
-            text = "";
-            return false;
-        }
-    }
+		public bool AttemptFindPage (string filename, ref OSHttpResponse httpResponse, out string text)
+		{
+			text = "";
+			return false;
+		}
+	}
 }

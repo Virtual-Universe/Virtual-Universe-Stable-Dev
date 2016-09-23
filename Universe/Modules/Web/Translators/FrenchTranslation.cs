@@ -31,82 +31,81 @@ using System.Collections.Generic;
 
 namespace Universe.Modules.Web.Translators
 {
-    public class FrenchTranslation : ITranslator
-    {
-        public string LanguageName {
-            get { return "fr"; }
-        }
+	public class FrenchTranslation : ITranslator
+	{
+		public string LanguageName {
+			get { return "fr"; }
+		}
 
-        public string GetTranslatedString (string key)
-        {
-            if (dictionary.ContainsKey (key))
-                return dictionary [key];
-            return ":" + key + ":";
-        }
+		public string GetTranslatedString (string key)
+		{
+			if (dictionary.ContainsKey (key))
+				return dictionary [key];
+			return ":" + key + ":";
+		}
 
-        readonly Dictionary<string, string> dictionary = new Dictionary<string, string> {
-            // Generic
-            { "No", "Non"},
-            { "Yes", "Oui"},
-            { "Submit", "Envoyer"},
-            { "Accept", "Accepter"},
-            { "Save", "Sauver"},
-            { "Cancel", "Annuler"},
-            { "FirstText", "Premier"},
-            { "BackText", "Précédent"},
-            { "NextText", "Suivant"},
-            { "LastText", "Dernier"},
-            { "CurrentPageText", "Page actuelle"},
-            { "MoreInfoText", "Plus d'informations"},
-            { "NoDetailsText", "Pas de détails trouvés..."},
-            { "MoreInfo", "Plus d'informations"},
-            { "Name", "Name"},
-            { "ObjectNameText", "Objet"},
-            { "LocationText", "Emplacement"},
-            { "UUIDText", "UUID"},
-            { "DetailsText", "Description"},
-            { "NotesText", "Remarques"},
-            { "SaveUpdates", "Enregistrer les mises à jour"},
-            { "ActiveText", "Actif"},
-            { "CheckedText", "Vérifié"},
-            { "CategoryText", "Catégorie"},
-            { "SummaryText", "Résumé"},
-            { "MaturityText", "Maturité"},
-            { "DateText", "Date"},
-            { "TimeText", "Temps"},
-            { "MinuteText", "minute"},
-            { "MinutesText", "minutes"},
-            { "HourText", "heure"},
-            { "HoursText", "heures"},
-            { "EditText", "Modifier"},
-            { "EdittingText", "Rédaction"},
+		readonly Dictionary<string, string> dictionary = new Dictionary<string, string> {
+			// Generic
+			{ "No", "Non" },
+			{ "Yes", "Oui" },
+			{ "Submit", "Envoyer" },
+			{ "Accept", "Accepter" },
+			{ "Save", "Sauver" },
+			{ "Cancel", "Annuler" },
+			{ "FirstText", "Premier" },
+			{ "BackText", "Précédent" },
+			{ "NextText", "Suivant" },
+			{ "LastText", "Dernier" },
+			{ "CurrentPageText", "Page actuelle" },
+			{ "MoreInfoText", "Plus d'informations" },
+			{ "NoDetailsText", "Pas de détails trouvés..." },
+			{ "MoreInfo", "Plus d'informations" },
+			{ "Name", "Name" },
+			{ "ObjectNameText", "Objet" },
+			{ "LocationText", "Emplacement" },
+			{ "UUIDText", "UUID" },
+			{ "DetailsText", "Description" },
+			{ "NotesText", "Remarques" },
+			{ "SaveUpdates", "Enregistrer les mises à jour" },
+			{ "ActiveText", "Actif" },
+			{ "CheckedText", "Vérifié" },
+			{ "CategoryText", "Catégorie" },
+			{ "SummaryText", "Résumé" },
+			{ "MaturityText", "Maturité" },
+			{ "DateText", "Date" },
+			{ "TimeText", "Temps" },
+			{ "MinuteText", "minute" },
+			{ "MinutesText", "minutes" },
+			{ "HourText", "heure" },
+			{ "HoursText", "heures" },
+			{ "EditText", "Modifier" },
+			{ "EdittingText", "Rédaction" },
 
-            // Status information
-            { "GridStatus", "Etat de la Grille"},
-            { "Online", "En Ligne"},
-            { "Offline", "Hors Ligne"},
-            { "TotalUserCount", "Nombre total d'utilisateurs"},
-            { "TotalRegionCount", "Nombre total de régions"},
-            { "UniqueVisitors", "Visiteurs unique {30 jours)"},
-            { "OnlineNow", "En ligne maintenant"},
-            { "InterWorld", "Inter World (IWC)"},
-            { "HyperGrid", "HyperGrid {HG)"},
-            { "Voice", "Voix"},
-            { "Currency", "Monnaie"},
-            { "Disabled", "Désactivé"},
-            { "Enabled", "Activé"},
-            { "News", "Nouveautés"},
-            { "Region", "Région"},
+			// Status information
+			{ "GridStatus", "Etat de la Grille" },
+			{ "Online", "En Ligne" },
+			{ "Offline", "Hors Ligne" },
+			{ "TotalUserCount", "Nombre total d'utilisateurs" },
+			{ "TotalRegionCount", "Nombre total de régions" },
+			{ "UniqueVisitors", "Visiteurs unique {30 jours)" },
+			{ "OnlineNow", "En ligne maintenant" },
+			{ "InterWorld", "Inter World (IWC)" },
+			{ "HyperGrid", "HyperGrid {HG)" },
+			{ "Voice", "Voix" },
+			{ "Currency", "Monnaie" },
+			{ "Disabled", "Désactivé" },
+			{ "Enabled", "Activé" },
+			{ "News", "Nouveautés" },
+			{ "Region", "Région" },
 
-            // User login
-            { "Login", "Connection"},
-            { "UserName", "Nom d'utilisateur"},
-            { "UserNameText", "Nom d'utilisateur"},
-            { "Password", "Mot de passe"},
-            { "PasswordText", "Mot de passe"},
-            { "PasswordConfirmation", "Confirmer Mot de passe"},
-            { "ForgotPassword", "Mot de passe oublié?"},
-            { "TypeUserNameToConfirm", "S'il vous plaît entrez le nom d'utilisateur de ce compte pour confirmer que vous voulez supprimer ce compte"},
+			// User login
+			{ "Login", "Connection" },
+			{ "UserName", "Nom d'utilisateur" },
+			{ "UserNameText", "Nom d'utilisateur" },
+			{ "Password", "Mot de passe" },
+			{ "PasswordText", "Mot de passe" },
+			{ "PasswordConfirmation", "Confirmer Mot de passe" },
+			{ "ForgotPassword", "Mot de passe oublié?" }, { "TypeUserNameToConfirm", "S'il vous plaît entrez le nom d'utilisateur de ce compte pour confirmer que vous voulez supprimer ce compte"},
 
             // Special windows
             { "SpecialWindowTitleText", "Titre spécial de la fenêtre Info"},
@@ -249,9 +248,9 @@ namespace Universe.Modules.Web.Translators
             { "MenuWelcomeScreenManager", "Gestion Ecran Bienvenue"},
             { "MenuNewsManager", "Gestion des News"},
             { "MenuUserManager", "Gestion Utilisateurs"},
-            { "MenuFactoryReset", "Réinitialiser"},
-            { "ResetMenuInfoText", "Réinitialise les éléments de menu aux valeurs par défaut les plus à jour"},
-            { "ResetSettingsInfoText", "Réinitialise les réglages de l'interface Web aux valeurs par défaut les plus à jour"},
+            { "MenuFactoryReset", "Réinitializer"},
+            { "ResetMenuInfoText", "Réinitialize les éléments de menu aux valeurs par défaut les plus à jour"},
+            { "ResetSettingsInfoText", "Réinitialize les réglages de l'interface Web aux valeurs par défaut les plus à jour"},
             { "MenuPageManager", "Gestion des Pages"},
             { "MenuSettingsManager", "Gestion des paramètres"},
             { "MenuManager", "Gestion"},
@@ -290,7 +289,7 @@ namespace Universe.Modules.Web.Translators
             { "TooltipsMenuWelcomeScreenManager", "Gestionnaire de l'Ecran de Bienvenue"},
             { "TooltipsMenuNewsManager", "Gestionnaire des News"},
             { "TooltipsMenuUserManager", "Gestionnaire des Utilisateurs"},
-            { "TooltipsMenuFactoryReset", "Réinitialiser"},
+            { "TooltipsMenuFactoryReset", "Réinitializer"},
             { "TooltipsMenuPageManager", "Gestionnaire de Pages"},
             { "TooltipsMenuSettingsManager", "Gestionnaire de paramètres"},
             { "TooltipsMenuManager", "Gestion Administrative"},
@@ -515,15 +514,15 @@ namespace Universe.Modules.Web.Translators
             { "AssignedToText", "Assigné à"},
 
             // Factory_reset
-            { "FactoryReset", "Réinitialiser"},
-            { "ResetMenuText", "Réinitialiser les paramètres par défaut du menu"},
+            { "FactoryReset", "Réinitializer"},
+            { "ResetMenuText", "Réinitializer les paramètres par défaut du menu"},
             { "ResetSettingsText", "Rétablir les paramètres Web {page Gestionnaire de paramètres) par défaut"},
-            { "Reset", "Réinitialiser"},
+            { "Reset", "Réinitializer"},
             { "Settings", "Paramètres"},
             { "Pages", "Pages"},
             { "UpdateRequired", "mise à jour requise"},
             { "DefaultsUpdated",
-                    "Mise à jour par défaut, rendez-vous sur \"Réinitialiseré\" ou \"Gestionnaire de paramètres\" pour désactiver cet avertissement."},
+                    "Mise à jour par défaut, rendez-vous sur \"Réinitializeré\" ou \"Gestionnaire de paramètres\" pour désactiver cet avertissement."},
 
             // Page_manager
             { "PageManager", "Gestionnaire de Pages"},

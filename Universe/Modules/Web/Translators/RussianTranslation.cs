@@ -31,82 +31,82 @@ using System.Collections.Generic;
 
 namespace Universe.Modules.Web.Translators
 {
-    public class RussianTranslation : ITranslator
-    {
-        public string LanguageName {
-            get { return "ru"; }
-        }
+	public class RussianTranslation : ITranslator
+	{
+		public string LanguageName {
+			get { return "ru"; }
+		}
 
-        public string GetTranslatedString (string key)
-        {
-            if (dictionary.ContainsKey (key))
-                return dictionary [key];
-            return ":" + key + ":";
-        }
 
-        readonly Dictionary<string, string> dictionary = new Dictionary<string, string> {
-            // general
-            { "No", "Нет"},
-            { "Yes", "Да"},
-            { "Submit", "Отправить"},
-            { "Accept", "Принять"},
-            { "Save", "Сохранить"},
-            { "Cancel", "Отмена"},
-            { "FirstText", "В начало"},
-            { "BackText", "Назад"},
-            { "NextText", "Дольше"},
-            { "LastText", "В конец"},
-            { "CurrentPageText", "Текущая страница"},
-            { "MoreInfoText", "Больше информации"},
-            { "NoDetailsText", "Никаких подробностей не найдено..."},
-            { "MoreInfo", "Больше информации"},
-            { "Name", "Имя"},
-            { "ObjectNameText", "Oбъект"},
-            { "LocationText", "Регион"},
-            { "UUIDText", "UUID"},
-            { "DetailsText", "Описание"},
-            { "NotesText", "Заметки"},
-            { "SaveUpdates", "Сохранить"},
-            { "ActiveText", "Aктивный"},
-            { "CheckedText", "Рассмотренные"},
-            { "CategoryText", "Категория"},
-            { "SummaryText", "Резюме"},
-            { "MaturityText", "Рейтинг Зрелости"},
-            { "DateText", "Дата"},
-            { "TimeText", "Время"},
-            { "MinuteText", "минута"},
-            { "MinutesText", "минут"},
-            { "HourText", "час"},
-            { "HoursText", "часов"},
-            { "EditText", "редактировать"},
-            { "EdittingText", "Редактируется"},
+		public string GetTranslatedString (string key)
+		{
+			if (dictionary.ContainsKey (key))
+				return dictionary [key];
+			return ":" + key + ":";
+		}
 
-            // Status information
-            { "GridStatus", "Статус Сети"},
-            { "Online", "Онлайн"},
-            { "Offline", "Офлайн"},
-            { "TotalUserCount", "Всего Пользователей"},
-            { "TotalRegionCount", "Всего Регионов"},
-            { "UniqueVisitors", "За последние 30 дней"},
-            { "OnlineNow", "В игре"},
-            { "InterWorld", "Inter World (IWC)"},
-            { "HyperGrid", "HyperGrid (HG)"},
-            { "Voice", "Голосовоая связь"},
-            { "Currency", "Валюта"},
-            { "Disabled", "Откл."},
-            { "Enabled", "Вкл."},
-            { "News", "Новости"},
-            { "Region", "Регион"},
+		readonly Dictionary<string, string> dictionary = new Dictionary<string, string> {
+			// general
+			{ "No", "Нет" },
+			{ "Yes", "Да" },
+			{ "Submit", "Отправить" },
+			{ "Accept", "Принять" },
+			{ "Save", "Сохранить" },
+			{ "Cancel", "Отмена" },
+			{ "FirstText", "В начало" },
+			{ "BackText", "Назад" },
+			{ "NextText", "Дольше" },
+			{ "LastText", "В конец" },
+			{ "CurrentPageText", "Текущая страница" },
+			{ "MoreInfoText", "Больше информации" },
+			{ "NoDetailsText", "Никаких подробностей не найдено..." },
+			{ "MoreInfo", "Больше информации" },
+			{ "Name", "Имя" },
+			{ "ObjectNameText", "Oбъект" },
+			{ "LocationText", "Регион" },
+			{ "UUIDText", "UUID" },
+			{ "DetailsText", "Описание" },
+			{ "NotesText", "Заметки" },
+			{ "SaveUpdates", "Сохранить" },
+			{ "ActiveText", "Aктивный" },
+			{ "CheckedText", "Рассмотренные" },
+			{ "CategoryText", "Категория" },
+			{ "SummaryText", "Резюме" },
+			{ "MaturityText", "Рейтинг Зрелости" },
+			{ "DateText", "Дата" },
+			{ "TimeText", "Время" },
+			{ "MinuteText", "минута" },
+			{ "MinutesText", "минут" },
+			{ "HourText", "час" },
+			{ "HoursText", "часов" },
+			{ "EditText", "редактировать" },
+			{ "EdittingText", "Редактируется" },
 
-            // User login
-            { "Login", "Вход"},
-            { "UserName", "Имя пользователя"},
-            { "UserNameText", "Имя пользователя"},
-            { "Password", "Пароль"},
-            { "PasswordText", "Пароль"},
-            { "PasswordConfirmation", "Подтверждение пароля"},
-            { "ForgotPassword", "Забыли пароль?"},
-            { "TypeUserNameToConfirm", "Пожалуйста, введите имя пользователя учетной записи, чтобы подтвердить её удаление."},
+			// Status information
+			{ "GridStatus", "Статус Сети" },
+			{ "Online", "Онлайн" },
+			{ "Offline", "Офлайн" },
+			{ "TotalUserCount", "Всего Пользователей" },
+			{ "TotalRegionCount", "Всего Регионов" },
+			{ "UniqueVisitors", "За последние 30 дней" },
+			{ "OnlineNow", "В игре" },
+			{ "InterWorld", "Inter World (IWC)" },
+			{ "HyperGrid", "HyperGrid (HG)" },
+			{ "Voice", "Голосовоая связь" },
+			{ "Currency", "Валюта" },
+			{ "Disabled", "Откл." },
+			{ "Enabled", "Вкл." },
+			{ "News", "Новости" },
+			{ "Region", "Регион" },
+
+			// User login
+			{ "Login", "Вход" },
+			{ "UserName", "Имя пользователя" },
+			{ "UserNameText", "Имя пользователя" },
+			{ "Password", "Пароль" },
+			{ "PasswordText", "Пароль" },
+			{ "PasswordConfirmation", "Подтверждение пароля" },
+			{ "ForgotPassword", "Забыли пароль?" }, { "TypeUserNameToConfirm", "Пожалуйста, введите имя пользователя учетной записи, чтобы подтвердить её удаление."},
 
             // Special windows
             { "SpecialWindowTitleText", "Заголовок Окна Особой Информации"},

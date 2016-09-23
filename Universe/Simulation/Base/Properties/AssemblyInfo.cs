@@ -35,38 +35,38 @@ using System.Runtime.InteropServices;
 ///     the following set of attributes.  We change these attribute values to modify
 ///     the information associated with an assembly
 /// </summary>
-[assembly: AssemblyTitle("Universe.Simulation.Base")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Virtual Universe Development Team")]
-[assembly: AssemblyProduct("Universe.Simulation.Base")]
-[assembly: AssemblyCopyright("Copyright © 2016-2025")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
+[assembly: AssemblyTitle ("Universe.Simulation.Base")]
+[assembly: AssemblyDescription ("")]
+[assembly: AssemblyConfiguration ("")]
+[assembly: AssemblyCompany ("Virtual Universe Development Team")]
+[assembly: AssemblyProduct ("Universe.Simulation.Base")]
+[assembly: AssemblyCopyright ("Copyright © 2016-2025")]
+[assembly: AssemblyTrademark ("")]
+[assembly: AssemblyCulture ("")]
 
 /// <summary>
 ///     By setting the ComVisable to false, we are making the types in this assembly
 ///     not visible to COM components.  if we need to access a type in this assembly
 ///     from the COM, then we set the ComVisible attribute to true on that type
 /// </summary>
-[assembly: ComVisible(false)]
+[assembly: ComVisible (false)]
 
 /// <summary>
 ///     The following GUID is for the ID of the typelib if this project is exposed to COM
 /// </summary>
-[assembly: Guid("269c99ff-0740-4886-8593-7527903090bf")]
+[assembly: Guid ("269c99ff-0740-4886-8593-7527903090bf")]
 
 /// <summary>
 ///     Version Information:
 ///         The version information for an assembly consists of the following four values:
-///         
+///
 ///             Major Version Number
 ///             Minor Version Number
 ///             Build Version Number
 ///             Revision Version Number
-///         
+///
 ///         We can specify all of the values, or we can default the build and revision version
 ///         numbers by using the '*' as shown below:
 ///             [assembly: AssemblyVersion("1.0.*")]
 /// </summary>
-[assembly: AssemblyVersion("1.0.3.*")]
+[assembly: AssemblyVersion ("1.0.3.*")]

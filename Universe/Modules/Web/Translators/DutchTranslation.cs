@@ -31,82 +31,81 @@ using System.Collections.Generic;
 
 namespace Universe.Modules.Web.Translators
 {
-    public class DutchTranslation : ITranslator
-    {
-        public string LanguageName {
-            get { return "nl"; }
-        }
+	public class DutchTranslation : ITranslator
+	{
+		public string LanguageName {
+			get { return "nl"; }
+		}
 
-        public string GetTranslatedString (string key)
-        {
-            if (dictionary.ContainsKey (key))
-                return dictionary [key];
-            return ":" + key + ":";
-        }
+		public string GetTranslatedString (string key)
+		{
+			if (dictionary.ContainsKey (key))
+				return dictionary [key];
+			return ":" + key + ":";
+		}
 
-        readonly Dictionary<string, string> dictionary = new Dictionary<string, string> {
-            // Generic
-            { "No", "No"},
-            { "Yes", "Yes"},
-            { "Submit", "Verzenden"},
-            { "Accept", "Accepteren"},
-            { "Save", "Save"},
-            { "Cancel", "Annuleer"},
-            { "FirstText", "Eerste"},
-            { "BackText", "Terug"},
-            { "NextText", "Volgende"},
-            { "LastText", "Laatste"},
-            { "CurrentPageText", "Current Page"},
-            { "MoreInfoText", "Meer Info"},
-            { "NoDetailsText", "Geen gegevens gevonden..."},
-            { "MoreInfo", "More Informatie"},
-            { "Name", "Naam"},
-            { "ObjectNameText", "Voorwerp"},
-            { "LocationText", "Plaats"},
-            { "UUIDText", "UUID"},
-            { "DetailsText", "Beschrijving"},
-            { "NotesText", "Aantekeningen"},
-            { "SaveUpdates", "Sia updates"},
-            { "ActiveText", "Actief"},
-            { "CheckedText", "Gecontroleerd"},
-            { "CategoryText", "Categorie"},
-            { "SummaryText", "Overzicht"},
-            { "MaturityText", "Rijpheid"},
-            { "DateText", "Datum"},
-            { "TimeText", "Tijd"},
-            { "MinuteText", "minuut"},
-            { "MinutesText", "notulen"},
-            { "HourText", "urr"},
-            { "HoursText", "urr"},
-            { "EditText", "Bewerk"},
-            { "EdittingText", "Editing"},
+		readonly Dictionary<string, string> dictionary = new Dictionary<string, string> {
+			// Generic
+			{ "No", "No" },
+			{ "Yes", "Yes" },
+			{ "Submit", "Verzenden" },
+			{ "Accept", "Accepteren" },
+			{ "Save", "Save" },
+			{ "Cancel", "Annuleer" },
+			{ "FirstText", "Eerste" },
+			{ "BackText", "Terug" },
+			{ "NextText", "Volgende" },
+			{ "LastText", "Laatste" },
+			{ "CurrentPageText", "Current Page" },
+			{ "MoreInfoText", "Meer Info" },
+			{ "NoDetailsText", "Geen gegevens gevonden..." },
+			{ "MoreInfo", "More Informatie" },
+			{ "Name", "Naam" },
+			{ "ObjectNameText", "Voorwerp" },
+			{ "LocationText", "Plaats" },
+			{ "UUIDText", "UUID" },
+			{ "DetailsText", "Beschrijving" },
+			{ "NotesText", "Aantekeningen" },
+			{ "SaveUpdates", "Sia updates" },
+			{ "ActiveText", "Actief" },
+			{ "CheckedText", "Gecontroleerd" },
+			{ "CategoryText", "Categorie" },
+			{ "SummaryText", "Overzicht" },
+			{ "MaturityText", "Rijpheid" },
+			{ "DateText", "Datum" },
+			{ "TimeText", "Tijd" },
+			{ "MinuteText", "minuut" },
+			{ "MinutesText", "notulen" },
+			{ "HourText", "urr" },
+			{ "HoursText", "urr" },
+			{ "EditText", "Bewerk" },
+			{ "EdittingText", "Editing" },
 
-            // Status information
-            { "GridStatus", "Grid Status"},
-            { "Online", "Online"},
-            { "Offline", "Offline"},
-            { "TotalUserCount", "Totale Gebruikers"},
-            { "TotalRegionCount", "Totale Regios"},
-            { "UniqueVisitors", "Unieke Bezeoeker per 30 dagen"},
-            { "OnlineNow", "Nu online"},
-            { "InterWorld", "Inter World (IWC)"},
-            { "HyperGrid", "HyperGrid (HG)"},
-            { "Voice", "Voice"},
-            { "Currency", "Currency"},
-            { "Disabled", "Uitgeschakeld"},
-            { "Enabled", "Ingeschakeld"},
-            { "News", "Nieuws"},
-            { "Region", "Regio"},
+			// Status information
+			{ "GridStatus", "Grid Status" },
+			{ "Online", "Online" },
+			{ "Offline", "Offline" },
+			{ "TotalUserCount", "Totale Gebruikers" },
+			{ "TotalRegionCount", "Totale Regios" },
+			{ "UniqueVisitors", "Unieke Bezeoeker per 30 dagen" },
+			{ "OnlineNow", "Nu online" },
+			{ "InterWorld", "Inter World (IWC)" },
+			{ "HyperGrid", "HyperGrid (HG)" },
+			{ "Voice", "Voice" },
+			{ "Currency", "Currency" },
+			{ "Disabled", "Uitgeschakeld" },
+			{ "Enabled", "Ingeschakeld" },
+			{ "News", "Nieuws" },
+			{ "Region", "Regio" },
 
-            // User login
-            { "Login", "Login"},
-            { "UserName", "Gebruikersnaam"},
-            { "UserNameText", "Gebruikersnaam"},
-            { "Password", "Wachtwoord"},
-            { "PasswordText", "Wachtwoord"},
-            { "PasswordConfirmation", "Wachtwoord Bevestiging"},
-            { "ForgotPassword", "Wachtwoord vergeten?"},
-            { "TypeUserNameToConfirm", "Geef de gebruikersnaam van dit account in om te bevestigen dat je dit account wilt verwijderen"},
+			// User login
+			{ "Login", "Login" },
+			{ "UserName", "Gebruikersnaam" },
+			{ "UserNameText", "Gebruikersnaam" },
+			{ "Password", "Wachtwoord" },
+			{ "PasswordText", "Wachtwoord" },
+			{ "PasswordConfirmation", "Wachtwoord Bevestiging" },
+			{ "ForgotPassword", "Wachtwoord vergeten?" }, { "TypeUserNameToConfirm", "Geef de gebruikersnaam van dit account in om te bevestigen dat je dit account wilt verwijderen"},
 
             // Special window
             { "SpecialWindowTitleText", "Special Info Window Titel"},

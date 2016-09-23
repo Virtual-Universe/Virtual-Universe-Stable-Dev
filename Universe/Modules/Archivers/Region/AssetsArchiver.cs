@@ -33,74 +33,118 @@ using Universe.Framework.Services.ClassHelpers.Assets;
 
 namespace Universe.Modules.Archivers
 {
-    /// <summary>
-    ///     Archives assets
-    /// </summary>
-    public class AssetsArchiver
-    {
-        /// <value>
-        ///     Post a message to the log every x assets as a progress bar
-        /// </value>
-        protected static int LOG_ASSET_LOAD_NOTIFICATION_INTERVAL = 50;
+	/// <summary>
+	///     Archives assets
+	/// </summary>
+	public class AssetsArchiver
+	{
+		/// <value>
+		///     Post a message to the log every x assets as a progress bar
+		/// </value>
+		protected static int LOG_ASSET_LOAD_NOTIFICATION_INTERVAL = 50;
 
-        protected TarArchiveWriter m_archiveWriter;
+		protected TarArchiveWriter m_archiveWriter;
 
-        /// <value>
-        ///     Keep a count of the number of assets written so that we can provide status updates
-        /// </value>
-        protected int m_assetsWritten;
+		/// <value>
+		///     Keep a count of the number of assets written so that we can provide status updates
+		/// </value>
+		protected int m_assetsWritten;
 
-        public AssetsArchiver(TarArchiveWriter archiveWriter)
+		public AssetsArchiver (TarArchiveWriter archiveWriter)
+		{
+			m_archiveWriter = archiveWriter;
+		}
+
+		/// <summary>
+		///     Archive the assets given to this archiver to the given archive.
+		/// </summary>
+		/// <param name="asset"></param>
+		public void WriteAsset (AssetBase asset)
+		{
+			//WriteMetadata(archive);
+			WriteData (asset);
+		}
+
+		/*
+        protected void WriteMetadata(TarArchiveWriter archive)
         {
-            m_archiveWriter = archiveWriter;
-        }
+            StringWriter sw = new StringWriter();
+            XmlTextWriter xtw = new XmlTextWriter(sw);
 
-        /// <summary>
-        ///     Archive the assets given to this archiver to the given archive.
-        /// </summary>
-        /// <param name="asset"></param>
-        public void WriteAsset(AssetBase asset)
-        {
-            WriteData(asset);
-        }
+            xtw.Formatting = Formatting.Indented;
+            xtw.WriteStartDocument();
 
-        /// <summary>
-        ///     Write asset data files to the given archive
-        /// </summary>
-        /// <param name="asset"></param>
-        protected void WriteData(AssetBase asset)
-        {
-            // It appears that gtar, at least, doesn't need the intermediate directory entries in the tar
-            string extension = string.Empty;
+            xtw.WriteStartElement("assets");
 
-            if (ArchiveConstants.ASSET_TYPE_TO_EXTENSION.ContainsKey((sbyte) asset.TypeAsset))
+            foreach (UUID uuid in m_assets.Keys)
             {
-                extension = ArchiveConstants.ASSET_TYPE_TO_EXTENSION[(sbyte) asset.TypeAsset];
+                AssetBase asset = m_assets[uuid];
+
+                if (asset != null)
+                {
+                    xtw.WriteStartElement("asset");
+
+                    string extension = string.Empty;
+
+                    if (ArchiveConstants.ASSET_TYPE_TO_EXTENSION.ContainsKey(asset.Type))
+                    {
+                        extension = ArchiveConstants.ASSET_TYPE_TO_EXTENSION[asset.Type];
+                    }
+
+                    xtw.WriteElementString("filename", uuid.ToString() + extension);
+
+                    xtw.WriteElementString("name", asset.Name);
+                    xtw.WriteElementString("description", asset.Description);
+                    xtw.WriteElementString("asset-type", asset.Type.ToString());
+
+                    xtw.WriteEndElement();
+                }
             }
-            else
-            {
-                MainConsole.Instance.ErrorFormat(
-                    "[Archiver]: Unrecognized asset type {0} with uuid {1}.  This asset will be saved but not reloaded", asset.Type, asset.ID);
-            }
 
-            m_archiveWriter.WriteFile(
-                ArchiveConstants.ASSETS_PATH + asset.ID.ToString() + extension,
-                asset.Data);
+            xtw.WriteEndElement();
 
-            m_assetsWritten++;
+            xtw.WriteEndDocument();
 
-            //MainConsole.Instance.DebugFormat("[Archiver]: Added asset {0}", m_assetsWritten);
+            archive.WriteFile("assets.xml", sw.ToString());
+        } */
 
-            if (m_assetsWritten%LOG_ASSET_LOAD_NOTIFICATION_INTERVAL == 0)
-                MainConsole.Instance.InfoFormat("[Archiver]: Added {0} assets to archive", m_assetsWritten);
-        }
+		/// <summary>
+		///     Write asset data files to the given archive
+		/// </summary>
+		/// <param name="asset"></param>
+		protected void WriteData (AssetBase asset)
+		{
+			// It appears that gtar, at least, doesn't need the intermediate directory entries in the tar
+			//archive.AddDir("assets");
 
-        /// <summary>
-        ///     Only call this if you need to force a close on the underlying writer.
-        /// </summary>
-        public void ForceClose()
-        {
-            m_archiveWriter.Close();
-        }
-    }
+			string extension = string.Empty;
+
+			if (ArchiveConstants.ASSET_TYPE_TO_EXTENSION.ContainsKey ((sbyte)asset.TypeAsset)) {
+				extension = ArchiveConstants.ASSET_TYPE_TO_EXTENSION [(sbyte)asset.TypeAsset];
+			} else {
+				MainConsole.Instance.ErrorFormat (
+					"[Archiver]: Unrecognized asset type {0} with uuid {1}.  This asset will be saved but not reloaded",
+					asset.Type, asset.ID);
+			}
+
+			m_archiveWriter.WriteFile (
+				ArchiveConstants.ASSETS_PATH + asset.ID.ToString () + extension,
+				asset.Data);
+
+			m_assetsWritten++;
+
+			//MainConsole.Instance.DebugFormat("[Archiver]: Added asset {0}", m_assetsWritten);
+
+			if (m_assetsWritten % LOG_ASSET_LOAD_NOTIFICATION_INTERVAL == 0)
+				MainConsole.Instance.InfoFormat ("[Archiver]: Added {0} assets to archive", m_assetsWritten);
+		}
+
+		/// <summary>
+		///     Only call this if you need to force a close on the underlying writer.
+		/// </summary>
+		public void ForceClose ()
+		{
+			m_archiveWriter.Close ();
+		}
+	}
 }

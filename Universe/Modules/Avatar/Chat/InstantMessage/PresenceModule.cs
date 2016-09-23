@@ -39,87 +39,87 @@ using Universe.Framework.Services;
 
 namespace Universe.Modules.Chat
 {
-    public class PresenceModule : INonSharedRegionModule
-    {
-        protected IScene m_Scene;
+	public class PresenceModule : INonSharedRegionModule
+	{
+		protected IScene m_Scene;
 
-        #region INonSharedRegionModule Members
+		#region INonSharedRegionModule Members
 
-        public void Initialize (IConfigSource config)
-        {
-        }
+		public void Initialize (IConfigSource config)
+		{
+		}
 
-        public void AddRegion (IScene scene)
-        {
-            m_Scene = scene;
-            scene.EventManager.OnNewClient += OnNewClient;
-            scene.EventManager.OnClosingClient += OnClosingClient;
-        }
+		public void AddRegion (IScene scene)
+		{
+			m_Scene = scene;
 
-        public void RegionLoaded (IScene scene)
-        {
-        }
+			scene.EventManager.OnNewClient += OnNewClient;
+			scene.EventManager.OnClosingClient += OnClosingClient;
+		}
 
-        public void RemoveRegion (IScene scene)
-        {
-            m_Scene = scene;
-            scene.EventManager.OnNewClient -= OnNewClient;
-            scene.EventManager.OnClosingClient -= OnClosingClient;
-        }
+		public void RegionLoaded (IScene scene)
+		{
+		}
 
-        public void Close ()
-        {
-        }
+		public void RemoveRegion (IScene scene)
+		{
+			m_Scene = scene;
 
-        public string Name
-        {
-            get { return "PresenceModule"; }
-        }
+			scene.EventManager.OnNewClient -= OnNewClient;
+			scene.EventManager.OnClosingClient -= OnClosingClient;
+		}
 
-        public Type ReplaceableInterface
-        {
-            get { return null; }
-        }
+		public void Close ()
+		{
+		}
 
-        #endregion
+		public string Name {
+			get { return "PresenceModule"; }
+		}
 
-        public void OnNewClient (IClientAPI client)
-        {
-            client.AddGenericPacketHandler ("requestonlinenotification", OnRequestOnlineNotification);
-        }
+		public Type ReplaceableInterface {
+			get { return null; }
+		}
 
-        void OnClosingClient (IClientAPI client)
-        {
-            client.RemoveGenericPacketHandler ("requestonlinenotification");
-        }
+		#endregion
 
-        public void OnRequestOnlineNotification (object sender, string method, List<string> args)
-        {
-            if (!(sender is IClientAPI))
-                return;
+		public void OnNewClient (IClientAPI client)
+		{
+			client.AddGenericPacketHandler ("requestonlinenotification", OnRequestOnlineNotification);
+		}
 
-            IClientAPI client = (IClientAPI)sender;
-            MainConsole.Instance.DebugFormat ("[Presence Module]: Online Notification requested by {0}", client.Name);
+		void OnClosingClient (IClientAPI client)
+		{
+			client.RemoveGenericPacketHandler ("requestonlinenotification");
+		}
 
-            List<UserInfo> status = m_Scene.RequestModuleInterface<IAgentInfoService> ().GetUserInfos (args);
-            if (status == null)
-                return;
+		public void OnRequestOnlineNotification (object sender, string method, List<string> args)
+		{
+			if (!(sender is IClientAPI))
+				return;
 
-            List<UUID> online = new List<UUID> ();
-            List<UUID> offline = new List<UUID> ();
+			IClientAPI client = (IClientAPI)sender;
+			MainConsole.Instance.DebugFormat ("[PRESENCE MODULE]: OnlineNotification requested by {0}", client.Name);
 
-            foreach (UserInfo pi in status) {
-                UUID uuid = new UUID (pi.UserID);
-                if (pi.IsOnline && !online.Contains (uuid))
-                    online.Add (uuid);
-                if (!pi.IsOnline && !offline.Contains (uuid))
-                    offline.Add (uuid);
-            }
+			List<UserInfo> status = m_Scene.RequestModuleInterface<IAgentInfoService> ().GetUserInfos (args);
+			if (status == null)
+				return;
 
-            if (online.Count > 0)
-                client.SendAgentOnline (online.ToArray ());
-            if (offline.Count > 0)
-                client.SendAgentOffline (offline.ToArray ());
-        }
-    }
+			List<UUID> online = new List<UUID> ();
+			List<UUID> offline = new List<UUID> ();
+
+			foreach (UserInfo pi in status) {
+				UUID uuid = new UUID (pi.UserID);
+				if (pi.IsOnline && !online.Contains (uuid))
+					online.Add (uuid);
+				if (!pi.IsOnline && !offline.Contains (uuid))
+					offline.Add (uuid);
+			}
+
+			if (online.Count > 0)
+				client.SendAgentOnline (online.ToArray ());
+			if (offline.Count > 0)
+				client.SendAgentOffline (offline.ToArray ());
+		}
+	}
 }

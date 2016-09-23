@@ -38,105 +38,103 @@ using ProtoBuf;
 
 namespace Universe.Framework.SceneInfo
 {
-    /// <summary>
-    ///     A dictionary for task inventory.
-    /// </summary>
-    /// This class is not thread safe.  Callers must synchronize on Dictionary methods or Clone() this object before
-    /// iterating over it.
-    [Serializable, ProtoContract()]
-    public class TaskInventoryDictionary : Dictionary<UUID, TaskInventoryItem>, ICloneable, IXmlSerializable
-    {
-        private static readonly XmlSerializer tiiSerializer = new XmlSerializer(typeof (TaskInventoryItem));
+	/// <summary>
+	///     A dictionary for task inventory.
+	/// </summary>
+	/// This class is not thread safe.  Callers must synchronize on Dictionary methods or Clone() this object before
+	/// iterating over it.
+	[Serializable, ProtoContract ()]
+	public class TaskInventoryDictionary : Dictionary<UUID, TaskInventoryItem>,
+                                           ICloneable, IXmlSerializable
+	{
+		private static readonly XmlSerializer tiiSerializer = new XmlSerializer (typeof(TaskInventoryItem));
 
-        #region ICloneable Members
+		#region ICloneable Members
 
-        public Object Clone()
-        {
-            TaskInventoryDictionary clone = new TaskInventoryDictionary();
+		public Object Clone ()
+		{
+			TaskInventoryDictionary clone = new TaskInventoryDictionary ();
 
-            lock (this)
-            {
-                foreach (UUID uuid in Keys)
-                {
-                    clone.Add(uuid, (TaskInventoryItem) this[uuid].Clone());
-                }
-            }
+			lock (this) {
+				foreach (UUID uuid in Keys) {
+					clone.Add (uuid, (TaskInventoryItem)this [uuid].Clone ());
+				}
+			}
 
-            return clone;
-        }
+			return clone;
+		}
 
-        #endregion
+		#endregion
 
-        #region IXmlSerializable Members
+		#region IXmlSerializable Members
 
-        public XmlSchema GetSchema()
-        {
-            return null;
-        }
+		public XmlSchema GetSchema ()
+		{
+			return null;
+		}
 
-        // see IXmlSerializable
-        public void ReadXml(XmlReader reader)
-        {
-            // MainConsole.Instance.DebugFormat("[Task Inventory]: ReadXml current node before actions, {0}", reader.Name);
+		// see IXmlSerializable
+		public void ReadXml (XmlReader reader)
+		{
+			// MainConsole.Instance.DebugFormat("[TASK INVENTORY]: ReadXml current node before actions, {0}", reader.Name);
 
-            if (!reader.IsEmptyElement)
-            {
-                reader.Read();
-                while (tiiSerializer.CanDeserialize(reader))
-                {
-                    TaskInventoryItem item = (TaskInventoryItem) tiiSerializer.Deserialize(reader);
-                    Add(item.ItemID, item);
+			if (!reader.IsEmptyElement) {
+				reader.Read ();
+				while (tiiSerializer.CanDeserialize (reader)) {
+					TaskInventoryItem item = (TaskInventoryItem)tiiSerializer.Deserialize (reader);
+					Add (item.ItemID, item);
 
-                    //MainConsole.Instance.DebugFormat("[Task Inventory]: Instantiated prim item {0}, {1} from xml", item.Name, item.ItemID);
-                }
+					//MainConsole.Instance.DebugFormat("[TASK INVENTORY]: Instantiated prim item {0}, {1} from xml", item.Name, item.ItemID);
+				}
 
-                // MainConsole.Instance.DebugFormat("[Task Inventory]: Instantiated {0} prim items in total from xml", Count);
-            }
-            // else
-            // {
-            //     MainConsole.Instance.DebugFormat("[Task Inventory]: Skipping empty element {0}", reader.Name);
-            // }
+				// MainConsole.Instance.DebugFormat("[TASK INVENTORY]: Instantiated {0} prim items in total from xml", Count);
+			}
+			// else
+			// {
+			//     MainConsole.Instance.DebugFormat("[TASK INVENTORY]: Skipping empty element {0}", reader.Name);
+			// }
 
-            // For some .net implementations, this last read is necessary so that we advance beyond the end tag
-            // of the element wrapping this object so that the rest of the serialization can complete normally.
-            reader.Read();
+			// For some .net implementations, this last read is necessary so that we advance beyond the end tag
+			// of the element wrapping this object so that the rest of the serialization can complete normally.
+			reader.Read ();
 
-            // MainConsole.Instance.DebugFormat("[Task Inventory]: ReadXml current node after actions, {0}", reader.Name);
-        }
+			// MainConsole.Instance.DebugFormat("[TASK INVENTORY]: ReadXml current node after actions, {0}", reader.Name);
+		}
 
-        // see IXmlSerializable
-        public void WriteXml(XmlWriter writer)
-        {
-            lock (this)
-            {
-                foreach (TaskInventoryItem item in Values)
-                {
-                    tiiSerializer.Serialize(writer, item);
-                }
-            }
-        }
+		// see IXmlSerializable
+		public void WriteXml (XmlWriter writer)
+		{
+			lock (this) {
+				foreach (TaskInventoryItem item in Values) {
+					tiiSerializer.Serialize (writer, item);
+				}
+			}
 
-        #endregion
+			//tiiSerializer.Serialize(writer, Values);
+		}
 
-        public List<TaskInventoryItem> Clone2List()
-        {
-            List<TaskInventoryItem> clone = new List<TaskInventoryItem>();
+		#endregion
 
-            lock (this)
-            {
-                clone.AddRange(Keys.Select(uuid => (TaskInventoryItem) this[uuid].Clone()));
-            }
+		public List<TaskInventoryItem> Clone2List ()
+		{
+			List<TaskInventoryItem> clone = new List<TaskInventoryItem> ();
 
-            return clone;
-        }
+			lock (this) {
+				clone.AddRange (Keys.Select (uuid => (TaskInventoryItem)this [uuid].Clone ()));
+			}
 
-        [XmlIgnore]
-        public List<TaskInventoryItem> Items
-        {
-            get { return Clone2List(); }
-            set { foreach (TaskInventoryItem itm in value) this.Add(itm.ItemID, itm); }
-        }
+			return clone;
+		}
 
-        // see ICloneable
-    }
+		[XmlIgnore]
+		public List<TaskInventoryItem> Items {
+			get { return Clone2List (); }
+			set {
+				foreach (TaskInventoryItem itm in value)
+					this.Add (itm.ItemID, itm);
+			}
+		}
+
+		// see ICloneable
+	}
 }

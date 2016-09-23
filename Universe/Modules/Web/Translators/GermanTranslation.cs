@@ -31,110 +31,111 @@ using System.Collections.Generic;
 
 namespace Universe.Modules.Web.Translators
 {
-    public class GermanTranslation : ITranslator
-    {
-        public string LanguageName {
-            get { return "de"; }
-        }
+	public class GermanTranslation : ITranslator
+	{
+		public string LanguageName {
+			get { return "de"; }
+		}
 
-        public string GetTranslatedString (string key)
-        {
-            if (dictionary.ContainsKey (key))
-                return dictionary [key];
-            return ":" + key + ":";
-        }
+		public string GetTranslatedString (string key)
+		{
+			if (dictionary.ContainsKey (key))
+				return dictionary [key];
+			return ":" + key + ":";
+		}
 
-        readonly Dictionary<string, string> dictionary = new Dictionary<string, string> {
-            // Generic
-            {"No", "nein"},
-            {"Yes", "ja"},
-            {"Submit", "Einreichen"},
-            {"Accept", "Akzeptieren"},
-            {"Save", "Speichern"},
-            { "Cancel", "Stornieren"},
-            {"FirstText", "Erste"},
-            {"BackText", "Zurück"},
-            {"NextText", "Vor"},
-            {"LastText", "Letzte"},
-            {"CurrentPageText", "Aktuelle Seite"},
-            {"MoreInfoText", "Mehr Informationen"},
-            {"NoDetailsText", "Keine Angaben gefunden..."},
-            {"MoreInfo", "Informationen"},
-            { "Name", "Name"},
-            {"ObjectNameText", "Objekt"},
-            {"LocationText", "Ort"},
-            {"UUIDText", "UUID"},
-            {"DetailsText", "Beschreibung"},
-            {"NotesText", "Aufzeichnungen"},
-            {"SaveUpdates", "Sparen Sie Aktuelles"},
-            {"ActiveText", "Activ"},
-            {"CheckedText", "Geprüft"},
-            {"CategoryText", "Kategorie"},
-            {"SummaryText", "Zusammenfassung"},
-            { "MaturityText", "Maturity"},
-            { "DateText", "Datum"},
-            { "TimeText", "Zeit"},
-            { "MinuteText", "minute"},
-            { "MinutesText", "minuten"},
-            { "HourText", "stunde"},
-            { "HoursText", "stunden"},
-            { "EditText", "Bearbeiten"},
-            { "EdittingText", "Bearbeiten"},
+		readonly Dictionary<string, string> dictionary = new Dictionary<string, string> {
+			// Generic
+			{ "No", "nein" },
+			{ "Yes", "ja" },
+			{ "Submit", "Einreichen" },
+			{ "Accept", "Akzeptieren" },
+			{ "Save", "Speichern" },
+			{ "Cancel", "Stornieren" },
+			{ "FirstText", "Erste" },
+			{ "BackText", "Zurück" },
+			{ "NextText", "Vor" },
+			{ "LastText", "Letzte" },
+			{ "CurrentPageText", "Aktuelle Seite" },
+			{ "MoreInfoText", "Mehr Informationen" },
+			{ "NoDetailsText", "Keine Angaben gefunden..." },
+			{ "MoreInfo", "Informationen" },
+			{ "Name", "Name" },
+			{ "ObjectNameText", "Objekt" },
+			{ "LocationText", "Ort" },
+			{ "UUIDText", "UUID" },
+			{ "DetailsText", "Beschreibung" },
+			{ "NotesText", "Aufzeichnungen" },
+			{ "SaveUpdates", "Sparen Sie Aktuelles" },
+			{ "ActiveText", "Activ" },
+			{ "CheckedText", "Geprüft" },
+			{ "CategoryText", "Kategorie" },
+			{ "SummaryText", "Zusammenfassung" },
+			{ "MaturityText", "Maturity" },
+			{ "DateText", "Datum" },
+			{ "TimeText", "Zeit" },
+			{ "MinuteText", "minute" },
+			{ "MinutesText", "minuten" },
+			{ "HourText", "stunde" },
+			{ "HoursText", "stunden" },
+			{ "EditText", "Bearbeiten" },
+			{ "EdittingText", "Bearbeiten" },
 
-            // Status information
-            {"GridStatus", "Grid Status"},
-            {"Online", "Online"},
-            {"Offline", "Offline"},
-            {"TotalUserCount", "Einwohner"},
-            {"TotalRegionCount", "Regionen"},
-            {"UniqueVisitors", "Aktive Nutzer letzten 30 Tage"},
-            {"OnlineNow", "Jetzt Online"},
-            { "InterWorld", "Inter World (IWC)"},
-            {"HyperGrid", "HyperGrid (HG)"},
-            {"Voice", "Stimme"},
-            {"Currency", "Geld"},
-            {"Disabled", "Deaktiviert"},
-            {"Enabled", "Aktiviert"},
-            {"News", "Nachrichten"},
-            {"Region", "Region"},
+			// Status information
+			{ "GridStatus", "Grid Status" },
+			{ "Online", "Online" },
+			{ "Offline", "Offline" },
+			{ "TotalUserCount", "Einwohner" },
+			{ "TotalRegionCount", "Regionen" },
+			{ "UniqueVisitors", "Aktive Nutzer letzten 30 Tage" },
+			{ "OnlineNow", "Jetzt Online" },
+			{ "InterWorld", "Inter World (IWC)" },
+			{ "HyperGrid", "HyperGrid (HG)" },
+			{ "Voice", "Stimme" },
+			{ "Currency", "Geld" },
+			{ "Disabled", "Deaktiviert" },
+			{ "Enabled", "Aktiviert" },
+			{ "News", "Nachrichten" },
+			{ "Region", "Region" },
 
-            // User login
-            {"Login", "Einloggen"},
-            {"UserName", "Nutzername"},
-            {"UserNameText", "Nutzername"},
-            {"Password", "Passwort"},
-            {"PasswordText", "Passwort"},
-            {"PasswordConfirmation", "Passwort Bestätigung"},
-            {"ForgotPassword", "Passwort vergessen?"},
-            { "TypeUserNameToConfirm", "Bitte schreibe den Namen des Benutzers wenn du ihn wirklich löschen willst"},
+			// User login
+			{ "Login", "Einloggen" },
+			{ "UserName", "Nutzername" },
+			{ "UserNameText", "Nutzername" },
+			{ "Password", "Passwort" },
+			{ "PasswordText", "Passwort" },
+			{ "PasswordConfirmation", "Passwort Bestätigung" },
+			{ "ForgotPassword", "Passwort vergessen?" },
+			{ "TypeUserNameToConfirm", "Bitte schreibe den Namen des Benutzers wenn du ihn wirklich löschen willst" },
 
-            // Special windows
-            {"SpecialWindowTitleText", "Spezieller Title des Info Fensters"},
-            {"SpecialWindowTextText", "Spezieller Text des Info Fensters"},
-            {"SpecialWindowColorText", "Spezielle Farbe des Info Fensters"},
-            {"SpecialWindowStatusText", "Spezieller Status des Info Fensters"},
-            {"WelcomeScreenManagerFor", "Willkommen Ansichtsmanager für"},
-            {"ChangesSavedSuccessfully", "Änderungen erfolgreich gespeichert"},
+			// Special windows
+			{ "SpecialWindowTitleText", "Spezieller Title des Info Fensters" },
+			{ "SpecialWindowTextText", "Spezieller Text des Info Fensters" },
+			{ "SpecialWindowColorText", "Spezielle Farbe des Info Fensters" },
+			{ "SpecialWindowStatusText", "Spezieller Status des Info Fensters" },
+			{ "WelcomeScreenManagerFor", "Willkommen Ansichtsmanager für" },
+			{ "ChangesSavedSuccessfully", "Änderungen erfolgreich gespeichert" },
 
-            // User registration
-            {"AvatarNameText", "Avatar Name"},
-            {"AvatarScopeText", "Avatar Scope ID"},
-            {"FirstNameText", "Dein Vorname"},
-            {"LastNameText", "Dein Nachname"},
-            {"UserAddressText", "Deine Adresse"},
-            {"UserZipText", "Deine Postleitzahl"},
-            {"UserCityText", "Deine Stadt"},
-            {"UserCountryText", "Dein Land"},
-            {"UserDOBText", "Dein Geburtsdatum (Monat Tag Jahr)"},
-            {"UserEmailText", "Dein Email"},
-            {"UserHomeRegionText", "Heimatregion"},
-            {"RegistrationText", "Avatar Registrierung"},
-            {"RegistrationsDisabled", "Registrationen sind zur Zeit leider nicht möglich, bitte versuche es später erneut."},
-            {"TermsOfServiceText", "Nutzungsbedingungen"},
-            {"TermsOfServiceAccept", "akzeptieren Sie die Nutzungsbedinungen, wie oben beschrieben?"},
-            {"AvatarNameError", "Sie haben keinen Avatar Namen!"},
-            {"AvatarPasswordError", "Passwort darf nicht leer sein!"},
-            {"AvatarEmailError", "Eine E-Mail Adresse ist für die Passwort Wiederherstellung erforderlich! ('none', wenn unbekannt)"},
+			// User registration
+			{ "AvatarNameText", "Avatar Name" },
+			{ "AvatarScopeText", "Avatar Scope ID" },
+			{ "FirstNameText", "Dein Vorname" },
+			{ "LastNameText", "Dein Nachname" },
+			{ "UserAddressText", "Deine Adresse" },
+			{ "UserZipText", "Deine Postleitzahl" },
+			{ "UserCityText", "Deine Stadt" },
+			{ "UserCountryText", "Dein Land" },
+			{ "UserDOBText", "Dein Geburtsdatum (Monat Tag Jahr)" },
+			{ "UserEmailText", "Dein Email" },
+			{ "UserHomeRegionText", "Heimatregion" },
+			{ "RegistrationText", "Avatar Registrierung" }, {
+				"RegistrationsDisabled",
+				"Registrationen sind zur Zeit leider nicht möglich, bitte versuche es später erneut."
+			},
+			{ "TermsOfServiceText", "Nutzungsbedingungen" },
+			{ "TermsOfServiceAccept", "akzeptieren Sie die Nutzungsbedinungen, wie oben beschrieben?" },
+			{ "AvatarNameError", "Sie haben keinen Avatar Namen!" },
+			{ "AvatarPasswordError", "Passwort darf nicht leer sein!" }, {"AvatarEmailError", "Eine E-Mail Adresse ist für die Passwort Wiederherstellung erforderlich! ('none', wenn unbekannt)"},
             {"AvatarNameSpacingError", "Ihr Avatar Name sollte 'Vorname Nachname' sein!"},
 
             // News
@@ -596,7 +597,7 @@ namespace Universe.Modules.Web.Translators
 
             {"January", "Januar"},
             {"February", "Februar"},
-            {"March", "März"},
+            {"March", "M?z"},
             {"April", "April"},
             {"May", "Mai"},
             {"June", "Juni"},
@@ -647,7 +648,7 @@ namespace Universe.Modules.Web.Translators
             {"fr", "Français"},
             {"de", "Deutsch"},
             {"it", "Italiano"},
-            {"es", "Español"},
+            {"es", "Espa�ol"},
             {"nl", "Nederlands"},
             {"ru", "Русский"}
         };

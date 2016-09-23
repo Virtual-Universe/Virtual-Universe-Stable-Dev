@@ -39,201 +39,185 @@ using GridRegion = Universe.Framework.Services.GridRegion;
 
 namespace Universe.Modules.Entities.EntityCount
 {
-    public class EntityCountModule : INonSharedRegionModule, IEntityCountModule
-    {
-        #region Declares
+	public class EntityCountModule : INonSharedRegionModule, IEntityCountModule
+	{
+		#region Declares
 
-        readonly Dictionary<UUID, bool> m_lastAddedPhysicalStatus = new Dictionary<UUID, bool>();
-        readonly object m_objectsLock = new object();
+		readonly Dictionary<UUID, bool> m_lastAddedPhysicalStatus = new Dictionary<UUID, bool> ();
+		readonly object m_objectsLock = new object ();
 
-        int m_activeObjects;
-        int m_childAgents;
-        int m_objects;
-         int m_rootAgents;
+		int m_activeObjects;
+		int m_childAgents;
+		int m_objects;
+		int m_rootAgents;
 
-        #endregion
+		#endregion
 
-        #region IEntityCountModule Members
+		#region IEntityCountModule Members
 
-        public int RootAgents
-        {
-            get { return m_rootAgents; }
-        }
+		public int RootAgents {
+			get { return m_rootAgents; }
+		}
 
-        public int ChildAgents
-        {
-            get { return m_childAgents; }
-        }
+		public int ChildAgents {
+			get { return m_childAgents; }
+		}
 
-        public int Objects
-        {
-            get {
-                lock (m_objectsLock) {
-                    return m_objects;
-                }
-            }
-        }
+		public int Objects {
+			get {
+				lock (m_objectsLock) {
+					return m_objects;
+				}
+			}
+		}
 
-        public int ActiveObjects
-        {
-            get {
-                lock (m_objectsLock) {
-                    return m_activeObjects;
-                }
-            }
-        }
+		public int ActiveObjects {
+			get {
+				lock (m_objectsLock) {
+					return m_activeObjects;
+				}
+			}
+		}
 
-        #endregion
+		#endregion
 
-        #region INonSharedRegionModule Members
+		#region INonSharedRegionModule Members
 
-        public void Initialize(IConfigSource source)
-        {
-        }
+		public void Initialize (IConfigSource source)
+		{
+		}
 
-        public void AddRegion(IScene scene)
-        {
-            scene.RegisterModuleInterface<IEntityCountModule>(this);
+		public void AddRegion (IScene scene)
+		{
+			scene.RegisterModuleInterface<IEntityCountModule> (this);
 
-            scene.EventManager.OnMakeChildAgent += OnMakeChildAgent;
-            scene.EventManager.OnMakeRootAgent += OnMakeRootAgent;
-            scene.EventManager.OnNewPresence += OnNewPresence;
-            scene.EventManager.OnRemovePresence += OnRemovePresence;
+			scene.EventManager.OnMakeChildAgent += OnMakeChildAgent;
+			scene.EventManager.OnMakeRootAgent += OnMakeRootAgent;
+			scene.EventManager.OnNewPresence += OnNewPresence;
+			scene.EventManager.OnRemovePresence += OnRemovePresence;
 
-            scene.EventManager.OnObjectBeingAddedToScene += OnObjectBeingAddedToScene;
-            scene.EventManager.OnObjectBeingRemovedFromScene += OnObjectBeingRemovedFromScene;
+			scene.EventManager.OnObjectBeingAddedToScene += OnObjectBeingAddedToScene;
+			scene.EventManager.OnObjectBeingRemovedFromScene += OnObjectBeingRemovedFromScene;
 
-            scene.UniverseEventManager.RegisterEventHandler("ObjectChangedPhysicalStatus", OnGenericEvent);
-        }
+			scene.UniverseEventManager.RegisterEventHandler ("ObjectChangedPhysicalStatus", OnGenericEvent);
+		}
 
-        public void RegionLoaded(IScene scene)
-        {
-        }
+		public void RegionLoaded (IScene scene)
+		{
+		}
 
-        public void RemoveRegion(IScene scene)
-        {
-        }
+		public void RemoveRegion (IScene scene)
+		{
+		}
 
-        public void Close()
-        {
-        }
+		public void Close ()
+		{
+		}
 
-        public string Name
-        {
-            get { return "EntityCountModule"; }
-        }
+		public string Name {
+			get { return "EntityCountModule"; }
+		}
 
-        public Type ReplaceableInterface
-        {
-            get { return null; }
-        }
+		public Type ReplaceableInterface {
+			get { return null; }
+		}
 
-        #endregion
+		#endregion
 
-        #region Events
+		#region Events
 
-        #region Agents
+		#region Agents
 
-        protected void OnMakeChildAgent(IScenePresence presence, GridRegion destination)
-        {
-            //Switch child agent to root agent
-            m_rootAgents--;
-            m_childAgents++;
-        }
+		protected void OnMakeChildAgent (IScenePresence presence, GridRegion destination)
+		{
+			//Switch child agent to root agent
+			m_rootAgents--;
+			m_childAgents++;
+		}
 
-        protected void OnMakeRootAgent(IScenePresence presence)
-        {
-            m_rootAgents++;
-            m_childAgents--;
-        }
+		protected void OnMakeRootAgent (IScenePresence presence)
+		{
+			m_rootAgents++;
+			m_childAgents--;
+		}
 
-        protected void OnNewPresence(IScenePresence presence)
-        {
-            // Why don't we check for root agents? We don't because it will be added in MakeRootAgent and removed from here
-            m_childAgents++;
-        }
+		protected void OnNewPresence (IScenePresence presence)
+		{
+			// Why don't we check for root agents? We don't because it will be added in MakeRootAgent and removed from here
+			m_childAgents++;
+		}
 
-        private void OnRemovePresence(IScenePresence presence)
-        {
-            if (presence.IsChildAgent)
-                m_childAgents--;
-            else
-                m_rootAgents--;
-        }
+		private void OnRemovePresence (IScenePresence presence)
+		{
+			if (presence.IsChildAgent)
+				m_childAgents--;
+			else
+				m_rootAgents--;
+		}
 
-        #endregion
+		#endregion
 
-        #region Objects
+		#region Objects
 
-        protected void OnObjectBeingAddedToScene(ISceneEntity obj)
-        {
-            lock (m_objectsLock)
-            {
-                foreach (ISceneChildEntity child in obj.ChildrenEntities())
-                {
-                    bool physicalStatus = (child.Flags & PrimFlags.Physics) == PrimFlags.Physics;
-                    if (!m_lastAddedPhysicalStatus.ContainsKey(child.UUID))
-                    {
-                        m_objects++;
+		protected void OnObjectBeingAddedToScene (ISceneEntity obj)
+		{
+			lock (m_objectsLock) {
+				foreach (ISceneChildEntity child in obj.ChildrenEntities()) {
+					bool physicalStatus = (child.Flags & PrimFlags.Physics) == PrimFlags.Physics;
+					if (!m_lastAddedPhysicalStatus.ContainsKey (child.UUID)) {
+						m_objects++;
 
-                        //Check physical status now
-                        if (physicalStatus)
-                            m_activeObjects++;
-                        //Add it to the list so that we have a record of it
-                        m_lastAddedPhysicalStatus.Add(child.UUID, physicalStatus);
-                    }
-                    else
-                    {
-                        //Its a dupe! Its a dupe!
-                        //  Check that the physical status has changed
-                        if (physicalStatus != m_lastAddedPhysicalStatus[child.UUID])
-                        {
-                            //It changed... fix the count
-                            if (physicalStatus)
-                                m_activeObjects++;
-                            else
-                                m_activeObjects--;
-                            //Update the cache
-                            m_lastAddedPhysicalStatus[child.UUID] = physicalStatus;
-                        }
-                    }
-                }
-            }
-        }
+						//Check physical status now
+						if (physicalStatus)
+							m_activeObjects++;
+						//Add it to the list so that we have a record of it
+						m_lastAddedPhysicalStatus.Add (child.UUID, physicalStatus);
+					} else {
+						//Its a dupe! Its a dupe!
+						//  Check that the physical status has changed
+						if (physicalStatus != m_lastAddedPhysicalStatus [child.UUID]) {
+							//It changed... fix the count
+							if (physicalStatus)
+								m_activeObjects++;
+							else
+								m_activeObjects--;
+							//Update the cache
+							m_lastAddedPhysicalStatus [child.UUID] = physicalStatus;
+						}
+					}
+				}
+			}
+		}
 
-        protected void OnObjectBeingRemovedFromScene(ISceneEntity obj)
-        {
-            lock (m_objectsLock)
-            {
-                foreach (ISceneChildEntity child in obj.ChildrenEntities())
-                {
-                    bool physicalStatus = (child.Flags & PrimFlags.Physics) == PrimFlags.Physics;
-                    if (m_lastAddedPhysicalStatus.ContainsKey(child.UUID))
-                    {
-                        m_objects--;
+		protected void OnObjectBeingRemovedFromScene (ISceneEntity obj)
+		{
+			lock (m_objectsLock) {
+				foreach (ISceneChildEntity child in obj.ChildrenEntities()) {
+					bool physicalStatus = (child.Flags & PrimFlags.Physics) == PrimFlags.Physics;
+					if (m_lastAddedPhysicalStatus.ContainsKey (child.UUID)) {
+						m_objects--;
 
-                        //Check physical status now and remove if necessary
-                        if (physicalStatus)
-                            m_activeObjects--;
-                        //Remove our record of it
-                        m_lastAddedPhysicalStatus.Remove(child.UUID);
-                    }
-                }
-            }
-        }
+						//Check physical status now and remove if necessary
+						if (physicalStatus)
+							m_activeObjects--;
+						//Remove our record of it
+						m_lastAddedPhysicalStatus.Remove (child.UUID);
+					}
+				}
+			}
+		}
 
-        protected object OnGenericEvent(string FunctionName, object parameters)
-        {
-            //If the object changes physical status, we need to make sure to update the active objects count
-            if (FunctionName == "ObjectChangedPhysicalStatus")
-            {
-                OnObjectBeingAddedToScene((ISceneEntity) parameters);
-            }
-            return null;
-        }
+		protected object OnGenericEvent (string FunctionName, object parameters)
+		{
+			//If the object changes physical status, we need to make sure to update the active objects count
+			if (FunctionName == "ObjectChangedPhysicalStatus") {
+				OnObjectBeingAddedToScene ((ISceneEntity)parameters);
+			}
+			return null;
+		}
 
-        #endregion
+		#endregion
 
-        #endregion
-    }
+		#endregion
+	}
 }

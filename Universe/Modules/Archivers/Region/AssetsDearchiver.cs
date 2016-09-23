@@ -40,140 +40,138 @@ using Universe.Framework.Services.ClassHelpers.Assets;
 
 namespace Universe.Modules.Archivers
 {
-    /// <summary>
-    ///     De-archives assets
-    /// </summary>
-    public class AssetsDearchiver
-    {
-        protected static ASCIIEncoding m_asciiEncoding = new ASCIIEncoding();
+	/// <summary>
+	///     De-archives assets
+	/// </summary>
+	public class AssetsDearchiver
+	{
+		protected static ASCIIEncoding m_asciiEncoding = new ASCIIEncoding ();
 
-        /// <summary>
-        ///     Store for asset data we received before we get the metadata
-        /// </summary>
-        protected Dictionary<string, byte[]> m_assetDataAwaitingMetadata = new Dictionary<string, byte[]>();
+		/// <summary>
+		///     Store for asset data we received before we get the metadata
+		/// </summary>
+		protected Dictionary<string, byte[]> m_assetDataAwaitingMetadata = new Dictionary<string, byte[]> ();
 
-        /// <summary>
-        ///     Cache to which de-archived assets will be added
-        /// </summary>
-        protected IAssetService m_cache;
+		/// <summary>
+		///     Cache to which de-archived assets will be added
+		/// </summary>
+		protected IAssetService m_cache;
 
-        /// <summary>
-        ///     Asset metadata.  Is null if asset metadata isn't yet available.
-        /// </summary>
-        protected Dictionary<string, AssetMetadata> m_metadata;
+		/// <summary>
+		///     Asset metadata.  Is null if asset metadata isn't yet available.
+		/// </summary>
+		protected Dictionary<string, AssetMetadata> m_metadata;
 
-        public AssetsDearchiver(IAssetService cache)
-        {
-            m_cache = cache;
-        }
+		public AssetsDearchiver (IAssetService cache)
+		{
+			m_cache = cache;
+		}
 
-        /// <summary>
-        ///     Add asset data to the de-archiver
-        /// </summary>
-        /// <param name="assetFilename"></param>
-        /// <param name="data"></param>
-        public void AddAssetData(string assetFilename, byte[] data)
-        {
-            if (null == m_metadata)
-            {
-                m_assetDataAwaitingMetadata[assetFilename] = data;
-            }
-            else
-            {
-                ResolveAssetData(assetFilename, data);
-            }
-        }
+		/// <summary>
+		///     Add asset data to the de-archiver
+		/// </summary>
+		/// <param name="assetFilename"></param>
+		/// <param name="data"></param>
+		public void AddAssetData (string assetFilename, byte[] data)
+		{
+			if (null == m_metadata) {
+				m_assetDataAwaitingMetadata [assetFilename] = data;
+			} else {
+				ResolveAssetData (assetFilename, data);
+			}
+		}
 
-        /// <summary>
-        ///     Add asset metadata xml
-        /// </summary>
-        /// <param name="xml"></param>
-        public void AddAssetMetadata(string xml)
-        {
-            m_metadata = new Dictionary<string, AssetMetadata>();
+		/// <summary>
+		///     Add asset metadata xml
+		/// </summary>
+		/// <param name="xml"></param>
+		public void AddAssetMetadata (string xml)
+		{
+			m_metadata = new Dictionary<string, AssetMetadata> ();
 
-            StringReader sr = new StringReader(xml);
-            XmlTextReader reader = new XmlTextReader(sr);
+			StringReader sr = new StringReader (xml);
+			XmlTextReader reader = new XmlTextReader (sr);
 
-            reader.ReadStartElement("assets");
-            reader.Read();
+			reader.ReadStartElement ("assets");
+			reader.Read ();
 
-            while (reader.Name.Equals("asset"))
-            {
-                reader.Read();
-                AssetMetadata metadata = new AssetMetadata();
-                string filename = reader.ReadElementString("filename");
-                MainConsole.Instance.DebugFormat("[De-Archiver]: Reading node {0}", filename);
-                metadata.Name = reader.ReadElementString("name");
-                metadata.Description = reader.ReadElementString("description");
-                metadata.AssetType = Convert.ToSByte(reader.ReadElementString("asset-type"));
-                m_metadata[filename] = metadata;
+			while (reader.Name.Equals ("asset")) {
+				reader.Read ();
 
-                // Read asset end tag
-                reader.ReadEndElement();
-                reader.Read();
-            }
+				AssetMetadata metadata = new AssetMetadata ();
 
-            MainConsole.Instance.DebugFormat("[De-Archiver]: Resolved {0} items of asset metadata", m_metadata.Count);
-            ResolvePendingAssetData();
-        }
+				string filename = reader.ReadElementString ("filename");
+				MainConsole.Instance.DebugFormat ("[DEARCHIVER]: Reading node {0}", filename);
 
-        /// <summary>
-        ///     Resolve asset data that we collected before receiving the metadata
-        /// </summary>
-        protected void ResolvePendingAssetData()
-        {
-            foreach (string filename in m_assetDataAwaitingMetadata.Keys)
-            {
-                ResolveAssetData(filename, m_assetDataAwaitingMetadata[filename]);
-            }
-        }
+				metadata.Name = reader.ReadElementString ("name");
+				metadata.Description = reader.ReadElementString ("description");
+				metadata.AssetType = Convert.ToSByte (reader.ReadElementString ("asset-type"));
 
-        /// <summary>
-        ///     Resolve a new piece of asset data against stored metadata
-        /// </summary>
-        /// <param name="assetPath"></param>
-        /// <param name="data"></param>
-        protected void ResolveAssetData(string assetPath, byte[] data)
-        {
-            // Right now we're nastily obtaining the UUID from the filename
-            string filename = assetPath.Remove(0, ArchiveConstants.ASSETS_PATH.Length);
+				m_metadata [filename] = metadata;
 
-            if (m_metadata.ContainsKey(filename))
-            {
-                AssetMetadata metadata = m_metadata[filename];
+				// Read asset end tag
+				reader.ReadEndElement ();
 
-                if (ArchiveConstants.ASSET_TYPE_TO_EXTENSION.ContainsKey(metadata.AssetType))
-                {
-                    string extension = ArchiveConstants.ASSET_TYPE_TO_EXTENSION[metadata.AssetType];
-                    filename = filename.Remove(filename.Length - extension.Length);
-                }
+				reader.Read ();
+			}
 
-                MainConsole.Instance.DebugFormat("[Archiver]: Importing asset {0}", filename);
+			MainConsole.Instance.DebugFormat ("[DEARCHIVER]: Resolved {0} items of asset metadata", m_metadata.Count);
 
-                AssetBase asset = new AssetBase(filename, metadata.Name, (AssetType) metadata.AssetType, UUID.Zero)
-                                      {Description = metadata.Description, Data = data, MetaOnly = false};
-                asset.ID = m_cache.Store(asset);
-            }
-            else
-            {
-                MainConsole.Instance.ErrorFormat(
-                    "[De-Archiver]: Tried to de-archive data with filename {0} without any corresponding metadata", assetPath);
-            }
-        }
+			ResolvePendingAssetData ();
+		}
 
-        #region Nested type: AssetMetadata
+		/// <summary>
+		///     Resolve asset data that we collected before receiving the metadata
+		/// </summary>
+		protected void ResolvePendingAssetData ()
+		{
+			foreach (string filename in m_assetDataAwaitingMetadata.Keys) {
+				ResolveAssetData (filename, m_assetDataAwaitingMetadata [filename]);
+			}
+		}
 
-        /// <summary>
-        ///     Metadata for an asset
-        /// </summary>
-        protected struct AssetMetadata
-        {
-            public sbyte AssetType;
-            public string Description;
-            public string Name;
-        }
+		/// <summary>
+		///     Resolve a new piece of asset data against stored metadata
+		/// </summary>
+		/// <param name="assetPath"></param>
+		/// <param name="data"></param>
+		protected void ResolveAssetData (string assetPath, byte[] data)
+		{
+			// Right now we're nastily obtaining the UUID from the filename
+			string filename = assetPath.Remove (0, ArchiveConstants.ASSETS_PATH.Length);
 
-        #endregion
-    }
+			if (m_metadata.ContainsKey (filename)) {
+				AssetMetadata metadata = m_metadata [filename];
+
+				if (ArchiveConstants.ASSET_TYPE_TO_EXTENSION.ContainsKey (metadata.AssetType)) {
+					string extension = ArchiveConstants.ASSET_TYPE_TO_EXTENSION [metadata.AssetType];
+					filename = filename.Remove (filename.Length - extension.Length);
+				}
+
+				MainConsole.Instance.DebugFormat ("[Archiver]: Importing asset {0}", filename);
+
+				AssetBase asset = new AssetBase (filename, metadata.Name, (AssetType)metadata.AssetType, UUID.Zero)
+                                      { Description = metadata.Description, Data = data, MetaOnly = false };
+				asset.ID = m_cache.Store (asset);
+			} else {
+				MainConsole.Instance.ErrorFormat (
+					"[De-Archiver]: Tried to de-archive data with filename {0} without any corresponding metadata",
+					assetPath);
+			}
+		}
+
+		#region Nested type: AssetMetadata
+
+		/// <summary>
+		///     Metadata for an asset
+		/// </summary>
+		protected struct AssetMetadata
+		{
+			public sbyte AssetType;
+			public string Description;
+			public string Name;
+		}
+
+		#endregion
+	}
 }

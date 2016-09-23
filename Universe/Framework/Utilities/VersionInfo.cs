@@ -31,61 +31,58 @@ using System.IO;
 
 namespace Universe.Framework.Utilities
 {
-    public class VersionInfo
-    {
-        #region Flavour enum
+	public class VersionInfo
+	{
+		#region Flavour enum
 
-        public enum Flavour
-        {
-            Development,
-            Prerelease,
-            RC1,
-            RC2,
-            Release,
-            Post_Fixes
-        }
+		public enum Flavour
+		{
+			Development,
+			Prerelease,
+			RC1,
+			RC2,
+			Release,
+			Post_Fixes
+		}
 
-        #endregion
+		#endregion
 
-        public const string VERSION_NUMBER = "1.0.3";
-        public const Flavour VERSION_FLAVOUR = Flavour.Development;
-        public const string VERSION_NAME = "Universe";
-        public const string CODE_NAME = "Earth";
-        public const string CODE_REL = "Server Name: " + VERSION_NAME +", Code Name: " + CODE_NAME + ", Release: ";
+		public const string VERSION_NUMBER = "1.0.3";
+		public const Flavour VERSION_FLAVOUR = Flavour.Development;
+		public const string VERSION_NAME = "Universe";
+		public const string CODE_NAME = "Earth";
+		public const string CODE_REL = "Server Name: " + VERSION_NAME + ", Code Name: " + CODE_NAME + ", Release: ";
 
-        public static string Version
-        {
-            get { return GetVersionString(CODE_REL, /*CODE_NAME,*/ VERSION_FLAVOUR); }
-        }
+		public static string Version {
+			get { return GetVersionString (CODE_REL, /*CODE_NAME,*/VERSION_FLAVOUR); }
+		}
 
-        public static string GitVersion
-        {
-            get { return GetGitVersionString(); }
-        }
+		public static string GitVersion {
+			get { return GetGitVersionString (); }
+		}
 
-        static string GetVersionString(string versionNumber, Flavour flavour)
-        {
-            string versionString = CODE_REL + " " + flavour;
-            return versionString;
-        }
+		static string GetVersionString (string versionNumber, Flavour flavour)
+		{
+			string versionString = CODE_REL + " " + flavour;
+			return versionString;
+		}
 
-        static string GetGitVersionString()
-        {
-            string versionString = "Unknown";
+		static string GetGitVersionString ()
+		{
+			string versionString = "Unknown";
 
-            // Check if there's a custom .version file with the commit hash in it
-            // Else return the standard versionString.
+			// Check if there's a custom .version file with the commit hash in it
+			// Else return the standard versionString.
 
-            string gitCommitFileName = ".version";
+			string gitCommitFileName = ".version";
 
-            if (File.Exists(gitCommitFileName))
-            {
-                StreamReader CommitFile = File.OpenText(gitCommitFileName);
-                versionString = CommitFile.ReadLine();
-                CommitFile.Close();
-            }
+			if (File.Exists (gitCommitFileName)) {
+				StreamReader CommitFile = File.OpenText (gitCommitFileName);
+				versionString = CommitFile.ReadLine ();
+				CommitFile.Close ();
+			}
 
-            return versionString;
-        }
-    }
+			return versionString;
+		}
+	}
 }

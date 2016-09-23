@@ -31,82 +31,81 @@ using System.Collections.Generic;
 
 namespace Universe.Modules.Web.Translators
 {
-    public class EnglishTranslation : ITranslator
-    {
-        public string LanguageName {
-            get { return "en"; }
-        }
+	public class EnglishTranslation : ITranslator
+	{
+		public string LanguageName {
+			get { return "en"; }
+		}
 
-        public string GetTranslatedString (string key)
-        {
-            if (dictionary.ContainsKey (key))
-                return dictionary [key];
-            return ":" + key + ":";
-        }
+		public string GetTranslatedString (string key)
+		{
+			if (dictionary.ContainsKey (key))
+				return dictionary [key];
+			return ":" + key + ":";
+		}
 
-        readonly Dictionary<string, string> dictionary = new Dictionary<string, string> {
-            // Generic
-            { "No", "No"},
-            { "Yes", "Yes"},
-            { "Submit", "Submit"},
-            { "Accept", "Accept"},
-            { "Save", "Save"},
-            { "Cancel", "Cancel"},
-            { "FirstText", "First"},
-            { "BackText", "Back"},
-            { "NextText", "Next"},
-            { "LastText", "Last"},
-            { "CurrentPageText", "Current Page"},
-            { "MoreInfoText", "More Info"},
-            { "NoDetailsText", "No details found..."},
-            { "MoreInfo", "More Information"},
-            { "Name", "Name"},
-            { "ObjectNameText", "Object"},
-            { "LocationText", "Location"},
-            { "UUIDText", "UUID"},
-            { "DetailsText", "Description"},
-            { "NotesText", "Notes"},
-            { "SaveUpdates", "Save updates"},
-            { "ActiveText", "Active"},
-            { "CheckedText", "Checked"},
-            { "CategoryText", "Category"},
-            { "SummaryText", "Summary"},
-            { "MaturityText", "Maturity"},
-            { "DateText", "Date"},
-            { "TimeText", "Time"},
-            { "MinuteText", "minute"},
-            { "MinutesText", "minutes"},
-            { "HourText", "hour"},
-            { "HoursText", "hours"},
-            { "EditText", "Edit"},
-            { "EdittingText", "Editing"},
+		readonly Dictionary<string, string> dictionary = new Dictionary<string, string> {
+			// Generic
+			{ "No", "No" },
+			{ "Yes", "Yes" },
+			{ "Submit", "Submit" },
+			{ "Accept", "Accept" },
+			{ "Save", "Save" },
+			{ "Cancel", "Cancel" },
+			{ "FirstText", "First" },
+			{ "BackText", "Back" },
+			{ "NextText", "Next" },
+			{ "LastText", "Last" },
+			{ "CurrentPageText", "Current Page" },
+			{ "MoreInfoText", "More Info" },
+			{ "NoDetailsText", "No details found..." },
+			{ "MoreInfo", "More Information" },
+			{ "Name", "Name" },
+			{ "ObjectNameText", "Object" },
+			{ "LocationText", "Location" },
+			{ "UUIDText", "UUID" },
+			{ "DetailsText", "Description" },
+			{ "NotesText", "Notes" },
+			{ "SaveUpdates", "Save updates" },
+			{ "ActiveText", "Active" },
+			{ "CheckedText", "Checked" },
+			{ "CategoryText", "Category" },
+			{ "SummaryText", "Summary" },
+			{ "MaturityText", "Maturity" },
+			{ "DateText", "Date" },
+			{ "TimeText", "Time" },
+			{ "MinuteText", "minute" },
+			{ "MinutesText", "minutes" },
+			{ "HourText", "hour" },
+			{ "HoursText", "hours" },
+			{ "EditText", "Edit" },
+			{ "EdittingText", "Editing" },
 
-            // Status information
-            { "GridStatus", "Grid Status"},
-            { "Online", "Online"},
-            { "Offline", "Offline"},
-            { "TotalUserCount", "Total Users"},
-            { "TotalRegionCount", "Total Region Count"},
-            { "UniqueVisitors", "Unique Visitors last 30 days"},
-            { "OnlineNow", "Online Now"},
-            { "InterWorld", "Inter World (IWC)"},
-            { "HyperGrid", "HyperGrid (HG)"},
-            { "Voice", "Voice"},
-            { "Currency", "Currency"},
-            { "Disabled", "Disabled"},
-            { "Enabled", "Enabled"},
-            { "News", "News"},
-            { "Region", "Region"},
+			// Status information
+			{ "GridStatus", "Grid Status" },
+			{ "Online", "Online" },
+			{ "Offline", "Offline" },
+			{ "TotalUserCount", "Total Users" },
+			{ "TotalRegionCount", "Total Region Count" },
+			{ "UniqueVisitors", "Unique Visitors last 30 days" },
+			{ "OnlineNow", "Online Now" },
+			{ "InterWorld", "Inter World (IWC)" },
+			{ "HyperGrid", "HyperGrid (HG)" },
+			{ "Voice", "Voice" },
+			{ "Currency", "Currency" },
+			{ "Disabled", "Disabled" },
+			{ "Enabled", "Enabled" },
+			{ "News", "News" },
+			{ "Region", "Region" },
 
-            // User login
-            { "Login", "Login"},
-            { "UserName", "User Name"},
-            { "UserNameText", "User Name"},
-            { "Password", "Password"},
-            { "PasswordText", "Password"},
-            { "PasswordConfirmation", "Password Confirmation"},
-            { "ForgotPassword", "Forgot Password?"},
-            { "TypeUserNameToConfirm", "Please type the username of this account to confirm you want to delete this account"},
+			// User login
+			{ "Login", "Login" },
+			{ "UserName", "User Name" },
+			{ "UserNameText", "User Name" },
+			{ "Password", "Password" },
+			{ "PasswordText", "Password" },
+			{ "PasswordConfirmation", "Password Confirmation" },
+			{ "ForgotPassword", "Forgot Password?" }, { "TypeUserNameToConfirm", "Please type the username of this account to confirm you want to delete this account"},
 
             // Special windows
             { "SpecialWindowTitleText", "Special Info Window Title"},

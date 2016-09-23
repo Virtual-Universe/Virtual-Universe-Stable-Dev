@@ -1,8 +1,6 @@
 /*
- * Copyright (c) Contributors, http://virtual-planets.org/
+ * Copyright (c) Contributors, http://universe-sim.org/, http://aurora-sim.org, http://opensimulator.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,126 +32,125 @@ using Universe.Framework.Services;
 
 namespace Universe.Modules.Archivers
 {
-    /// <summary>
-    ///     Resolves OpenSim Profile Anchors (OSPA).  An OSPA is a string used to provide information for
-    ///     identifying user profiles or supplying a simple name if no profile is available.
-    /// </summary>
-    public class OspResolver
-    {
-        public const string OSPA_PREFIX = "ospa:";
-        public const string OSPA_NAME_KEY = "n";
-        public const string OSPA_NAME_VALUE_SEPARATOR = " ";
-        public const string OSPA_TUPLE_SEPARATOR = "|";
-        public const string OSPA_PAIR_SEPARATOR = "=";
-        public static readonly char[] OSPA_TUPLE_SEPARATOR_ARRAY = OSPA_TUPLE_SEPARATOR.ToCharArray();
+	/// <summary>
+	///     Resolves OpenSim Profile Anchors (OSPA).  An OSPA is a string used to provide information for
+	///     identifying user profiles or supplying a simple name if no profile is available.
+	/// </summary>
+	public class OspResolver
+	{
+		public const string OSPA_PREFIX = "ospa:";
+		public const string OSPA_NAME_KEY = "n";
+		public const string OSPA_NAME_VALUE_SEPARATOR = " ";
+		public const string OSPA_TUPLE_SEPARATOR = "|";
+		public const string OSPA_PAIR_SEPARATOR = "=";
+		public static readonly char[] OSPA_TUPLE_SEPARATOR_ARRAY = OSPA_TUPLE_SEPARATOR.ToCharArray ();
 
-        /// <summary>
-        ///     Make an OSPA given a user UUID
-        /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="userService"></param>
-        /// <returns>The OSPA.  Null if a user with the given UUID could not be found.</returns>
-        public static string MakeOspa(UUID userId, IUserAccountService userService)
-        {
-            UserAccount account = userService.GetUserAccount(null, userId);
-            if (account != null)
-                return MakeOspa(account.FirstName, account.LastName);
+		/// <summary>
+		///     Make an OSPA given a user UUID
+		/// </summary>
+		/// <param name="userId"></param>
+		/// <param name="userService"></param>
+		/// <returns>The OSPA.  Null if a user with the given UUID could not be found.</returns>
+		public static string MakeOspa (UUID userId, IUserAccountService userService)
+		{
+			UserAccount account = userService.GetUserAccount (null, userId);
+			if (account != null)
+				return MakeOspa (account.FirstName, account.LastName);
 
-            return null;
-        }
+			return null;
+		}
 
-        /// <summary>
-        ///     Make an OSPA given a user name
-        /// </summary>
-        /// <param name="firstName"></param>
-        /// <param name="lastName"></param>
-        /// <returns></returns>
-        public static string MakeOspa(string firstName, string lastName)
-        {
-            return OSPA_PREFIX + OSPA_NAME_KEY + OSPA_PAIR_SEPARATOR + firstName + OSPA_NAME_VALUE_SEPARATOR + lastName;
-        }
+		/// <summary>
+		///     Make an OSPA given a user name
+		/// </summary>
+		/// <param name="firstName"></param>
+		/// <param name="lastName"></param>
+		/// <returns></returns>
+		public static string MakeOspa (string firstName, string lastName)
+		{
+			return
+                OSPA_PREFIX + OSPA_NAME_KEY + OSPA_PAIR_SEPARATOR + firstName + OSPA_NAME_VALUE_SEPARATOR + lastName;
+		}
 
-        /// <summary>
-        ///     Resolve an osp string into the most suitable internal OpenSim identifier.
-        /// </summary>
-        /// In some cases this will be a UUID if a suitable profile exists on the system.  In other cases, this may
-        /// just return the same identifier after creating a temporary profile.
-        /// <param name="ospa"></param>
-        /// <param name="userService"></param>
-        /// <returns>
-        ///     A suitable UUID for use in Second Life client communication.  If the string was not a valid ospa, then UUID.Zero
-        ///     is returned.
-        /// </returns>
-        public static UUID ResolveOspa(string ospa, IUserAccountService userService)
-        {
-            if (!ospa.StartsWith(OSPA_PREFIX))
-                return UUID.Zero;
-            
-            //MainConsole.Instance.DebugFormat("[OSP Resolver]: Resolving {0}", ospa);
+		/// <summary>
+		///     Resolve an osp string into the most suitable internal OpenSim identifier.
+		/// </summary>
+		/// In some cases this will be a UUID if a suitable profile exists on the system.  In other cases, this may
+		/// just return the same identifier after creating a temporary profile.
+		/// <param name="ospa"></param>
+		/// <param name="userService"></param>
+		/// <returns>
+		///     A suitable UUID for use in Second Life client communication.  If the string was not a valid ospa, then UUID.Zero
+		///     is returned.
+		/// </returns>
+		public static UUID ResolveOspa (string ospa, IUserAccountService userService)
+		{
+			if (!ospa.StartsWith (OSPA_PREFIX))
+				return UUID.Zero;
 
-            string ospaMeat = ospa.Substring(OSPA_PREFIX.Length);
-            string[] ospaTuples = ospaMeat.Split(OSPA_TUPLE_SEPARATOR_ARRAY);
+//            MainConsole.Instance.DebugFormat("[OSP RESOLVER]: Resolving {0}", ospa);
 
-            foreach (string tuple in ospaTuples)
-            {
-                int tupleSeparatorIndex = tuple.IndexOf(OSPA_PAIR_SEPARATOR);
+			string ospaMeat = ospa.Substring (OSPA_PREFIX.Length);
+			string[] ospaTuples = ospaMeat.Split (OSPA_TUPLE_SEPARATOR_ARRAY);
 
-                if (tupleSeparatorIndex < 0)
-                {
-                    MainConsole.Instance.WarnFormat("[OSP RESOLVER]: Ignoring non-tuple component {0} in OSPA {1}", tuple, ospa);
-                    continue;
-                }
+			foreach (string tuple in ospaTuples) {
+				int tupleSeparatorIndex = tuple.IndexOf (OSPA_PAIR_SEPARATOR);
 
-                string key = tuple.Remove(tupleSeparatorIndex).Trim();
-                string value = tuple.Substring(tupleSeparatorIndex + 1).Trim();
+				if (tupleSeparatorIndex < 0) {
+					MainConsole.Instance.WarnFormat ("[OSP RESOLVER]: Ignoring non-tuple component {0} in OSPA {1}",
+						tuple, ospa);
+					continue;
+				}
 
-                if (OSPA_NAME_KEY == key)
-                    return ResolveOspaName(value, userService);
-            }
+				string key = tuple.Remove (tupleSeparatorIndex).Trim ();
+				string value = tuple.Substring (tupleSeparatorIndex + 1).Trim ();
 
-            return UUID.Zero;
-        }
+				if (OSPA_NAME_KEY == key)
+					return ResolveOspaName (value, userService);
+			}
 
-        /// <summary>
-        ///     Hash a profile name into a UUID
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        public static UUID HashName(string name)
-        {
-            return new UUID(Utils.MD5(Encoding.Unicode.GetBytes(name)), 0);
-        }
+			return UUID.Zero;
+		}
 
-        /// <summary>
-        ///     Resolve an OSPI name by querying existing persistent user profiles.  If there is no persistent user profile
-        ///     then a temporary user profile is inserted in the cache.
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="userService"></param>
-        /// <returns>
-        ///     An OpenSim internal identifier for the name given.  Returns null if the name was not valid
-        /// </returns>
-        protected static UUID ResolveOspaName(string name, IUserAccountService userService)
-        {
-            if (userService == null)
-                return UUID.Zero;
+		/// <summary>
+		///     Hash a profile name into a UUID
+		/// </summary>
+		/// <param name="name"></param>
+		/// <returns></returns>
+		public static UUID HashName (string name)
+		{
+			return new UUID (Utils.MD5 (Encoding.Unicode.GetBytes (name)), 0);
+		}
 
-            int nameSeparatorIndex = name.IndexOf(OSPA_NAME_VALUE_SEPARATOR);
+		/// <summary>
+		///     Resolve an OSPI name by querying existing persistent user profiles.  If there is no persistent user profile
+		///     then a temporary user profile is inserted in the cache.
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="userService"></param>
+		/// <returns>
+		///     An OpenSim internal identifier for the name given.  Returns null if the name was not valid
+		/// </returns>
+		protected static UUID ResolveOspaName (string name, IUserAccountService userService)
+		{
+			if (userService == null)
+				return UUID.Zero;
 
-            if (nameSeparatorIndex < 0)
-            {
-                MainConsole.Instance.WarnFormat("[OSP Resolver]: Ignoring un-separated name {0}", name);
-                return UUID.Zero;
-            }
+			int nameSeparatorIndex = name.IndexOf (OSPA_NAME_VALUE_SEPARATOR);
 
-            string firstName = name.Remove(nameSeparatorIndex).TrimEnd();
-            string lastName = name.Substring(nameSeparatorIndex + 1).TrimStart();
+			if (nameSeparatorIndex < 0) {
+				MainConsole.Instance.WarnFormat ("[OSP RESOLVER]: Ignoring un-separated name {0}", name);
+				return UUID.Zero;
+			}
 
-            UserAccount account = userService.GetUserAccount(null, firstName, lastName);
-            if (account != null)
-                return account.PrincipalID;
+			string firstName = name.Remove (nameSeparatorIndex).TrimEnd ();
+			string lastName = name.Substring (nameSeparatorIndex + 1).TrimStart ();
 
-            return UUID.Zero;
-        }
-    }
+			UserAccount account = userService.GetUserAccount (null, firstName, lastName);
+			if (account != null)
+				return account.PrincipalID;
+
+			return UUID.Zero;
+		}
+	}
 }

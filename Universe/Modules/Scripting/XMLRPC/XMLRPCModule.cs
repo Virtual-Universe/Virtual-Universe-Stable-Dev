@@ -39,6 +39,9 @@ using OpenMetaverse;
 using Universe.Framework.ConsoleFramework;
 using Universe.Framework.Modules;
 using Universe.Framework.SceneInfo;
+
+//using Universe.Framework.Servers;
+//using Universe.Framework.Servers.HttpServer;
 using Universe.Framework.Servers.HttpServer.Interfaces;
 using Universe.Framework.Services;
 using Universe.Framework.Utilities;
@@ -78,124 +81,132 @@ using Universe.Framework.Utilities;
 
 namespace Universe.Modules.Scripting
 {
-    public class XMLRPCModule : IService, INonSharedRegionModule, IXMLRPC
-    {
-        IRegistryCore m_registry;
-        protected IHttpServer m_server;
+	public class XMLRPCModule : IService, INonSharedRegionModule, IXMLRPC
+	{
+		IRegistryCore m_registry;
+		protected IHttpServer m_server;
         
-        readonly object XMLRPCListLock = new object();
-        int RemoteReplyScriptTimeout = 9000;
-        int RemoteReplyScriptWait = 300;
-        int m_remoteDataPort = 20800;
-        bool m_httpServerStarted;
+		readonly object XMLRPCListLock = new object ();
+		int RemoteReplyScriptTimeout = 9000;
+		int RemoteReplyScriptWait = 300;
+		int m_remoteDataPort = 20800;
+		bool m_httpServerStarted;
 
-        string m_name = "XMLRPCModule";
+		string m_name = "XMLRPCModule";
 
-        // <channel id, RPCChannelInfo>
-        Dictionary<UUID, RPCChannelInfo> m_openChannels;
-        Dictionary<UUID, SendRemoteDataRequest> m_pendingSRDResponses;
+		// <channel id, RPCChannelInfo>
+		Dictionary<UUID, RPCChannelInfo> m_openChannels;
+		Dictionary<UUID, SendRemoteDataRequest> m_pendingSRDResponses;
 
-        Dictionary<UUID, RPCRequestInfo> m_rpcPending;
-        Dictionary<UUID, RPCRequestInfo> m_rpcPendingResponses;
-        IScriptModule m_scriptModule;
+		Dictionary<UUID, RPCRequestInfo> m_rpcPending;
+		Dictionary<UUID, RPCRequestInfo> m_rpcPendingResponses;
+		IScriptModule m_scriptModule;
 
-        #region IService Members
-        public void Initialize(IConfigSource config, IRegistryCore registry)
-        {
-            m_registry = registry;
-            if (config.Configs ["XMLRPC"] != null)
-                m_remoteDataPort = config.Configs ["XMLRPC"].GetInt ("XmlRpcPort", m_remoteDataPort);
-        }
+		#region IService Members
 
-        public void Start(IConfigSource config, IRegistryCore registry)
-        {
-        }
+		public void Initialize (IConfigSource config, IRegistryCore registry)
+		{
+			m_registry = registry;
+			if (config.Configs ["XMLRPC"] != null)
+				m_remoteDataPort = config.Configs ["XMLRPC"].GetInt ("XmlRpcPort", m_remoteDataPort);
 
-        public void FinishedStartup ()
-        {
-            var simBase = m_registry.RequestModuleInterface<ISimulationBase> ();
-            if (simBase.IsGridServer)
-                return;
 
-            //start XMLRPC Server
-            if (IsEnabled () && !ServerStarted ()) {
-                m_httpServerStarted = true;
-                // Start http server
-                // Attach xmlrpc handlers
-                MainConsole.Instance.Info ("[XmlRpc Server]: " + "Starting up XMLRPC Server on port " + m_remoteDataPort + " for llRemoteData commands.");
+		}
 
-                m_server = simBase.GetHttpServer ((uint)m_remoteDataPort);
-                m_server.AddXmlRPCHandler ("llRemoteData", XmlRpcRemoteData);
-            }
-        }
+		public void Start (IConfigSource config, IRegistryCore registry)
+		{
+		}
 
-        #endregion
+		public void FinishedStartup ()
+		{
+			var simBase = m_registry.RequestModuleInterface<ISimulationBase> ();
+			if (simBase.IsGridServer)
+				return;
 
-        #region INonSharedRegionModule Members
+			//start XMLRPC server only for regions
+			if (IsEnabled () && !ServerStarted ()) {
+				m_httpServerStarted = true;
+				// Start http server
+				// Attach xmlrpc handlers
+				MainConsole.Instance.Info ("[XMLRPC]: " +
+				"Starting up XMLRPC Server on port " + m_remoteDataPort +
+				" for llRemoteData commands.");
+				//IHttpServer httpServer = new BaseHttpServer ((uint)m_remoteDataPort, MainServer.Instance.HostName,
+				//    false, 1);
+				//httpServer.AddXmlRPCHandler ("llRemoteData", XmlRpcRemoteData);
+				//httpServer.Start ();
 
-        public void Initialize(IConfigSource config)
-        {
-            // We need to create these early because the scripts might be calling
-            // But since this gets called for every region, we need to make sure they
-            // get called only one time (or we lose any open channels)
-            if (m_openChannels == null)
-            {
-                m_openChannels = new Dictionary<UUID, RPCChannelInfo>();
-                m_rpcPending = new Dictionary<UUID, RPCRequestInfo>();
-                m_rpcPendingResponses = new Dictionary<UUID, RPCRequestInfo>();
-                m_pendingSRDResponses = new Dictionary<UUID, SendRemoteDataRequest>();
-            }
-        }
+				m_server = simBase.GetHttpServer ((uint)m_remoteDataPort);
+				m_server.AddXmlRPCHandler ("llRemoteData", XmlRpcRemoteData);
 
-        public void AddRegion (IScene scene)
-        {
-            scene.RegisterModuleInterface<IXMLRPC>(this);
-        }
+			}
+		}
 
-        public void RemoveRegion(IScene scene)
-        {
-            scene.UnregisterModuleInterface<IXMLRPC>(this);
-        }
+		#endregion
 
-        public void RegionLoaded(IScene scene)
-        {
-            m_scriptModule = scene.RequestModuleInterface<IScriptModule>();
-        }
+		#region INonSharedRegionModule Members
 
-        public Type ReplaceableInterface
-        {
-            get { return null; }
-        }
+		public void Initialize (IConfigSource config)
+		{
 
-        public void Close()
-        {
-        }
+			// We need to create these early because the scripts might be calling
+			// But since this gets called for every region, we need to make sure they
+			// get called only one time (or we lose any open channels)
+			if (m_openChannels == null) {
+				m_openChannels = new Dictionary<UUID, RPCChannelInfo> ();
+				m_rpcPending = new Dictionary<UUID, RPCRequestInfo> ();
+				m_rpcPendingResponses = new Dictionary<UUID, RPCRequestInfo> ();
+				m_pendingSRDResponses = new Dictionary<UUID, SendRemoteDataRequest> ();
 
-        public string Name
-        {
-            get { return m_name; }
-        }
+			}
+		}
 
-        #endregion
+		public void AddRegion (IScene scene)
+		{
+			scene.RegisterModuleInterface<IXMLRPC> (this);
+		}
 
-        #region IXMLRPC Members
+		public void RemoveRegion (IScene scene)
+		{
+			scene.UnregisterModuleInterface<IXMLRPC> (this);
+		}
 
-        public int Port
-        {
-            get { return m_remoteDataPort; }
-        }
+		public void RegionLoaded (IScene scene)
+		{
+			m_scriptModule = scene.RequestModuleInterface<IScriptModule> ();
+		}
 
-        public bool IsEnabled()
-        {
-            return (m_remoteDataPort > 0);
-        }
+		public Type ReplaceableInterface {
+			get { return null; }
+		}
 
-        public bool ServerStarted()
-        {
-            return m_httpServerStarted;
-        }
+		public void Close ()
+		{
+		}
 
-        /**********************************************
+		public string Name {
+			get { return m_name; }
+		}
+
+		#endregion
+
+		#region IXMLRPC Members
+
+		public int Port {
+			get { return m_remoteDataPort; }
+		}
+
+		public bool IsEnabled ()
+		{
+			return (m_remoteDataPort > 0);
+		}
+
+		public bool ServerStarted ()
+		{
+			return m_httpServerStarted;
+		}
+
+		/**********************************************
          * OpenXMLRPCChannel
          *
          * Generate a UUID channel key and add it and
@@ -213,549 +224,492 @@ namespace Universe.Modules.Scripting
          *
          * ********************************************/
 
-        public UUID OpenXMLRPCChannel(UUID primID, UUID itemID, UUID channelID)
-        {
-            UUID newChannel = UUID.Zero;
+		public UUID OpenXMLRPCChannel (UUID primID, UUID itemID, UUID channelID)
+		{
+			UUID newChannel = UUID.Zero;
 
-            // This should no longer happen, but the check is reasonable anyway
-            if (null == m_openChannels)
-            {
-                MainConsole.Instance.Warn("[XmlRpc]: Attempt to open channel before initialization is complete");
-                return newChannel;
-            }
+			// This should no longer happen, but the check is reasonable anyway
+			if (null == m_openChannels) {
+				MainConsole.Instance.Warn ("[XMLRPC]: Attempt to open channel before initialization is complete");
+				return newChannel;
+			}
 
-            //Is a dupe?
-            foreach (RPCChannelInfo ci in m_openChannels.Values.Where(ci => ci.GetItemID().Equals(itemID)))
-            {
-                // return the original channel ID for this item
-                newChannel = ci.GetChannelID();
-                break;
-            }
+			//Is a dupe?
+			foreach (RPCChannelInfo ci in m_openChannels.Values.Where(ci => ci.GetItemID().Equals(itemID))) {
+				// return the original channel ID for this item
+				newChannel = ci.GetChannelID ();
+				break;
+			}
 
-            if (newChannel == UUID.Zero)
-            {
-                newChannel = (channelID == UUID.Zero) ? UUID.Random() : channelID;
-                RPCChannelInfo rpcChanInfo = new RPCChannelInfo(primID, itemID, newChannel);
-                lock (XMLRPCListLock)
-                {
-                    m_openChannels.Add(newChannel, rpcChanInfo);
-                }
-            }
+			if (newChannel == UUID.Zero) {
+				newChannel = (channelID == UUID.Zero) ? UUID.Random () : channelID;
+				RPCChannelInfo rpcChanInfo = new RPCChannelInfo (primID, itemID, newChannel);
+				lock (XMLRPCListLock) {
+					m_openChannels.Add (newChannel, rpcChanInfo);
+				}
+			}
 
-            //Make sure that the cmd handler thread is running
-            m_scriptModule.PokeThreads(itemID);
+			//Make sure that the cmd handler thread is running
+			m_scriptModule.PokeThreads (itemID);
 
-            return newChannel;
-        }
+			return newChannel;
+		}
 
-        // Delete channels based on itemID
-        // for when a script is deleted
-        public void DeleteChannels(UUID itemID)
-        {
-            if (m_openChannels != null)
-            {
-                lock (XMLRPCListLock)
-                {
-                    int cnt = m_openChannels.Values.Count(li => li.GetItemID().Equals(itemID));
-                    for(int i = 0; i < cnt; i++)
-                        m_openChannels.Remove(itemID);
-                }
-            }
+		// Delete channels based on itemID
+		// for when a script is deleted
+		public void DeleteChannels (UUID itemID)
+		{
+			if (m_openChannels != null) {
+				lock (XMLRPCListLock) {
+					int cnt = m_openChannels.Values.Count (li => li.GetItemID ().Equals (itemID));
+					for (int i = 0; i < cnt; i++)
+						m_openChannels.Remove (itemID);
+				}
+			}
 
-            //Make sure that the cmd handler thread is running
-            m_scriptModule.PokeThreads(itemID);
-        }
+			//Make sure that the cmd handler thread is running
+			m_scriptModule.PokeThreads (itemID);
+		}
 
-        /**********************************************
+		/**********************************************
          * Remote Data Reply
          *
          * Response to RPC message
          *
          *********************************************/
 
-        public void RemoteDataReply(string channel, string message_id, string sdata, int idata)
-        {
-            UUID message_key = new UUID(message_id);
-            UUID channel_key = new UUID(channel);
+		public void RemoteDataReply (string channel, string message_id, string sdata, int idata)
+		{
+			UUID message_key = new UUID (message_id);
+			UUID channel_key = new UUID (channel);
 
-            RPCRequestInfo rpcInfo = null;
+			RPCRequestInfo rpcInfo = null;
 
-            if (message_key == UUID.Zero)
-            {
-                foreach (
+			if (message_key == UUID.Zero) {
+				foreach (
                     RPCRequestInfo oneRpcInfo in
                         m_rpcPendingResponses.Values.Where(oneRpcInfo => oneRpcInfo.GetChannelKey() == channel_key))
+					rpcInfo = oneRpcInfo;
+			} else {
+				m_rpcPendingResponses.TryGetValue (message_key, out rpcInfo);
+			}
 
-                    rpcInfo = oneRpcInfo;
-            }
-            else
-            {
-                m_rpcPendingResponses.TryGetValue(message_key, out rpcInfo);
-            }
+			if (rpcInfo != null) {
+				rpcInfo.SetStrRetval (sdata);
+				rpcInfo.SetIntRetval (idata);
+				rpcInfo.SetProcessed (true);
+				m_rpcPendingResponses.Remove (message_key);
 
-            if (rpcInfo != null)
-            {
-                rpcInfo.SetStrRetval(sdata);
-                rpcInfo.SetIntRetval(idata);
-                rpcInfo.SetProcessed(true);
-                m_rpcPendingResponses.Remove(message_key);
+				//Make sure that the cmd handler thread is running
+				m_scriptModule.PokeThreads (rpcInfo.GetItemID ());
+			} else {
+				MainConsole.Instance.Warn ("[XMLRPC]: Channel or message_id not found");
+			}
+		}
 
-                //Make sure that the cmd handler thread is running
-                m_scriptModule.PokeThreads(rpcInfo.GetItemID());
-            }
-            else
-            {
-                MainConsole.Instance.Warn("[XMLRPC]: Channel or message_id not found");
-            }
-        }
-
-        /**********************************************
+		/**********************************************
          * CloseXMLRPCChannel
          *
          * Remove channel from dictionary
          *
          *********************************************/
 
-        public void CloseXMLRPCChannel(UUID channelKey)
-        {
-            if (m_openChannels.ContainsKey(channelKey))
-                m_openChannels.Remove(channelKey);
-        }
+		public void CloseXMLRPCChannel (UUID channelKey)
+		{
+			if (m_openChannels.ContainsKey (channelKey))
+				m_openChannels.Remove (channelKey);
+		}
 
-        public bool hasRequests()
-        {
-            lock (XMLRPCListLock)
-            {
-                if (m_rpcPending != null)
-                    if (m_rpcPending.Count > 0)
-                        return true;
 
-                if (m_pendingSRDResponses != null)
-                    if (m_pendingSRDResponses.Count > 0)
-                        return true;
+		public bool hasRequests ()
+		{
+			lock (XMLRPCListLock) {
+				if (m_rpcPending != null)
+				if (m_rpcPending.Count > 0)
+					return true;
+				if (m_pendingSRDResponses != null)
+				if (m_pendingSRDResponses.Count > 0)
+					return true;
+				return false;
+			}
+		}
 
-                return false;
-            }
-        }
+		public IXmlRpcRequestInfo GetNextCompletedRequest ()
+		{
+			if (m_rpcPending != null) {
+				if (m_rpcPending.Count == 0)
+					return null;
+				lock (XMLRPCListLock) {
+					foreach (RPCRequestInfo luid in m_rpcPending.Values.Where(luid => !luid.IsProcessed())) {
+						return luid;
+					}
+				}
+			}
+			return null;
+		}
 
-        public IXmlRpcRequestInfo GetNextCompletedRequest()
-        {
-            if (m_rpcPending != null)
-            {
-                if (m_rpcPending.Count == 0)
-                    return null;
+		public void RemoveCompletedRequest (UUID id)
+		{
+			lock (XMLRPCListLock) {
+				RPCRequestInfo tmp;
+				if (m_rpcPending.TryGetValue (id, out tmp)) {
+					m_rpcPending.Remove (id);
+					m_rpcPendingResponses.Add (id, tmp);
+				} else {
+					MainConsole.Instance.Error ("[XMLRPC]: Unable to complete request");
+				}
+			}
+		}
 
-                lock (XMLRPCListLock)
-                {
-                    foreach (RPCRequestInfo luid in m_rpcPending.Values.Where(luid => !luid.IsProcessed()))
-                    {
-                        return luid;
-                    }
-                }
-            }
+		public UUID SendRemoteData (UUID primID, UUID itemID, string channel, string dest, int idata, string sdata)
+		{
+			SendRemoteDataRequest req = new SendRemoteDataRequest (
+				                                     primID, itemID, channel, dest, idata, sdata
+			                                     );
+			m_pendingSRDResponses.Add (req.GetReqID (), req);
+			req.Process ();
 
-            return null;
-        }
+			//Make sure that the cmd handler thread is running
+			m_scriptModule.PokeThreads (itemID);
+			return req.ReqID;
+		}
 
-        public void RemoveCompletedRequest(UUID id)
-        {
-            lock (XMLRPCListLock)
-            {
-                RPCRequestInfo tmp;
-                if (m_rpcPending.TryGetValue(id, out tmp))
-                {
-                    m_rpcPending.Remove(id);
-                    m_rpcPendingResponses.Add(id, tmp);
-                }
-                else
-                {
-                    MainConsole.Instance.Error("[XmlRpc Server]: Unable to complete request");
-                }
-            }
-        }
+		public IServiceRequest GetNextCompletedSRDRequest ()
+		{
+			if (m_pendingSRDResponses != null) {
+				if (m_pendingSRDResponses.Count == 0)
+					return null;
+				lock (XMLRPCListLock) {
+					foreach (SendRemoteDataRequest luid in m_pendingSRDResponses.Values.Where(luid => luid.Finished)) {
+						return luid;
+					}
+				}
+			}
+			return null;
+		}
 
-        public UUID SendRemoteData(UUID primID, UUID itemID, string channel, string dest, int idata, string sdata)
-        {
-            SendRemoteDataRequest req = new SendRemoteDataRequest(
-                primID, itemID, channel, dest, idata, sdata
-                );
+		public void RemoveCompletedSRDRequest (UUID id)
+		{
+			lock (XMLRPCListLock) {
+				SendRemoteDataRequest tmpReq;
+				if (m_pendingSRDResponses.TryGetValue (id, out tmpReq)) {
+					m_pendingSRDResponses.Remove (id);
+				}
+			}
+		}
 
-            m_pendingSRDResponses.Add(req.GetReqID(), req);
-            req.Process();
+		public void CancelSRDRequests (UUID itemID)
+		{
+			if (m_pendingSRDResponses != null) {
+				lock (XMLRPCListLock) {
+					foreach (
+                        SendRemoteDataRequest li in m_pendingSRDResponses.Values.Where(li => li.ItemID.Equals(itemID))) {
+						m_pendingSRDResponses.Remove (li.GetReqID ());
+					}
+				}
+			}
+		}
 
-            //Make sure that the cmd handler thread is running
-            m_scriptModule.PokeThreads(itemID);
-            return req.ReqID;
-        }
+		#endregion
 
-        public IServiceRequest GetNextCompletedSRDRequest()
-        {
-            if (m_pendingSRDResponses != null)
-            {
-                if (m_pendingSRDResponses.Count == 0)
-                    return null;
+		public XmlRpcResponse XmlRpcRemoteData (XmlRpcRequest request, IPEndPoint remoteClient)
+		{
+			XmlRpcResponse response = new XmlRpcResponse ();
 
-                lock (XMLRPCListLock)
-                {
-                    foreach (SendRemoteDataRequest luid in m_pendingSRDResponses.Values.Where(luid => luid.Finished))
-                    {
-                        return luid;
-                    }
-                }
-            }
+			Hashtable requestData = (Hashtable)request.Params [0];
+			bool GoodXML = (requestData.Contains ("Channel") && requestData.Contains ("IntValue") &&
+			                        requestData.Contains ("StringValue"));
 
-            return null;
-        }
+			if (GoodXML) {
+				UUID channel = new UUID ((string)requestData ["Channel"]);
+				RPCChannelInfo rpcChanInfo;
+				if (m_openChannels.TryGetValue (channel, out rpcChanInfo)) {
+					string intVal = Convert.ToInt32 (requestData ["IntValue"]).ToString ();
+					string strVal = (string)requestData ["StringValue"];
 
-        public void RemoveCompletedSRDRequest(UUID id)
-        {
-            lock (XMLRPCListLock)
-            {
-                SendRemoteDataRequest tmpReq;
-                if (m_pendingSRDResponses.TryGetValue(id, out tmpReq))
-                {
-                    m_pendingSRDResponses.Remove(id);
-                }
-            }
-        }
+					RPCRequestInfo rpcInfo;
 
-        public void CancelSRDRequests(UUID itemID)
-        {
-            if (m_pendingSRDResponses != null)
-            {
-                lock (XMLRPCListLock)
-                {
-                    foreach (
-                        SendRemoteDataRequest li in m_pendingSRDResponses.Values.Where(li => li.ItemID.Equals(itemID)))
-                    {
-                        m_pendingSRDResponses.Remove(li.GetReqID());
-                    }
-                }
-            }
-        }
+					lock (XMLRPCListLock) {
+						rpcInfo =
+                            new RPCRequestInfo (rpcChanInfo.GetPrimID (), rpcChanInfo.GetItemID (), channel, strVal,
+							intVal);
+						m_rpcPending.Add (rpcInfo.GetMessageID (), rpcInfo);
+					}
 
-        #endregion
+					int timeoutCtr = 0;
 
-        public XmlRpcResponse XmlRpcRemoteData(XmlRpcRequest request, IPEndPoint remoteClient)
-        {
-            XmlRpcResponse response = new XmlRpcResponse();
+					while (!rpcInfo.IsProcessed () && (timeoutCtr < RemoteReplyScriptTimeout)) {
+						Thread.Sleep (RemoteReplyScriptWait);
+						timeoutCtr += RemoteReplyScriptWait;
+					}
+					if (rpcInfo.IsProcessed ()) {
+						Hashtable param = new Hashtable ();
+						param ["StringValue"] = rpcInfo.GetStrRetval ();
+						param ["IntValue"] = rpcInfo.GetIntRetval ();
 
-            Hashtable requestData = (Hashtable) request.Params[0];
-            bool GoodXML = (requestData.Contains("Channel") && requestData.Contains("IntValue") &&
-                            requestData.Contains("StringValue"));
+						ArrayList parameters = new ArrayList { param };
 
-            if (GoodXML)
-            {
-                UUID channel = new UUID((string) requestData["Channel"]);
-                RPCChannelInfo rpcChanInfo;
-                if (m_openChannels.TryGetValue(channel, out rpcChanInfo))
-                {
-                    string intVal = Convert.ToInt32(requestData["IntValue"]).ToString();
-                    string strVal = (string) requestData["StringValue"];
+						response.Value = parameters;
+						rpcInfo = null;
+					} else {
+						response.SetFault (-1, "Script timeout");
+						rpcInfo = null;
+					}
+				} else {
+					response.SetFault (-1, "Invalid channel");
+				}
+			}
 
-                    RPCRequestInfo rpcInfo;
+			//Make sure that the cmd handler thread is running
+			m_scriptModule.PokeThreads (UUID.Zero);
 
-                    lock (XMLRPCListLock)
-                    {
-                        rpcInfo = new RPCRequestInfo(rpcChanInfo.GetPrimID(), rpcChanInfo.GetItemID(), channel, strVal, intVal);
-                        m_rpcPending.Add(rpcInfo.GetMessageID(), rpcInfo);
-                    }
+			return response;
+		}
+	}
 
-                    int timeoutCtr = 0;
+	public class RPCRequestInfo : IXmlRpcRequestInfo
+	{
+		readonly UUID m_ChannelKey;
+		readonly string m_IntVal;
+		readonly UUID m_ItemID;
+		readonly UUID m_MessageID;
+		readonly UUID m_PrimID;
+		readonly string m_StrVal;
+		bool m_processed;
+		int m_respInt;
+		string m_respStr;
 
-                    while (!rpcInfo.IsProcessed() && (timeoutCtr < RemoteReplyScriptTimeout))
-                    {
-                        Thread.Sleep(RemoteReplyScriptWait);
-                        timeoutCtr += RemoteReplyScriptWait;
-                    }
+		public RPCRequestInfo (UUID primID, UUID itemID, UUID channelKey, string strVal, string intVal)
+		{
+			m_PrimID = primID;
+			m_StrVal = strVal;
+			m_IntVal = intVal;
+			m_ItemID = itemID;
+			m_ChannelKey = channelKey;
+			m_MessageID = UUID.Random ();
+			m_processed = false;
+			m_respStr = string.Empty;
+			m_respInt = 0;
+		}
 
-                    if (rpcInfo.IsProcessed())
-                    {
-                        Hashtable param = new Hashtable();
-                        param["StringValue"] = rpcInfo.GetStrRetval();
-                        param["IntValue"] = rpcInfo.GetIntRetval();
+		#region IXmlRpcRequestInfo Members
 
-                        ArrayList parameters = new ArrayList {param};
+		public bool IsProcessed ()
+		{
+			return m_processed;
+		}
 
-                        response.Value = parameters;
-                        rpcInfo = null;
-                    }
-                    else
-                    {
-                        response.SetFault(-1, "Script timeout");
-                        rpcInfo = null;
-                    }
-                }
-                else
-                {
-                    response.SetFault(-1, "Invalid channel");
-                }
-            }
+		public UUID GetChannelKey ()
+		{
+			return m_ChannelKey;
+		}
 
-            //Make sure that the cmd handler thread is running
-            m_scriptModule.PokeThreads(UUID.Zero);
+		public void SetProcessed (bool processed)
+		{
+			m_processed = processed;
+		}
 
-            return response;
-        }
-    }
+		public void SetStrRetval (string resp)
+		{
+			m_respStr = resp;
+		}
 
-    public class RPCRequestInfo : IXmlRpcRequestInfo
-    {
-        readonly UUID m_ChannelKey;
-        readonly string m_IntVal;
-        readonly UUID m_ItemID;
-        readonly UUID m_MessageID;
-        readonly UUID m_PrimID;
-        readonly string m_StrVal;
-        bool m_processed;
-        int m_respInt;
-        string m_respStr;
+		public string GetStrRetval ()
+		{
+			return m_respStr;
+		}
 
-        public RPCRequestInfo(UUID primID, UUID itemID, UUID channelKey, string strVal, string intVal)
-        {
-            m_PrimID = primID;
-            m_StrVal = strVal;
-            m_IntVal = intVal;
-            m_ItemID = itemID;
-            m_ChannelKey = channelKey;
-            m_MessageID = UUID.Random();
-            m_processed = false;
-            m_respStr = string.Empty;
-            m_respInt = 0;
-        }
+		public void SetIntRetval (int resp)
+		{
+			m_respInt = resp;
+		}
 
-        #region IXmlRpcRequestInfo Members
+		public int GetIntRetval ()
+		{
+			return m_respInt;
+		}
 
-        public bool IsProcessed()
-        {
-            return m_processed;
-        }
+		public UUID GetPrimID ()
+		{
+			return m_PrimID;
+		}
 
-        public UUID GetChannelKey()
-        {
-            return m_ChannelKey;
-        }
+		public UUID GetItemID ()
+		{
+			return m_ItemID;
+		}
 
-        public void SetProcessed(bool processed)
-        {
-            m_processed = processed;
-        }
+		public string GetStrVal ()
+		{
+			return m_StrVal;
+		}
 
-        public void SetStrRetval(string resp)
-        {
-            m_respStr = resp;
-        }
+		public int GetIntValue ()
+		{
+			return int.Parse (m_IntVal);
+		}
 
-        public string GetStrRetval()
-        {
-            return m_respStr;
-        }
+		public UUID GetMessageID ()
+		{
+			return m_MessageID;
+		}
 
-        public void SetIntRetval(int resp)
-        {
-            m_respInt = resp;
-        }
+		#endregion
+	}
 
-        public int GetIntRetval()
-        {
-            return m_respInt;
-        }
+	public class RPCChannelInfo
+	{
+		readonly UUID m_ChannelKey;
+		readonly UUID m_itemID;
+		readonly UUID m_primID;
 
-        public UUID GetPrimID()
-        {
-            return m_PrimID;
-        }
+		public RPCChannelInfo (UUID primID, UUID itemID, UUID channelID)
+		{
+			m_ChannelKey = channelID;
+			m_primID = primID;
+			m_itemID = itemID;
+		}
 
-        public UUID GetItemID()
-        {
-            return m_ItemID;
-        }
+		public UUID GetItemID ()
+		{
+			return m_itemID;
+		}
 
-        public string GetStrVal()
-        {
-            return m_StrVal;
-        }
+		public UUID GetChannelID ()
+		{
+			return m_ChannelKey;
+		}
 
-        public int GetIntValue()
-        {
-            return int.Parse(m_IntVal);
-        }
+		public UUID GetPrimID ()
+		{
+			return m_primID;
+		}
+	}
 
-        public UUID GetMessageID()
-        {
-            return m_MessageID;
-        }
+	public class SendRemoteDataRequest : ISendRemoteDataRequest
+	{
+		public string Channel { get; set; }
 
-        #endregion
-    }
+		public string DestURL { get; set; }
 
-    public class RPCChannelInfo
-    {
-        readonly UUID m_ChannelKey;
-        readonly UUID m_itemID;
-        readonly UUID m_primID;
+		public int Idata { get; set; }
 
-        public RPCChannelInfo(UUID primID, UUID itemID, UUID channelID)
-        {
-            m_ChannelKey = channelID;
-            m_primID = primID;
-            m_itemID = itemID;
-        }
+		public XmlRpcRequest Request { get; set; }
 
-        public UUID GetItemID()
-        {
-            return m_itemID;
-        }
+		public int ResponseIdata { get; set; }
 
-        public UUID GetChannelID()
-        {
-            return m_ChannelKey;
-        }
+		public string ResponseSdata { get; set; }
 
-        public UUID GetPrimID()
-        {
-            return m_primID;
-        }
-    }
+		public string Sdata { get; set; }
 
-    public class SendRemoteDataRequest : ISendRemoteDataRequest
-    {
-        public string Channel { get; set; }
-        public string DestURL { get; set; }
-        public int Idata { get; set; }
+		bool _finished;
+		Thread httpThread;
 
-        public XmlRpcRequest Request { get; set; }
-        public int ResponseIdata { get; set; }
-        public string ResponseSdata { get; set; }
-        public string Sdata { get; set; }
-        bool _finished;
-        Thread httpThread;
+		public SendRemoteDataRequest (UUID primID, UUID itemID, string channel, string dest, int idata, string sdata)
+		{
+			Channel = channel;
+			DestURL = dest;
+			Idata = idata;
+			Sdata = sdata;
+			ItemID = itemID;
+			PrimID = primID;
 
-        public SendRemoteDataRequest(UUID primID, UUID itemID, string channel, string dest, int idata, string sdata)
-        {
-            Channel = channel;
-            DestURL = dest;
-            Idata = idata;
-            Sdata = sdata;
-            ItemID = itemID;
-            PrimID = primID;
+			ReqID = UUID.Random ();
+		}
 
-            ReqID = UUID.Random();
-        }
+		#region IServiceRequest Members
 
-        #region IServiceRequest Members
+		public bool Finished {
+			get { return _finished; }
+			set { _finished = value; }
+		}
 
-        public bool Finished
-        {
-            get { return _finished; }
-            set { _finished = value; }
-        }
+		public UUID ItemID { get; set; }
 
-        public UUID ItemID { get; set; }
+		public UUID PrimID { get; set; }
 
-        public UUID PrimID { get; set; }
+		public UUID ReqID { get; set; }
 
-        public UUID ReqID { get; set; }
+		public void Process ()
+		{
+			httpThread = new Thread (SendRequest)
+                             { Name = "HttpRequestThread", Priority = ThreadPriority.BelowNormal, IsBackground = true };
+			_finished = false;
+			httpThread.Start ();
+		}
 
-        public void Process()
-        {
-            httpThread = new Thread(SendRequest)
-                             {Name = "HttpRequestThread", Priority = ThreadPriority.BelowNormal, IsBackground = true};
-            _finished = false;
-            httpThread.Start();
-        }
-
-        /*
+		/*
          * TODO: More work on the response codes.  Right now
          * returning 200 for success or 499 for exception
          */
 
-        public void SendRequest()
-        {
-            Culture.SetCurrentCulture();
-            Hashtable param = new Hashtable();
+		public void SendRequest ()
+		{
+			Culture.SetCurrentCulture ();
+			Hashtable param = new Hashtable ();
 
-            // Check if channel is an UUID
-            // if not, use as method name
-            UUID parseUID;
-            string mName = "llRemoteData";
-            if (!string.IsNullOrEmpty(Channel))
-                if (!UUID.TryParse(Channel, out parseUID))
-                    mName = Channel;
-                else
-                    param["Channel"] = Channel;
+			// Check if channel is an UUID
+			// if not, use as method name
+			UUID parseUID;
+			string mName = "llRemoteData";
+			if (!string.IsNullOrEmpty (Channel))
+			if (!UUID.TryParse (Channel, out parseUID))
+				mName = Channel;
+			else
+				param ["Channel"] = Channel;
 
-            param["StringValue"] = Sdata;
-            param["IntValue"] = Convert.ToString(Idata);
+			param ["StringValue"] = Sdata;
+			param ["IntValue"] = Convert.ToString (Idata);
 
-            ArrayList parameters = new ArrayList {param};
-            XmlRpcRequest req = new XmlRpcRequest(mName, parameters);
-            try
-            {
-                XmlRpcResponse resp = req.Send(DestURL, 30000);
-                if (resp != null)
-                {
-                    Hashtable respParms;
-                    if (resp.Value.GetType().Equals(typeof (Hashtable)))
-                    {
-                        respParms = (Hashtable) resp.Value;
-                    }
-                    else
-                    {
-                        ArrayList respData = (ArrayList) resp.Value;
-                        respParms = (Hashtable) respData[0];
-                    }
+			ArrayList parameters = new ArrayList { param };
+			XmlRpcRequest req = new XmlRpcRequest (mName, parameters);
+			try {
+				XmlRpcResponse resp = req.Send (DestURL, 30000);
+				if (resp != null) {
+					Hashtable respParms;
+					if (resp.Value.GetType ().Equals (typeof(Hashtable))) {
+						respParms = (Hashtable)resp.Value;
+					} else {
+						ArrayList respData = (ArrayList)resp.Value;
+						respParms = (Hashtable)respData [0];
+					}
+					if (respParms != null) {
+						if (respParms.Contains ("StringValue")) {
+							Sdata = (string)respParms ["StringValue"];
+						}
+						if (respParms.Contains ("IntValue")) {
+							Idata = Convert.ToInt32 (respParms ["IntValue"]);
+						}
+						if (respParms.Contains ("faultString")) {
+							Sdata = (string)respParms ["faultString"];
+						}
+						if (respParms.Contains ("faultCode")) {
+							Idata = Convert.ToInt32 (respParms ["faultCode"]);
+						}
+					}
+				}
+			} catch (Exception we) {
+				Sdata = we.Message;
+				MainConsole.Instance.Warn ("[SendRemoteDataRequest]: Request failed");
+				MainConsole.Instance.Warn (we.StackTrace);
+			}
 
-                    if (respParms != null)
-                    {
-                        if (respParms.Contains("StringValue"))
-                        {
-                            Sdata = (string) respParms["StringValue"];
-                        }
+			_finished = true;
+		}
 
-                        if (respParms.Contains("IntValue"))
-                        {
-                            Idata = Convert.ToInt32(respParms["IntValue"]);
-                        }
+		public void Stop ()
+		{
+			try {
+				httpThread.Abort ();
+			} catch (Exception) {
+			}
+		}
 
-                        if (respParms.Contains("faultString"))
-                        {
-                            Sdata = (string) respParms["faultString"];
-                        }
+		#endregion
 
-                        if (respParms.Contains("faultCode"))
-                        {
-                            Idata = Convert.ToInt32(respParms["faultCode"]);
-                        }
-                    }
-                }
-            }
-            catch (Exception we)
-            {
-                Sdata = we.Message;
-                MainConsole.Instance.Warn("[SendRemoteDataRequest]: Request failed");
-                MainConsole.Instance.Warn(we.StackTrace);
-            }
-
-            _finished = true;
-        }
-
-        public void Stop()
-        {
-            try
-            {
-                httpThread.Abort();
-            }
-            catch (Exception)
-            {
-            }
-        }
-
-        #endregion
-
-        public UUID GetReqID()
-        {
-            return ReqID;
-        }
-    }
+		public UUID GetReqID ()
+		{
+			return ReqID;
+		}
+	}
 }
