@@ -105,7 +105,8 @@ namespace Universe.Modules.Web.Translators
 			{ "Password", "Contraseña" },
 			{ "PasswordText", "Contraseña" },
 			{ "PasswordConfirmation", "Password Confirmation" },
-			{ "ForgotPassword", "¿Olvidó su contraseña?" }, { "TypeUserNameToConfirm", "Please type the username of this account to confirm you want to delete this account"},
+			{ "ForgotPassword", "¿Olvidó su contraseña?" }, 
+			{ "TypeUserNameToConfirm", "Please type the username of this account to confirm you want to delete this account"},
 
             // Special windows
             { "SpecialWindowTitleText", "Special Info Window Title"},
@@ -649,7 +650,8 @@ namespace Universe.Modules.Web.Translators
             { "it", "Italiano"},
             { "es", "Español"},
             { "nl", "Nederlands"},
-            { "ru", "Русский"}
+            { "ru", "Русский"},
+			{ "ga", "Irish" }
         };
     }
 }

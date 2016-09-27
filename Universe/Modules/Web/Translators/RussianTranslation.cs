@@ -106,7 +106,8 @@ namespace Universe.Modules.Web.Translators
 			{ "Password", "Пароль" },
 			{ "PasswordText", "Пароль" },
 			{ "PasswordConfirmation", "Подтверждение пароля" },
-			{ "ForgotPassword", "Забыли пароль?" }, { "TypeUserNameToConfirm", "Пожалуйста, введите имя пользователя учетной записи, чтобы подтвердить её удаление."},
+			{ "ForgotPassword", "Забыли пароль?" }, 
+			{ "TypeUserNameToConfirm", "Пожалуйста, введите имя пользователя учетной записи, чтобы подтвердить её удаление."},
 
             // Special windows
             { "SpecialWindowTitleText", "Заголовок Окна Особой Информации"},
@@ -648,6 +649,7 @@ namespace Universe.Modules.Web.Translators
             { "es", "Español"},
             { "nl", "Nederlands"},
             { "ru", "Русский"},
+			{ "ga", "Irish" }
         };
     }
 }

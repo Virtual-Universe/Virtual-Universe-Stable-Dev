@@ -105,7 +105,8 @@ namespace Universe.Modules.Web.Translators
 			{ "Password", "Wachtwoord" },
 			{ "PasswordText", "Wachtwoord" },
 			{ "PasswordConfirmation", "Wachtwoord Bevestiging" },
-			{ "ForgotPassword", "Wachtwoord vergeten?" }, { "TypeUserNameToConfirm", "Geef de gebruikersnaam van dit account in om te bevestigen dat je dit account wilt verwijderen"},
+			{ "ForgotPassword", "Wachtwoord vergeten?" }, 
+			{ "TypeUserNameToConfirm", "Geef de gebruikersnaam van dit account in om te bevestigen dat je dit account wilt verwijderen"},
 
             // Special window
             { "SpecialWindowTitleText", "Special Info Window Titel"},
@@ -648,7 +649,8 @@ namespace Universe.Modules.Web.Translators
             { "it", "Italiano"},
             { "es", "Espa?ol"},
             { "nl", "Nederlands"},
-            { "ru", "Русский"}
+            { "ru", "Русский"},
+			{ "ga", "Irish" }
         };
     }
 }

@@ -105,7 +105,8 @@ namespace Universe.Modules.Web.Translators
 			{ "Password", "Password" },
 			{ "PasswordText", "Password" },
 			{ "PasswordConfirmation", "Conferma Password" },
-			{ "ForgotPassword", "Password dimenticata?" }, { "TypeUserNameToConfirm", "Si prega di inserire il nome utente di questo account per confermare che si desidera eliminare questo account"},
+			{ "ForgotPassword", "Password dimenticata?" }, 
+			{ "TypeUserNameToConfirm", "Si prega di inserire il nome utente di questo account per confermare che si desidera eliminare questo account"},
 
             // Special windows
             { "SpecialWindowTitleText", "Titolo sezione Info Speciali"},
@@ -650,7 +651,8 @@ namespace Universe.Modules.Web.Translators
             { "it", "Italiano"},
             { "es", "Español"},
             { "nl", "Nederlands"},
-            { "ru", "Русский"}
+            { "ru", "Русский"},
+			{ "ga", "Irish" }
         };
     }
 }

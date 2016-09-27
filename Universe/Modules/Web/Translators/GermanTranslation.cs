@@ -128,15 +128,14 @@ namespace Universe.Modules.Web.Translators
 			{ "UserDOBText", "Dein Geburtsdatum (Monat Tag Jahr)" },
 			{ "UserEmailText", "Dein Email" },
 			{ "UserHomeRegionText", "Heimatregion" },
-			{ "RegistrationText", "Avatar Registrierung" }, {
-				"RegistrationsDisabled",
-				"Registrationen sind zur Zeit leider nicht möglich, bitte versuche es später erneut."
-			},
+			{ "RegistrationText", "Avatar Registrierung" }, 
+			{ "RegistrationsDisabled", "Registrationen sind zur Zeit leider nicht möglich, bitte versuche es später erneut."},
 			{ "TermsOfServiceText", "Nutzungsbedingungen" },
 			{ "TermsOfServiceAccept", "akzeptieren Sie die Nutzungsbedinungen, wie oben beschrieben?" },
 			{ "AvatarNameError", "Sie haben keinen Avatar Namen!" },
-			{ "AvatarPasswordError", "Passwort darf nicht leer sein!" }, {"AvatarEmailError", "Eine E-Mail Adresse ist für die Passwort Wiederherstellung erforderlich! ('none', wenn unbekannt)"},
-            {"AvatarNameSpacingError", "Ihr Avatar Name sollte 'Vorname Nachname' sein!"},
+			{ "AvatarPasswordError", "Passwort darf nicht leer sein!" }, 
+			{ "AvatarEmailError", "Eine E-Mail Adresse ist für die Passwort Wiederherstellung erforderlich! ('none', wenn unbekannt)"},
+            { "AvatarNameSpacingError", "Ihr Avatar Name sollte 'Vorname Nachname' sein!"},
 
             // News
             {"OpenNewsManager", "Öffne den Nachrichten Manager"},
@@ -356,7 +355,7 @@ namespace Universe.Modules.Web.Translators
             {"LoggedOutSuccessfullyText", "Du hast dich erfolgreich abgemeldet."},
 
             //Change user information page
-            {"ChangeUserInformationText", "Ändere Benutzer Informationen"},
+            {"ChangeUserInformationText", "�ndere Benutzer Informationen"},
             {"ChangePasswordText", "Passwort ändern"},
             {"NewPasswordText", "Neues Passwort"},
             {"NewPasswordConfirmationText", "Neues Passwort bestätigen"},
@@ -650,7 +649,8 @@ namespace Universe.Modules.Web.Translators
             {"it", "Italiano"},
             {"es", "Espa�ol"},
             {"nl", "Nederlands"},
-            {"ru", "Русский"}
+            {"ru", "Русский"},
+			{ "ga", "Irish" }
         };
     }
 }
