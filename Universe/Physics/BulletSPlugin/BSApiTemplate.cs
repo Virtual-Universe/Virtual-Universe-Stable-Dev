@@ -281,33 +281,32 @@ namespace Universe.Physics.BulletSPlugin
 		CO_USER_TYPE = 1 << 5,
 	}
 
-	// Values used by Bullet and BulletSim to control object properties.
-	// Bullet's "CollisionFlags" has more to do with operations on the
-	//    object (if collisions happen, if gravity effects it, ...).
-	[Flags]
-	public enum CollisionFlags : uint
-	{
-		CF_STATIC_OBJECT = 1 << 0,
-		CF_KINEMATIC_OBJECT = 1 << 1,
-		CF_NO_CONTACT_RESPONSE = 1 << 2,
-		CF_CUSTOM_MATERIAL_CALLBACK = 1 << 3,
-		CF_CHARACTER_OBJECT = 1 << 4,
-		CF_DISABLE_VISUALIZE_OBJECT = 1 << 5,
-		CF_DISABLE_SPU_COLLISION_PROCESS = 1 << 6,
-		// Following used by BulletSim to control collisions and updates
-		BS_SUBSCRIBE_COLLISION_EVENTS = 1 << 10,
-		// return collision events from unmanaged to managed
-		BS_FLOATS_ON_WATER = 1 << 11,
-		// the object should float at water level
-		BS_VEHICLE_COLLISIONS = 1 << 12,
-		// return collisions for vehicle ground checking
-		BS_RETURN_ROOT_COMPOUND_SHAPE = 1 << 13,
-		// return the pos/rot of the root shape in a compound shape
-		BS_NONE = 0,
-		BS_ALL = 0x7FFF
-		// collision flags are a signed short     //BS_ALL = 0xFFFFFFFF}
-
-	;
+    // Values used by Bullet and BulletSim to control object properties.
+    // Bullet's "CollisionFlags" has more to do with operations on the
+    //    object (if collisions happen, if gravity effects it, ...).
+    [Flags]
+    public enum CollisionFlags : uint
+    {
+        CF_STATIC_OBJECT = 1 << 0,
+        CF_KINEMATIC_OBJECT = 1 << 1,
+        CF_NO_CONTACT_RESPONSE = 1 << 2,
+        CF_CUSTOM_MATERIAL_CALLBACK = 1 << 3,
+        CF_CHARACTER_OBJECT = 1 << 4,
+        CF_DISABLE_VISUALIZE_OBJECT = 1 << 5,
+        CF_DISABLE_SPU_COLLISION_PROCESS = 1 << 6,
+        // Following used by BulletSim to control collisions and updates
+        BS_SUBSCRIBE_COLLISION_EVENTS = 1 << 10,
+        // return collision events from unmanaged to managed
+        BS_FLOATS_ON_WATER = 1 << 11,
+        // the object should float at water level
+        BS_VEHICLE_COLLISIONS = 1 << 12,
+        // return collisions for vehicle ground checking
+        BS_RETURN_ROOT_COMPOUND_SHAPE = 1 << 13,
+        // return the pos/rot of the root shape in a compound shape
+        BS_NONE = 0,
+        BS_ALL = 0x7FFF,
+        // collision flags are a signed short     //BS_ALL = 0xFFFFFFFF}
+    }
 
 	// Values f collisions groups and masks
 	[Flags]

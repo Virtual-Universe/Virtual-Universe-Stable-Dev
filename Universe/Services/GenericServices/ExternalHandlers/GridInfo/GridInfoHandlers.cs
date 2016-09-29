@@ -39,8 +39,6 @@ using Universe.Framework.Modules;
 using Universe.Framework.Servers;
 using Universe.Framework.Servers.HttpServer.Implementation;
 using Universe.Framework.Services;
-using Nini.Config;
-using Nwc.XmlRpc;
 
 namespace Universe.Services
 {

@@ -30,7 +30,7 @@
 using System;
 using System.IO;
 using Nini.Config;
-using OpenMetavere;
+using OpenMetaverse;
 using OpenMetaverse.StructuredData;
 using Universe.Framework.Modules;
 using Universe.Framework.PresenceInfo;

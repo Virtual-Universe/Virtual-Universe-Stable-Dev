@@ -89,18 +89,19 @@ namespace Universe.Modules.Web
 			}
 			uint.TryParse (eventId, out eid);
 
-			if (requestParameters.ContainsKey ("Delete"){
-				if (directoryService.DeleteEvent (eid.ToString ()))
-					response = "<h3>Event details have been deleted</h3>" +
-					"<script>" +
-					"setTimeout(function() {window.location.href = \"/?page=user_events\";}, 1000);" +
-					"</script>";
-				else
-					response = "<h3>Error encountered when deleting event. Please try again later</h3>";
-				return null;
-			}
+            if (requestParameters.ContainsKey("Delete"))
+            {
+                if (directoryService.DeleteEvent(eid.ToString()))
+                    response = "<h3>Event details have been deleted</h3>" +
+                        "<script>" +
+                        "setTimeout(function() {window.location.href = \"/?page=user_events\";}, 1000);" +
+                        "</script>";
+                else
+                    response = "<h3>Error encountered when deleting event. Please try again later</h3>";
+                return null;
+            }
 
-			if (requestParameters.ContainsKey ("Submit")) {
+            if (requestParameters.ContainsKey ("Submit")) {
 				string eventName = requestParameters ["eventName"].ToString ();
 				string eventDate = requestParameters ["eventDate"].ToString ();
 				string eventTime = requestParameters ["eventTime"].ToString ();

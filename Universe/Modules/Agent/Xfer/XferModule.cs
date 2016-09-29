@@ -28,7 +28,7 @@
  */
 
 using System;
-using System.Colllections.Generic;
+using System.Collections.Generic;
 using Nini.Config;
 using OpenMetaverse;
 using Universe.Framework.ConsoleFramework;
