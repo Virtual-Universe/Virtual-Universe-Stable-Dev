@@ -205,7 +205,7 @@ namespace Universe.Physics.Meshing
 			using (MemoryStream outMs = new MemoryStream ()) {
 				using (ZOutputStream zOut = new ZOutputStream (outMs)) {
 					using (Stream inMs = new MemoryStream (meshBytes)) {
-						byte[] readBuffer = new byte[2000];
+						byte[] readBuffer = new byte[2048];
 						int readLen;
 
 						while ((readLen = inMs.Read (readBuffer, 0, readBuffer.Length)) > 0) {
