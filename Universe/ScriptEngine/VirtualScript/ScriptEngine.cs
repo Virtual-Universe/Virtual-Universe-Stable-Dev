@@ -227,31 +227,31 @@ namespace Universe.ScriptEngine.VirtualScript
 						"VS restart", 
 						"VS restart",
 						"Restarts all scripts and clears all script caches",
-						UniverseDotNetRestart, false, false);
+						UniverseVirtualScriptRestart, false, false);
                     
 					MainConsole.Instance.Commands.AddCommand (
 						"VS stop",
 						"VS stop", 
 						"Stops all scripts",
-						UniverseDotNetStop, false, false);
+						UniverseVirtualScriptStop, false, false);
                     
 					MainConsole.Instance.Commands.AddCommand (
 						"VS stats",
 						"VS stats",
 						"Tells stats about the script engine", 
-						UniverseDotNetStats, false, false);
+						UniverseVirtualScriptStats, false, false);
                     
 					MainConsole.Instance.Commands.AddCommand (
 						"VS disable",
 						"VS disable",
 						"Disables the script engine temperarily",
-						UniverseDotNetDisable, false, false);
+						UniverseVirtualScriptDisable, false, false);
                     
 					MainConsole.Instance.Commands.AddCommand (
 						"VS enable",
 						"VS enable", 
 						"Reenables the script engine",
-						UniverseDotNetEnable, false, false);
+						UniverseVirtualScriptEnable, false, false);
 				}
 
 				// Create all objects we'll be using
@@ -397,7 +397,7 @@ namespace Universe.ScriptEngine.VirtualScript
 			}
 		}
 
-		protected void UniverseDotNetRestart (IScene scene, string[] cmdparams)
+		protected void UniverseVirtualScriptRestart (IScene scene, string[] cmdparams)
 		{
 			string go =
 				MainConsole.Instance.Prompt (
@@ -428,7 +428,7 @@ namespace Universe.ScriptEngine.VirtualScript
 			}
 		}
 
-		protected void UniverseDotNetStop (IScene scene, string[] cmdparams)
+		protected void UniverseVirtualScriptStop (IScene scene, string[] cmdparams)
 		{
 			string go = MainConsole.Instance.Prompt ("Are you sure you want to stop all scripts?", "no");
 			if (go.Contains ("yes") || go.Contains ("Yes")) {
@@ -440,7 +440,7 @@ namespace Universe.ScriptEngine.VirtualScript
 			}
 		}
 
-		protected void UniverseDotNetStats (IScene scene, string[] cmdparams)
+		protected void UniverseVirtualScriptStats (IScene scene, string[] cmdparams)
 		{
 			MainConsole.Instance.Info ("Universe DotNet Script Engine Stats:");
 			MainConsole.Instance.CleanInfo ("    Region: " + scene.RegionInfo.RegionName);
@@ -460,13 +460,13 @@ namespace Universe.ScriptEngine.VirtualScript
 			//MaintenanceThread.Stats();
 		}
 
-		protected void UniverseDotNetDisable (IScene scene, string[] cmdparams)
+		protected void UniverseVirtualScriptDisable (IScene scene, string[] cmdparams)
 		{
 			ConsoleDisabled = true;
 			MainConsole.Instance.Warn ("[Virtual Script Engine]: The Virtual Script has been disabled.");
 		}
 
-		protected void UniverseDotNetEnable (IScene scene, string[] cmdparams)
+		protected void UniverseVirtualScriptEnable (IScene scene, string[] cmdparams)
 		{
 			ConsoleDisabled = false;
 			MaintenanceThread.Started = true;
