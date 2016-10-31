@@ -74,9 +74,9 @@ namespace Universe.Framework.Services
 
 		bool SetPasswordHashed (UUID UUID, string authType, string passwd);
 
-		bool SetPlainPassword (UUID principalID, string authType, string passwd);
+		bool SetPlainPassword (UUID principalID, string authType, string passHash);
 
-		bool SetSaltedPassword (UUID principalID, string authType, string salt, string passwd);
+		bool SetSaltedPassword (UUID principalID, string authType, string passHash, string saltHash);
 
 		/// <summary>
 		///     Check whether the given principalID has a password set

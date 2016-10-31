@@ -27,7 +27,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using System;
 using OpenMetaverse;
 using Universe.Framework.ConsoleFramework;
 using Universe.Framework.Services;
@@ -35,105 +34,154 @@ using Universe.Framework.Utilities;
 
 namespace Universe.Services
 {
-	// Generic Authentication service used for identifying
-	// and authenticating principals.
-	// Principals may be clients acting on users' behalf,
-	// or any other components that need
-	// verifiable identification.
-	public class AuthenticationServiceBase
-	{
-		protected IAuthenticationData m_Database;
-		protected bool m_authenticateUsers = true;
+    // Generic Authentication service used for identifying
+    // and authenticating principals.
+    // Principals may be clients acting on users' behalf,
+    // or any other components that need 
+    // verifiable identification.
+    public class AuthenticationServiceBase
+    {
+        protected IAuthenticationData m_Database;
+        protected bool m_authenticateUsers = true;
 
-		public bool CheckExists (UUID principalID, string authType)
-		{
-			return m_Database.Get (principalID, authType) != null;
-		}
+        /// <summary>
+        /// Checks is a user exists.
+        /// </summary>
+        /// <returns><c>true</c>, if exists was checked, <c>false</c> otherwise.</returns>
+        /// <param name="principalID">Principal identifier.</param>
+        /// <param name="authType">Auth type.</param>
+        public bool CheckExists(UUID principalID, string authType)
+        {
+            return m_Database.Get(principalID, authType) != null;
+        }
 
-		public bool Verify (UUID principalID, string authType, string token, int lifetime)
-		{
-			return m_Database.CheckToken (principalID, token, lifetime);
-		}
+        public bool Verify(UUID principalID, string authType, string token, int lifetime)
+        {
+            return m_Database.CheckToken(principalID, token, lifetime);
+        }
 
-		public virtual bool Release (UUID principalID, string token, string authType)
-		{
-			return m_Database.CheckToken (principalID, token, 0);
-		}
+        public virtual bool Release(UUID principalID, string token, string authType)
+        {
+            return m_Database.CheckToken(principalID, token, 0);
+        }
 
-		public virtual bool SetPassword (UUID principalID, string authType, string password)
-		{
-			string passwordSalt = Util.Md5Hash (UUID.Random ().ToString ());
-			string md5PasswdHash = Util.Md5Hash (Util.Md5Hash (password) + ":" + passwordSalt);
+        /// <summary>
+        /// Sets the password for a user. Password is saved as an md5 hash
+        /// </summary>
+        /// <returns><c>true</c>, if password was set, <c>false</c> otherwise.</returns>
+        /// <param name="principalID">Principal identifier.</param>
+        /// <param name="authType">Auth type.</param>
+        /// <param name="password">Password.</param>
+        public virtual bool SetPassword(UUID principalID, string authType, string password)
+        {
+            string passwordSalt = Util.Md5Hash(UUID.Random().ToString());
+            string md5PasswdHash = Util.Md5Hash(Util.Md5Hash(password) + ":" + passwordSalt);
 
-			AuthData auth = m_Database.Get (principalID, authType);
-			if (auth == null) {
-				auth = new AuthData { PrincipalID = principalID, AccountType = authType };
-			}
-			auth.PasswordHash = md5PasswdHash;
-			auth.PasswordSalt = passwordSalt;
-			return SaveAuth (auth, principalID);
-		}
+            AuthData auth = m_Database.Get(principalID, authType);
+            if (auth == null)
+            {
+                auth = new AuthData { PrincipalID = principalID, AccountType = authType };
+            }
 
-		public virtual bool Remove (UUID principalID, string authType)
-		{
-			return m_Database.Delete (principalID, authType);
-		}
+            auth.PasswordHash = md5PasswdHash;
+            auth.PasswordSalt = passwordSalt;
+            return SaveAuth(auth, principalID);
+        }
 
-		protected string GetToken (UUID principalID, int lifetime)
-		{
-			UUID token = UUID.Random ();
+        /// <summary>
+        /// Remove the specified user.
+        /// </summary>
+        /// <param name="principalID">Principal identifier.</param>
+        /// <param name="authType">Auth type.</param>
+        public virtual bool Remove(UUID principalID, string authType)
+        {
+            return m_Database.Delete(principalID, authType);
+        }
 
-			if (m_Database.SetToken (principalID, token.ToString (), lifetime))
-				return token.ToString ();
+        protected string GetToken(UUID principalID, int lifetime)
+        {
+            UUID token = UUID.Random();
 
-			return string.Empty;
-		}
+            if (m_Database.SetToken(principalID, token.ToString(), lifetime))
+                return token.ToString();
 
-		public virtual bool SetPasswordHashed (UUID principalID, string authType, string Hashedpassword)
-		{
-			string passwordSalt = Util.Md5Hash (UUID.Random ().ToString ());
-			string md5PasswdHash = Util.Md5Hash (Hashedpassword + ":" + passwordSalt);
+            return string.Empty;
+        }
 
-			AuthData auth = m_Database.Get (principalID, authType);
-			if (auth == null) {
-				auth = new AuthData { PrincipalID = principalID, AccountType = authType };
-			}
-			auth.PasswordHash = md5PasswdHash;
-			auth.PasswordSalt = passwordSalt;
-			return SaveAuth (auth, principalID);
-		}
+        /// <summary>
+        /// Sets a hashed password for a user (default use).
+        /// </summary>
+        /// <returns><c>true</c>, if password hashed was set, <c>false</c> otherwise.</returns>
+        /// <param name="principalID">Principal identifier.</param>
+        /// <param name="authType">Auth type.</param>
+        /// <param name="passHash">Password hash.</param>
+        public virtual bool SetPasswordHashed(UUID principalID, string authType, string passHash)
+        {
+            string passwordSalt = Util.Md5Hash(UUID.Random().ToString());
+            string md5PasswdHash = Util.Md5Hash(passHash + ":" + passwordSalt);
 
-		public virtual bool SetPlainPassword (UUID principalID, string authType, string pass)
-		{
-			AuthData auth = m_Database.Get (principalID, authType);
-			if (auth == null) {
-				auth = new AuthData { PrincipalID = principalID, AccountType = authType };
-			}
-			auth.PasswordHash = pass;
-			auth.PasswordSalt = "";
-			return SaveAuth (auth, principalID);
-		}
+            AuthData auth = m_Database.Get(principalID, authType);
+            if (auth == null)
+            {
+                auth = new AuthData { PrincipalID = principalID, AccountType = authType };
+            }
 
-		public virtual bool SetSaltedPassword (UUID principalID, string authType, string salt, string pass)
-		{
-			AuthData auth = m_Database.Get (principalID, authType);
-			if (auth == null) {
-				auth = new AuthData { PrincipalID = principalID, AccountType = authType };
-			}
-			auth.PasswordHash = pass;
-			auth.PasswordSalt = salt;
-			return SaveAuth (auth, principalID);
-		}
+            auth.PasswordHash = md5PasswdHash;
+            auth.PasswordSalt = passwordSalt;
+            return SaveAuth(auth, principalID);
+        }
 
-		bool SaveAuth (AuthData auth, UUID principalID)
-		{
-			if (!m_Database.Store (auth)) {
-				MainConsole.Instance.DebugFormat ("[Authentication DB]: Failed to store authentication data");
-				return false;
-			}
+        /// <summary>
+        /// Sets a plain password for a user.
+        /// </summary>
+        /// <returns><c>true</c>, if plain password was set, <c>false</c> otherwise.</returns>
+        /// <param name="principalID">Principal identifier.</param>
+        /// <param name="authType">Auth type.</param>
+        /// <param name="pass">Password.</param>
+        public virtual bool SetPlainPassword(UUID principalID, string authType, string pass)
+        {
+            AuthData auth = m_Database.Get(principalID, authType);
+            if (auth == null)
+            {
+                auth = new AuthData { PrincipalID = principalID, AccountType = authType };
+            }
 
-			MainConsole.Instance.InfoFormat ("[Authentication DB]: Set password for principalID {0}", principalID);
-			return true;
-		}
-	}
+            auth.PasswordHash = pass;
+            auth.PasswordSalt = "";
+            return SaveAuth(auth, principalID);
+        }
+
+        /// <summary>
+        /// Sets the salted password for a user.
+        /// </summary>
+        /// <returns><c>true</c>, if salted password was set, <c>false</c> otherwise.</returns>
+        /// <param name="principalID">Principal identifier.</param>
+        /// <param name="authType">Auth type.</param>
+        /// <param name="passHash">Password hash.</param>
+        /// <param name="saltHash">Salt hash.</param>
+        public virtual bool SetSaltedPassword(UUID principalID, string authType, string passHash, string saltHash)
+        {
+            AuthData auth = m_Database.Get(principalID, authType);
+            if (auth == null)
+            {
+                auth = new AuthData { PrincipalID = principalID, AccountType = authType };
+            }
+
+            auth.PasswordHash = passHash;
+            auth.PasswordSalt = saltHash;
+            return SaveAuth(auth, principalID);
+        }
+
+        bool SaveAuth(AuthData auth, UUID principalID)
+        {
+            if (!m_Database.Store(auth))
+            {
+                MainConsole.Instance.DebugFormat("[Authentication DB]: Failed to store authentication data");
+                return false;
+            }
+
+            MainConsole.Instance.InfoFormat("[Authentication DB]: Set password for principalID {0}", principalID);
+            return true;
+        }
+    }
 }
