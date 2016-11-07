@@ -31,83 +31,86 @@ using System.Collections.Generic;
 
 namespace Universe.Modules.Web.Translators
 {
-	public class RussianTranslation : ITranslator
-	{
-		public string LanguageName {
-			get { return "ru"; }
-		}
+    public class RussianTranslation : ITranslator
+    {
+        public string LanguageName
+        {
+            get { return "ru"; }
+        }
 
+        public string GetTranslatedString(string key)
+        {
+            if (dictionary.ContainsKey(key))
+                return dictionary[key];
+            return ":" + key + ":";
+        }
 
-		public string GetTranslatedString (string key)
-		{
-			if (dictionary.ContainsKey (key))
-				return dictionary [key];
-			return ":" + key + ":";
-		}
+        readonly Dictionary<string, string> dictionary = new Dictionary<string, string> {
+            // general
+            { "No", "Нет"},
+            { "Yes", "Да"},
+            { "Submit", "Подтвердить"},
+            { "Accept", "Принять"},
+            { "Save", "Сохранить"},
+            { "Cancel", "Отмена"},
+            { "FirstText", "В начало"},
+            { "BackText", "Назад"},
+            { "NextText", "Вперед"},
+            { "LastText", "В конец"},
+            { "CurrentPageText", "Текущая страница"},
+            { "MoreInfoText", "Подробнее"},
+            { "NoDetailsText", "Никаких подробностей не найдено..."},
+            { "MoreInfo", "Подробнее"},
+            { "Name", "Имя"},
+            { "ObjectNameText", "Oбъект"},
+            { "LocationText", "Регион"},
+            { "UUIDText", "UUID"},
+            { "DetailsText", "Описание"},
+            { "NotesText", "Заметки"},
+            { "SaveUpdates", "Сохранить"},
+            { "ActiveText", "Aктивный"},
+            { "CheckedText", "Рассмотренные"},
+            { "CategoryText", "Категория"},
+            { "SummaryText", "Краткое Описание"},
+            { "MaturityText", "Уровень Контента"},
+            { "GeneralText", "Общий"},
+            { "MatureText", "Умеренный"},
+            { "AdultText", "Для Взрослых"},
+            { "DateText", "Дата"},
+            { "TimeText", "Время"},
+            { "MinuteText", "минута"},
+            { "MinutesText", "минут"},
+            { "HourText", "час"},
+            { "HoursText", "часов"},
+            { "EditText", "Pедактировать"},
+            { "EdittingText", "Редактируется"},
 
-		readonly Dictionary<string, string> dictionary = new Dictionary<string, string> {
-			// general
-			{ "No", "Нет" },
-			{ "Yes", "Да" },
-			{ "Submit", "Отправить" },
-			{ "Accept", "Принять" },
-			{ "Save", "Сохранить" },
-			{ "Cancel", "Отмена" },
-			{ "FirstText", "В начало" },
-			{ "BackText", "Назад" },
-			{ "NextText", "Дольше" },
-			{ "LastText", "В конец" },
-			{ "CurrentPageText", "Текущая страница" },
-			{ "MoreInfoText", "Больше информации" },
-			{ "NoDetailsText", "Никаких подробностей не найдено..." },
-			{ "MoreInfo", "Больше информации" },
-			{ "Name", "Имя" },
-			{ "ObjectNameText", "Oбъект" },
-			{ "LocationText", "Регион" },
-			{ "UUIDText", "UUID" },
-			{ "DetailsText", "Описание" },
-			{ "NotesText", "Заметки" },
-			{ "SaveUpdates", "Сохранить" },
-			{ "ActiveText", "Aктивный" },
-			{ "CheckedText", "Рассмотренные" },
-			{ "CategoryText", "Категория" },
-			{ "SummaryText", "Резюме" },
-			{ "MaturityText", "Рейтинг Зрелости" },
-			{ "DateText", "Дата" },
-			{ "TimeText", "Время" },
-			{ "MinuteText", "минута" },
-			{ "MinutesText", "минут" },
-			{ "HourText", "час" },
-			{ "HoursText", "часов" },
-			{ "EditText", "редактировать" },
-			{ "EdittingText", "Редактируется" },
+            // Status information
+            { "GridStatus", "Статус Сети"},
+            { "Online", "Онлайн"},
+            { "Offline", "Офлайн"},
+            { "TotalUserCount", "Всего Пользователей"},
+            { "TotalRegionCount", "Всего Регионов"},
+            { "UniqueVisitors", "За последние 30 дней"},
+            { "OnlineNow", "В сети"},
+            { "InterWorld", "Inter World (IWC)"},
+            { "HyperGrid", "HyperGrid (HG)"},
+            { "Voice", "Голосовоая связь"},
+            { "Currency", "Валюта"},
+            { "Disabled", "Откл."},
+            { "Enabled", "Вкл."},
+            { "News", "Новости"},
+            { "Region", "Регион"},
 
-			// Status information
-			{ "GridStatus", "Статус Сети" },
-			{ "Online", "Онлайн" },
-			{ "Offline", "Офлайн" },
-			{ "TotalUserCount", "Всего Пользователей" },
-			{ "TotalRegionCount", "Всего Регионов" },
-			{ "UniqueVisitors", "За последние 30 дней" },
-			{ "OnlineNow", "В игре" },
-			{ "InterWorld", "Inter World (IWC)" },
-			{ "HyperGrid", "HyperGrid (HG)" },
-			{ "Voice", "Голосовоая связь" },
-			{ "Currency", "Валюта" },
-			{ "Disabled", "Откл." },
-			{ "Enabled", "Вкл." },
-			{ "News", "Новости" },
-			{ "Region", "Регион" },
-
-			// User login
-			{ "Login", "Вход" },
-			{ "UserName", "Имя пользователя" },
-			{ "UserNameText", "Имя пользователя" },
-			{ "Password", "Пароль" },
-			{ "PasswordText", "Пароль" },
-			{ "PasswordConfirmation", "Подтверждение пароля" },
-			{ "ForgotPassword", "Забыли пароль?" }, 
-			{ "TypeUserNameToConfirm", "Пожалуйста, введите имя пользователя учетной записи, чтобы подтвердить её удаление."},
+            // User login
+            { "Login", "Вход"},
+            { "UserName", "Имя пользователя"},
+            { "UserNameText", "Имя пользователя"},
+            { "Password", "Пароль"},
+            { "PasswordText", "Пароль"},
+            { "PasswordConfirmation", "Подтверждение пароля"},
+            { "ForgotPassword", "Забыли пароль?"},
+            { "TypeUserNameToConfirm", "Пожалуйста, введите имя пользователя учетной записи, чтобы подтвердить её удаление."},
 
             // Special windows
             { "SpecialWindowTitleText", "Заголовок Окна Особой Информации"},
@@ -128,15 +131,15 @@ namespace Universe.Modules.Web.Translators
             { "UserCountryText", "Страна"},
             { "UserDOBText", "Дата рождения"},
             { "UserEmailText", "Email"},
-            { "UserHomeRegionText", "Выберите Регион"},
+            { "UserHomeRegionText", "Выберите Домашний Регион"},
             { "RegistrationText", "Регистрация"},
             { "RegistrationsDisabled", "Регистрация в данный момент отключена, пожалуйста, попробуйте еще раз немного позже."},
-            { "TermsOfServiceText", "Условия Пользования"},
-            { "TermsOfServiceAccept", "Вы принимаете условия пользования описанные выше?"},
+            { "TermsOfServiceText", "Условия Предоставления Услуг"},
+            { "TermsOfServiceAccept", "Вы принимаете Условия Предоставления Услуг описанные выше?"},
             { "AvatarNameError", "Вы не ввели имя аватара!"},
             { "AvatarPasswordError", "Поля пароля пустые или не совпадают!"},
             { "AvatarEmailError", "Адрес электронной почты необходим для восстановления пароля!"},
-            { "AvatarNameSpacingError", "Имя аватар должно быть \"Имя Фамилия\"!"},
+            { "AvatarNameSpacingError", "Имя аватара должно быть \"Имя Фамилия\"!"},
 
             // News
             { "OpenNewsManager", "Открыть управление новостями"},
@@ -154,9 +157,9 @@ namespace Universe.Modules.Web.Translators
 
             // User Profile
             { "UserProfileFor", "Профиль пользователя"},
-            { "UsersGroupsText", "Мои группы"},
+            { "UsersGroupsText", "Группы"},
             { "GroupNameText", "Группы"},
-            { "UsersPicksText", "Места"},
+            { "UsersPicksText", "Избранное"},
             { "ResidentSince", "Дата регистрации"},
             { "AccountType", "Тип Учетной Записи"},
             { "PartnersName", "Партнёр"},
@@ -176,9 +179,9 @@ namespace Universe.Modules.Web.Translators
             { "RegionSizeText", "Размер"},
             { "RegionNameText", "Название"},
             { "RegionTypeText", "Тип Региона"},
-            { "RegionPresetTypeText", "Регион Предустановленная"},
-            { "RegionDelayStartupText", "Задержка запуска скриптов"},
-            { "RegionPresetText", "Регион Предустановленная"},
+            { "RegionPresetTypeText", "Предустановка Региона"},
+            { "RegionDelayStartupText", "Запуск Региона"},
+            { "RegionPresetText", "Предустановка Региона"},
             { "RegionTerrainText", "Поверхность в Регионе"},
             { "ParcelsInRegionText", "Участки в Регионе"},
             { "ParcelNameText", "Название Участка"},
@@ -192,12 +195,12 @@ namespace Universe.Modules.Web.Translators
             { "SortByLocX", "Сортировать по координату X"},
             { "SortByLocY", "Сортировать по координату Y"},
             { "SortByName", "Сортировать по имени региона"},
-            { "RegionMoreInfo", "Больше информации"},
+            { "RegionMoreInfo", "Подробнее"},
             { "RegionMoreInfoTooltips", "Подробнее о"},
             { "OnlineUsersText", "Пользователи"},
             { "OnlineFriendsText", "Друзья в сети"},
             { "RegionOnlineText", "Статус"},
-            { "RegionMaturityText", "Рейтинг Зрелости"},
+            { "RegionMaturityText", "Уровень Контента"},
             { "NumberOfUsersInRegionText", "Количество пользователей в регионе"},
 
             // Region manager
@@ -211,23 +214,23 @@ namespace Universe.Modules.Web.Translators
             { "Grassland", "Поле"},
             { "Island", "Остров"},
             { "Aquatic", "Океан"},
-            { "Custom", "На заказ"},
+            { "Custom", "Выборочный"},
             { "RegionPortText", "Порт"},
             { "RegionVisibilityText", "Видимый для соседей"},
-            { "RegionInfiniteText", "Бесконечная область"},
+            { "RegionInfiniteText", "Бесконечный Регион"},
             { "RegionCapacityText", "Вместимость"},
             { "NormalText", "Нормальный"},
-            { "DelayedText", "Задерживается"},
+            { "DelayedText", "с Задержкой"},
 
             // Estate management
-            {"AddEstateText", "Добавить Estate"},
-            {"EstateText", "имущество"},
-            {"EstatesText", "Estates"},
+            {"AddEstateText", "Добавить Имение"},
+            {"EstateText", "Имение"},
+            {"EstatesText", "Имения"},
             {"PricePerMeterText", "Цена за квадратный метр"},
             {"PublicAccessText", "Публичный доступ"},
-            {"AllowVoiceText", "Разрешить голос"},
-            {"TaxFreeText", "Tax Free"},
-            {"AllowDirectTeleportText", "Разрешить прямой телепортации"},
+            {"AllowVoiceText", "Голосовое Общение Разрешено"},
+            {"TaxFreeText", "Без входной платы"},
+            {"AllowDirectTeleportText", "Разрешена телепортация"},
 
             // Menus
             { "MenuHome", "Главная"},
@@ -239,7 +242,7 @@ namespace Universe.Modules.Web.Translators
             { "MenuWorld", "Мир"},
             { "MenuWorldMap", "Карта мира"},
             { "MenuRegion", "Список Регионов"},
-            { "MenuUser", "Пользователи"},
+            { "MenuUser", "Пользователь"},
             { "MenuOnlineUsers", "Пользователи в Сети"},
             { "MenuUserSearch", "Поиск"},
             { "MenuRegionSearch", "Поиск"},
@@ -258,12 +261,12 @@ namespace Universe.Modules.Web.Translators
             { "MenuManager", "Управление"},
             { "MenuSettings", "Настройки"},
             { "MenuRegionManager", "Управление Регионами"},
-            { "MenuEstateManager", "менеджер по недвижимости"},
+            { "MenuEstateManager", "Управление Имениями"},
             { "MenuManagerSimConsole", "Консоль Симулятора"},
             { "MenuPurchases", "Покупки Игровой Валюты Пользователями"},
             { "MenuMyPurchases", "Мои покупки Игровой Валюты"},
-            { "MenuTransactions", "Трансакции Пользователей"},
-            { "MenuMyTransactions", "Мои Трансакции"},
+            { "MenuTransactions", "Транзакции Пользователей"},
+            { "MenuMyTransactions", "Мои Транзакции"},
             { "MenuClassifieds", "Объявления"},
             { "MenuMyClassifieds", "Мои Объявления"},
             { "MenuEvents", "Мероприятия"},
@@ -296,11 +299,11 @@ namespace Universe.Modules.Web.Translators
             { "TooltipsMenuSettingsManager", "Управление Настройками"},
             { "TooltipsMenuManager", "Административное Управление"},
             { "TooltipsMenuSettings", "Настройки Пользовательского Web Интерфейса"},
-            { "TooltipsMenuRegionManager", "Создание/редактирование Региона"},
-            { "TooltipsMenuEstateManager", "управление недвижимостью"},
-            { "TooltipsMenuManagerSimConsole", "Online консоль симулятора"},
+            { "TooltipsMenuRegionManager", "Управление Регионами"},
+            { "TooltipsMenuEstateManager", "Управление Имениями"},
+            { "TooltipsMenuManagerSimConsole", "Онлайн консоль симулятора"},
             { "TooltipsMenuPurchases", "Инфо о покупках игровой валюты"},
-            { "TooltipsMenuTransactions", "Инфо о Трансакциях"},
+            { "TooltipsMenuTransactions", "Инфо о Транзакциях"},
             { "TooltipsMenuClassifieds", "Инфо об Объявлениях"},
             { "TooltipsMenuEvents", "Инфо о Мероприятиях"},
             { "TooltipsMenuStatistics", "Статистика Подключений"},
@@ -337,12 +340,12 @@ namespace Universe.Modules.Web.Translators
             // Index
             { "HomeText", "Главная"},
             { "HomeTextWelcome", "Это наш Новый Виртуальный Мир! Присоединяйтесь к нам и сделайте отличие!"},
-            { "HomeTextTips", "New presentations"},
+            { "HomeTextTips", "Новые презентации"},
             { "WelcomeToText", "Добро пожаловать в"},
 
             // World Map
             { "WorldMap", "Карта Мира"},
-            { "WorldMapText", "На весь экран"},
+            { "WorldMapText", "Карта Мира"},
 
             // Chat Page
             { "ChatText", "Служба Поддержки в Чате"},
@@ -366,11 +369,10 @@ namespace Universe.Modules.Web.Translators
             { "DeleteText", "Удалить"},
             { "DeleteUserInfoText",
                "Это удалит всю информацию о вас в сетке и удалит доступ к сервису. Если вы хотите продолжить, введите имя и пароль и нажмите кнопку Удалить."},
-            { "EditText", "Редактировать"},
             { "EditUserAccountText", "Редактировать аккаунт пользователя"},
 
             // Maintenance
-            { "WebsiteDownInfoText", "Сайт на данный момент не работает, пожалуйста, попробуйте еще раз в ближайшее время."},
+            { "WebsiteDownInfoText", "Сайт на данный момент не работает, пожалуйста, попробуйте еще раз через некоторое время."},
             { "WebsiteDownText", "Сайт отключен на технические работы"},
 
             // Http 404
@@ -409,6 +411,7 @@ namespace Universe.Modules.Web.Translators
             { "AdminLoginInAsUserText", "Войти как пользователь в 3D мир"},
             { "AdminLoginInAsUserInfoText",
                 "Вы выйдете из вашей учетной записи Администратора и войдете в систему как этот пользователь."},
+            { "TimeUntilUnbannedText", "Time until user is unbanned"},
             { "BannedUntilText", "Пользователь заблокирован до:"},
             { "KickAUserText", "Выкинуть"},
             { "KickAUserInfoText", "Выкинуть пользователя из 3D мира (срабатывает в течение 30 секунд)"},
@@ -419,18 +422,18 @@ namespace Universe.Modules.Web.Translators
             { "MessageUserText", "Отправить"},
 
             // Transactions
-            { "TransactionsText", "Трансакции"},
+            { "TransactionsText", "Транзакции"},
             { "DateInfoText", "Выбрать период"},
             { "DateStartText", "От"},
             { "DateEndText", "До"},
             { "30daysPastText", "Предыдущие 30 Дней"},
-            { "TransactionToAgentText", "К Пользователю"},
-            { "TransactionFromAgentText", "От Пользователя"},
+            { "TransactionToAgentText", "Кому"},
+            { "TransactionFromAgentText", "От Куда"},
             { "TransactionDateText", "Дата"},
             { "TransactionDetailText", "Описание"},
-            { "TransactionAmountText", "Сума"},
-            { "TransactionBalanceText", "На Счете"},
-            { "NoTransactionsText", "Траинсакции не нейдены..."},
+            { "TransactionAmountText", "Сумма"},
+            { "TransactionBalanceText", "Остаток"},
+            { "NoTransactionsText", "Транзакции не нейдены..."},
             { "PurchasesText", "Покупки"},
             { "LoggedIPText", "IP адрес"},
             { "NoPurchasesText", "Покупок не найдено..."},
@@ -443,7 +446,8 @@ namespace Universe.Modules.Web.Translators
             { "CreationDateText", "Добавлено"},
             { "ExpirationDateText", "Истекает" },
             { "DescriptionText", "Описание" },
-            { "PriceOfListingText", "Цена"},
+            { "PriceOfListingText", "Стоимость"},
+
             // Classified categories
             { "CatAll", "Все"},
             { "CatSelect", ""},
@@ -465,17 +469,17 @@ namespace Universe.Modules.Web.Translators
             { "EventDateText", "Когда"},
             { "EventTimeInfoText", "Время мероприятия должно быть указано по локальному времени в 3д Мире"},
             { "CoverChargeText", "Входная плата"},
-            { "Duration", "Продолжительность"},
+            { "DurationText", "Продолжительность"},
             { "AddEventText", "Добавить Мероприятие"},
 
             // Event categories
             { "CatDiscussion", "Обсуждение"},
             { "CatSports", "Спорт"},
             { "CatLiveMusic", "Живая Музыка"},
-            { "CatCommercial", "Коммерчесое"},
+            { "CatCommercial", "Коммерческое"},
             { "CatEntertainment", "Ночная жизнь/Развлечение"},
             { "CatGames", "Игры/Конкурсы"},
-            { "CatPageants", "Pageants"},
+            { "CatPageants", "Зрелищное Мероприятие"},
             { "CatEducation", "Образование"},
             { "CatArtsCulture", "Исскуство/Культура"},
             { "CatCharitySupport", "Благотворительность/Группа Поддержки"},
@@ -510,7 +514,7 @@ namespace Universe.Modules.Web.Translators
             { "AbuseReportText", "Жалоба"},
             { "AbuserNameText", "Обвиняемый"},
             { "AbuseReporterNameText", "Докладчик"},
-            { "AssignedToText", "Назначена"},
+            { "AssignedToText", "Кто расследует"},
 
             // Factory_reset
             { "FactoryReset", "Сброс настроек на значения по умолчанию"},
@@ -519,8 +523,8 @@ namespace Universe.Modules.Web.Translators
             { "Reset", "Сброс"},
             { "Settings", "Настройки"},
             { "Pages", "Страницы"},
-            { "UpdateRequired", "требуется обновление"},
-            { "DefaultsUpdated", "значения по умолчанию обновлены, перейдите в Сброс настроек на значения по усолчанию для обновления или в Управление Настройками для отключения этого предупреждения."},
+            { "UpdateRequired", "Требуется обновление"},
+            { "DefaultsUpdated", "Значения по умолчанию обновлены, перейдите в Сброс настроек на значения по умолчанию для обновления или в Управление Настройками для отключения этого предупреждения."},
 
             // Page_manager
             { "PageManager", "Управление Страницами"},
@@ -542,13 +546,13 @@ namespace Universe.Modules.Web.Translators
             { "GridSettingsManager", "Управление Настройками Сети"},
             { "GridnameText", "Название Сети"},
             { "GridnickText", "Ник Сети"},
-            { "WelcomeMessageText", "Сообщение Приветствие при Входе"},
+            { "WelcomeMessageText", "Сообщение при Входе"},
             { "GovernorNameText", "Системный Губернатор"},
             { "MainlandEstateNameText", "Название Имения на Митерике"},
             { "RealEstateOwnerNameText", "Владелец Системного Имения"},
             { "SystemEstateNameText", "Название Системного Имения"},
-            { "BankerNameText", "Системный банкир"},
-            { "MarketPlaceOwnerNameText", "Системный владелец Торговой Площадки"},
+            { "BankerNameText", "Системный Банкир"},
+            { "MarketPlaceOwnerNameText", "Системный Владелец Торговой Площадки"},
 
             // Settings manager
             { "WebRegistrationText", "Web рагистрации разрешены"},
@@ -557,7 +561,7 @@ namespace Universe.Modules.Web.Translators
             { "SettingsManager", "Управление Настройками"},
             { "IgnorePagesUpdatesText", "Игнорировать предупреждения об изменениях страниц до следующего обновления"},
             { "IgnoreSettingsUpdatesText", "Игнорировать предупреждения об изменениях настроек до следующего обновления"},
-            { "HideLanguageBarText", "Спрятать Панель Выборя Языка"},
+            { "HideLanguageBarText", "Спрятать Панель Выбора Языка"},
             { "HideStyleBarText", "Спрятать Панель Выбора Стилей"},
             { "HideSlideshowBarText", "Отключить Слайды"},
             { "LocalFrontPageText", "Локальный файл главной страницы"},
@@ -617,8 +621,8 @@ namespace Universe.Modules.Web.Translators
             // ColorBox
             { "ColorBoxImageText", "Изображение"},
             { "ColorBoxOfText", "пользователя"},
-            { "ColorBoxPreviousText", "Вернуться"},
-            { "ColorBoxNextText", "Далее"},
+            { "ColorBoxPreviousText", "Назад"},
+            { "ColorBoxNextText", "Вперед"},
             { "ColorBoxCloseText", "Закрыть"},
             { "ColorBoxStartSlideshowText", "Запустить Слайдшоу"},
             { "ColorBoxStopSlideshowText", "Остановить Слайдшоу"},
@@ -645,11 +649,11 @@ namespace Universe.Modules.Web.Translators
             { "en", "English"},
             { "fr", "Français"},
             { "de", "Deutsch"},
+            { "ga", "Irish" },
             { "it", "Italiano"},
             { "es", "Español"},
             { "nl", "Nederlands"},
             { "ru", "Русский"},
-			{ "ga", "Irish" }
         };
     }
 }
