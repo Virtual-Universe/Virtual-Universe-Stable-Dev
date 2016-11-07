@@ -184,7 +184,7 @@ namespace Universe.Services.SQLServices.InventoryService
 				if (rootFolder != null)
 					result = true;
 				else {
-					MainConsole.Instance.Error ("Inventory service]: Unable to obtain/crete user's root folder!");
+					MainConsole.Instance.Error ("Inventory service]: Unable to obtain/create user's root folder!");
 					defaultItems = new List<InventoryItemBase> ();
 					return false;
 				}

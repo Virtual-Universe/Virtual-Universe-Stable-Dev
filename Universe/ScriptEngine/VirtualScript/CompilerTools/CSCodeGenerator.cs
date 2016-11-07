@@ -119,7 +119,7 @@ namespace Universe.ScriptEngine.VirtualScript.CompilerTools
 		readonly List<string> AfterFuncCalls = new List<string> ();
 		readonly HashSet<string> DTFunctions = new HashSet<string> ();
 		readonly List<string> FuncCalls = new List<string> ();
-		//        public Dictionary<string, string> IenFunctions = new Dictionary<string, string>();
+		//public Dictionary<string, string> IenFunctions = new Dictionary<string, string>();
 		readonly Dictionary<string, GlobalVar> GlobalVariables = new Dictionary<string, GlobalVar> ();
 		Dictionary<string, SYMBOL> DuplicatedGlobalVariables = new Dictionary<string, SYMBOL> ();
 
@@ -163,7 +163,7 @@ namespace Universe.ScriptEngine.VirtualScript.CompilerTools
 		// for indentation
 		bool m_isInEnumeratedDeclaration;
 		Dictionary<KeyValuePair<int, int>, KeyValuePair<int, int>> m_positionMap;
-		Parser p;
+		Parser psr;
 		static yyLSLSyntax _LSLSyntax = new yyLSLSyntax ();
 
 		public Dictionary<string, ObjectList> LocalMethodArguements = new Dictionary<string, ObjectList> ();
@@ -280,7 +280,7 @@ namespace Universe.ScriptEngine.VirtualScript.CompilerTools
 		void ResetCounters ()
 		{
 			//NOTE: This takes a VERY long time to rebuild. Ideally, this should be reset, but interesting errors are happening when it is reset..
-			p = new LSLSyntax (_LSLSyntax, new ErrorHandler (true));
+			psr = new LSLSyntax (_LSLSyntax, new ErrorHandler (true));
 			MethodVariables.Clear ();
 			VariablesToRename.Clear ();
 			GlobalVariables.Clear ();
@@ -345,10 +345,8 @@ public class ScriptClass : Universe.ScriptEngine.VirtualScript.Runtime.ScriptBas
 
 			LSL2CSCodeTransformer codeTransformer;
 			try {
-				//               lock (p)
 				{
-					codeTransformer = new LSL2CSCodeTransformer (p.Parse (FixAdditionalEvents (script)), script);
-					//                    p.m_lexer.Reset();
+					codeTransformer = new LSL2CSCodeTransformer (psr.Parse (FixAdditionalEvents (script)), script);
 				}
 			} catch (CSToolsException e) {
 				string message;
