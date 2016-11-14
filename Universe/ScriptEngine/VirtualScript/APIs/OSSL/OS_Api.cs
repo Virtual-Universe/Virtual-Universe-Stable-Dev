@@ -2746,8 +2746,8 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
 
 			if (lease.CurrentState == LeaseState.Initial) {
 				lease.InitialLeaseTime = TimeSpan.FromMinutes (0);
-				//                lease.RenewOnCallTime = TimeSpan.FromSeconds(10.0);
-				//                lease.SponsorshipTimeout = TimeSpan.FromMinutes(1.0);
+				//lease.RenewOnCallTime = TimeSpan.FromSeconds(10.0);
+				//lease.SponsorshipTimeout = TimeSpan.FromMinutes(1.0);
 			}
 			return lease;
 		}
@@ -3522,5 +3522,15 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
 				World.EventManager.TriggerObjectDeGrab (child.ParentEntity.RootChild, child, sp.ControllingClient, touchArgs);                           
 			}
 		}
+
+        public void osVolumeDetect(int detect)
+        {
+            m_host.AddScriptLPS(1);
+
+            if (m_host.ParentGroup == null || m_host.ParentGroup.IsDeleted || m_host.ParentGroup.IsAttachment)
+                return;
+
+            m_host.ScriptSetVolumeDetect(detect != 0);
+        }
 	}
 }
