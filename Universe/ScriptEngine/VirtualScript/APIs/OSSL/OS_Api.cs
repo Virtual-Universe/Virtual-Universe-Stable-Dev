@@ -3523,6 +3523,7 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
 			}
 		}
 
+        // This may still not very usefull, detector is lost on rez, restarts, etc
         public void osVolumeDetect(int detect)
         {
             m_host.AddScriptLPS(1);
