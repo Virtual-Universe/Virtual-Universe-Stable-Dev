@@ -118,8 +118,14 @@ namespace Universe.Framework.Utilities
 		// Member Estate: Payment info on account
 		public const int USER_FLAG_CONTRACTOR = 800;
 		// Contracted
-		public const int USER_FLAG_CHARTERMEMBER = 3840;
-		// Charter member
+        public const int USER_FLAG_MENTOR = 1000;
+        // Mentor
+        public const int USER_FLAG_STAFF = 1210;
+        // Staff
+        public const int USER_FLAG_ASSTDEVELOPER = 1420;
+        // Assistant Core Developer
+		public const int USER_FLAG_COREDEVELOPER = 3840;
+		// Core Developer
 
 		public const int SCHEDULER_INTERVAL = 300;
 		// seconds between scheduler checks

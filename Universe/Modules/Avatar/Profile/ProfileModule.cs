@@ -552,7 +552,7 @@ namespace Universe.Modules.Profiles
 				if (UPI.MembershipGroup == "") {
 					charterMember = new byte [1];
 					if (TargetAccount != null)
-						charterMember [0] = (byte)((TargetAccount.UserFlags & Constants.USER_FLAG_CHARTERMEMBER) >> 8);     // CharterMember == 0xf00
+						charterMember [0] = (byte)((TargetAccount.UserFlags & Constants.USER_FLAG_COREDEVELOPER) >> 8);     // CharterMember == 0xf00
 				} else {
 					charterMember = Utils.StringToBytes (UPI.MembershipGroup);
 				}
@@ -609,7 +609,7 @@ namespace Universe.Modules.Profiles
 			if (Profile.MembershipGroup == "") {
 				charterMember = new byte [1];
 				if (account != null)
-					charterMember [0] = (byte)((account.UserFlags & Constants.USER_FLAG_CHARTERMEMBER) >> 8);   // CharterMember == 0xf00
+					charterMember [0] = (byte)((account.UserFlags & Constants.USER_FLAG_COREDEVELOPER) >> 8);   // CharterMember == 0xf00
 			} else
 				charterMember = Utils.StringToBytes (Profile.MembershipGroup);
 
@@ -621,7 +621,7 @@ namespace Universe.Modules.Profiles
 			//
 
 			if (Utilities.IsSystemUser (Profile.PrincipalID)) {
-				charterMember = Utils.StringToBytes ("Universe System User");
+				charterMember = Utils.StringToBytes ("Virtual Universe System User");
 			}
 
 			uint membershipGroupINT = 0;

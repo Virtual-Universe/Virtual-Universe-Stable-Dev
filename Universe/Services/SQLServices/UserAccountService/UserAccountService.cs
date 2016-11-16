@@ -842,8 +842,14 @@ namespace Universe.Services.SQLServices.UserAccountService
                     return Constants.USER_FLAG_MEMBER;
                 case "Contractor":
                     return Constants.USER_FLAG_CONTRACTOR;
-                case "Charter_Member":
-                    return Constants.USER_FLAG_CHARTERMEMBER;
+                case "Mentor":
+                    return Constants.USER_FLAG_MENTOR;
+                case "Staff":
+                    return Constants.USER_FLAG_STAFF;
+                case "Assistant Developer":
+                    return Constants.USER_FLAG_ASSTDEVELOPER;
+                case "Core Developer":
+                    return Constants.USER_FLAG_COREDEVELOPER;
                 default:
                     return Constants.USER_FLAG_GUEST;
             }
@@ -861,8 +867,14 @@ namespace Universe.Services.SQLServices.UserAccountService
                     return "Member";
                 case Constants.USER_FLAG_CONTRACTOR:
                     return "Contractor";
-                case Constants.USER_FLAG_CHARTERMEMBER:
-                    return "Charter_Member";
+                case Constants.USER_FLAG_MENTOR:
+                    return "Mentor";
+                case Constants.USER_FLAG_STAFF:
+                    return "Staff";
+                case Constants.USER_FLAG_ASSTDEVELOPER:
+                    return "Assistant Developer";
+                case Constants.USER_FLAG_COREDEVELOPER:
+                    return "Core Developer";
                 default:
                     return "Guest";
             }
@@ -1086,7 +1098,7 @@ namespace Universe.Services.SQLServices.UserAccountService
             string password, email, uuid, scopeID;
             bool sysFlag = false;
             bool uuidFlag = false;
-            List<string> userTypes = new List<string>(new[] { "Guest", "Resident", "Member", "Contractor", "Charter_Member" });
+            List<string> userTypes = new List<string>(new[] { "Guest", "Resident", "Member", "Contractor", "Mentor", "Staff", "Assistant Developer", "Core Developer" });
 
             List<string> cmdparams = new List<string>(cmd);
             foreach (string param in cmd)

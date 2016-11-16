@@ -614,7 +614,10 @@ namespace Universe.Modules.Web.Translators
             { "Resident", "Residente"},
             { "Member", "Miembro"},
             { "Contractor", "Contratista"},
-            { "Charter_Member", "Miembro fundador"},
+            { "Mentor", "educador"},
+            { "Staff", "Personal"},
+            { "Assistant Developer", "Asistente de Desarrollo"},
+            { "Core Developer", "Desarrollador Principal"},
 
             // ColorBox
             { "ColorBoxImageText", "Image"},

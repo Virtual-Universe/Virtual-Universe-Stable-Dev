@@ -611,7 +611,10 @@ namespace Universe.Modules.Web.Translators
 			{ "Resident", "Cónaitheach"},
 			{ "Member", "ball"},
 			{ "Contractor", "Conraitheoir"},
-			{ "Charter_Member", "Ball Cairte"},
+			{ "Mentor", "Mentor"},
+            { "Staff", "Foireann"},
+            { "Assistant Developer", "Forbróir Cúnta"},
+            { "Core Developer", "Forbróir Core"},
 
             // ColorBox
 			{ "ColorBoxImageText", "Íomha"},

@@ -219,7 +219,7 @@ namespace Universe.Services.GenericServices.SystemAccountService
 				//set  "God" level
 				var account = m_accountService.GetUserAccount (null, usrUUID);
 				account.UserLevel = usrLevel;
-				account.UserFlags = Constants.USER_FLAG_CHARTERMEMBER;
+				account.UserFlags = Constants.USER_FLAG_COREDEVELOPER;
 				bool success = m_accountService.StoreUserAccount (account);
 
 				if (success)
