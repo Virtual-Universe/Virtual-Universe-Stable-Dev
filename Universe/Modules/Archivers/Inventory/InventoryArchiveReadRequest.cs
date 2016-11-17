@@ -50,6 +50,7 @@ namespace Universe.Modules.Archivers
 	public class InventoryArchiveReadRequest
 	{
 		readonly string m_invPath;
+        readonly string m_invName = "From IAR";
 		readonly List<InventoryItemBase> itemsSavedOff = new List<InventoryItemBase> ();
 		readonly Queue<UUID> assets2Save = new Queue<UUID> ();
 		protected bool m_assetsIncluded = true;
@@ -91,8 +92,7 @@ namespace Universe.Modules.Archivers
 		static InventoryArchiveReadRequest ()
 		{
 			if (SceneEntitySerializer.SceneObjectSerializer == null)
-				SceneEntitySerializer.SceneObjectSerializer =
-                    new Region.Serialization.SceneObjectSerializer ();
+				SceneEntitySerializer.SceneObjectSerializer = new Region.Serialization.SceneObjectSerializer ();
 		}
 
 		public bool ReplaceAssets { get; set; }
@@ -108,6 +108,7 @@ namespace Universe.Modules.Archivers
 			m_registry = registry;
 			m_merge = merge;
 			m_userInfo = userInfo;
+            m_invName = Path.GetFileNameWithoutExtension (loadPath)
 			m_invPath = invPath.StartsWith ("/", StringComparison.Ordinal) ? invPath.Remove (0, 1) : invPath;
 			m_loadStream = new GZipStream (str, CompressionMode.Decompress);
 			m_overridecreator = overwriteCreator;
@@ -139,8 +140,7 @@ namespace Universe.Modules.Archivers
 			HashSet<InventoryNodeBase> loadedNodes = loadAll ? new HashSet<InventoryNodeBase> () : null;
 
 			try {
-				List<InventoryFolderBase> folderCandidates
-                    = InventoryArchiveUtils.FindFolderByPath (m_inventoryService, m_userInfo.PrincipalID, m_invPath);
+				List<InventoryFolderBase> folderCandidates = InventoryArchiveUtils.FindFolderByPath (m_inventoryService, m_userInfo.PrincipalID, m_invPath);
 
 				if (folderCandidates.Count == 0) {
 					// try and create requested folder
@@ -167,8 +167,7 @@ namespace Universe.Modules.Archivers
 
 					// ensure that it now exists...
 					folderCandidates = InventoryArchiveUtils.FindFolderByPath (m_inventoryService, m_userInfo.PrincipalID, m_invPath);
-					if (folderCandidates.Count == 0) {
-						MainConsole.Instance.ErrorFormat ("[Inventory Archiver]: Unable to create Inventory path {0}", m_invPath);
+					if (folderCandidates.Count == 0) {MainConsole.Instance.ErrorFormat ("[Inventory Archiver]: Unable to create Inventory path {0}", m_invPath);
 						return loadedNodes;
 					}
 				}
@@ -211,8 +210,7 @@ namespace Universe.Modules.Archivers
 							failedAssetRestores++;
 
 						if ((successfulAssetRestores) % 50 == 0)
-							MainConsole.Instance.Ticker (
-								string.Format (" [Inventory Archiver]: Loaded {0} assets...", successfulAssetRestores), true);
+							MainConsole.Instance.Ticker (string.Format (" [Inventory Archiver]: Loaded {0} assets...", successfulAssetRestores), true);
 					} else if (filePath.StartsWith (ArchiveConstants.INVENTORY_PATH, StringComparison.Ordinal)) {
 						filePath = filePath.Substring (ArchiveConstants.INVENTORY_PATH.Length);
 
@@ -220,9 +218,7 @@ namespace Universe.Modules.Archivers
 						if (TarArchiveReader.TarEntryType.TYPE_DIRECTORY != entryType)
 							filePath = filePath.Remove (filePath.LastIndexOf ("/", StringComparison.Ordinal) + 1);
 
-						InventoryFolderBase foundFolder
-                            = ReplicateArchivePathToUserInventory (
-							                        filePath, rootDestinationFolder, ref resolvedFolders, ref loadedNodes);
+						InventoryFolderBase foundFolder = ReplicateArchivePathToUserInventory (filePath, rootDestinationFolder, ref resolvedFolders, ref loadedNodes);
 
 						if (TarArchiveReader.TarEntryType.TYPE_DIRECTORY != entryType) {
 							InventoryItemBase item = LoadItem (data, foundFolder);
@@ -240,6 +236,7 @@ namespace Universe.Modules.Archivers
 								if (loadAll && !loadedNodes.Contains (foundFolder))
 									loadedNodes.Add (item);
 							}
+
 							item = null;
 						}
 					} else if (filePath == ArchiveConstants.CONTROL_FILE_PATH) {
@@ -264,8 +261,7 @@ namespace Universe.Modules.Archivers
 
 					if ((successfulItemLoaded) % 50 == 0)
 						MainConsole.Instance.Ticker (
-							string.Format ("[Inventory Archiver]: Restored {0} items of {1}...", 
-								successfulItemLoaded, itemsSavedOff.Count),
+							string.Format ("[Inventory Archiver]: Restored {0} items of {1}...", successfulItemLoaded, itemsSavedOff.Count),
 							true);
 				}
 
@@ -273,11 +269,8 @@ namespace Universe.Modules.Archivers
 				assets2Save.Clear ();
 
 				MainConsole.Instance.CleanInfo ("");
-				MainConsole.Instance.InfoFormat (
-					"[Inventory Archiver]: Successfully loaded {0} assets with {1} failures",
-					successfulAssetRestores, failedAssetRestores);
-				MainConsole.Instance.InfoFormat ("[Inventory Archiver]: Successfully loaded {0} items",
-					successfulItemRestores);
+				MainConsole.Instance.InfoFormat ("[Inventory Archiver]: Successfully loaded {0} assets with {1} failures", successfulAssetRestores, failedAssetRestores);
+				MainConsole.Instance.InfoFormat ("[Inventory Archiver]: Successfully loaded {0} items", successfulItemRestores);
                 
 			} finally {
 				m_loadStream.Close ();
@@ -351,8 +344,6 @@ namespace Universe.Modules.Archivers
 			ref string archivePath,
 			ref Dictionary<string, InventoryFolderBase> resolvedFolders)
 		{
-			//string originalArchivePath = archivePath;
-
 			while (archivePath.Length > 0) {
 				//MainConsole.Instance.DebugFormat("[Inventory Archiver]: Trying to resolve destination folder {0}", archivePath);
 
@@ -455,6 +446,7 @@ namespace Universe.Modules.Archivers
 
 					resPath += pName + "/";
 				}
+
 				var existingFolder = m_inventoryService.GetUserFolderID (m_userInfo.PrincipalID, resPath + newFolderName);
 				if (existingFolder.Count == 0)
 					m_inventoryService.AddFolder (destFolder);      // add the folder
@@ -496,7 +488,6 @@ namespace Universe.Modules.Archivers
 			}
 
 			// Don't use the item ID that's in the file, this could be a local user's folder
-			//item.ID = UUID.Random();
 			item.Owner = m_userInfo.PrincipalID;
 
 			// Record the creator id for the item's asset so that we can use it later, if necessary, when the asset
@@ -548,12 +539,11 @@ namespace Universe.Modules.Archivers
 				}
 
 				if (!m_inventoryService.AddItem (item)) {
-					MainConsole.Instance.WarnFormat (
-						"[Agent inventory]: Agent {0} could not add item {1} {2}",
-						item.Owner, item.Name, item.ID);
+					MainConsole.Instance.WarnFormat ("[Agent inventory]: Agent {0} could not add item {1} {2}", item.Owner, item.Name, item.ID);
 					return false;
 				}
 			}
+
 			return true;
 		}
 
@@ -565,7 +555,6 @@ namespace Universe.Modules.Archivers
 		/// <returns>true if asset was successfully loaded, false otherwise</returns>
 		bool LoadAsset (string assetPath, byte[] data)
 		{
-			//IRegionSerializer serializer = scene.RequestModuleInterface<IRegionSerializer>();
 			// Right now we're nastily obtaining the UUID from the filename
 			string filename = assetPath.Remove (0, ArchiveConstants.ASSETS_PATH.Length);
 
@@ -587,13 +576,10 @@ namespace Universe.Modules.Archivers
 				AssetType assetType = ArchiveConstants.EXTENSION_TO_ASSET_TYPE [extension];
 
 				if (assetType == AssetType.Unknown)
-					MainConsole.Instance.WarnFormat (
-						"[Inventory Archiver]: Importing {0} byte asset {1} with unknown type", data.Length,
-						uuid);
+					MainConsole.Instance.WarnFormat ("[Inventory Archiver]: Importing {0} byte asset {1} with unknown type", data.Length, uuid);
 				else if (assetType == AssetType.Object) {
 					string xmlData = Utils.BytesToString (data);
-					ISceneEntity sceneObject = SceneEntitySerializer.SceneObjectSerializer.FromOriginalXmlFormat (
-						                                          xmlData, m_registry);
+					ISceneEntity sceneObject = SceneEntitySerializer.SceneObjectSerializer.FromOriginalXmlFormat (xmlData, m_registry);
 					if (sceneObject != null) {
 						if (m_creatorIdForAssetId.ContainsKey (assetID)) {
 							foreach (
@@ -613,14 +599,13 @@ namespace Universe.Modules.Archivers
 							sop.OwnerID = m_userInfo.PrincipalID;
 						}
 
-						data =
-                            Utils.StringToBytes (
-							SceneEntitySerializer.SceneObjectSerializer.ToOriginalXmlFormat (sceneObject));
+						data = Utils.StringToBytes (SceneEntitySerializer.SceneObjectSerializer.ToOriginalXmlFormat (sceneObject));
 					}
 				}
+
 				//MainConsole.Instance.DebugFormat("[Inventory Archiver]: Importing asset {0}, type {1}", uuid, assetType);
 
-				AssetBase asset = new AssetBase (assetID, "From IAR", assetType, m_overridecreator) {
+				AssetBase asset = new AssetBase (assetID, m_invName, assetType, m_overridecreator) {
 					Data = data,
 					Flags = AssetFlags.Normal
 				};
@@ -636,9 +621,11 @@ namespace Universe.Modules.Archivers
 					MainConsole.Instance.Error (
 						"[Inventory Archiver]: Error checking if asset exists. Possibly 'Path too long' for file based asset storage");
 				}
+
 				asset.Dispose ();
 				return true;
 			}
+
 			MainConsole.Instance.ErrorFormat (
 				"[Inventory Archiver]: Tried to dearchive data with path {0} with an unknown type extension {1}",
 				assetPath, extension);
@@ -672,6 +659,7 @@ namespace Universe.Modules.Archivers
 
 							MainConsole.Instance.InfoFormat ("[Inventory Archiver]: Loading version {0} IAR", version);
 						}
+
 						if (xtr.Name == "assets_included") {
 							bool value;
 							if (bool.TryParse (xtr.ReadElementContentAsString (), out value))
@@ -681,8 +669,8 @@ namespace Universe.Modules.Archivers
 				}
 			} catch {
 			}
-			xtr.Close ();
 
+			xtr.Close ();
 		}
 	}
 }

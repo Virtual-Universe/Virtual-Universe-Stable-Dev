@@ -284,8 +284,7 @@ namespace Universe.Modules.Archivers
 				InventoryFolderBase rootFolder = m_inventoryService.GetRootFolder (m_userInfo.PrincipalID);
 
 				if (rootFolder == null) {
-					MainConsole.Instance.ErrorFormat ("[Inventory Archiver]: Unable to fine root folder for {0}",
-						m_userInfo.PrincipalID);
+					MainConsole.Instance.ErrorFormat ("[Inventory Archiver]: Unable to find root folder for {0}", m_userInfo.PrincipalID);
 					return;
 				}
 
@@ -295,9 +294,7 @@ namespace Universe.Modules.Archivers
 				bool saveFolderContentsOnly = false;
 
 				// Eliminate double slashes and any leading / on the path.
-				string[] components
-                    = m_invPath.Split (
-					                  new[] { InventoryFolderImpl.PATH_DELIMITER }, StringSplitOptions.RemoveEmptyEntries);
+				string[] components = m_invPath.Split (new[] { InventoryFolderImpl.PATH_DELIMITER }, StringSplitOptions.RemoveEmptyEntries);
 
 				int maxComponentIndex = components.Length - 1;
 
@@ -323,8 +320,7 @@ namespace Universe.Modules.Archivers
 					inventoryFolder = rootFolder;
 				} else {
 					m_invPath = m_invPath.Remove (m_invPath.LastIndexOf (InventoryFolderImpl.PATH_DELIMITER, StringComparison.Ordinal));
-					List<InventoryFolderBase> candidateFolders
-                        = InventoryArchiveUtils.FindFolderByPath (m_inventoryService, rootFolder, m_invPath);
+					List<InventoryFolderBase> candidateFolders = InventoryArchiveUtils.FindFolderByPath (m_inventoryService, rootFolder, m_invPath);
 					if (candidateFolders.Count > 0)
 						inventoryFolder = candidateFolders [0];
 				}
@@ -393,8 +389,7 @@ namespace Universe.Modules.Archivers
 						ArchiveConstants.USERS_PATH + creator.FirstName + " " + creator.LastName + ".xml",
 						UserProfileSerializer.Serialize (creator.PrincipalID, creator.FirstName, creator.LastName));
 				} else {
-					MainConsole.Instance.WarnFormat ("[Inventory Archiver]: Failed to get creator profile for {0}",
-						creatorId);
+					MainConsole.Instance.WarnFormat ("[Inventory Archiver]: Failed to get creator profile for {0}", creatorId);
 				}
 			}
 		}
