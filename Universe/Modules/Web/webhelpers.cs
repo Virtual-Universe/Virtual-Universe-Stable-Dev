@@ -1195,7 +1195,7 @@ namespace Universe.Modules.Web
                 case "7":
                     return Constants.USER_FLAG_COREDEVELOPER;
                 default:
-                    return Constants.USER_FLAG_GUEST;
+                    return Constants.USER_FLAG_RESIDENT;
             }
         }
 
@@ -1227,7 +1227,7 @@ namespace Universe.Modules.Web
                 case Constants.USER_FLAG_COREDEVELOPER:
                     return translator.GetTranslatedString("Core Developer");
                 default:
-                    return translator.GetTranslatedString("Guest");
+                    return translator.GetTranslatedString("Resident");
             }
         }
 

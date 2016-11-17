@@ -851,7 +851,7 @@ namespace Universe.Services.SQLServices.UserAccountService
                 case "Core Developer":
                     return Constants.USER_FLAG_COREDEVELOPER;
                 default:
-                    return Constants.USER_FLAG_GUEST;
+                    return Constants.USER_FLAG_RESIDENT;
             }
         }
 
@@ -876,7 +876,7 @@ namespace Universe.Services.SQLServices.UserAccountService
                 case Constants.USER_FLAG_COREDEVELOPER:
                     return "Core Developer";
                 default:
-                    return "Guest";
+                    return "Resident";
             }
         }
 
