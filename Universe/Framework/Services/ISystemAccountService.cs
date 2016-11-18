@@ -77,6 +77,18 @@ namespace Universe.Framework.Services
 		/// </summary>
 		string MarketplaceOwnerName { get; }
 
+        /// <summary>
+        /// Gets the library owner UUID.
+        /// </summary>
+        /// <value>The library owner UUID.</value>
+        UUID LibraryOwnerUUID { get; }
+
+        /// <summary>
+        /// Gets the name of the library owner.
+        /// </summary>
+        /// <value>The name of the library owner.</value>
+        string LibraryOwnerName { get; }
+
 		/// <summary>
 		/// Get name of a system estate.
 		/// </summary>

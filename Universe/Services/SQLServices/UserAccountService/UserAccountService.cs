@@ -90,6 +90,7 @@ namespace Universe.Services.SQLServices.UserAccountService
             IConfig currConfig = config.Configs["Currency"];
             if (currConfig != null)
                 m_newUserStipend = currConfig.GetInt("NewUserStipend", 0);
+
         }
 
         public void Configure(IConfigSource config, IRegistryCore registry)
@@ -236,6 +237,7 @@ namespace Universe.Services.SQLServices.UserAccountService
                     "Create multiple users for testing purposes",
                     HandleTestUsers, false, true);
 #endif
+
             }
         }
 
@@ -293,6 +295,7 @@ namespace Universe.Services.SQLServices.UserAccountService
                         new[] { "FirstName", "LastName" },
                         new[] { firstName, lastName });
                 }
+
             }
 
             if (d.Length < 1)
@@ -364,6 +367,7 @@ namespace Universe.Services.SQLServices.UserAccountService
                             new[] { fName + " " + lName });
                     }
                 }
+
             }
 
             if (d.Length < 1)
@@ -415,8 +419,13 @@ namespace Universe.Services.SQLServices.UserAccountService
             return d[0];
         }
 
+        //[CanBeReflected(ThreatLevel = ThreatLevel.Full)]
         public bool StoreUserAccount(UserAccount data)
         {
+            /*object remoteValue = DoRemoteByURL("UserAccountServerURI", data);
+            if (remoteValue != null || m_doRemoteOnly)
+                return remoteValue == null ? false : (bool)remoteValue;*/
+
             m_registry.RequestModuleInterface<ISimulationBase>()
                       .EventManager.FireGenericEventHandler("UpdateUserInformation", data.PrincipalID);
             return m_Database.Store(data);
@@ -479,6 +488,7 @@ namespace Universe.Services.SQLServices.UserAccountService
             return ret;
         }
 
+
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
         public uint NumberOfUserAccounts(List<UUID> scopeIDs, string query)
         {
@@ -491,6 +501,9 @@ namespace Universe.Services.SQLServices.UserAccountService
             }
 
             var userCount = m_Database.NumberOfUsers(scopeIDs, query);
+
+            if (userCount < Constants.SystemUserCount)
+                return 0;
             return userCount - Constants.SystemUserCount;
         }
 
@@ -540,8 +553,13 @@ namespace Universe.Services.SQLServices.UserAccountService
             return CreateNewUser(newAccount, passHash, passSalt);
         }
 
+        //[CanBeReflected(ThreatLevel = ThreatLevel.Full)]
         string CreateNewUser(UserAccount newAccount, string passHash, string passSalt)
         {
+            /*object remoteValue = DoRemoteByURL("UserAccountServerURI", newAcc, password);
+            if (remoteValue != null || m_doRemoteOnly)
+                return remoteValue == null ? "" : remoteValue.ToString();*/
+
             UserAccount account = GetUserAccount(null, newAccount.PrincipalID);
             UserAccount nameaccount = GetUserAccount(null, newAccount.Name);
             if (account != null || nameaccount != null)
@@ -565,9 +583,11 @@ namespace Universe.Services.SQLServices.UserAccountService
 
             if (!success)
             {
-                MainConsole.Instance.WarnFormat("[User account service]: Unable to set password for account {0}.", newAccount.Name);
+                MainConsole.Instance.WarnFormat(
+                    "[User account service]: Unable to set password for account {0}.", newAccount.Name);
                 return "Unable to set password";
             }
+            //            }
 
             MainConsole.Instance.InfoFormat("[User account service]: Account {0} created successfully", newAccount.Name);
             //Cache it as well
@@ -581,6 +601,8 @@ namespace Universe.Services.SQLServices.UserAccountService
                 m_profileConnector.CreateNewProfile(newAccount.PrincipalID);
                 IUserProfileInfo profile = m_profileConnector.GetUserProfile(newAccount.PrincipalID);
 
+                // if (AvatarArchive != "")
+                //    profile.AArchiveName = AvatarArchive;
                 profile.MembershipGroup = "Resident";
                 profile.IsNewUser = true;
                 m_profileConnector.UpdateUserProfile(profile);
@@ -602,6 +624,7 @@ namespace Universe.Services.SQLServices.UserAccountService
                 }
             }
             return "";
+
         }
 
         bool SetHashedPassword(UUID userId, string passHash)
@@ -612,6 +635,7 @@ namespace Universe.Services.SQLServices.UserAccountService
             return success;
         }
 
+
         bool SetSaltedPassword(UUID userId, string passHash, string passSalt)
         {
             bool success = false;
@@ -620,8 +644,12 @@ namespace Universe.Services.SQLServices.UserAccountService
             return success;
         }
 
+
         public void DeleteUser(UUID userID, string name, string password, bool archiveInformation, bool wipeFromDatabase)
         {
+            //if (password != "" && m_AuthenticationService.Authenticate(userID, "UserAccount", password, 0) == "")
+            //    return; //Not authenticated
+
             // ensure the system users are left alone!
             if (Utilities.IsSystemUser(userID))
             {
@@ -665,8 +693,10 @@ namespace Universe.Services.SQLServices.UserAccountService
 
             if (m_profileConnector != null)
             {
-                IUserProfileInfo firstProfile = m_profileConnector.GetUserProfile(GetUserAccount(null, first).PrincipalID);
-                IUserProfileInfo secondProfile = m_profileConnector.GetUserProfile(GetUserAccount(null, second).PrincipalID);
+                IUserProfileInfo firstProfile =
+                    m_profileConnector.GetUserProfile(GetUserAccount(null, first).PrincipalID);
+                IUserProfileInfo secondProfile =
+                    m_profileConnector.GetUserProfile(GetUserAccount(null, second).PrincipalID);
 
                 if (firstProfile == null || secondProfile == null)
                 {
@@ -682,6 +712,7 @@ namespace Universe.Services.SQLServices.UserAccountService
 
                 MainConsole.Instance.Warn("[User account service]: Partner information updated.");
             }
+
         }
 
         /// <summary>
@@ -910,6 +941,7 @@ namespace Universe.Services.SQLServices.UserAccountService
             }
         }
 
+
         protected void HandleShowUserAccount(IScene scene, string[] cmd)
         {
             // remove 'user' from the cmd 
@@ -918,6 +950,7 @@ namespace Universe.Services.SQLServices.UserAccountService
             cmd = cmdparams.ToArray();
 
             HandleShowAccount(scene, cmd);
+
         }
 
         /// <summary>
@@ -1007,6 +1040,8 @@ namespace Universe.Services.SQLServices.UserAccountService
                         profile = m_profileConnector.GetUserProfile(account.PrincipalID);
                     }
 
+                    // if (AvatarArchive != "")
+                    //    profile.AArchiveName = AvatarArchive;
                     profile.MembershipGroup = UserFlagToType(account.UserFlags);
                     profile.IsNewUser = true;
                     m_profileConnector.UpdateUserProfile(profile);
@@ -1014,7 +1049,9 @@ namespace Universe.Services.SQLServices.UserAccountService
             }
             else
                 MainConsole.Instance.InfoFormat("[User account service]: Unable to set user type for account '{0} {1}'.", firstName, lastName);
+
         }
+
 
         protected void HandleRenameUser(IScene scene, string[] cmdparams)
         {
@@ -1069,7 +1106,9 @@ namespace Universe.Services.SQLServices.UserAccountService
             else
                 MainConsole.Instance.InfoFormat("[User account service]: User '{0} {1}' has been renamed to '{2}'",
                     firstName, lastName, newName);
+
         }
+
 
         public List<string> GetAvatarArchivesFiles()
         {
@@ -1077,6 +1116,7 @@ namespace Universe.Services.SQLServices.UserAccountService
             List<string> archives = avieArchiver.GetAvatarArchiveFilenames();
 
             return archives;
+
         }
 
         protected void HandleAddUser(IScene scene, string[] cmd)
@@ -1131,14 +1171,24 @@ namespace Universe.Services.SQLServices.UserAccountService
                 string enteredName = firstName + " " + lastName;
                 if (userName != "")
                     enteredName = userName;
+
                 do
                 {
-                    userName = MainConsole.Instance.Prompt("User Name (? for suggestion)", enteredName);
+                    userName = MainConsole.Instance.Prompt("User Name (? for suggestion, 'quit' to abort)", enteredName);
+                    if (userName.ToLower() == "quit")
+                        return;
+
                     if (userName == "" || userName == "?")
                     {
                         enteredName = ufNames.NextName + " " + ulNames.NextName;
                         userName = "";
                         continue;
+                    }
+                    var fl = userName.Split(' ');
+                    if (fl.Length < 2)
+                    {
+                        MainConsole.Instance.CleanInfo("    User name must be <firstname> <lastname>");
+                        userName = "";
                     }
                 } while (userName == "");
                 ufNames.Reset();
@@ -1154,7 +1204,25 @@ namespace Universe.Services.SQLServices.UserAccountService
             }
 
             // password as well?
-            password = cmdparams.Count < 5 ? MainConsole.Instance.PasswordPrompt("Password") : cmdparams[4];
+            if (cmdparams.Count < 5)
+            {
+                var pwmatch = false;
+                do
+                {
+                    password = MainConsole.Instance.PasswordPrompt("Password");
+                    if (password == "")
+                    {
+                        MainConsole.Instance.CleanInfo(" .... password must not be empty, please re-enter");
+                        continue;
+                    }
+                    var passwordAgain = MainConsole.Instance.PasswordPrompt("Re-enter Password");
+                    pwmatch = (password == passwordAgain);
+                    if (!pwmatch)
+                        MainConsole.Instance.CleanInfo(" .... passwords did not match, please re-enter");
+                } while (!pwmatch);
+            }
+            else
+                password = cmdparams[4];
 
             // maybe even an email?
             if (cmdparams.Count < 6)
@@ -1166,7 +1234,7 @@ namespace Universe.Services.SQLServices.UserAccountService
 
             if ((email.ToLower() != "none") && !Utilities.IsValidEmail(email))
             {
-                MainConsole.Instance.Warn("This does not look like a valid email address. ('none' if unknown)");
+                MainConsole.Instance.CleanInfo("This does not look like a valid email address. ('none' if unknown)");
                 email = MainConsole.Instance.Prompt("Email", email);
             }
 
@@ -1189,7 +1257,7 @@ namespace Universe.Services.SQLServices.UserAccountService
             if (uuidFlag)
                 while (true)
                 {
-                    uuid = MainConsole.Instance.Prompt("UUID (Required avatar UUID)", uuid);
+                    uuid = MainConsole.Instance.Prompt("Required avatar UUID)", uuid);
                     UUID test;
                     if (UUID.TryParse(uuid, out test))
                         break;
@@ -1228,6 +1296,7 @@ namespace Universe.Services.SQLServices.UserAccountService
 
                     if (userAvatarArchive != "")
                         profile.AArchiveName = userAvatarArchive + ".aa";
+
                     profile.MembershipGroup = UserFlagToType(account.UserFlags);
                     profile.IsNewUser = true;
                     m_profileConnector.UpdateUserProfile(profile);
@@ -1235,6 +1304,7 @@ namespace Universe.Services.SQLServices.UserAccountService
             }
             else
                 MainConsole.Instance.WarnFormat("[User account service]: There was a problem creating the account for '{0}'", userName);
+
         }
 
         /// <summary>
@@ -1421,6 +1491,7 @@ namespace Universe.Services.SQLServices.UserAccountService
                         MainConsole.Instance.Error("  Password confirmation does not match");
 
                 } while (!passMatch);
+
             }
             else
                 newPassword = cmd[5];
@@ -1452,6 +1523,7 @@ namespace Universe.Services.SQLServices.UserAccountService
             lastName = cmd.Length < 5 ? MainConsole.Instance.Prompt("Last name") : cmd[4];
             if (lastName == "")
                 return;
+
 
             UserAccount account = GetUserAccount(null, firstName, lastName);
             if (account == null)
@@ -1487,6 +1559,7 @@ namespace Universe.Services.SQLServices.UserAccountService
                 MainConsole.Instance.WarnFormat("[User account service]: Unable to set Email for {0} {1}", firstName, lastName);
             else
                 MainConsole.Instance.InfoFormat("[User account service]: Email for {0} {1} set to {2}", firstName, lastName, account.Email);
+
         }
 
         /// <summary>
@@ -1555,7 +1628,6 @@ namespace Universe.Services.SQLServices.UserAccountService
                         // we have full details
                         userCreated = CreateSaltedUser(new UserAccount(UUID.Zero, userUUID, firstName + " " + lastName, email), passHash, passSalt);
                     }
-
                     if (userCreated != "")
                     {
                         MainConsole.Instance.ErrorFormat("Couldn't create the user '{0} {1}'. Reason: {2}",
@@ -1565,7 +1637,7 @@ namespace Universe.Services.SQLServices.UserAccountService
 
                     //set user levels and status  (if needed)
                     var account = GetUserAccount(null, userUUID);
-
+                    //account.UserLevel = 0;
                     account.UserFlags = Constants.USER_FLAG_RESIDENT;
                     StoreUserAccount(account);
 
@@ -1582,10 +1654,11 @@ namespace Universe.Services.SQLServices.UserAccountService
                     }
 
                     userNo++;
-                }
 
+                }
                 MainConsole.Instance.InfoFormat("File: {0} loaded,  {1} users added", Path.GetFileName(fileName), userNo);
             }
+
         }
 
         /// <summary>
@@ -1651,19 +1724,16 @@ namespace Universe.Services.SQLServices.UserAccountService
                         {
                             lineToWrite = lineToWrite + ",";
                         }
-
                         if (salted && (m_auth != null))
                         {
                             var userauth = m_auth.Get(user.PrincipalID, "UserAccount");
                             if (userauth != null)
                                 lineToWrite = lineToWrite + "," + userauth.PasswordHash + "," + userauth.PasswordSalt;
                         }
-
                         streamWriter.WriteLine(lineToWrite);
 
                         userNo++;
                     }
-
                     streamWriter.Flush();
                     streamWriter.Close();
 
@@ -1705,13 +1775,11 @@ namespace Universe.Services.SQLServices.UserAccountService
             string email = "none";
             UUID userUUID;
 
-            for (userNo = 0; userNo < addUsers; userNo++)
-            {
+            for (userNo = 0; userNo < addUsers; userNo++) {
                 UserUUID = UUID.Random ();
 
                 string check = CreateUser (userUUID, UUID.Zero, firstName + " " + lastName+userNo, Util.Md5Hash(password), email);
-                if (check != "")
-                {
+                if (check != "") {
                     MainConsole.Instance.Error ("Couldn't create the user. Reason: " + check);
                     continue;
                 }

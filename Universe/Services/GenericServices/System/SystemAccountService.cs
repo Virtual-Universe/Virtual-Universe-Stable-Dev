@@ -28,10 +28,12 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Nini.Config;
 using OpenMetaverse;
 using Universe.Framework.ConsoleFramework;
+using Universe.Framework.DatabaseInterfaces;
 using Universe.Framework.Modules;
 using Universe.Framework.SceneInfo;
 using Universe.Framework.Services;
@@ -39,280 +41,456 @@ using Universe.Framework.Utilities;
 
 namespace Universe.Services.GenericServices.System
 {
-	/// <summary>
-	///     Basically a provision to allow user configuration of the system user accounts
-	/// </summary>
-	public class SystemAccountService : ISystemAccountService, IService
-	{
-		IUserAccountService m_accountService;
+    /// <summary>
+    ///     Basically a provision to allow user configuration of the system user accounts
+    /// </summary>
+    public class SystemAccountService : ISystemAccountService, IService
+    {
+        IUserAccountService m_accountService;
 
-		string governorName = Constants.GovernorName;
-		string realEstateOwnerName = Constants.RealEstateOwnerName;
-		string bankerName = Constants.BankerName;
-		string marketplaceOwnerName = Constants.MarketplaceOwnerName;
+        string governorName = Constants.GovernorName;
+        string realEstateOwnerName = Constants.RealEstateOwnerName;
+        string bankerName = Constants.BankerName;
+        string marketplaceOwnerName = Constants.MarketplaceOwnerName;
+        string libraryOwnerName = Constants.LibraryOwnerName;
+        string[] m_userNameSeed;
 
-		IRegistryCore m_registry;
+        IRegistryCore m_registry;
+        IConfigSource m_config;
 
-		#region ISystemAccountService Members
+        #region ISystemAccountService Members
 
-		public UUID GovernorUUID {
-			get { return (UUID)Constants.GovernorUUID; }
-		}
+        public UUID GovernorUUID
+        {
+            get { return (UUID)Constants.GovernorUUID; }
+        }
 
-		public string GovernorName {
-			get { return governorName; }
-		}
+        public string GovernorName
+        {
+            get { return governorName; }
+        }
 
-		public UUID SystemEstateOwnerUUID {
-			get { return (UUID)Constants.RealEstateOwnerUUID; }
-		}
+        public UUID SystemEstateOwnerUUID
+        {
+            get { return (UUID)Constants.RealEstateOwnerUUID; }
+        }
 
-		public string SystemEstateOwnerName {
-			get { return realEstateOwnerName; }
-		}
+        public string SystemEstateOwnerName
+        {
+            get { return realEstateOwnerName; }
+        }
 
-		public UUID BankerUUID {
-			get { return (UUID)Constants.BankerUUID; }
-		}
+        public UUID BankerUUID
+        {
+            get { return (UUID)Constants.BankerUUID; }
+        }
 
-		public string BankerName {
-			get { return bankerName; }
-		}
+        public string BankerName
+        {
+            get { return bankerName; }
+        }
 
-		public UUID MarketplaceOwnerUUID {
-			get { return (UUID)Constants.MarketplaceOwnerUUID; }
-		}
+        public UUID MarketplaceOwnerUUID
+        {
+            get { return (UUID)Constants.MarketplaceOwnerUUID; }
+        }
 
-		public string MarketplaceOwnerName {
-			get { return marketplaceOwnerName; }
-		}
+        public string MarketplaceOwnerName
+        {
+            get { return marketplaceOwnerName; }
+        }
 
-		public string GetSystemEstateOwnerName (int estateID)
-		{
-			if (estateID == 1)  // Mainland estate
+        public UUID LibraryOwnerUUID
+        {
+            get { return (UUID)Constants.LibraryOwnerUUID; }
+        }
+
+        public string LibraryOwnerName
+        {
+            get { return libraryOwnerName; }
+        }
+
+        public string GetSystemEstateOwnerName(int estateID)
+        {
+            if (estateID == 1)  // Mainland estate
                 return governorName;
 
-			// System estate then
-			return realEstateOwnerName;
-		}
+            // System estate then
+            return realEstateOwnerName;
+        }
 
-		public UUID GetSystemEstateOwner (int estateID)
-		{
-			if (estateID == 1)  // Mainland estate
+        public UUID GetSystemEstateOwner(int estateID)
+        {
+            if (estateID == 1)  // Mainland estate
                 return GovernorUUID;
 
-			// System estate then
-			return SystemEstateOwnerUUID;
-		}
+            // System estate then
+            return SystemEstateOwnerUUID;
+        }
 
-		#endregion
+        #endregion
 
-		#region IService Members
+        #region IService Members
 
-		public void Initialize (IConfigSource config, IRegistryCore registry)
-		{
+        public void Initialize(IConfigSource config, IRegistryCore registry)
+        {
+            IConfig estConfig = config.Configs["SystemUserService"];
+            if (estConfig != null)
+            {
+                governorName = estConfig.GetString("GovernorName", governorName);
+                realEstateOwnerName = estConfig.GetString("RealEstateOwnerName", realEstateOwnerName);
+                bankerName = estConfig.GetString("BankerName", bankerName);
+                marketplaceOwnerName = estConfig.GetString("MarketplaceOwnerName", marketplaceOwnerName);
+            }
 
-			IConfig estConfig = config.Configs ["SystemUserService"];
-			if (estConfig != null) {
-				governorName = estConfig.GetString ("GovernorName", governorName);
-				realEstateOwnerName = estConfig.GetString ("RealEstateOwnerName", realEstateOwnerName);
-				bankerName = estConfig.GetString ("BankerName", bankerName);
-				marketplaceOwnerName = estConfig.GetString ("MarketplaceOwnerName", marketplaceOwnerName);
-			}
+            IConfig libConfig = config.Configs["LibraryService"];
+            if (libConfig != null)
+            {
+                libraryOwnerName = libConfig.GetString("LibraryOwnerName", libraryOwnerName);
+            }
 
-			registry.RegisterModuleInterface<ISystemAccountService> (this);
-			m_registry = registry;
-		}
+            registry.RegisterModuleInterface<ISystemAccountService>(this);
+            m_registry = registry;
+            m_config = config;
+        }
 
-		public void Start (IConfigSource config, IRegistryCore registry)
-		{
-		}
+        public void Start(IConfigSource config, IRegistryCore registry)
+        {
+        }
 
-		public void FinishedStartup ()
-		{
-			m_accountService = m_registry.RequestModuleInterface<IUserAccountService> ();
+        public void FinishedStartup()
+        {
+            m_accountService = m_registry.RequestModuleInterface<IUserAccountService>();
 
-			// these are only valid if we are local
-			if (m_accountService.IsLocalConnector) {
-				// check and/or create default RealEstate user
-				CheckSystemUserInfo ();
+            // these are only valid if we are local
+            if (m_accountService.IsLocalConnector)
+            {
+                // check and/or create default RealEstate user
+                CheckSystemUserInfo();
 
-				AddCommands ();
-			}
+                // if this is the initial run, create the grid system user
+                var users = m_accountService.NumberOfUserAccounts(null, "");
+                if (users == 0)
+                    CreateGridOwnerUser();
 
-		}
+                AddCommands();
+            }
+        }
 
-		#endregion
+        #endregion
 
-		void AddCommands ()
-		{
-			if (MainConsole.Instance != null) {
-				MainConsole.Instance.Commands.AddCommand (
-					"reset governor password",
-					"reset governor password",
-					"Resets the password of the system Governor",
-					HandleResetGovernorPassword, false, true);
+        void AddCommands()
+        {
+            if (MainConsole.Instance != null)
+            {
+                MainConsole.Instance.Commands.AddCommand(
+                    "reset governor password",
+                    "reset governor password",
+                    "Resets the password of the system Governor",
+                    HandleResetGovernorPassword, false, true);
 
-				MainConsole.Instance.Commands.AddCommand (
-					"reset realestate password",
-					"reset realestate password",
-					"Resets the password of the system Estate Owner",
-					HandleResetRealEstatePassword, false, true);
+                MainConsole.Instance.Commands.AddCommand(
+                    "reset realestate password",
+                    "reset realestate password",
+                    "Resets the password of the system Estate Owner",
+                    HandleResetRealEstatePassword, false, true);
 
-				MainConsole.Instance.Commands.AddCommand (
-					"reset banker password",
-					"reset banker password",
-					"Resets the password of the system Banker",
-					HandleResetBankerPassword, false, true);
+                MainConsole.Instance.Commands.AddCommand(
+                    "reset banker password",
+                    "reset banker password",
+                    "Resets the password of the system Banker",
+                    HandleResetBankerPassword, false, true);
 
-				MainConsole.Instance.Commands.AddCommand (
-					"reset marketplace password",
-					"reset marketplace password",
-					"Resets the password of the system Marketplace Owner",
-					HandleResetMarketplacePassword, false, true);
+                MainConsole.Instance.Commands.AddCommand(
+                    "reset marketplace password",
+                    "reset marketplace password",
+                    "Resets the password of the system Marketplace Owner",
+                    HandleResetMarketplacePassword, false, true);
+            }
+        }
 
-			}
-		}
+        #region systemUsers
 
-		#region systemUsers
+        /// <summary>
+        /// Checks and creates the system users.
+        /// </summary>
+        void CheckSystemUserInfo()
+        {
+            if (m_accountService == null)
+                return;
 
-		/// <summary>
-		/// Checks and creates the system users.
-		/// </summary>
-		void CheckSystemUserInfo ()
-		{
-			if (m_accountService == null)
-				return;
+            VerifySystemUserInfo("Governor", GovernorUUID, GovernorName, Constants.USER_GOD_MAINTENANCE);
+            VerifySystemUserInfo("RealEstate", SystemEstateOwnerUUID, SystemEstateOwnerName, Constants.USER_GOD_LIASON);
+            VerifySystemUserInfo("Banker", BankerUUID, BankerName, Constants.USER_GOD_CUSTOMER_SERVICE);
+            VerifySystemUserInfo("Marketplace", MarketplaceOwnerUUID, MarketplaceOwnerName, Constants.USER_DISABLED);
+            VerifySystemUserInfo("Library", LibraryOwnerUUID, LibraryOwnerName, Constants.USER_DISABLED);
+        }
 
-			VerifySystemUserInfo ("Governor", GovernorUUID, GovernorName, 250);
-			VerifySystemUserInfo ("RealEstate", SystemEstateOwnerUUID, SystemEstateOwnerName, 150);
-			VerifySystemUserInfo ("Banker", BankerUUID, BankerName, 100);
-			VerifySystemUserInfo ("Marketplace", MarketplaceOwnerUUID, MarketplaceOwnerName, 100);
+        void VerifySystemUserInfo(string usrType, UUID usrUUID, string usrName, int usrLevel)
+        {
+            var userAccount = m_accountService.GetUserAccount(null, usrUUID);
+            var userPassword = Utilities.RandomPassword.Generate(2, 3, 0);
 
-		}
+            if (userAccount == null)
+            {
+                MainConsole.Instance.WarnFormat("Creating the {0} user '{1}'", usrType, usrName);
 
-		void VerifySystemUserInfo (string usrType, UUID usrUUID, string usrName, int usrLevel)
-		{
+                var error = m_accountService.CreateUser(
+                    usrUUID,                                // user UUID
+                    UUID.Zero,                              // scope
+                    usrName,                                // name
+                    Util.Md5Hash(userPassword),            // password
+                    "");                                    // email
 
-			var userAccount = m_accountService.GetUserAccount (null, usrUUID);
-			var userPassword = Utilities.RandomPassword.Generate (2, 3, 0);
+                if (error == "")
+                {
+                    SaveSystemUserPassword(usrType, usrName, userPassword);
+                    MainConsole.Instance.InfoFormat(" The password for '{0}' is : {1}", usrName, userPassword);
 
-			if (userAccount == null) {
-				MainConsole.Instance.WarnFormat ("Creating the {0} user '{1}'", usrType, usrName);
+                }
+                else
+                {
+                    MainConsole.Instance.WarnFormat(" Unable to create the {0} user : {1}", usrType, error);
+                    return;
+                }
 
-				var error = m_accountService.CreateUser (
-					                        usrUUID,                                // user UUID
-					                        UUID.Zero,                              // scope
-					                        usrName,                                // name
-					                        Util.Md5Hash (userPassword),            // password
-					                        "");                                    // email
+                //set  "God" level
+                var account = m_accountService.GetUserAccount(null, usrUUID);
+                account.UserLevel = usrLevel;
+                account.UserFlags = Constants.USER_FLAG_COREDEVELOPER;
+                bool success = m_accountService.StoreUserAccount(account);
 
-				if (error == "") {
-					SaveSystemUserPassword (usrType, usrName, userPassword);
-					MainConsole.Instance.InfoFormat (" The password for '{0}' is : {1}", usrName, userPassword);
+                if (success)
+                    MainConsole.Instance.InfoFormat(" The {0} user has been elevated to '{1}' level", usrType, m_accountService.UserGodLevel(usrLevel));
 
-				} else {
-					MainConsole.Instance.WarnFormat (" Unable to create the {0} user : {1}", usrType, error);
-					return;
-				}
+                return;
+            }
 
-				//set  "God" level
-				var account = m_accountService.GetUserAccount (null, usrUUID);
-				account.UserLevel = usrLevel;
-				account.UserFlags = Constants.USER_FLAG_COREDEVELOPER;
-				bool success = m_accountService.StoreUserAccount (account);
+            // we already have the account.. verify details in case of a configuration change
+            if (userAccount.Name != usrName)
+            {
+                IAuthenticationService authService = m_registry.RequestModuleInterface<IAuthenticationService>();
 
-				if (success)
-					MainConsole.Instance.InfoFormat (" The {0} user has been elevated to '{1}' level", usrType, m_accountService.UserGodLevel (usrLevel));
+                userAccount.Name = usrName;
+                bool updatePass = authService.SetPassword(userAccount.PrincipalID, "UserAccount", userPassword);
+                bool updateAcct = m_accountService.StoreUserAccount(userAccount);
 
-				return;
+                if (updatePass && updateAcct)
+                {
+                    SaveSystemUserPassword(usrType, usrName, userPassword);
+                    MainConsole.Instance.InfoFormat(" The {0} user has been updated to '{1}'", usrType, usrName);
+                }
+                else
+                    MainConsole.Instance.WarnFormat(" There was a problem updating the {0} user", usrType);
+            }
+        }
 
-			}
+        // Save passwords for later
+        void SaveSystemUserPassword(string userType, string userName, string password)
+        {
+            var simBase = m_registry.RequestModuleInterface<ISimulationBase>();
+            string passFile = Path.Combine(simBase.DefaultDataPath, userType + ".txt");
+            string userInfo = userType + " user";
 
-			// we already have the account.. verify details in case of a configuration change
-			if (userAccount.Name != usrName) {
-				IAuthenticationService authService = m_registry.RequestModuleInterface<IAuthenticationService> ();
+            if (File.Exists(passFile))
+                File.Delete(passFile);
 
-				userAccount.Name = usrName;
-				bool updatePass = authService.SetPassword (userAccount.PrincipalID, "UserAccount", userPassword);
-				bool updateAcct = m_accountService.StoreUserAccount (userAccount);
+            using (var pwFile = new StreamWriter(passFile))
+            {
+                pwFile.WriteLine(userInfo.PadRight(20) + " : '" + userName + "' was created: " + Culture.LocaleLogStamp());
+                pwFile.WriteLine("Password             : " + password);
+            }
+        }
 
-				if (updatePass && updateAcct) {
-					SaveSystemUserPassword (usrType, usrName, userPassword);
-					MainConsole.Instance.InfoFormat (" The {0} user has been updated to '{1}'", usrType, usrName);
-				} else
-					MainConsole.Instance.WarnFormat (" There was a problem updating the {0} user", usrType);
-			}
+        /// <summary>
+        /// Creates the grid owner user on a clean startup.
+        /// Sets user to 'Charter Meneber" and elevates to  "God" status
+        /// </summary>
+        void CreateGridOwnerUser()
+        {
+            string userName = "";
+            string password, email, uuid;
 
-		}
+            // Get user name
+            // check for user name seed
+            IConfig loginConfig = m_config.Configs["LoginService"];
+            if (loginConfig != null)
+            {
+                string userNameSeed = loginConfig.GetString("UserNameSeed", "");
+                if (userNameSeed != "")
+                    m_userNameSeed = userNameSeed.Split(',');
+            }
 
-		// Save passwords for later
-		void SaveSystemUserPassword (string userType, string userName, string password)
-		{
-			var simBase = m_registry.RequestModuleInterface<ISimulationBase> ();
-			string passFile = Path.Combine (simBase.DefaultDataPath, userType + ".txt");
-			string userInfo = userType + " user";
+            var ufNames = new Utilities.MarkovNameGenerator();
+            var ulNames = new Utilities.MarkovNameGenerator();
+            string[] nameSeed = m_userNameSeed == null ? Utilities.UserNames : m_userNameSeed;
 
-			if (File.Exists (passFile))
-				File.Delete (passFile);
+            string firstName = ufNames.FirstName(nameSeed, 3, 4);
+            string lastName = ulNames.FirstName(nameSeed, 5, 6);
+            string enteredName = firstName + " " + lastName;
+            if (userName != "")
+                enteredName = userName;
 
-			using (var pwFile = new StreamWriter (passFile)) {
-				pwFile.WriteLine (userInfo.PadRight (20) + " : '" + userName + "' was created: " + Culture.LocaleLogStamp ());
-				pwFile.WriteLine ("Password             : " + password);
-			}
-		}
+            do
+            {
+                userName = MainConsole.Instance.Prompt("Grid owner user name (? for suggestion)", enteredName);
+                if (userName == "" || userName == "?")
+                {
+                    enteredName = ufNames.NextName + " " + ulNames.NextName;
+                    userName = "";
+                    continue;
+                }
+                var fl = userName.Split(' ');
+                if (fl.Length < 2)
+                {
+                    MainConsole.Instance.CleanInfo("    User name must be <firstname> <lastname>");
+                    userName = "";
+                }
+            } while (userName == "");
+            ufNames.Reset();
+            ulNames.Reset();
 
-		#endregion
+            // password 
+            var pwmatch = false;
+            do
+            {
+                password = MainConsole.Instance.PasswordPrompt("Password");
+                if (password == "")
+                {
+                    MainConsole.Instance.CleanInfo(" .... password must not be empty, please re-enter");
+                    continue;
+                }
+                var passwordAgain = MainConsole.Instance.PasswordPrompt("Re-enter Password");
+                pwmatch = (password == passwordAgain);
+                if (!pwmatch)
+                    MainConsole.Instance.CleanInfo(" .... passwords did not match, please re-enter");
+            } while (!pwmatch);
 
-		#region Commands
+            // email
+            email = MainConsole.Instance.Prompt("Email for password recovery. ('none' if unknown)", "none");
 
-		protected void HandleResetGovernorPassword (IScene scene, string[] cmd)
-		{
-			ResetSystemPassword ("Governor", GovernorName);
-		}
+            if ((email.ToLower() != "none") && !Utilities.IsValidEmail(email))
+            {
+                MainConsole.Instance.CleanInfo("This does not look like a valid email address. ('none' if unknown)");
+                email = MainConsole.Instance.Prompt("Email", email);
+            }
 
-		protected void HandleResetRealEstatePassword (IScene scene, string[] cmd)
-		{
-			ResetSystemPassword ("RealEstate", SystemEstateOwnerName);
-		}
+            // Get available user avatar archives
+            var userAvatarArchive = "";
+            IAvatarAppearanceArchiver avieArchiver = m_registry.RequestModuleInterface<IAvatarAppearanceArchiver>();
+            if (avieArchiver != null)
+            {
+                List<string> avatarArchives = avieArchiver.GetAvatarArchiveFilenames();
 
-		protected void HandleResetBankerPassword (IScene scene, string[] cmd)
-		{
-			ResetSystemPassword ("Banker", BankerName);
-		}
+                if (avatarArchives.Count > 0)
+                {
+                    avatarArchives.Add("None");
+                    userAvatarArchive = MainConsole.Instance.Prompt("Avatar archive to use", "None", avatarArchives);
+                    if (userAvatarArchive == "None")
+                        userAvatarArchive = "";
+                }
+            }
 
-		protected void HandleResetMarketplacePassword (IScene scene, string[] cmd)
-		{
-			ResetSystemPassword ("Marketplace", MarketplaceOwnerName);
-		}
+            // Allow the modification of UUID if required - for matching user UUID with other Grids etc like SL
+            uuid = UUID.Random().ToString();
+            while (true)
+            {
+                uuid = MainConsole.Instance.Prompt("Required avatar UUID (optional))", uuid);
+                UUID test;
+                if (UUID.TryParse(uuid, out test))
+                    break;
 
-		void ResetSystemPassword (string userType, string systemUserName)
-		{
-			string question;
+                MainConsole.Instance.Error("There was a problem verifying this UUID. Please retry.");
+            }
 
-			question = MainConsole.Instance.Prompt ("Are you really sure that you want to reset the " + userType + " user password ? (yes/no)", "no");
-			question = question.ToLower ();
-			if (question.StartsWith ("y", StringComparison.Ordinal)) {
-				var newPassword = Utilities.RandomPassword.Generate (2, 3, 0);
+            // we should be good to go
+            m_accountService.CreateUser(UUID.Parse(uuid), UUID.Zero, userName, Util.Md5Hash(password), email);
+            // CreateUser will tell us success or problem
+            //MainConsole.Instance.InfoFormat("[User account service]: User '{0}' created", name);
 
-				UserAccount account = m_accountService.GetUserAccount (null, systemUserName);
-				bool success = false;
+            // check for success
+            UserAccount account = m_accountService.GetUserAccount(null, userName);
+            if (account != null)
+            {
+                account.UserFlags = Constants.USER_FLAG_COREDEVELOPER;
+                account.UserLevel = 250;
+                m_accountService.StoreUserAccount(account);
 
-				if (account != null) {
-					IAuthenticationService authService = m_registry.RequestModuleInterface<IAuthenticationService> ();
-					if (authService != null)
-						success = authService.SetPassword (account.PrincipalID, "UserAccount", newPassword);
+                // update profile for the user as well
+                var profileConnector = Framework.Utilities.DataManager.RequestPlugin<IProfileConnector>();
+                if (profileConnector != null)
+                {
+                    var profile = profileConnector.GetUserProfile(account.PrincipalID);
+                    if (profile == null)
+                    {
+                        profileConnector.CreateNewProfile(account.PrincipalID);          // create a profile for the user
+                        profile = profileConnector.GetUserProfile(account.PrincipalID);
+                    }
 
-					if (!success)
-						MainConsole.Instance.ErrorFormat ("[System account service]: Unable to reset password for the " + userType);
-					else {
-						SaveSystemUserPassword (userType, systemUserName, newPassword);
-						MainConsole.Instance.Info ("[System account service]: The new password for '" + account.Name + "' is : " + newPassword);
-					}
-				}
-			}
-		}
-			
-		#endregion
-	}
+                    if (userAvatarArchive != "")
+                        profile.AArchiveName = userAvatarArchive + ".aa";
+                    profile.MembershipGroup = "Core Developer";
+                    profile.IsNewUser = true;
+                    profileConnector.UpdateUserProfile(profile);
+                }
+            }
+            else
+                MainConsole.Instance.WarnFormat("[System User account service]: There was a problem creating the account for '{0}'", userName);
+        }
+
+        #endregion
+
+        #region Commands
+        protected void HandleResetGovernorPassword(IScene scene, string[] cmd)
+        {
+            ResetSystemPassword("Governor", GovernorName);
+        }
+
+        protected void HandleResetRealEstatePassword(IScene scene, string[] cmd)
+        {
+            ResetSystemPassword("RealEstate", SystemEstateOwnerName);
+        }
+
+        protected void HandleResetBankerPassword(IScene scene, string[] cmd)
+        {
+            ResetSystemPassword("Banker", BankerName);
+        }
+
+        protected void HandleResetMarketplacePassword(IScene scene, string[] cmd)
+        {
+            ResetSystemPassword("Marketplace", MarketplaceOwnerName);
+        }
+
+        void ResetSystemPassword(string userType, string systemUserName)
+        {
+            string question;
+
+            question = MainConsole.Instance.Prompt("Are you really sure that you want to reset the " + userType + " user password ? (yes/no)", "no");
+            question = question.ToLower();
+            if (question.StartsWith("y", StringComparison.Ordinal))
+            {
+                var newPassword = Utilities.RandomPassword.Generate(2, 3, 0);
+
+                UserAccount account = m_accountService.GetUserAccount(null, systemUserName);
+                bool success = false;
+
+                if (account != null)
+                {
+                    IAuthenticationService authService = m_registry.RequestModuleInterface<IAuthenticationService>();
+                    if (authService != null)
+                        success = authService.SetPassword(account.PrincipalID, "UserAccount", newPassword);
+
+                    if (!success)
+                        MainConsole.Instance.ErrorFormat("[System account service]: Unable to reset password for the " + userType);
+                    else
+                    {
+                        SaveSystemUserPassword(userType, systemUserName, newPassword);
+                        MainConsole.Instance.Info("[System account service]: The new password for '" + account.Name + "' is : " + newPassword);
+                    }
+                }
+            }
+        }
+
+        #endregion
+    }
 }

@@ -91,7 +91,7 @@ namespace Universe.Modules.Web
 					IUserAccountService accountService = webInterface.Registry.RequestModuleInterface<IUserAccountService> ();
 
 					if (UserName != "") {
-						UserID = (UUID)Constants.LibraryOwner;         // This user should hopefully never have transactions
+						UserID = (UUID)Constants.LibraryOwnerUUID;         // This user should hopefully never have transactions
 
 						if (UserName.Split (' ').Length == 2) {
 							var userAccount = accountService.GetUserAccount (null, UserName);

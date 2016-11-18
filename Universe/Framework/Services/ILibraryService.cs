@@ -34,14 +34,14 @@ namespace Universe.Framework.Services
 	public interface ILibraryService
 	{
 		/// <summary>
-		///     The library owner's UUID
-		/// </summary>
-		UUID LibraryOwner { get; }
-
-		/// <summary>
 		///     The root folderID of the default library
 		/// </summary>
 		UUID LibraryRootFolderID { get; }
+
+        /// <summary>
+        ///     The library owner's UUID
+        /// </summary>
+        UUID LibraryOwnerUUID { get; }
 
 		/// <summary>
 		///     The owner of the library's name

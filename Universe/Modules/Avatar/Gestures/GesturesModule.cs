@@ -82,13 +82,13 @@ namespace Universe.Modules.Gestures
 
 		#endregion
 
-		private void OnNewClient (IClientAPI client)
+		void OnNewClient (IClientAPI client)
 		{
 			client.OnActivateGesture += ActivateGesture;
 			client.OnDeactivateGesture += DeactivateGesture;
 		}
 
-		private void OnClosingClient (IClientAPI client)
+		void OnClosingClient (IClientAPI client)
 		{
 			client.OnActivateGesture -= ActivateGesture;
 			client.OnDeactivateGesture -= DeactivateGesture;
@@ -97,7 +97,7 @@ namespace Universe.Modules.Gestures
 		public virtual void ActivateGesture (IClientAPI client, UUID assetId, UUID gestureId)
 		{
 			IInventoryService invService = m_scene.InventoryService;
-			UUID libOwner = new UUID (Constants.LibraryOwner);
+			UUID libOwner = new UUID (Constants.LibraryOwnerUUID);
 
 			InventoryItemBase item = invService.GetItem (client.AgentId, gestureId);
 			if (item != null) {
@@ -106,7 +106,7 @@ namespace Universe.Modules.Gestures
 			} else {
 				if (invService.GetItem (libOwner, gestureId) == null) {
 					MainConsole.Instance.WarnFormat (
-						"[GESTURES]: Unable to find gesture {0} to activate for {1}", gestureId, client.Name);
+						"[Gestures]: Unable to find gesture {0} to activate for {1}", gestureId, client.Name);
 				}
 			}
 		}
@@ -114,7 +114,7 @@ namespace Universe.Modules.Gestures
 		public virtual void DeactivateGesture (IClientAPI client, UUID gestureId)
 		{
 			IInventoryService invService = m_scene.InventoryService;
-			UUID libOwner = new UUID (Constants.LibraryOwner);
+			UUID libOwner = new UUID (Constants.LibraryOwnerUUID);
 
 			InventoryItemBase item = invService.GetItem (client.AgentId, gestureId);
 			if (item != null) {
@@ -122,7 +122,7 @@ namespace Universe.Modules.Gestures
 				invService.UpdateItem (item);
 			} else if (invService.GetItem (libOwner, gestureId) == null) {
 				MainConsole.Instance.ErrorFormat (
-					"[GESTURES]: Unable to find gesture to deactivate {0} for {1}", gestureId, client.Name);
+					"[Gestures]: Unable to find gesture to deactivate {0} for {1}", gestureId, client.Name);
 			}
 		}
 	}

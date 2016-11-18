@@ -514,7 +514,7 @@ namespace Universe.Framework.Utilities
 			var userId = userID.ToString ();
 			return (userId == Constants.GovernorUUID ||
 			userId == Constants.RealEstateOwnerUUID ||
-			userId == Constants.LibraryOwner ||
+			userId == Constants.LibraryOwnerUUID ||
 			userId == Constants.BankerUUID ||
 			userId == Constants.MarketplaceOwnerUUID
 			);
