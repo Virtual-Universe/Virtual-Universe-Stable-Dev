@@ -108,7 +108,7 @@ namespace Universe.Modules.Archivers
 			m_registry = registry;
 			m_merge = merge;
 			m_userInfo = userInfo;
-            m_invName = Path.GetFileNameWithoutExtension (loadPath)
+            m_invName = Path.GetFileNameWithoutExtension(loadPath);
 			m_invPath = invPath.StartsWith ("/", StringComparison.Ordinal) ? invPath.Remove (0, 1) : invPath;
 			m_loadStream = new GZipStream (str, CompressionMode.Decompress);
 			m_overridecreator = overwriteCreator;
