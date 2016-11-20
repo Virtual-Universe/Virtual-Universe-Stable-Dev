@@ -995,7 +995,7 @@ namespace Universe.Services.SQLServices.UserAccountService
         {
             string firstName;
             string lastName;
-            List<string> userTypes = new List<string>(new[] { "Guest", "Resident", "Member", "Contractor", "Charter_Member" });
+            List<string> userTypes = new List<string>(new[] { "Guest", "Resident", "Member", "Contractor", "Mentor", "Staff", "Assistant Developer", "Core Developer" });
             int userFlags;
 
             firstName = cmdparams.Length < 4 ? MainConsole.Instance.Prompt("First name") : cmdparams[3];
