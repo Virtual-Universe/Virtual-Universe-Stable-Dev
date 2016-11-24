@@ -133,8 +133,7 @@ namespace Universe.Framework.Services.ClassHelpers.Profile
 				{ "PermEveryone", OSD.FromInteger (PermEveryone) },
 				{ "PermGroup", OSD.FromInteger (PermGroup) },
 				{ "PermNextOwner", OSD.FromInteger (PermNextOwner) }, {
-					"OtherAgentInformation",
-					OSD.FromString (OSDParser.SerializeLLSDXmlString (OtherAgentInformation))
+					"OtherAgentInformation", OSD.FromString (OSDParser.SerializeLLSDXmlString (OtherAgentInformation))
 				}
 			};
 
@@ -154,7 +153,8 @@ namespace Universe.Framework.Services.ClassHelpers.Profile
 			PermEveryone = Convert.ToInt32 (map ["PermEveryone"].AsInteger ());
 			PermGroup = Convert.ToInt32 (map ["PermGroup"].AsInteger ());
 			PermNextOwner = Convert.ToInt32 (map ["PermNextOwner"].AsInteger ());
-			if (map.ContainsKey ("OtherAgentInformation"))
+			
+            if (map.ContainsKey ("OtherAgentInformation"))
 				OtherAgentInformation = (OSDMap)OSDParser.DeserializeLLSDXml (map ["OtherAgentInformation"].AsString ());
 		}
 	}
@@ -241,7 +241,7 @@ namespace Universe.Framework.Services.ClassHelpers.Profile
 		/// <summary>
 		///     The group that the user is assigned to, ex: Premium
 		/// </summary>
-		public string MembershipGroup = "Guest";
+		public string MembershipGroup = "Resident";
 
 		/// <summary>
 		///     All of the notes of the user
@@ -304,6 +304,7 @@ namespace Universe.Framework.Services.ClassHelpers.Profile
 				{ "Visible", OSD.FromBoolean (Visible) },
 				{ "CustomType", OSD.FromString (CustomType) }
 			};
+
 			if (trusted) {
 				map.Add ("AArchiveName", OSD.FromString (AArchiveName));
 				map.Add ("IMViaEmail", OSD.FromBoolean (IMViaEmail));
@@ -397,7 +398,6 @@ namespace Universe.Framework.Services.ClassHelpers.Profile
 				{ "SnapshotUUID", OSD.FromUUID (SnapshotUUID) },
 				{ "ScopeID", OSD.FromUUID (ScopeID) },
 				{ "SimName", OSD.FromString (SimName) },
-				//  broken for non en_US locales                                        {"GlobalPos", OSD.FromVector3(GlobalPos)},
 				{ "GPosX", OSD.FromReal (GlobalPos.X).ToString () },
 				{ "GPosY", OSD.FromReal (GlobalPos.Y).ToString () },
 				{ "GPosZ", OSD.FromReal (GlobalPos.Z).ToString () },
@@ -405,6 +405,7 @@ namespace Universe.Framework.Services.ClassHelpers.Profile
 				{ "ClassifiedFlags", OSD.FromInteger (ClassifiedFlags) },
 				{ "PriceForListing", OSD.FromInteger (PriceForListing) }
 			};
+
 			return Classified;
 		}
 
@@ -422,19 +423,22 @@ namespace Universe.Framework.Services.ClassHelpers.Profile
 			SnapshotUUID = map ["SnapshotUUID"].AsUUID ();
 			ScopeID = map ["ScopeID"].AsUUID ();
 			SimName = map ["SimName"].AsString ();
-//            GlobalPos = map["GlobalPos"].AsVector3();
-			if (map.ContainsKey ("GlobalPos")) {
+			
+            if (map.ContainsKey ("GlobalPos")) {
 				GlobalPos = map ["GlobalPos"].AsVector3 ();
 			} else {
 				GlobalPos.X = (float)Convert.ToDecimal (map ["GPosX"].AsString (), Culture.NumberFormatInfo);
 				GlobalPos.Y = (float)Convert.ToDecimal (map ["GPosY"].AsString (), Culture.NumberFormatInfo);
 				GlobalPos.Z = (float)Convert.ToDecimal (map ["GPosZ"].AsString (), Culture.NumberFormatInfo);
 			}
+
 			ParcelName = map ["ParcelName"].AsString ();
 			ClassifiedFlags = (byte)map ["ClassifiedFlags"].AsInteger ();
+
 			if (ClassifiedFlags == 0)
 				ClassifiedFlags = (byte)DirectoryManager.ClassifiedQueryFlags.PG;
-			PriceForListing = map ["PriceForListing"].AsInteger ();
+			
+            PriceForListing = map ["PriceForListing"].AsInteger ();
 		}
 	}
 
@@ -467,13 +471,13 @@ namespace Universe.Framework.Services.ClassHelpers.Profile
 				{ "User", OSD.FromString (User) },
 				{ "OriginalName", OSD.FromString (OriginalName) },
 				{ "SimName", OSD.FromString (SimName) },
-//  broken for non en_US locales   {"GlobalPos", OSD.FromVector3(GlobalPos)},
 				{ "GPosX", OSD.FromReal (GlobalPos.X).ToString () },
 				{ "GPosY", OSD.FromReal (GlobalPos.Y).ToString () },
 				{ "GPosZ", OSD.FromReal (GlobalPos.Z).ToString () },
 				{ "SortOrder", OSD.FromInteger (SortOrder) },
 				{ "Enabled", OSD.FromInteger (Enabled) }
 			};
+
 			return Pick;
 		}
 
@@ -497,9 +501,9 @@ namespace Universe.Framework.Services.ClassHelpers.Profile
 				GlobalPos.Y = (float)Convert.ToDecimal (map ["GPosY"].AsString (), Culture.NumberFormatInfo);
 				GlobalPos.Z = (float)Convert.ToDecimal (map ["GPosZ"].AsString (), Culture.NumberFormatInfo);
 			}
+
 			SortOrder = map ["SortOrder"].AsInteger ();
 			Enabled = map ["Enabled"].AsInteger ();
-
 		}
 	}
 }
