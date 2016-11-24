@@ -191,7 +191,7 @@ namespace Universe.Services.SQLServices.UserAccountService
                 MainConsole.Instance.Commands.AddCommand(
                     "set user type",
                     "set user type [<first> [<last> [<type>]]]",
-                    "Set the user account type. I.e. Guest, Resident, Member etc (Used for stipend payments)",
+                    "Set the user account type. I.e. Resident, Member etc (Used for stipend payments)",
                     HandleSetUserType, false, true);
 
                 MainConsole.Instance.Commands.AddCommand(
@@ -865,8 +865,6 @@ namespace Universe.Services.SQLServices.UserAccountService
         {
             switch (userType)
             {
-                case "Guest":
-                    return Constants.USER_FLAG_GUEST;
                 case "Resident":
                     return Constants.USER_FLAG_RESIDENT;
                 case "Member":
@@ -893,7 +891,7 @@ namespace Universe.Services.SQLServices.UserAccountService
                 case Constants.USER_FLAG_GUEST:
                     return "Guest";
                 case Constants.USER_FLAG_RESIDENT:
-                    return "Resident";
+                    return "Citizen";
                 case Constants.USER_FLAG_MEMBER:
                     return "Member";
                 case Constants.USER_FLAG_CONTRACTOR:
@@ -907,7 +905,7 @@ namespace Universe.Services.SQLServices.UserAccountService
                 case Constants.USER_FLAG_COREDEVELOPER:
                     return "Core Developer";
                 default:
-                    return "Resident";
+                    return "Citizen";
             }
         }
 
@@ -995,7 +993,7 @@ namespace Universe.Services.SQLServices.UserAccountService
         {
             string firstName;
             string lastName;
-            List<string> userTypes = new List<string>(new[] { "Guest", "Resident", "Member", "Contractor", "Mentor", "Staff", "Assistant Developer", "Core Developer" });
+            List<string> userTypes = new List<string>(new[] { "Citizen", "Member", "Contractor", "Mentor", "Staff", "Assistant Developer", "Core Developer" });
             int userFlags;
 
             firstName = cmdparams.Length < 4 ? MainConsole.Instance.Prompt("First name") : cmdparams[3];
@@ -1138,7 +1136,7 @@ namespace Universe.Services.SQLServices.UserAccountService
             string password, email, uuid, scopeID;
             bool sysFlag = false;
             bool uuidFlag = false;
-            List<string> userTypes = new List<string>(new[] { "Guest", "Resident", "Member", "Contractor", "Mentor", "Staff", "Assistant Developer", "Core Developer" });
+            List<string> userTypes = new List<string>(new[] { "Citizen", "Member", "Contractor", "Mentor", "Staff", "Assistant Developer", "Core Developer" });
 
             List<string> cmdparams = new List<string>(cmd);
             foreach (string param in cmd)

@@ -612,7 +612,6 @@ namespace Universe.Modules.Web.Translators
             // User types
             { "UserTypeText", "Тип Пользователя"},
             { "AdminUserTypeInfoText", "Тип Пльзователя (сейчас используется для переодических выплат)."},
-            { "Guest", "Гость"},
             { "Resident", "Житель"},
             { "Member", "Представитель"},
             { "Contractor", "Контрактник"},

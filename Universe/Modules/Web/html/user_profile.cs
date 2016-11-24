@@ -102,7 +102,7 @@ namespace Universe.Modules.Web
 					picUrl = webhttpService.GetTextureURL (profile.Image);
 			} else {
 				// no profile yet
-				vars.Add ("UserType", "Guest");
+				vars.Add ("UserType", "Resident");
 				vars.Add ("UserPartner", "Not specified yet");
 				vars.Add ("UserAboutMe", "Nothing here yet");
 

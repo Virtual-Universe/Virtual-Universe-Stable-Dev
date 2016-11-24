@@ -108,7 +108,7 @@ namespace Universe.Modules.Web
 				vars.Add ("UserPictureURL", url);
 			} else {
 				// no profile yet
-				vars.Add ("UserType", "Guest");
+				vars.Add ("UserType", "Resident");
 				vars.Add ("UserPartner", "Not specified yet");
 				vars.Add ("UserAboutMe", "Nothing here yet");
 				vars.Add ("UserPictureURL", "../images/icons/no_avatar.jpg");

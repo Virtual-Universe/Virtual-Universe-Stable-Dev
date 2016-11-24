@@ -1143,28 +1143,25 @@ namespace Universe.Modules.Web
         {
             var args = new List<Dictionary<string, object>>();
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Guest") }, { "Index","0" }
+				{ "Value", translator.GetTranslatedString ("Citizen") }, { "Index","0" }
 			});
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Resident") }, { "Index","1" }
+				{ "Value", translator.GetTranslatedString ("Member") }, { "Index","1" }
 			});
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Member") }, { "Index","2" }
+				{ "Value", translator.GetTranslatedString ("Contractor") }, { "Index","2" }
 			});
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Contractor") }, { "Index","3" }
+				{ "Value", translator.GetTranslatedString ("Mentor") }, { "Index","3" }
 			});
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Mentor") }, { "Index","4" }
+				{ "Value", translator.GetTranslatedString ("Staff") }, { "Index","4" }
 			});
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Staff") }, { "Index","5" }
+				{ "Value", translator.GetTranslatedString ("Assistant Developer") }, { "Index","5" }
 			});
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Assistant Developer") }, { "Index","6" }
-			});
-            args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Core Developer") }, { "Index","7" }
+				{ "Value", translator.GetTranslatedString ("Core Developer") }, { "Index","6" }
 			});
             return args;
         }
@@ -1179,20 +1176,18 @@ namespace Universe.Modules.Web
             switch (userType)
             {
                 case "0":
-                    return Constants.USER_FLAG_GUEST;
-                case "1":
                     return Constants.USER_FLAG_RESIDENT;
-                case "2":
+                case "1":
                     return Constants.USER_FLAG_MEMBER;
-                case "3":
+                case "2":
                     return Constants.USER_FLAG_CONTRACTOR;
-                case "4":
+                case "3":
                     return Constants.USER_FLAG_MENTOR;
-                case "5":
+                case "4":
                     return Constants.USER_FLAG_STAFF;
-                case "6":
+                case "5":
                     return Constants.USER_FLAG_ASSTDEVELOPER;
-                case "7":
+                case "6":
                     return Constants.USER_FLAG_COREDEVELOPER;
                 default:
                     return Constants.USER_FLAG_RESIDENT;

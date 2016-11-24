@@ -611,7 +611,6 @@ namespace Universe.Modules.Web.Translators
             // User types
             { "UserTypeText", "Tipo di utente"},
             { "AdminUserTypeInfoText", "Il tipo di utente (Attualmente utilizzato per i pagamenti periodici stipendio)."},
-            { "Guest", "Ospite"},
             { "Resident", "Residente"},
             { "Member", "Membro"},
             { "Contractor", "Imprenditore"},

@@ -607,7 +607,6 @@ namespace Universe.Modules.Web.Translators
             // User types
 			{ "UserTypeText", "cineál Úsáideora"},
 			{ "AdminUserTypeInfoText", "An cineál úsáideora (Faoi láthair a úsáidtear le haghaidh íocaíochtaí stipinn tréimhsiúla)."},
-			{ "Guest", "Aoi"},
 			{ "Resident", "Cónaitheach"},
 			{ "Member", "ball"},
 			{ "Contractor", "Conraitheoir"},
