@@ -35,14 +35,13 @@ using System.Runtime.InteropServices;
 ///     the following set of attributes.  We change these attribute values to modify
 ///     the information associated with an assembly
 /// </summary>
-[assembly: AssemblyTitle("Universe.Physics.BasicPhysicsPlugin")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyCompany("Second Galaxy Development Team")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Virtual Universe Development Team")]
-[assembly: AssemblyProduct("Universe.Physics.BasicPhysicsPlugin")]
 [assembly: AssemblyCopyright("Copyright © 2016-2025")]
-[assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
+[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Universe.Physics.BasicPhysicsPlugin")]
+[assembly: AssemblyTrademark("")]
 
 /// <summary>
 ///     By setting the ComVisable to false, we are making the types in this assembly
