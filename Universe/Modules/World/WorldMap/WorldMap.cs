@@ -64,8 +64,8 @@ namespace Universe.Modules.WorldMap
 		readonly ConcurrentQueue<MapItemRequester> m_itemsToRequest = 
 			new ConcurrentQueue<MapItemRequester> ();
 		bool itemRequesterIsRunning;
-		static UniverseThreadPool threadpool;
-		static UniverseThreadPool blockthreadpool;
+		static ThreadPool threadpool;
+		static ThreadPool blockthreadpool;
 		int MapViewLength = 8;
 
 		#region INonSharedRegionModule Members
@@ -105,12 +105,12 @@ namespace Universe.Modules.WorldMap
 			if (!m_Enabled)
 				return;
 
-			UniverseThreadPoolStartInfo info = new UniverseThreadPoolStartInfo {
+			ThreadPoolStartInfo info = new ThreadPoolStartInfo {
 				priority = ThreadPriority.Lowest,
 				Threads = 1
 			};
-			threadpool = new UniverseThreadPool (info);
-			blockthreadpool = new UniverseThreadPool (info);
+			threadpool = new ThreadPool (info);
+			blockthreadpool = new ThreadPool (info);
 		}
 
 		public virtual void Close ()

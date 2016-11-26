@@ -69,7 +69,7 @@ namespace Universe.Modules.Archivers
 		/// </value>
 		protected bool m_merge;
 
-		protected UniverseThreadPool m_threadpool;
+		protected ThreadPool m_threadpool;
 
 		/// <value>
 		///     Should we ignore any assets when reloading the archive?
@@ -171,8 +171,8 @@ namespace Universe.Modules.Archivers
 			TarArchiveReader archive = new TarArchiveReader (m_loadStream);
 
 			if (!m_skipAssets)
-				m_threadpool = new UniverseThreadPool (
-					new UniverseThreadPoolStartInfo () {
+				m_threadpool = new ThreadPool (
+					new ThreadPoolStartInfo () {
 						Threads = 1,
 						priority = System.Threading.ThreadPriority.BelowNormal
 					});

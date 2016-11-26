@@ -1038,10 +1038,10 @@
 	  <Compile Include="Utilities\UndoStack.cs">
 		<SubType>Code</SubType>
 	  </Compile>
-	  <Compile Include="Utilities\UniverseThreadPool.cs">
+	  <Compile Include="Utilities\ThreadPool.cs">
 		<SubType>Code</SubType>
 	  </Compile>
-	  <Compile Include="Utilities\UniverseXmlDocument.cs">
+	  <Compile Include="Utilities\XmlDocument.cs">
 		<SubType>Code</SubType>
 	  </Compile>
 	  <Compile Include="Utilities\UnsafeBitmap.cs">
