@@ -83,6 +83,7 @@ namespace Universe.Framework.Utilities
 	/// </summary>
 	public static class Util
 	{
+        public static double TimeStampClockPeriodMS;
 		static uint nextXferID = 5000;
 		static readonly Random randomClass = new ThreadSafeRandom ();
 
@@ -131,6 +132,9 @@ namespace Universe.Framework.Utilities
                             .SetSurrogate (typeof(MediaEntrySurrogate));
 			RuntimeTypeModel.Default.Add (typeof(System.Drawing.Color), false)
                             .SetSurrogate (typeof(ColorSurrogate));
+
+            // Time related changes
+            TimeStampClockPeriodMS = 1000.0D / (double)Stopwatch.Frequency;
 		}
 
 		#region Protobuf helpers
@@ -1689,6 +1693,13 @@ namespace Universe.Framework.Utilities
             paths.Add (baseDir);
 
             return paths.SelectMany (p => Directory.GetFiles (p, endFind)).ToArray ();
+        }
+
+        // Returns a timestamp using the time resolution 
+        // available to StopWatch in ms as double
+        public static double GetTimeStampMS()
+        {
+            return (double)Stopwatch.GetTimestamp() * TimeStampClockPeriodMS;
         }
 
         public static byte [] StringToBytes256 (string str, params object [] args)
