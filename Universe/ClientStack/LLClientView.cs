@@ -564,11 +564,19 @@ namespace Universe.ClientStack
 			}
 
 			// Disable UDP handling for this client
+            m_udpClient.OnQueueEmpty -= HandleQueueEmpty;
+            m_udpClient.OnPacketStats -= PopulateStats;
 			m_udpClient.Shutdown ();
 
-			//MainConsole.Instance.InfoFormat("[CLIENTVIEW] Memory pre  GC {0}", System.GC.GetTotalMemory(false));
-			//GC.Collect();
-			//MainConsole.Instance.InfoFormat("[CLIENTVIEW] Memory post GC {0}", System.GC.GetTotalMemory(true));
+            // 20161202 - EmperorStarfinder
+            // Garbage collection in theory should always be enabled when a viewer
+            // logs out to ensure proper collection of garbage and cleanup.  This
+            // could potentially account for issues with region memory usage being
+            // higher during a client logout process
+            GC.Collect();
+
+			MainConsole.Instance.InfoFormat("[Client View] Memory pre  GC {0}", System.GC.GetTotalMemory(false));
+			MainConsole.Instance.InfoFormat("[Client View] Memory post GC {0}", System.GC.GetTotalMemory(true));
 		}
 
 		public void Kick (string message)
