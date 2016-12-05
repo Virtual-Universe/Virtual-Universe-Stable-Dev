@@ -10379,6 +10379,8 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
                 return new LSL_String("disabled");
             if (name == "estate_id")
                 return new LSL_String(World.RegionInfo.EstateSettings.EstateID.ToString());
+            if (name == "region_max_prims")
+                return world.RegionInfo.ObjectCapacity.ToString();
             return "";
         }
 
