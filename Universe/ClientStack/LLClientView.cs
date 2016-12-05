@@ -573,7 +573,17 @@ namespace Universe.ClientStack
             // logs out to ensure proper collection of garbage and cleanup.  This
             // could potentially account for issues with region memory usage being
             // higher during a client logout process
-            GC.Collect();
+
+            // 20161205 - Noahstarfinder
+            // This way of doing GC.Collect(); is incorrect as it does not actually
+            // collect the garbage.
+            //GC.Collect();
+
+            // 20161205 - NoahStarfinder
+            // This is the correct way to do this as it will have better results and should
+            // fix Upstream Provider's problem as well
+            if (m_scene.GetNumberOfClients() == 0)
+                GC.Collect();
 
 			MainConsole.Instance.InfoFormat("[Client View] Memory pre  GC {0}", System.GC.GetTotalMemory(false));
 			MainConsole.Instance.InfoFormat("[Client View] Memory post GC {0}", System.GC.GetTotalMemory(true));
