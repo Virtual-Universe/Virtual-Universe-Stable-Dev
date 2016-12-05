@@ -226,7 +226,7 @@ namespace Universe.Modules.Web
                                             ? ParseQueryString (HttpServerHandlerHelpers.ReadString (request))
                                             : new Dictionary<string, object> ();
 				if (filename.EndsWith (".xsl", StringComparison.Ordinal)) {
-					XmlDocument vars = GetXML (filename, httpRequest, httpResponse, requestParameters);
+					UniverseXmlDocument vars = GetXML (filename, httpRequest, httpResponse, requestParameters);
 
 					var xslt = new XslCompiledTransform ();
 					if (File.Exists (path))
@@ -322,7 +322,7 @@ namespace Universe.Modules.Web
 			return null;
 		}
 
-		XmlDocument GetXML (string filename, OSHttpRequest httpRequest, OSHttpResponse httpResponse,
+		UniverseXmlDocument GetXML (string filename, OSHttpRequest httpRequest, OSHttpResponse httpResponse,
 		                                  Dictionary<string, object> requestParameters)
 		{
 			IWebInterfacePage page = GetPage (filename);
@@ -346,7 +346,7 @@ namespace Universe.Modules.Web
 				var pageVars = page.Fill (this, filename, httpRequest, httpResponse, requestParameters,
 					                           translator, out response);
 				if (pageVars != null)
-					return (XmlDocument)pageVars ["xml"];
+					return (UniverseXmlDocument)pageVars ["xml"];
 			}
 			return null;
 		}

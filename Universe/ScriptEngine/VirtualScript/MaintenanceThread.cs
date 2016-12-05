@@ -73,11 +73,11 @@ namespace Universe.ScriptEngine.VirtualScript
 		public bool EventProcessorIsRunning;
 		public bool RunInMainProcessingThread;
 		public bool ScriptChangeIsRunning;
-		public ThreadPool cmdThreadpool;
+		public UniverseThreadPool cmdThreadpool;
 		public int MaxScriptThreads = 1;
 		public bool m_Started;
-		public ThreadPool scriptChangeThreadpool;
-		public ThreadPool scriptThreadpool;
+		public UniverseThreadPool scriptChangeThreadpool;
+		public UniverseThreadPool scriptThreadpool;
 
 		public bool Started {
 			get { return m_Started; }
@@ -112,16 +112,16 @@ namespace Universe.ScriptEngine.VirtualScript
 			//There IS a reason we start this, even if RunInMain is enabled
 			// If this isn't enabled, we run into issues with the CmdHandlerQueue,
 			// as it always must be async, so we must run the pool anyway
-			ThreadPoolStartInfo info = new ThreadPoolStartInfo {
+			UniverseThreadPoolStartInfo info = new UniverseThreadPoolStartInfo {
 				priority = ThreadPriority.Normal,
 				Threads = 1,
 				MaxSleepTime = Engine.Config.GetInt ("SleepTime", 100),
 				SleepIncrementTime = Engine.Config.GetInt ("SleepIncrementTime", 1),
 				Name = "Script Cmd Thread Pools"
 			};
-			cmdThreadpool = new ThreadPool (info);
+			cmdThreadpool = new UniverseThreadPool (info);
             
-			ThreadPoolStartInfo scinfo = new ThreadPoolStartInfo {
+			UniverseThreadPoolStartInfo scinfo = new UniverseThreadPoolStartInfo {
 				priority = ThreadPriority.Normal,
 				Threads = 1,
 				MaxSleepTime = Engine.Config.GetInt ("SleepTime", 100),
@@ -129,10 +129,10 @@ namespace Universe.ScriptEngine.VirtualScript
 				Name = "Script Loading Thread Pools"
 			};
         
-			scriptChangeThreadpool = new ThreadPool (scinfo);
+			scriptChangeThreadpool = new UniverseThreadPool (scinfo);
 
 			MaxScriptThreads = Engine.Config.GetInt ("MaxScriptThreads", 100); // leave control threads out of user option
-			ThreadPoolStartInfo sinfo = new ThreadPoolStartInfo {
+			UniverseThreadPoolStartInfo sinfo = new UniverseThreadPoolStartInfo {
 				priority = ThreadPriority.Normal,
 				Threads = MaxScriptThreads,
 				MaxSleepTime = Engine.Config.GetInt ("SleepTime", 100),
@@ -140,7 +140,7 @@ namespace Universe.ScriptEngine.VirtualScript
 				KillThreadAfterQueueClear = true,
 				Name = "Script Event Thread Pools"
 			};
-			scriptThreadpool = new ThreadPool (sinfo);
+			scriptThreadpool = new UniverseThreadPool (sinfo);
 
 			AppDomain.CurrentDomain.AssemblyResolve += m_ScriptEngine.AssemblyResolver.OnAssemblyResolve;
 		}
