@@ -219,7 +219,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 			public Single MinZ, MaxZ;
 		}
 
-
 		[StructLayout (LayoutKind.Sequential)]
 		public struct Contact
 		{
@@ -228,7 +227,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 			public Vector3 fdir1;
 			public static readonly int unmanagedSizeOf = Marshal.SizeOf (typeof(Contact));
 		}
-
 
 		[StructLayout (LayoutKind.Sequential)]
 		public struct ContactGeom
@@ -253,7 +251,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 			public GeomDtorFn dtor;
 		}
 
-
 		[StructLayout (LayoutKind.Sequential)]
 		public struct JointFeedback
 		{
@@ -263,7 +260,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 			public Vector3 t2;
 		}
 
-
 		[StructLayout (LayoutKind.Sequential)]
 		public struct Mass
 		{
@@ -271,7 +267,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 			public Vector4 c;
 			public Matrix3 I;
 		}
-
 
 		[StructLayout (LayoutKind.Sequential)]
 		public struct Matrix3
@@ -339,7 +334,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 			public Single W, X, Y, Z;
 		}
 
-
 		[StructLayout (LayoutKind.Sequential)]
 		public struct SurfaceParameters
 		{
@@ -356,7 +350,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 			public Single slip1;
 			public Single slip2;
 		}
-
 
 		[StructLayout (LayoutKind.Sequential)]
 		public struct Vector3
@@ -377,7 +370,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 				return new OpenMetaverse.Vector3 ((float)X, (float)Y, (float)Z);
 			}
 		}
-
 
 		[StructLayout (LayoutKind.Sequential)]
 		public struct Vector4
@@ -410,23 +402,19 @@ namespace Universe.Physics.OpenDynamicsEngine
 		internal static extern void BodyAddForce (IntPtr body, Single fx, Single fy, Single fz);
 
 		[DllImport ("ode", EntryPoint = "dBodyAddForceAtPos"), SuppressUnmanagedCodeSecurity]
-		internal static extern void BodyAddForceAtPos (IntPtr body, Single fx, Single fy, Single fz, Single px, Single py,
-		                                                    Single pz);
+		internal static extern void BodyAddForceAtPos (IntPtr body, Single fx, Single fy, Single fz, Single px, Single py, Single pz);
 
 		[DllImport ("ode", EntryPoint = "dBodyAddForceAtRelPos"), SuppressUnmanagedCodeSecurity]
-		internal static extern void BodyAddForceAtRelPos (IntPtr body, Single fx, Single fy, Single fz, Single px, Single py,
-		                                                       Single pz);
+		internal static extern void BodyAddForceAtRelPos (IntPtr body, Single fx, Single fy, Single fz, Single px, Single py, Single pz);
 
 		[DllImport ("ode", EntryPoint = "dBodyAddRelForce"), SuppressUnmanagedCodeSecurity]
 		internal static extern void BodyAddRelForce (IntPtr body, Single fx, Single fy, Single fz);
 
 		[DllImport ("ode", EntryPoint = "dBodyAddRelForceAtPos"), SuppressUnmanagedCodeSecurity]
-		internal static extern void BodyAddRelForceAtPos (IntPtr body, Single fx, Single fy, Single fz, Single px, Single py,
-		                                                       Single pz);
+		internal static extern void BodyAddRelForceAtPos (IntPtr body, Single fx, Single fy, Single fz, Single px, Single py, Single pz);
 
 		[DllImport ("ode", EntryPoint = "dBodyAddRelForceAtRelPos"), SuppressUnmanagedCodeSecurity]
-		internal static extern void BodyAddRelForceAtRelPos (IntPtr body, Single fx, Single fy, Single fz, Single px, Single py,
-		                                                          Single pz);
+		internal static extern void BodyAddRelForceAtRelPos (IntPtr body, Single fx, Single fy, Single fz, Single px, Single py, Single pz);
 
 		[DllImport ("ode", EntryPoint = "dBodyAddRelTorque"), SuppressUnmanagedCodeSecurity]
 		internal static extern void BodyAddRelTorque (IntPtr body, Single fx, Single fy, Single fz);
@@ -719,12 +707,10 @@ namespace Universe.Physics.OpenDynamicsEngine
 		internal static extern void CloseODE ();
 
 		[DllImport ("ode", EntryPoint = "dCollide"), SuppressUnmanagedCodeSecurity]
-		internal static extern int Collide (IntPtr o1, IntPtr o2, int flags,
-		                                         [In, Out] ContactGeom[] contactcontactgeomarray, int skip);
+		internal static extern int Collide (IntPtr o1, IntPtr o2, int flags, [In, Out] ContactGeom[] contactcontactgeomarray, int skip);
 
 		[DllImport ("ode", EntryPoint = "dCollide"), SuppressUnmanagedCodeSecurity]
-		internal static extern int CollidePtr ([In] IntPtr o1, [In] IntPtr o2, [In] int flags, [In] IntPtr contactgeomarray,
-		                                            [In] int skip);
+		internal static extern int CollidePtr ([In] IntPtr o1, [In] IntPtr o2, [In] int flags, [In] IntPtr contactgeomarray, [In] int skip);
 
 		[DllImport ("ode", EntryPoint = "dConnectingJoint"), SuppressUnmanagedCodeSecurity]
 		internal static extern IntPtr ConnectingJoint ([In] IntPtr j1, [In] IntPtr j2);
@@ -736,8 +722,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 		internal static extern IntPtr CreateCapsule ([In] IntPtr space, [In] Single radius, [In] Single length);
 
 		[DllImport ("ode", EntryPoint = "dCreateConvex"), SuppressUnmanagedCodeSecurity]
-		internal static extern IntPtr CreateConvex ([In] IntPtr space, [In] Single[] planes, [In] int planeCount,
-		                                                 [In] Single[] points, [In] int pointCount, [In] int[] polygons);
+		internal static extern IntPtr CreateConvex ([In] IntPtr space, [In] Single[] planes, [In] int planeCount, [In] Single[] points, [In] int pointCount, [In] int[] polygons);
 
 		[DllImport ("ode", EntryPoint = "dCreateCylinder"), SuppressUnmanagedCodeSecurity]
 		internal static extern IntPtr CreateCylinder (IntPtr space, Single radius, Single length);
@@ -1982,7 +1967,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 				if (System.IO.File.Exists ("ode.dll"))
 					System.IO.File.Delete ("ode.dll");
 			} catch (Exception ex) {
-				MainConsole.Instance.Format (Level.Off, "[ODE]: Failed to copy ODE dll file, may have issues with physics!\n" +
+				MainConsole.Instance.Format (Level.Off, "[ODE Physics]: Failed to copy ODE dll file, may have issues with physics!\n" +
 				"(Can be caused by running multiple instances in the same bin, if so, ignore this warning) " +
 				ex);
 			}
@@ -1992,7 +1977,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 					System.IO.File.Copy (fileName, "ode.dll");
 				}
 			} catch (Exception ex) {
-				MainConsole.Instance.Format (Level.Off, "[ODE]: Failed to copy ODE dll file, may have issues with physics!\n" +
+				MainConsole.Instance.Format (Level.Off, "[ODE Physics]: Failed to copy ODE dll file, may have issues with physics!\n" +
 				"(Can be caused by running multiple instances in the same bin, if so, ignore this warning) " +
 				ex);
 			}

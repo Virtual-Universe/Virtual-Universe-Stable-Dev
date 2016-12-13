@@ -97,11 +97,10 @@ namespace Universe.Physics.OpenDynamicsEngine
 		Vector3 m_angularlock = Vector3.One;
 		bool m_blockPhysicalReconstruction;
 
-		// KF: These next 7 params apply to llSetHoverHeight(float height, integer water, float tau),
+		// These next 7 params apply to llSetHoverHeight(float height, integer water, float tau),
 		// and are for non-VEHICLES only.
 		float m_buoyancy;
-		//KF: m_buoyancy should be set by llSetBuoyancy() for non-vehicle.
-		// float m_tensor = 5f;
+		// m_buoyancy should be set by llSetBuoyancy() for non-vehicle.
 		bool m_collidesLand = true;
 		bool m_collidesWater;
 
@@ -176,11 +175,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 			_parent_scene = parent_scene;
 			m_targetSpace = IntPtr.Zero;
 
-			/*
-                        m_isphysical = pisPhysical;
-                        if (m_isphysical)
-                            m_targetSpace = _parent_scene.space;
-            */
 			m_isphysical = false;
 
 			m_forceacc = Vector3.Zero;
@@ -207,9 +201,11 @@ namespace Universe.Physics.OpenDynamicsEngine
 							DestroyBody ();
 						else {
 							m_blockPhysicalReconstruction = false;
-							if (!childPrim)
+							
+                            if (!childPrim)
 								MakeBody ();
 						}
+
 						if (!childPrim && childrenPrim.Count > 0) {
 							foreach (ODEPrim prm in childrenPrim)
 								prm.BlockPhysicalReconstruction = value;
@@ -254,6 +250,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 					_parent_scene.AddSimulationChange (() => ChangeSelectedStatus (value));
 				else
 					m_isSelected = value;
+
 				if (m_isSelected)
 					DisableBodySoft ();
 			}
@@ -315,7 +312,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 					MainConsole.Instance.Warn ("[ODE Physics]: Got NaN Size on object");
 			}
 		}
-
 
 		public override float Mass {
 			get { return _mass; }
@@ -505,10 +501,10 @@ namespace Universe.Physics.OpenDynamicsEngine
 			if (childPrim) {
 				if (_parent != null && _parent is ODEPrim) {
 					ODEPrim parent = (ODEPrim)_parent;
-					//Console.WriteLine("SetGeom calls ChildSetGeom");
 					parent.ChildSetGeom (this);
 				}
 			}
+
 			//MainConsole.Instance.Warn("Setting Geom to: " + prim_geom);
 		}
 
@@ -537,10 +533,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 
 		void MakeBody ()
 		{
-			//            d.Vector3 dvtmp;
-			//            d.Vector3 dbtmp;
-
-
 			if (m_blockPhysicalReconstruction) // building is blocked
                 return;
 
@@ -560,7 +552,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 				Body = IntPtr.Zero;
 				MainConsole.Instance.Warn ("[ODE Physics]: MakeBody called having a body");
 			}
-
 
 			d.Mass objdmass = new d.Mass { };
 			d.Matrix3 mymat = new d.Matrix3 ();
@@ -600,8 +591,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 				lock (childrenPrim) {
 					foreach (ODEPrim prm in childrenPrim) {
 						if (prm.prim_geom == IntPtr.Zero) {
-							MainConsole.Instance.Warn (
-								"[ODE Physics]: Unable to link one of the linkset elements, skipping it.  No geom yet");
+							MainConsole.Instance.Warn ("[ODE Physics]: Unable to link one of the linkset elements, skipping it.  No geom yet");
 							continue;
 						}
 
@@ -657,7 +647,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 			m_collisionFlags |= (CollisionCategories.Land | CollisionCategories.Wind);
 
 			// disconnect from world gravity so we can apply buoyancy
-			//            if (!testRealGravity)
 			d.BodySetGravityMode (Body, false);
 
 			d.BodySetAutoDisableFlag (Body, true);
@@ -689,7 +678,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 					d.GeomSetCategoryBits (prm.prim_geom, (int)prm.m_collisionCategories);
 					d.GeomSetCollideBits (prm.prim_geom, (int)prm.m_collisionFlags);
 
-
 					if (prm.m_targetSpace != _parent_scene.space) {
 						if (d.SpaceQuery (prm.m_targetSpace, prm.prim_geom))
 							d.SpaceRemove (prm.m_targetSpace, prm.prim_geom);
@@ -702,10 +690,12 @@ namespace Universe.Physics.OpenDynamicsEngine
 					_parent_scene.AddActivePrim (prm);
 				}
 			}
+
 			// The body doesn't already have a finite rotation mode set here
 			if ((!m_angularlock.ApproxEquals (Vector3.One, 0.0f)) && _parent == null) {
 				CreateAMotor (m_angularlock);
 			}
+
 			if (m_vehicle.Type != Vehicle.TYPE_NONE)
 				m_vehicle.Enable (Body, this, _parent_scene);
 
@@ -718,10 +708,10 @@ namespace Universe.Physics.OpenDynamicsEngine
 				if (d.SpaceQuery (prm.m_targetSpace, prm.prim_geom))
 					d.SpaceRemove (prm.m_targetSpace, prm.prim_geom);
 			}
+
 			prm.m_targetSpace = _parent_scene.CalculateSpaceForGeom (prm._position);
 			d.SpaceAdd (prm.m_targetSpace, prm.prim_geom);
 		}
-
 
 		public void DestroyBody ()
             // for now removes all colisions etc from childs, full body reconstruction is needed after this
@@ -738,6 +728,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 						UpdateDataFromGeom ();
 						SetInStaticSpace (this);
 					}
+
 					if (!childPrim) {
 						lock (childrenPrim) {
 							foreach (ODEPrim prm in childrenPrim) {
@@ -751,15 +742,19 @@ namespace Universe.Physics.OpenDynamicsEngine
 									prm.Body = IntPtr.Zero;
 									SetInStaticSpace (prm);
 								}
+
 								prm._mass = prm.primMass;
 							}
 						}
+
 						m_vehicle.Disable (this);
 						d.BodyDestroy (Body);
 					}
 				}
+
 				Body = IntPtr.Zero;
 			}
+
 			_mass = primMass;
 			m_disabled = true;
 		}
@@ -781,6 +776,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 					}
 				}
 			}
+
 			// Store this for later in case we get turned into a separate body
 			m_angularlock = newlock;
 		}
@@ -815,7 +811,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 		// prim is the child
 		public void ParentPrim (ODEPrim prim)
 		{
-			//Console.WriteLine("ParentPrim  " + m_primName);
 			if (m_localID != prim.m_localID) {
 				DestroyBody ();
 
@@ -837,6 +832,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 					prim.DestroyBody (); // don't loose bodies around
 					prim.Body = IntPtr.Zero;
 				}
+
 				MakeBody (); // full nasty reconstruction
 			}
 		}
@@ -891,8 +887,10 @@ namespace Universe.Physics.OpenDynamicsEngine
 						foreach (ODEPrim prm in childrenPrim) {
 							newroot.childrenPrim.Add (prm);
 						}
+
 						childrenPrim.Clear ();
 					}
+
 					if (newroot != null) {
 						newroot.childPrim = false;
 						newroot._parent = null;
@@ -937,14 +935,17 @@ namespace Universe.Physics.OpenDynamicsEngine
 						foreach (ODEPrim prm in childrenPrim) {
 							newroot.childrenPrim.Add (prm);
 						}
+
 						childrenPrim.Clear ();
 					}
+
 					if (newroot != null) {
 						newroot.childPrim = false;
 						newroot._parent = null;
 						newroot.MakeBody ();
 					}
 				}
+
 				return;
 			}
 
@@ -1016,6 +1017,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 					d.GeomSetCategoryBits (prim_geom, (int)m_collisionCategories);
 					d.GeomSetCollideBits (prim_geom, (int)m_collisionFlags);
 				}
+
 				if (isphys) {
 					if (Body != IntPtr.Zero) {
 						d.BodySetLinearVel (Body, 0f, 0f, 0f);
@@ -1041,7 +1043,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 			hasOOBoffsetFromMesh = false;
 
 			bool havemesh = false;
-			//Console.WriteLine("CreateGeom:");
+
 			if (_parent_scene.NeedsMeshing (this, PhysicsShapeType)) {
 				havemesh = true;
 				Vector3 centroid = Vector3.Zero;
@@ -1055,8 +1057,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 					int vertexStride, triStride;
 
 					// Don't need to re-enable body..   it's done in SetMesh
-					IMesh mesh = _parent_scene.mesher.CreateMesh (_name, _pbs, _size,
-						                            _parent_scene.meshSculptLOD, true, true);
+					IMesh mesh = _parent_scene.mesher.CreateMesh (_name, _pbs, _size, _parent_scene.meshSculptLOD, true, true);
 
 					//Tell things above if they want to cache it or something
 					if (mesh != null) {
@@ -1095,16 +1096,17 @@ namespace Universe.Physics.OpenDynamicsEngine
 							centroid = mesh.GetCentroid ();
 							_triMeshData = d.GeomTriMeshDataCreate ();
 
-							d.GeomTriMeshDataBuildSimple (_triMeshData, vertices, vertexStride, vertexCount, indices, indexCount,
-								triStride);
+							d.GeomTriMeshDataBuildSimple (_triMeshData, vertices, vertexStride, vertexCount, indices, indexCount, triStride);
 							d.GeomTriMeshDataPreprocess (_triMeshData);
 							m_MeshToTriMeshMap [mesh.Key] = _triMeshData;
 							m_MeshToCentroidMap [mesh.Key] = centroid;
 						}
+
 						mesh.releaseSourceMeshData (); // free up the original mesh data to save memory
 					} else
 						havemesh = false;
 				}
+
 				if (havemesh) {
 					primOOBoffset = centroid;
 					hasOOBoffsetFromMesh = true;
@@ -1146,13 +1148,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 				_parent_scene.actor_name_map.Remove (prim_geom);
 				try {
 					d.GeomDestroy (prim_geom);
-					/*
-                                        if (_triMeshData != IntPtr.Zero)
-                                        {
-                                            d.GeomTriMeshDataDestroy(_triMeshData);
-                                            _triMeshData = IntPtr.Zero;
-                                        }
-                     */
 				} catch (Exception e) {
 					MainConsole.Instance.ErrorFormat ("[ODE Physics]: PrimGeom destruction failed {1}", e);
 				}
@@ -1161,6 +1156,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 			} else {
 				MainConsole.Instance.Error ("[ODE Physics]: PrimGeom destruction BAD");
 			}
+
 			Body = IntPtr.Zero;
 			hasOOBoffsetFromMesh = false;
 			CalcPrimBodyData ();
@@ -1172,7 +1168,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 			IntPtr targetspace = _parent_scene.CalculateSpaceForGeom (_position);
 			m_targetSpace = targetspace;
 
-			//Console.WriteLine("changeadd 1");
 			CreateGeom (m_targetSpace);
 			CalcPrimBodyData ();
 
@@ -1185,7 +1180,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 				myrot.Z = fake.Z;
 				myrot.W = fake.W;
 				d.GeomSetQuaternion (prim_geom, ref myrot);
-				//                    _parent_scene.actor_name_map[prim_geom] = (PhysicsActor)this;
 			}
 
 			ChangeSelectedStatus (m_isSelected);
@@ -1204,6 +1198,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 						_position = newpos;
 					}
 				}
+
 				if (Body != IntPtr.Zero)
 					d.BodyEnable (Body);
 			} else {
@@ -1240,10 +1235,12 @@ namespace Universe.Physics.OpenDynamicsEngine
 						myrot.W = fake.W;
 						d.GeomSetQuaternion (prim_geom, ref myrot);
 						_orientation = newrot;
+
 						if (Body != IntPtr.Zero && !m_angularlock.ApproxEquals (Vector3.One, 0f))
 							CreateAMotor (m_angularlock);
 					}
 				}
+
 				if (Body != IntPtr.Zero)
 					d.BodyEnable (Body);
 			} else {
@@ -1258,6 +1255,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 					_orientation = newrot;
 				}
 			}
+
 			if (--fakeori < 0)
 				fakeori = 0;
 
@@ -1265,83 +1263,11 @@ namespace Universe.Physics.OpenDynamicsEngine
 			ResetCollisionAccounting ();
 		}
 
-		/*
-                public void changemoveandrotate(Vector3 newpos, Quaternion newrot)
-                {
-                    if (m_isphysical)
-                    {
-                        if (childPrim)
-                        {
-                            if (m_blockPhysicalReconstruction)  // inertia is messed, must rebuild
-                            {
-                                _orientation = newrot;
-                                _position = newpos;
-                            }
-                        }
-                        else
-                        {
-                            if (newrot != _orientation)
-                            {
-                                d.Quaternion myrot = new d.Quaternion();
-                                Quaternion fake = newrot;
-                                myrot.X = fake.X;
-                                myrot.Y = fake.Y;
-                                myrot.Z = fake.Z;
-                                myrot.W = fake.W;
-                                d.GeomSetQuaternion(prim_geom, ref myrot);
-                                _orientation = newrot;
-                                if (Body != IntPtr.Zero && !m_angularlock.ApproxEquals(Vector3.One, 0f))
-                                    createAMotor(m_angularlock);
-                            }
-                            if (newpos != _position)
-                            {
-                                d.GeomSetPosition(prim_geom, newpos.X, newpos.Y, newpos.Z);
-                                _position = newpos;
-                            }
-                        }
-                        if (Body != IntPtr.Zero)
-                            d.BodyEnable(Body);
-                    }
-
-                    else
-                    {
-                        if (newrot != _orientation)
-                        {
-                            d.Quaternion myrot = new d.Quaternion();
-                            Quaternion fake = newrot;
-                            myrot.X = fake.X;
-                            myrot.Y = fake.Y;
-                            myrot.Z = fake.Z;
-                            myrot.W = fake.W;
-                            d.GeomSetQuaternion(prim_geom, ref myrot);
-                            _orientation = newrot;
-                        }
-                        if (newpos != _position)
-                        {
-                            _parent_scene.waitForSpaceUnlock(m_targetSpace);
-                            IntPtr tempspace = _parent_scene.recalculateSpaceForGeom(prim_geom, newpos, m_targetSpace);
-                            m_targetSpace = tempspace;
-                            d.GeomSetPosition(prim_geom, newpos.X, newpos.Y, newpos.Z);
-                            d.SpaceAdd(m_targetSpace, prim_geom);
-                            _position = newpos;
-                        }
-                    }
-
-                    if (--fakepos < 0)
-                        fakepos = 0;
-                    if (--fakeori < 0)
-                        fakeori = 0;
-
-                    changeSelectedStatus(m_isSelected);
-
-                    resetCollisionAccounting();
-                }
-        */
-
 		public void Move (float timestep)
 		{
 			if (m_isphysical && Body != IntPtr.Zero && !m_isSelected && !childPrim && !m_blockPhysicalReconstruction)
- {                // KF: Only move root prims.
+            {
+                // Only move root prims.
 				float fx = 0;
 				float fy = 0;
 				float fz = 0;
@@ -1399,28 +1325,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 
 						#endregion
 
-						/*
-                        d.Vector3 vel = d.BodyGetLinearVel (Body);
-                        m_lastVelocity = _velocity;
-                        _velocity = new Vector3 ((float)vel.X, (float)vel.Y, (float)vel.Z);
-                        d.Vector3 pos = d.BodyGetPosition(Body);
-                        m_lastposition = _position;
-                        _position = new Vector3 ((float)pos.X, (float)pos.Y, (float)pos.Z);
-                        d.Quaternion ori;
-                        _zeroFlag = false;
-
-                        _acceleration = ((_velocity - m_lastVelocity) / timestep);
-                        //MainConsole.Instance.Info ("[ODE Physics]: P1: " + _position + " V2: " + m_lastposition + " Acceleration: " + _acceleration.ToString ());
-                        d.GeomCopyQuaternion (prim_geom, out ori);
-                        _orientation.X = ori.X;
-                        _orientation.Y = ori.Y;
-                        _orientation.Z = ori.Z;
-                        _orientation.W = ori.W;
-                        d.Vector3 rotvel = d.BodyGetAngularVel (Body);
-                        m_rotationalVelocity.X = (float)rotvel.X;
-                        m_rotationalVelocity.Y = (float)rotvel.Y;
-                        m_rotationalVelocity.Z = (float)rotvel.Z;
-                         */
 					}
 				} else {
 					Vector3 dcpos = d.BodyGetPosition (Body).ToVector3 ();
@@ -1512,7 +1416,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 							return;
 						}
 
-
 						if (m_vehicle.Type == Vehicle.TYPE_NONE) {
 							m_disabled = true;
 							m_frozen = true;
@@ -1539,15 +1442,12 @@ namespace Universe.Physics.OpenDynamicsEngine
 
 					#region Out of bounds
 
-					if (cpos.Z < 0 ||
-					                   (cpos.Z > _parent_scene.m_flightCeilingHeight && _parent_scene.m_useFlightCeilingHeight)) {
+					if (cpos.Z < 0 || (cpos.Z > _parent_scene.m_flightCeilingHeight && _parent_scene.m_useFlightCeilingHeight)) {
 						// This is so prim that get lost underground don't fall forever and suck up
 						//
 						// Sim resources and memory.
 						// Disables the prim's movement physics....
 						// It's a hack and will generate a console message if it fails.
-
-						//IsPhysical = false;
 						RaiseOutOfBounds (_position);
 
 						cpos.Z = cpos.Z < 0 ? 0 : _parent_scene.m_flightCeilingHeight;
@@ -1622,11 +1522,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 							// better let ode keep dealing with small values --Ubit
 							//ODE doesn't deal with them though, it just keeps adding them, never stopping the movement of the prim..
 							// its supposed to!
-							/*
-                                                        d.BodySetLinearVel(Body, 0, 0, 0);
-                                                        d.BodySetAngularVel(Body, 0, 0, 0);
-                                                        d.BodySetForce(Body, 0, 0, 0);
-                            */
 							needupdate = true;
 							m_lastUpdateSent--;
 						}
@@ -1718,7 +1613,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 					}
 				} else {
 					if (Body != IntPtr.Zero) {
-						//UpdateChildsfromgeom ();
 						if (_pbs.SculptEntry && _parent_scene.meshSculptedPrim) {
 							ChangeShape (_pbs);
 						} else
@@ -1732,7 +1626,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 			FirePhysicalRepresentationChanged ();
 		}
 
-
 		public void ChangeFloatOnWater (bool arg)
 		{
 			m_collidesWater = arg;
@@ -1745,7 +1638,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 				d.GeomSetCollideBits (prim_geom, (int)m_collisionFlags);
 			}
 		}
-
 
 		public void ChangePrimSizeShape ()
 		{
@@ -1771,8 +1663,10 @@ namespace Universe.Physics.OpenDynamicsEngine
 					prim_geom = IntPtr.Zero;
 					MainConsole.Instance.Error ("[ODE Physics]: PrimGeom dead");
 				}
+
 				prim_geom = IntPtr.Zero;
 			}
+
 			// we don't need to do space calculation because the client sends a position update also.
 			if (_size.X <= 0)
 				_size.X = 0.01f;
@@ -1856,8 +1750,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 						d.BodySetLinearVel (Body, _velocity.X, _velocity.Y, _velocity.Z);
 					}
 				}
-
-				//resetCollisionAccounting();
 			}
 		}
 
@@ -2076,7 +1968,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 				d.JointSetAMotorParam (Amotor, (int)d.JointParam.Bounce, 0f);
 				d.JointSetAMotorParam (Amotor, (int)d.JointParam.FMax, 550000000);
 				i++;
-				j = 256; // aodeplugin.cs doesn't have all parameters so this moves to next axis set
+				j = 256; // odeplugin.cs doesn't have all parameters so this moves to next axis set
 			}
 
 			if (axis.Y == 0) {
@@ -2365,7 +2257,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 				}
 			}
          
-
 			/*
             // TODO -greythane- This is super messy!! clean up
             int vehicleType = 0;
@@ -2496,6 +2387,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 							hollowVolume = 0;
 							break;
 						}
+
 						volume *= (1.0f - hollowVolume);
 					}
 				}
@@ -2525,6 +2417,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 							hollowVolume = 0;
 							break;
 						}
+
 						volume *= (1.0f - hollowVolume);
 					}
 				} else if (_pbs.PathCurve == (byte)Extrusion.Curve1) {
@@ -2553,6 +2446,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 							hollowVolume = 0;
 							break;
 						}
+
 						volume *= (1.0f - hollowVolume);
 					}
 				}
@@ -2582,9 +2476,8 @@ namespace Universe.Physics.OpenDynamicsEngine
 							break;
 
 						case HollowShape.Circle:
-                                    // Hollow shape is a perfect cyllinder in respect to the cube's scale
-                                    // Cyllinder hollow volume calculation
-
+                            // Hollow shape is a perfect cyllinder in respect to the cube's scale
+                            // Cyllinder hollow volume calculation
 							hollowVolume *= 0.1963495f * 3.07920140172638f;
 							break;
 
@@ -2592,6 +2485,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 							hollowVolume = 0;
 							break;
 						}
+
 						volume *= (1.0f - hollowVolume);
 					}
 				} else if (_pbs.PathCurve == (byte)Extrusion.Curve1) {
@@ -2622,6 +2516,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 							hollowVolume = 0;
 							break;
 						}
+
 						volume *= (1.0f - hollowVolume);
 					}
 				}
@@ -2675,11 +2570,10 @@ namespace Universe.Physics.OpenDynamicsEngine
 			return volume;
 		}
 
-
 		public void CalcPrimBodyData ()
 		{
 			if (prim_geom == IntPtr.Zero) {
-				// Ubit let's have a initial basic OOB
+				// let's have a initial basic OOB
 				primOOBsize.X = _size.X;
 				primOOBsize.Y = _size.Y;
 				primOOBsize.Z = _size.Z;

@@ -77,8 +77,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 
 		protected IntPtr GlobalContactsArray = IntPtr.Zero;
 
-		public const d.ContactFlags CommumContactFlags =
-			d.ContactFlags.SoftERP | d.ContactFlags.Bounce | d.ContactFlags.Approx1;
+		public const d.ContactFlags CommumContactFlags = d.ContactFlags.SoftERP | d.ContactFlags.Bounce | d.ContactFlags.Approx1;
 
 		protected d.Contact newGlobalcontact;
 
@@ -132,13 +131,11 @@ namespace Universe.Physics.OpenDynamicsEngine
 
 		protected readonly List<d.ContactGeom> _perloopContact = new List<d.ContactGeom> ();
 
-		protected readonly ConcurrentDictionary<UUID, PhysicsActor> _collisionEventDictionary =
-			new ConcurrentDictionary<UUID, PhysicsActor> ();
+		protected readonly ConcurrentDictionary<UUID, PhysicsActor> _collisionEventDictionary = new ConcurrentDictionary<UUID, PhysicsActor> ();
 
 		protected readonly object _collisionEventListLock = new object ();
 
 		public Dictionary<IntPtr, PhysicsActor> actor_name_map = new Dictionary<IntPtr, PhysicsActor> ();
-
 
 		public IntPtr RegionTerrain;
 		protected short[] TerrainHeightFieldHeights;
@@ -152,7 +149,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 		public float m_preJumpForceMultiplierY = 6;
 		public float m_preJumpForceMultiplierZ = 4.5f;
 		public float m_AvFlySpeed = 4.0f;
-
 
 		protected int m_physicsiterations = 10;
 		//protected int m_timeBetweenRevertingAutoConfigIterations = 50;
@@ -190,7 +186,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 
 		protected volatile int m_global_contactcount;
 
-
 		public Vector2 WorldExtents;
 
 		public bool AllowUnderwaterPhysics;
@@ -205,7 +200,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 		protected ODERayCastRequestManager m_rayCastManager;
 		protected bool IsLocked;
 		protected ConcurrentQueue<PhysicsActor> RemoveQueue = new ConcurrentQueue<PhysicsActor> ();
-		//protected ConcurrentQueue<PhysicsActor> DeleteQueue = new ConcurrentQueue<PhysicsActor>();
 
 		internal float AvDecayTime = 0.95f;
 
@@ -218,23 +212,14 @@ namespace Universe.Physics.OpenDynamicsEngine
 		#region Stats
 
 		public override int StatPhysicsTaintTime { get; protected set; }
-
 		public override int StatPhysicsMoveTime { get; protected set; }
-
 		public override int StatCollisionOptimizedTime { get; protected set; }
-
 		public override int StatSendCollisionsTime { get; protected set; }
-
 		public override int StatAvatarUpdatePosAndVelocity { get; protected set; }
-
 		public override int StatPrimUpdatePosAndVelocity { get; protected set; }
-
 		public override int StatUnlockedArea { get; protected set; }
-
 		public override int StatFindContactsTime { get; protected set; }
-
 		public override int StatContactLoopTime { get; protected set; }
-
 		public override int StatCollisionAccountingTime { get; protected set; }
 
 		#endregion
@@ -256,7 +241,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 			// Create the world and the first space
 			world = d.WorldCreate ();
 			space = d.HashSpaceCreate (IntPtr.Zero);
-
 
 			contactgroup = d.JointGroupCreate (0);
 
@@ -308,8 +292,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 					contactsurfacelayer = physicsconfig.GetFloat ("world_contact_surface_layer", 0.001f);
 
 					AvatarContactBounce = physicsconfig.GetFloat ("AvatarContactBounce", AvatarContactBounce);
-					FrictionMovementMultiplier = physicsconfig.GetFloat ("FrictionMovementMultiplier",
-						FrictionMovementMultiplier);
+					FrictionMovementMultiplier = physicsconfig.GetFloat ("FrictionMovementMultiplier", FrictionMovementMultiplier);
 					FrictionScale = physicsconfig.GetFloat ("FrictionMovementMultiplier", FrictionScale);
 
 					ODE_STEPSIZE = physicsconfig.GetFloat ("world_stepsize", 0.020f);
@@ -324,13 +307,11 @@ namespace Universe.Physics.OpenDynamicsEngine
 					contactsPerCollision = physicsconfig.GetInt ("contacts_per_collision", 80);
 
 					geomContactPointsStartthrottle = physicsconfig.GetInt ("geom_contactpoints_start_throttling", 3);
-					geomCrossingFailuresBeforeOutofbounds =
-                        physicsconfig.GetInt ("geom_crossing_failures_before_outofbounds", 5);
+					geomCrossingFailuresBeforeOutofbounds = physicsconfig.GetInt ("geom_crossing_failures_before_outofbounds", 5);
 
 					bodyFramesAutoDisable = physicsconfig.GetInt ("body_frames_auto_disable", 10);
 
-					forceSimplePrimMeshing = physicsconfig.GetBoolean ("force_simple_prim_meshing",
-						forceSimplePrimMeshing);
+					forceSimplePrimMeshing = physicsconfig.GetBoolean ("force_simple_prim_meshing", forceSimplePrimMeshing);
 					meshSculptedPrim = physicsconfig.GetBoolean ("mesh_sculpted_prim", true);
 					meshSculptLOD = physicsconfig.GetFloat ("mesh_lod", 32f);
 					MeshSculptphysicalLOD = physicsconfig.GetFloat ("mesh_physical_lod", 16f);
@@ -339,8 +320,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 					PID_D = physicsconfig.GetFloat ("av_pid_derivative", PID_D);
 					PID_P = physicsconfig.GetFloat ("av_pid_proportional", PID_P);
 
-					m_useFlightCeilingHeight = physicsconfig.GetBoolean ("Use_Flight_Ceiling_Height_Max",
-						m_useFlightCeilingHeight);
+					m_useFlightCeilingHeight = physicsconfig.GetBoolean ("Use_Flight_Ceiling_Height_Max", m_useFlightCeilingHeight);
 					m_flightCeilingHeight = physicsconfig.GetFloat ("Flight_Ceiling_Height_Max", m_flightCeilingHeight);
 					//Rex
 
@@ -355,8 +335,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 
 			// alloc unmanaged memory to pass information to colision contact joints              
 			GlobalContactsArray = Marshal.AllocHGlobal (maxContactsbeforedeath * d.Contact.unmanagedSizeOf);
-
-			//UnmanagedODE.UnmanagedODEPhysics.Initialize(world, m_currentmaxContactsbeforedeath, ContactgeomsArray, GlobalContactsArray, contactgroup);
 
 			newGlobalcontact.surface.mode = CommumContactFlags;
 			newGlobalcontact.surface.soft_cfm = 0.0001f;
@@ -381,7 +359,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 			// This is in addition to the step size.
 			// Essentially Steps * m_physicsiterations
 			d.WorldSetQuickStepNumIterations (world, m_physicsiterations);
-			//d.WorldSetContactMaxCorrectingVel(world, 1000.0f);
 
 			if (staticPrimspace != null)
 				return; //Reloading config, don't mess with this stuff
@@ -443,7 +420,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 			if (GlobalContactsArray == IntPtr.Zero || !ContinueCollisionProcessing)
 				return IntPtr.Zero;
 
-			// damm copy...
+			// copy
 			newGlobalcontact.geom.depth = geom.depth;
 			newGlobalcontact.geom.g1 = geom.g1;
 			newGlobalcontact.geom.g2 = geom.g2;
@@ -501,8 +478,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 				if (b1 != IntPtr.Zero && b2 != IntPtr.Zero && d.AreConnectedExcluding (b1, b2, d.JointType.Contact))
 					return;
 
-				count = d.CollidePtr (g1, g2, (contactsPerCollision & 0xffff), ContactgeomsArray,
-					d.ContactGeom.unmanagedSizeOf);
+				count = d.CollidePtr (g1, g2, (contactsPerCollision & 0xffff), ContactgeomsArray, d.ContactGeom.unmanagedSizeOf);
 			} catch (Exception e) {
 				MainConsole.Instance.WarnFormat ("[ODE Physics]:  ode Collide failed: {0} ", e);
 
@@ -542,11 +518,8 @@ namespace Universe.Physics.OpenDynamicsEngine
 
 			ContactPoint maxDepthContact = new ContactPoint ();
 			d.ContactGeom curContact = new d.ContactGeom ();
-// 20131224 not used            d.ContactGeom maxContact = new d.ContactGeom();
 
 			int NotSkipedCount = 0;
-
-			//StatContactLoopTime = CollectTime(() =>
 
 			#region Contact Loop
 
@@ -563,12 +536,11 @@ namespace Universe.Physics.OpenDynamicsEngine
 					maxDepthContact.SurfaceNormal.X = curContact.normal.X;
 					maxDepthContact.SurfaceNormal.Y = curContact.normal.Y;
 					maxDepthContact.SurfaceNormal.Z = curContact.normal.Z;
-// 20131224 not used                    maxContact = curContact;
 				}
 			}
+
 			if (p1 is ODECharacter || p2 is ODECharacter)
                 //This really should be maxContact, but there are crashes that users have reported when this is used...
-                //AddODECollision(maxContact, p1, p2, b1, b2, maxDepthContact, ref NotSkipedCount);
                 AddODECollision (curContact, p1, p2, b1, b2, maxDepthContact, ref NotSkipedCount);
 			else {
 				for (int i = 0; i < count; i++) {
@@ -580,7 +552,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 
 			#endregion
 
-			//StatCollisionAccountingTime = CollectTime(() =>
 			{
 				if (NotSkipedCount > 0) {
 					if (NotSkipedCount > geomContactPointsStartthrottle) {
@@ -591,8 +562,9 @@ namespace Universe.Physics.OpenDynamicsEngine
 						p2.ThrottleUpdates = true;
 					}
 				}
+
 				Collision_accounting_events (p1, p2, maxDepthContact);
-			} //);
+			}
 		}
 
 		void AddODECollision (d.ContactGeom curContact, PhysicsActor p1, PhysicsActor p2, IntPtr b1, IntPtr b2,
@@ -618,16 +590,15 @@ namespace Universe.Physics.OpenDynamicsEngine
 			// appears to be phantom for the world
 
 			// No collision on volume detect prims
-			if ((p1 is ODEPrim && p1.VolumeDetect) ||
-			             (p2 is ODEPrim && p2.VolumeDetect))
+			if ((p1 is ODEPrim && p1.VolumeDetect) || (p2 is ODEPrim && p2.VolumeDetect))
 				return;
 
 			if (curContact.depth < 0f)
 				return; //Has to be penetrating
 
-			if (m_filterCollisions &&
-			             CheckDupe (curContact, p2.PhysicsActorType))
+			if (m_filterCollisions && CheckDupe (curContact, p2.PhysicsActorType))
 				return;
+
 			if (m_filterCollisions)
 				_perloopContact.Add (curContact);
 
@@ -645,7 +616,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 					newGlobalcontact.surface.mu = 75;
 					newGlobalcontact.surface.bounce = 0.1f;
 					newGlobalcontact.surface.soft_erp = 0.05025f;
-					//GetContactParam(0.0f, AvatarContactBounce, ref newGlobalcontact);
 					joint = CreateContacJoint (curContact);
 				}
 				//Can't collide against anything else, agents do their own ground checks
@@ -682,27 +652,16 @@ namespace Universe.Physics.OpenDynamicsEngine
 
 			ActorTypes at = (ActorTypes)atype;
 			foreach (d.ContactGeom contact in _perloopContact) {
-				//if ((contact.g1 == contactGeom.g1 && contact.g2 == contactGeom.g2))
-				//{
-				// || (contact.g2 == contactGeom.g1 && contact.g1 == contactGeom.g2)
 				if (at == ActorTypes.Agent) {
 					if (((Math.Abs (contactGeom.normal.X - contact.normal.X) < 1.026f) &&
 					                   (Math.Abs (contactGeom.normal.Y - contact.normal.Y) < 0.303f) &&
 					                   (Math.Abs (contactGeom.normal.Z - contact.normal.Z) < 0.065f))) {
 						if (Math.Abs (contact.depth - contactGeom.depth) < 0.052f) {
-							//contactGeom.depth *= .00005f;
-							//MainConsole.Instance.DebugFormat("[Collsion]: Depth {0}", Math.Abs(contact.depth - contactGeom.depth));
-							// MainConsole.Instance.DebugFormat("[Collision]: <{0},{1},{2}>", Math.Abs(contactGeom.normal.X - contact.normal.X), Math.Abs(contactGeom.normal.Y - contact.normal.Y), Math.Abs(contactGeom.normal.Z - contact.normal.Z));
 							result = true;
 							break;
 						}
 					}
 				} else if (at == ActorTypes.Prim) {
-					//d.AABB aabb1 = new d.AABB();
-					//d.AABB aabb2 = new d.AABB();
-
-					//d.GeomGetAABB(contactGeom.g2, out aabb2);
-					//d.GeomGetAABB(contactGeom.g1, out aabb1);
 					//aabb1.
 					if (((Math.Abs (contactGeom.normal.X - contact.normal.X) < 1.026f) &&
 					                   (Math.Abs (contactGeom.normal.Y - contact.normal.Y) < 0.303f) &&
@@ -744,6 +703,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 				chr.IsColliding = false;
 				chr.IsTruelyColliding = false;
 			}
+
 			List<IntPtr> shells = _characters.Where (chr => chr != null && chr.Shell != IntPtr.Zero && chr.Body != IntPtr.Zero).Select<ODECharacter, IntPtr> (chr => chr.Shell).ToList ();
                 
 			lock (_activeprimsLock) {
@@ -779,11 +739,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 						}
 					}
 
-					/*if (shells.Count > 0)
-                    {
-                        List<UnmanagedODE.ContactGeom> contacts = UnmanagedODE.UnmanagedODEPhysics.CollisionLoop(space, shells);
-                    }*/
-
 					foreach (ODEPrim prm in
                         _activeprims.Where(prm => prm != null && (prm.m_frozen || prm.prim_geom == IntPtr.Zero))) {
 						if (removeprims == null)
@@ -793,6 +748,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 							MainConsole.Instance.Debug ("[ODE Physics]: unable to collide test active prim against space. The space was zero, the geom was zero or " +
 							"it was in the process of being removed.  Removed it from the active prim list.  This needs to be fixed!");
 					}
+
 					if (removeprims != null) {
 						foreach (ODEPrim chr in removeprims)
 							_activeprims.Remove (chr);
@@ -827,6 +783,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 				ix = m_region.RegionSizeX - 1;
 				dx = 0;
 			}
+
 			if (y < m_region.RegionSizeY - 1) {
 				iy = (int)y;
 				dy = y - iy;
@@ -926,7 +883,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 
 		public override void RemoveAvatar (PhysicsActor actor)
 		{
-			//MainConsole.Instance.Debug("[ODE Physics]:ODELOCK");
 			((ODECharacter)actor).Destroy ();
 		}
 
@@ -1016,15 +972,16 @@ namespace Universe.Physics.OpenDynamicsEngine
 						MainConsole.Instance.Warn ("[ODE Physics]: Unable to remove prim from physics scene");
 					}
 				} catch (AccessViolationException) {
-					MainConsole.Instance.Info (
-						"[ODE Physics]: Couldn't remove prim from physics scene, it was already be removed.");
+					MainConsole.Instance.Info ("[ODE Physics]: Couldn't remove prim from physics scene, it was already be removed.");
 				}
-			}
+            }
+
 			if (!prim.childPrim) {
 				lock (prim.childrenPrim)
 					foreach (ODEPrim prm in prim.childrenPrim)
 						RemovePrimThreadLocked (prm);
 			}
+
 			lock (_prims)
 				_prims.Remove (prim);
 		}
@@ -1054,9 +1011,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 					if (d.GeomIsSpace (currentspace))
 						d.SpaceRemove (currentspace, geom);
 					else {
-						MainConsole.Instance.Info ("[ODE Physics]: Invalid Scene passed to 'recalculatespace':" +
-						currentspace +
-						" Geom:" + geom);
+						MainConsole.Instance.Info ("[ODE Physics]: Invalid Scene passed to 'recalculatespace':" + currentspace + " Geom:" + geom);
 					}
 				} else {
 					IntPtr sGeomIsIn = d.GeomGetSpace (geom);
@@ -1064,35 +1019,10 @@ namespace Universe.Physics.OpenDynamicsEngine
 						if (d.GeomIsSpace (currentspace))
 							d.SpaceRemove (sGeomIsIn, geom);
 						else {
-							MainConsole.Instance.Info ("[ODE Physics]: Invalid Scene passed to 'recalculatespace':" +
-							sGeomIsIn + " Geom:" + geom);
+							MainConsole.Instance.Info ("[ODE Physics]: Invalid Scene passed to 'recalculatespace':" + sGeomIsIn + " Geom:" + geom);
 						}
 					}
 				}
-/* don't delete spaces
-                //If there are no more geometries in the sub-space, we don't need it in the main space anymore
-                if (d.SpaceGetNumGeoms(currentspace) == 0)
-                {
-                    if (currentspace != IntPtr.Zero)
-                    {
-                        if (d.GeomIsSpace(currentspace))
-                        {
-                            waitForSpaceUnlock(currentspace);
-                            waitForSpaceUnlock(space);
-                            d.SpaceRemove(space, currentspace);
-                            // free up memory used by the space.
-
-                            //d.SpaceDestroy(currentspace);
-                            resetSpaceArrayItemToZero(currentspace);
-                        }
-                        else
-                        {
-                            MainConsole.Instance.Info("[ODE Physics]: Invalid Scene passed to 'recalculatespace':" +
-                                       currentspace + " Geom:" + geom);
-                        }
-                    }
-                }
- */
 			} else {
 				// this is a physical object that got disabled. ;.;
 				if (currentspace != IntPtr.Zero && geom != IntPtr.Zero) {
@@ -1120,16 +1050,8 @@ namespace Universe.Physics.OpenDynamicsEngine
 			// The routines in the Position and Size sections do the 'inserting' into the space,
 			// so all we have to do is make sure that the space that we're putting the prim into
 			// is in the 'main' space.
-//            int[] iprimspaceArrItem = calculateSpaceArrayItemFromPos(pos);
 			IntPtr newspace = CalculateSpaceForGeom (pos);
 
-/*  spaces aren't deleted so already created
-            if (newspace == IntPtr.Zero)
-            {
-                newspace = createprimspace(iprimspaceArrItem[0], iprimspaceArrItem[1]);
-                d.HashSpaceSetLevels(newspace, HashspaceLow, HashspaceHigh);
-            }
-*/
 			return newspace;
 		}
 
@@ -1194,14 +1116,12 @@ namespace Universe.Physics.OpenDynamicsEngine
 			// but we still need to check for sculptie meshing being enabled so this is the most
 			// convenient place to do it for now...
 
-			//    //if (pbs.PathCurve == (byte)Primitive.PathCurve.Circle && pbs.ProfileCurve == (byte)Primitive.ProfileCurve.Circle && pbs.PathScaleY <= 0.75f)
-			//    //MainConsole.Instance.Debug("needsMeshing: " + " pathCurve: " + pbs.PathCurve.ToString() + " profileCurve: " + pbs.ProfileCurve.ToString() + " pathScaleY: " + Primitive.UnpackPathScale(pbs.PathScaleY).ToString());
+			//MainConsole.Instance.Debug("needsMeshing: " + " pathCurve: " + pbs.PathCurve.ToString() + " profileCurve: " + pbs.ProfileCurve.ToString() + " pathScaleY: " + Primitive.UnpackPathScale(pbs.PathScaleY).ToString());
 			int iPropertiesNotSupportedDefault = 0;
-
-//            return true;
 
 			if (forceSimplePrimMeshing)
 				return true;
+
 			// let simple spheres use ode sphere object
 			PrimitiveBaseShape sphere = PrimitiveBaseShape.CreateSphere ();
 			if (pbs.ProfileShape == ProfileShape.HalfCircle && pbs.PathCurve == (byte)Extrusion.Curve1
@@ -1215,13 +1135,13 @@ namespace Universe.Physics.OpenDynamicsEngine
 			             pbs.PathTwistBegin == sphere.PathTwistBegin && pbs.ProfileBegin == sphere.ProfileBegin &&
 			             pbs.ProfileEnd == sphere.ProfileEnd && pbs.ProfileHollow == sphere.ProfileHollow &&
 			             pbs.ProfileShape == sphere.ProfileShape)
+
 				return false;
 
 			if (pbs.SculptEntry && !meshSculptedPrim)
 				return false;
 
-			if (pbs.SculptType != (byte)SculptType.Mesh &&
-			             pbs.SculptType != (byte)SculptType.None)
+			if (pbs.SculptType != (byte)SculptType.Mesh && pbs.SculptType != (byte)SculptType.None)
 				return true; //Sculpty, mesh it
 
 			if (pbs.SculptType == (byte)SculptType.Mesh) {
@@ -1234,9 +1154,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 
 			// if it's a standard box or sphere with no cuts, hollows, twist or top shear, return false since ODE can use an internal representation for the prim
 			if (!forceSimplePrimMeshing) {
-				if ((pbs.ProfileShape == ProfileShape.Square && pbs.PathCurve == (byte)Extrusion.Straight)
-                    /*|| (pbs.ProfileShape == ProfileShape.HalfCircle && pbs.PathCurve == (byte)Extrusion.Curve1
-                    && pbs.Scale.X == pbs.Scale.Y && pbs.Scale.Y == pbs.Scale.Z)*/) {
+				if ((pbs.ProfileShape == ProfileShape.Square && pbs.PathCurve == (byte)Extrusion.Straight)) {
 					if (pbs.ProfileBegin == 0 && pbs.ProfileEnd == 0
 					                   && pbs.ProfileHollow == 0
 					                   && pbs.PathTwist == 0 && pbs.PathTwistBegin == 0
@@ -1285,6 +1203,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 					iPropertiesNotSupportedDefault++;
 				}
 			}
+
 			if ((pbs.ProfileCurve & 0x07) == (byte)ProfileShape.Circle) {
 				if (pbs.PathCurve == (byte)Extrusion.Straight) {
 					iPropertiesNotSupportedDefault++;
@@ -1386,12 +1305,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 				ODEPrim p = (ODEPrim)prm;
 				p.SetPrimForRemoval ();
 			}
-// dup of removequeue??
-			//while (DeleteQueue.TryDequeue(out prm))
-			//{
-			//    UniverseODEPrim p = (UniverseODEPrim) prm;
-			//    p.setPrimForDeletion();
-			//}
 
 			if (!DisableCollisions) {
 				foreach (ODECharacter av in _characters.Where(av => av != null))
@@ -1442,8 +1355,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 
 					d.GeomHeightfieldDataDestroy (RegionTerrain);
                                                     
-					//         d.SpaceRemove(space, RegionTerrain);         // <<==  
-					//d.GeomDestroy(RegionTerrain);
 					GC.RemoveMemoryPressure (_heightmap.Length);
 				}
 
@@ -1455,6 +1366,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 
 				IntPtr HeightmapData = d.GeomHeightfieldDataCreate ();
 				GC.AddMemoryPressure (_heightmap.Length);
+
 				//Add the memory pressure properly (note: should we be doing this since we have it in managed memory?)
 				//Do NOT copy it! Otherwise, it'll copy the terrain into unmanaged memory where we can't release it each time
 				d.GeomHeightfieldDataBuildSingle (HeightmapData, _heightmap, 0,
@@ -1464,8 +1376,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 					m_region.RegionSizeX, scale,
 					offset, thickness, wrap);
 
-				d.GeomHeightfieldDataSetBounds (HeightmapData, hfmin - 1.0f,
-					hfmax + 1.0f);
+				d.GeomHeightfieldDataSetBounds (HeightmapData, hfmin - 1.0f, hfmax + 1.0f);
 				RegionTerrain = d.CreateHeightfield (space, HeightmapData, 1);
 
 				d.GeomSetCategoryBits (RegionTerrain, (int)(CollisionCategories.Land));
@@ -1487,8 +1398,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 				d.RFromAxisAndAngle (out R, v3.X, v3.Y, v3.Z, angle);
 
 				d.GeomSetRotation (RegionTerrain, ref R);
-				d.GeomSetPosition (RegionTerrain, (m_region.RegionSizeX * 0.5f),
-					(m_region.RegionSizeY * 0.5f), 0);
+				d.GeomSetPosition (RegionTerrain, (m_region.RegionSizeX * 0.5f), (m_region.RegionSizeY * 0.5f), 0);
 
 				TerrainHeightFieldHeights = heightMap;
 				ODETerrainHeightFieldHeights = _heightmap;
@@ -1517,18 +1427,13 @@ namespace Universe.Physics.OpenDynamicsEngine
 				}
 			}
 
-			//foreach (OdeCharacter act in _characters)
-			//{
-			//RemoveAvatar(act);
-			//}
-
 			if (ContactgeomsArray != IntPtr.Zero)
 				Marshal.FreeHGlobal (ContactgeomsArray);
 			if (GlobalContactsArray != IntPtr.Zero)
 				Marshal.FreeHGlobal (GlobalContactsArray);
 
 			d.WorldDestroy (world);
-			//d.CloseODE();
+
 			m_rayCastManager.Dispose ();
 			m_rayCastManager = null;
 		}
@@ -1548,6 +1453,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 					collidingPrims.Add (prm);
 				}
 			}
+
 			//Sort them by their score
 			collidingPrims.Sort ((a, b) => b.CollisionScore.CompareTo (a.CollisionScore));
 
@@ -1559,6 +1465,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 				returncolliders [prm.LocalID] = prm.CollisionScore;
 				prm.ResetCollisionAccounting ();
 			}
+
 			return returncolliders;
 		}
 
@@ -1578,8 +1485,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 			}
 		}
 
-		public override void RaycastWorld (Vector3 position, Vector3 direction, float length, int Count,
-		                                        RayCallback retMethod)
+		public override void RaycastWorld (Vector3 position, Vector3 direction, float length, int Count, RayCallback retMethod)
 		{
 			if (retMethod != null) {
 				m_rayCastManager.QueueRequest (position, direction, length, Count, retMethod);
@@ -1593,14 +1499,17 @@ namespace Universe.Physics.OpenDynamicsEngine
 				ourResults = new ContactResult[results.Count];
 				results.CopyTo (ourResults, 0);
 			};
+
 			int waitTime = 0;
 			m_rayCastManager.QueueRequest (position, direction, length, Count, retMethod);
 			while (ourResults == null && waitTime < 1000) {
 				Thread.Sleep (1);
 				waitTime++;
 			}
+
 			if (ourResults == null)
 				return new List<ContactResult> ();
+
 			return new List<ContactResult> (ourResults);
 		}
 
@@ -1623,7 +1532,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 			///     in real life (pulling toward the center)
 			/// </summary>
 			public bool PointForce;
-
 			public Vector3 Position;
 			public float Radius;
 		}
@@ -1634,8 +1542,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 		readonly Dictionary<int, PointGravity> m_pointGravityPositions = new Dictionary<int, PointGravity> ();
 		bool PointGravityInUse;
 
-		public void CalculateGravity (float mass, Vector3 position, bool allowNormalGravity, float gravityModifier,
-		                                   ref Vector3 forceVector)
+		public void CalculateGravity (float mass, Vector3 position, bool allowNormalGravity, float gravityModifier, ref Vector3 forceVector)
 		{
 			if (NormalGravityEnabled && allowNormalGravity) {
 				//normal gravity, one axis, no center
@@ -1664,10 +1571,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 							gravityModifier;
 							forceVector.Z += (pg.Position.Z - position.Z) * pg.GravForce * radiusScaling * mass *
 							gravityModifier;
-							/*if (forceVector.Z < 50 && forceVector.Z > 0)
-                                forceVector.Z = 0;
-                            else if (forceVector.Z > -50 && forceVector.Z < 0)
-                                forceVector.Z = 0;*/
 						}
 					}
 				}
@@ -1729,8 +1632,6 @@ namespace Universe.Physics.OpenDynamicsEngine
             IntPtr geom;
             d.Mass mass;
             d.Vector3 sides = new d.Vector3(d.RandReal() * 0.5f + 0.1f, d.RandReal() * 0.5f + 0.1f, d.RandReal() * 0.5f + 0.1f);
-
-            
 
             Char ch = Char.ToLower((Char)cmd);
             switch ((Char)ch)
@@ -1795,17 +1696,13 @@ namespace Universe.Physics.OpenDynamicsEngine
             {
                 foreach (OdePrim prm in _prims)
                 {
-                    //IntPtr body = d.GeomGetBody(prm.prim_geom);
                     if (prm.prim_geom != IntPtr.Zero)
                     {
                         d.Vector3 pos;
                         d.GeomCopyPosition(prm.prim_geom, out pos);
-                        //d.BodyCopyPosition(body, out pos);
 
                         d.Matrix3 R;
                         d.GeomCopyRotation(prm.prim_geom, out R);
-                        //d.BodyCopyRotation(body, out R);
-
 
                         d.Vector3 sides = new d.Vector3();
                         sides.X = prm.Size.X;
@@ -1816,6 +1713,7 @@ namespace Universe.Physics.OpenDynamicsEngine
                     }
                 }
             }
+
             ds.SetColor(1.0f, 0.0f, 0.0f);
             lock (_characters)
             {
@@ -1827,11 +1725,9 @@ namespace Universe.Physics.OpenDynamicsEngine
 
                         d.Vector3 pos;
                         d.GeomCopyPosition(chr.Shell, out pos);
-                        //d.BodyCopyPosition(body, out pos);
 
                         d.Matrix3 R;
                         d.GeomCopyRotation(chr.Shell, out R);
-                        //d.BodyCopyRotation(body, out R);
 
                         ds.DrawCapsule(ref pos, ref R, chr.Size.Z, 0.35f);
                         d.Vector3 sides = new d.Vector3();

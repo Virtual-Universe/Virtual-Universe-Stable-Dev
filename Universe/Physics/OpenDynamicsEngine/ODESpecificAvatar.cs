@@ -83,6 +83,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 					vel.Z = 0.0f;
 					d.BodySetLinearVel (Body, vel.X, vel.Y, vel.Z);
 				}
+
 				if (m_targetVelocity.Z > 0.0f)
 					m_targetVelocity.Z = 0.0f;
 			}
@@ -221,11 +222,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 					vec.Z *= 0.5f;
 				}
 			}
-			/*
-                        if(Flying && _target_velocity == Vector3.Zero &&
-                            Math.Abs(vel.Z) < 0.1)
-                            notMoving = true;
-            */
 
 			#endregion
 
@@ -256,6 +252,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 				m_targetVelocity.Z /= Multiplier;
 				vel.Z /= Multiplier;
 			}
+
 			if (IsColliding)
 				_appliedFallingForce = 10;
 
@@ -273,8 +270,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 					Vector3 forwardVel = new Vector3 (m_targetVelocity.X > 0 ? 2 : (m_targetVelocity.X < 0 ? -2 : 0),
 						                                    m_targetVelocity.Y > 0 ? 2 : (m_targetVelocity.Y < 0 ? -2 : 0),
 						                                    0);
-					float target_altitude = _parent_scene.GetTerrainHeightAtXY (tempPos.X, tempPos.Y) +
-					                                       MinimumGroundFlightOffset;
+					float target_altitude = _parent_scene.GetTerrainHeightAtXY (tempPos.X, tempPos.Y) + MinimumGroundFlightOffset;
 
 					//We cheat a bit and do a bit lower than normal
 					if ((tempPos.Z - CAPSULE_LENGTH) < target_altitude ||
@@ -291,8 +287,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 					//Straight up and down, only apply when they are very close to the ground
 					float target_altitude = _parent_scene.GetTerrainHeightAtXY (tempPos.X, tempPos.Y);
 
-					if ((tempPos.Z - CAPSULE_LENGTH + (MinimumGroundFlightOffset / 1.5)) <
-					                   target_altitude + MinimumGroundFlightOffset) {
+					if ((tempPos.Z - CAPSULE_LENGTH + (MinimumGroundFlightOffset / 1.5)) < target_altitude + MinimumGroundFlightOffset) {
 						if ((tempPos.Z - CAPSULE_LENGTH) < target_altitude + 1) {
 							vec.Z += ((target_altitude + 4) - (tempPos.Z - CAPSULE_LENGTH)) * PID_D;
 						} else
@@ -314,6 +309,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 				_target_force = Vector3.Zero;
 				noDisable = true;
 			}
+
 			if (_target_vel_force.X != 0)
 				vec.X += (_target_vel_force.X) * PID_D * 2;
 			if (_target_vel_force.Y != 0)
@@ -374,16 +370,15 @@ namespace Universe.Physics.OpenDynamicsEngine
 		public void AvatarGeomAndBodyCreation (float npositionX, float npositionY, float npositionZ) //, float tensor)
 		{
 			if (CAPSULE_LENGTH <= 0) {
-				MainConsole.Instance.Warn (
-					"[ODE Physics]: The capsule size you specified in Universe.ini is invalid!  Setting it to the smallest possible size!");
+				MainConsole.Instance.Warn ("[ODE Physics]: The capsule size you specified in Universe.ini is invalid!  Setting it to the smallest possible size!");
 				CAPSULE_LENGTH = 1.2f;
 			}
 
 			if (CAPSULE_RADIUS <= 0) {
-				MainConsole.Instance.Warn (
-					"[ODE Physics]: The capsule size you specified in Universe.ini is invalid!  Setting it to the normal size!");
+				MainConsole.Instance.Warn ("[ODE Physics]: The capsule size you specified in Universe.ini is invalid!  Setting it to the normal size!");
 				CAPSULE_RADIUS = 0.37f;
 			}
+
 			Shell = d.CreateCapsule (_parent_scene.space, CAPSULE_RADIUS, CAPSULE_LENGTH);
 
 			d.GeomSetCategoryBits (Shell, (int)m_collisionCategories);
@@ -397,10 +392,8 @@ namespace Universe.Physics.OpenDynamicsEngine
 			PID_D = _parent_scene.PID_D;
 			PID_P = _parent_scene.PID_P;
 
-
 			// rescale PID parameters so that this aren't so affected by mass
 			// but more importante, don't get unstable
-
 			PID_D /= 50 * 80; // original mass of 80, 50 ODE fps ??
 			PID_D *= m_mass / _parent_scene.ODE_STEPSIZE;
 			PID_P /= 50 * 80;
@@ -436,7 +429,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 			d.JointSetAMotorAngle (Amotor, 0, 0);
 			d.JointSetAMotorAngle (Amotor, 1, 0);
 			d.JointSetAMotorAngle (Amotor, 2, 0);
-
 
 			d.JointSetAMotorParam (Amotor, (int)dParam.StopCFM, 0f); // make it HARD
 			d.JointSetAMotorParam (Amotor, (int)dParam.StopCFM2, 0f);
@@ -520,6 +512,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 				Y = taintRot.Y,
 				Z = taintRot.Z
 			};
+
 			d.BodySetQuaternion (Body, ref q); // just keep in sync with rest of simutator
 		}
 

@@ -44,18 +44,15 @@ namespace Universe.Physics.OpenDynamicsEngine
 		// Used to limit dynamics debug output to
 		// every 100th frame
 
-		// OdeScene m_parentScene = null;
 		Vector3 m_BlockingEndPoint = Vector3.Zero;
 		Quaternion m_RollreferenceFrame = Quaternion.Identity;
 		float m_VehicleBuoyancy;
-		//KF: m_VehicleBuoyancy is set by VEHICLE_BUOYANCY for a vehicle.
+		// m_VehicleBuoyancy is set by VEHICLE_BUOYANCY for a vehicle.
 		float m_VhoverEfficiency;
 		float m_VhoverHeight;
 		float m_VhoverTargetHeight = -1.0f;
 		// if <0 then no hover, else its the current target height
 		float m_VhoverTimescale;
-		// Linear properties
-		//       private Vector3 m_lastVertAttractor = Vector3.Zero;             // what VA was last applied to body
 
 		//Deflection properties
 		float m_angularDeflectionEfficiency;
@@ -72,7 +69,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 		Vector3 m_angularMotorVelocity = Vector3.Zero;
 		// current angular motor velocity
 
-
 		//Banking properties
 		float m_bankingEfficiency;
 		float m_bankingMix;
@@ -82,12 +78,10 @@ namespace Universe.Physics.OpenDynamicsEngine
 		VehicleFlag m_flags = 0;
 		// Boolean settings:
 		List<Vector3> m_forcelist = new List<Vector3> ();
-		// not used        Vector3 m_lastAngVelocity = Vector3.Zero;
 		Vector3 m_lastAngularVelocity = Vector3.Zero;
 		// what was last applied to body
 		Vector3 m_lastLinearVelocityVector = Vector3.Zero;
 		Vector3 m_lastPositionVector = Vector3.Zero;
-		// not used        Vector3 m_lastVelocity = Vector3.Zero;
 		Vector3 m_lastposChange = Vector3.Zero;
 		float m_linearDeflectionEfficiency;
 		float m_linearDeflectionTimescale;
@@ -99,7 +93,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 		// velocity requested by LSL
 		Vector3 m_linearMotorOffset = Vector3.Zero;
 		float m_linearMotorTimescale;
-		//bool m_linearZeroFlag;
 		Vector3 m_newVelocity = Vector3.Zero;
 		// velocity applied to body
 		Quaternion m_referenceFrame = Quaternion.Identity;
@@ -118,7 +111,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 		// damped
 		float m_verticalAttractionTimescale = 500f;
 		// Timescale > 300  means no vert attractor.
-
 
 		public Vehicle Type {
 			get { return m_type; }
@@ -260,7 +252,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 			}
 		}
 
-
 		//All parts hooked up
 		internal void ProcessVectorVehicleParam (Vehicle pParam, Vector3 pValue, float timestep)
 		{
@@ -289,7 +280,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 					m_angularMotorDirection.Z = 12.56f;
 				else if (m_angularMotorDirection.Z < -12.56f)
 					m_angularMotorDirection.Z = -12.56f;
-
 				break;
 			case Vehicle.LINEAR_FRICTION_TIMESCALE:
 				if (pValue.X < timestep)
@@ -313,7 +303,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 			}
 		}
 
-
 		//All parts hooked up
 		internal void ProcessRotationVehicleParam (Vehicle pParam, Quaternion pValue)
 		{
@@ -326,7 +315,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 				break;
 			}
 		}
-
 
 		internal void ProcessVehicleFlags (int pParam, bool remove)
 		{
@@ -341,7 +329,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 			else
 				m_flags |= param;
 		}
-
 
 		internal void ProcessTypeChange (ODEPrim parent, Vehicle pType, float timestep)
 		{
@@ -526,7 +513,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 			}
 		}
 
-
 		internal void Enable (IntPtr pBody, ODEPrim parent, ODEPhysicsScene pParentScene)
 		{
 			if (m_enabled)
@@ -566,7 +552,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 
 			Mass = mass.mass;
 		}
-
 
 		internal void Step (IntPtr pBody, float pTimestep, ODEPhysicsScene pParentScene, ODEPrim parent)
 		{
@@ -627,22 +612,27 @@ namespace Universe.Physics.OpenDynamicsEngine
 					pos.X -= m_lastposChange.X + 1;
 					needUpdateBody = true;
 				}
+
 				if (pos.Y >= (m_BlockingEndPoint.Y - 1)) {
 					pos.Y -= m_lastposChange.Y + 1;
 					needUpdateBody = true;
 				}
+
 				if (pos.Z >= (m_BlockingEndPoint.Z - 1)) {
 					pos.Z -= m_lastposChange.Z + 1;
 					needUpdateBody = true;
 				}
+
 				if (pos.X <= 0) {
 					pos.X += m_lastposChange.X + 1;
 					needUpdateBody = true;
 				}
+
 				if (pos.Y <= 0) {
 					pos.Y += m_lastposChange.Y + 1;
 					needUpdateBody = true;
 				}
+
 				if (needUpdateBody)
 					d.BodySetPosition (Body, pos.X, pos.Y, pos.Z);
 			}
@@ -692,6 +682,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 						bypass_buoyancy = true; //emulate sl bug
 					}
 				}
+
 				if ((m_flags & VehicleFlag.LOCK_HOVER_HEIGHT) != 0) {
 					if ((pos.Z - tempHoverHeight) > .2 || (pos.Z - tempHoverHeight) < -.2) {
 						float h = tempHoverHeight;
@@ -707,6 +698,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 
 					if (hovervel.Z > 50.0f)
 						hovervel.Z = 50.0f;
+
 					if (hovervel.Z < -50.0f)
 						hovervel.Z = -50.0f;
 				}
@@ -895,6 +887,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 				} catch (ArgumentOutOfRangeException) {
 					TaintedForce = Vector3.Zero;
 				}
+
 				m_forcelist = new List<Vector3> ();
 			}
 
@@ -934,7 +927,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 			}
 
 			d.BodyAddForce (Body, m_newVelocity.X, m_newVelocity.Y, m_newVelocity.Z);
-
 		}
 
 		void MoveAngular (float pTimestep, ODEPhysicsScene _pParentScene, ODEPrim parent)
@@ -1033,7 +1025,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 			else
 				friction.Z -= angularVelocity.Z * angularVelocity.Z / m_angularFrictionTimescale.Z;
 
-
 			if (Math.Abs (m_angularMotorDirection.X) > 0.01f)
 				friction.X = 0.0f;
 			if (Math.Abs (m_angularMotorDirection.Y) > 0.01f)
@@ -1099,7 +1090,7 @@ namespace Universe.Physics.OpenDynamicsEngine
 					deflection *= Dservo;
 				}
 			}
-			//
+
 			#endregion
 
 			#region banking
@@ -1188,7 +1179,6 @@ namespace Universe.Physics.OpenDynamicsEngine
 				return Math.PI - angle;
 			return remainder;
 		}
-
 
 		internal void LimitRotation (float timestep)
 		{
@@ -1292,9 +1282,9 @@ namespace Universe.Physics.OpenDynamicsEngine
 					}
 				}
 			}
+
 			return rotBetween;
 		}
-
 
 		public int m_angularMotorApply { get; set; }
 
