@@ -10380,7 +10380,7 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
             if (name == "estate_id")
                 return new LSL_String(World.RegionInfo.EstateSettings.EstateID.ToString());
             if (name == "region_max_prims")
-                return world.RegionInfo.ObjectCapacity.ToString();
+                return World.RegionInfo.ObjectCapacity.ToString();
             return "";
         }
 
