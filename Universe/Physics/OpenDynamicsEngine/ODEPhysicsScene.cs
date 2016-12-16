@@ -896,12 +896,12 @@ namespace Universe.Physics.OpenDynamicsEngine
 					chr.CAPSULE_LENGTH * 2), true, chr.LocalID, chr.UUID);
 		}
 
-		internal void BadPrim (ODEPrim universeODEPrim)
+		internal void BadPrim (ODEPrim ODEPrim)
 		{
-			RemovePrim (universeODEPrim);
+			RemovePrim (ODEPrim);
 			//Can't really do this here... as it will be readded before the delete gets called, which is wrong...
 			//So... leave the prim out there for now
-			//AddPrimShape(universeODEPrim.ParentEntity);
+			//AddPrimShape(ODEPrim.ParentEntity);
 		}
 
 		public override PhysicsActor AddPrimShape (UUID primID, uint localID, string name, byte physicsType, PrimitiveBaseShape shape, Vector3 position,
