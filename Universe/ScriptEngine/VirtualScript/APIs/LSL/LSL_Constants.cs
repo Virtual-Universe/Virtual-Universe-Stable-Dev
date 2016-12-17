@@ -670,6 +670,7 @@ namespace Universe.ScriptEngine.VirtualScript.Runtime
 		public static readonly LSL_Types.LSLInteger OBJECT_REZZER_KEY = 32;
         public static readonly LSL_Types.LSLInteger OBJECT_GROUP_TAG = 33;
         public static readonly LSL_Types.LSLInteger OBJECT_TEMP_ATTACHED = 34;
+        public static readonly LSL_Types.LSLInteger OBJECT_ATTACHED_SLOTS_AVAILABLE = 35;
         
 		public static readonly vector ZERO_VECTOR = new vector (0.0, 0.0, 0.0);
 		public static readonly rotation ZERO_ROTATION = new rotation (0.0, 0.0, 0.0, 1.0);
