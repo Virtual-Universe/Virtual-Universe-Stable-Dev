@@ -149,7 +149,7 @@ namespace Universe.Services
 				try {
 					m_WelcomeMessage = client.DownloadString (m_WelcomeMessageURL);
 				} catch {
-					MainConsole.Instance.Error ("[LLogin service]: Error obtaining welcome message from " + m_WelcomeMessageURL);
+					MainConsole.Instance.Error ("[Login Service]: Error obtaining welcome message from " + m_WelcomeMessageURL);
 				}
 				client.Dispose ();
 			}
@@ -199,7 +199,7 @@ namespace Universe.Services
 				module.Initialize (this, m_config, registry);
 			}
 
-			MainConsole.Instance.DebugFormat ("[LLogin service]: Starting...");
+			MainConsole.Instance.DebugFormat ("[Login Service]: Starting...");
 		}
 
 		public void FinishedStartup ()
@@ -261,13 +261,13 @@ namespace Universe.Services
 			try {
 				UserAccount account = m_UserAccountService.GetUserAccount (null, firstName, lastName);
 				if (account == null) {
-					MainConsole.Instance.InfoFormat ("[LLogin service]: Set Level failed, user {0} {1} not found",
+					MainConsole.Instance.InfoFormat ("[Login Service]: Set Level failed, user {0} {1} not found",
 						firstName, lastName);
 					return response;
 				}
 
 				if (account.UserLevel < 200) {
-					MainConsole.Instance.InfoFormat ("[LLogin service]: Set Level failed, reason: user level too low");
+					MainConsole.Instance.InfoFormat ("[Login Service]: Set Level failed, reason: user level too low");
 					return response;
 				}
 
@@ -279,16 +279,16 @@ namespace Universe.Services
 				string token = m_AuthenticationService.Authenticate (account.PrincipalID, "UserAccount", passwd, 30);
 				UUID secureSession = UUID.Zero;
 				if ((token == string.Empty) || (token != string.Empty && !UUID.TryParse (token, out secureSession))) {
-					MainConsole.Instance.InfoFormat ("[LLogin service]: SetLevel failed, reason: authentication failed");
+					MainConsole.Instance.InfoFormat ("[Login Service]: SetLevel failed, reason: authentication failed");
 					return response;
 				}
 			} catch (Exception e) {
-				MainConsole.Instance.Error ("[LLogin service]: SetLevel failed, exception " + e);
+				MainConsole.Instance.Error ("[Login Service]: SetLevel failed, exception " + e);
 				return response;
 			}
 
 			m_MinLoginLevel = level;
-			MainConsole.Instance.InfoFormat ("[LLogin service]: Login level set to {0} by {1} {2}", level, firstName,
+			MainConsole.Instance.InfoFormat ("[Login Service]: Login level set to {0} by {1} {2}", level, firstName,
 				lastName);
 
 			response ["success"] = true;
@@ -297,7 +297,7 @@ namespace Universe.Services
 
 		public bool VerifyClient (UUID AgentID, string name, string authType, string passwd)
 		{
-			MainConsole.Instance.InfoFormat ("[LLogin service]: Login verification request for {0}",
+			MainConsole.Instance.InfoFormat ("[Login Service]: Login verification request for {0}",
 				AgentID == UUID.Zero
                                                 ? name
                                                 : AgentID.ToString ());
@@ -354,7 +354,7 @@ namespace Universe.Services
 			}
 
 			MainConsole.Instance.InfoFormat (
-				"[LLogin service]: Login request for {0} from {1} with user agent {2} starting in {3}",
+				"[Login Service]: Login request for {0} from {1} with user agent {2} starting in {3}",
 				Name, clientIP.Address, realViewer, startLocation);
 
 			UserAccount account = AgentID != UUID.Zero
@@ -365,20 +365,20 @@ namespace Universe.Services
 				account = m_UserAccountService.GetUserAccount (null, Name);
 			}
 			if (account == null) {
-				MainConsole.Instance.InfoFormat ("[LLogin service]: Login failed for user {0}: no account found", Name);
+				MainConsole.Instance.InfoFormat ("[Login Service]: Login failed for user {0}: no account found", Name);
 				return LLFailedLoginResponse.AccountProblem;
 			}
 
 			if (account.UserLevel < 0) { //No allowing anyone less than 0
 				MainConsole.Instance.InfoFormat (
-					"[LLogin service]: Login failed for user {0}, reason: user is banned",
+					"[Login Service]: Login failed for user {0}, reason: user is banned",
 					account.Name);
 				return LLFailedLoginResponse.PermanentBannedProblem;
 			}
 
 			if (account.UserLevel < m_MinLoginLevel) {
 				MainConsole.Instance.InfoFormat (
-					"[LLogin service]: Login failed for user {1}, reason: login is blocked for user level {0}",
+					"[Login Service]: Login failed for user {1}, reason: login is blocked for user level {0}",
 					account.UserLevel, account.Name);
 				return LLFailedLoginResponse.LoginBlockedProblem;
 			}
@@ -392,7 +392,7 @@ namespace Universe.Services
 					agent = agentData.GetAgent (account.PrincipalID);
 				}
 			} else {
-				MainConsole.Instance.ErrorFormat ("[LLogin service]: Login failed for user {1}, reason: {0}",
+				MainConsole.Instance.ErrorFormat ("[Login Service]: Login failed for user {1}, reason: {0}",
 					account.Name, "Unable to retrieve agen connector");
 				return LLFailedLoginResponse.GridProblem;
 			}
@@ -402,7 +402,7 @@ namespace Universe.Services
 				object data;
 				if ((response = module.Login (requestData, account, agent, authType, passwd, out data)) != null) {
 					MainConsole.Instance.InfoFormat (
-						"[LLogin service]: Login failed for user {1}, reason: {0}",
+						"[Login Service]: Login failed for user {1}, reason: {0}",
 						(data != null ? data.ToString () : (response is LLFailedLoginResponse) ? (response as LLFailedLoginResponse).Value : "Unknown"), account.Name);
 					return response;
 				}
@@ -420,7 +420,7 @@ namespace Universe.Services
 				//
 				if (m_RequireInventory && m_InventoryService == null) {
 					MainConsole.Instance.WarnFormat (
-						"[LLogin service]: Login failed for user {0}, reason: inventory service not set up",
+						"[Login Service]: Login failed for user {0}, reason: inventory service not set up",
 						account.Name);
 					return LLFailedLoginResponse.InventoryProblem;
 				}
@@ -432,7 +432,7 @@ namespace Universe.Services
 					inventorySkel = m_InventoryService.GetInventorySkeleton (account.PrincipalID);
 					if (m_RequireInventory && ((inventorySkel == null) || (inventorySkel.Count == 0))) {
 						MainConsole.Instance.InfoFormat (
-							"[LLogin service]: Login failed for user {0}, reason: unable to retrieve user inventory",
+							"[Login Service]: Login failed for user {0}, reason: unable to retrieve user inventory",
 							account.Name);
 						return LLFailedLoginResponse.InventoryProblem;
 					}
@@ -487,7 +487,7 @@ namespace Universe.Services
 
 				// Get active gestures
 				List<InventoryItemBase> gestures = m_InventoryService.GetActiveGestures (account.PrincipalID);
-				//MainConsole.Instance.DebugFormat("[LLogin service]: {0} active gestures", gestures.Count);
+				//MainConsole.Instance.DebugFormat("[Login Service]: {0} active gestures", gestures.Count);
 
 				//Now get the logged in status, then below make sure to kill the previous agent if we crashed before
 				UserInfo guinfo = m_agentInfoService.GetUserInfo (account.PrincipalID.ToString ());
@@ -574,7 +574,7 @@ namespace Universe.Services
 					                         out where, out position, out lookAt);
 				if (destination == null) {
 					MainConsole.Instance.InfoFormat (
-						"[LLogin service]: Login failed for user {0}, reason: destination not found", account.Name);
+						"[Login Service]: Login failed for user {0}, reason: destination not found", account.Name);
 					return LLFailedLoginResponse.DeadRegionProblem;
 				}
 
@@ -618,7 +618,7 @@ namespace Universe.Services
 					                            out destination);
 
 				if (aCircuit == null) {
-					MainConsole.Instance.InfoFormat ("[LLogin service]: Login failed for user {1}, reason: {0}", reason,
+					MainConsole.Instance.InfoFormat ("[Login Service]: Login failed for user {1}, reason: {0}", reason,
 						account.Name);
 					return new LLFailedLoginResponse (LoginResponseEnum.InternalError, reason, false);
 				}
@@ -664,12 +664,12 @@ namespace Universe.Services
 					m_config, DisplayName, avappearance.Serial.ToString (), m_registry.RequestModuleInterface<IGridInfo> ());
 
 				MainConsole.Instance.InfoFormat (
-					"[LLogin service]: All clear. Sending login response to client to login to region " +
+					"[Login Service]: All clear. Sending login response to client to login to region " +
 					destination.RegionName + ", tried to login to " + startLocation + " at " + position + ".");
 
 				return response;
 			} catch (Exception e) {
-				MainConsole.Instance.WarnFormat ("[LLogin service]: Exception processing login for {0} : {1}", Name, e);
+				MainConsole.Instance.WarnFormat ("[Login Service]: Exception processing login for {0} : {1}", Name, e);
 				if (account != null) {
 					//Revert their logged in status if we got that far
 					m_agentInfoService.SetLoggedIn (account.PrincipalID.ToString (), false, UUID.Zero, "");
@@ -724,7 +724,7 @@ namespace Universe.Services
 
 				if (home == null) {
 					MainConsole.Instance.WarnFormat (
-						"[LLogin service]: User {0} {1} tried to login to a 'home' start location but they have none set",
+						"[Login Service]: User {0} {1} tried to login to a 'home' start location but they have none set",
 						account.FirstName, account.LastName);
 
 					tryDefaults = true;
@@ -754,7 +754,7 @@ namespace Universe.Services
 								where = "safe";
 							} else {
 								MainConsole.Instance.WarnFormat (
-									"[LLogin service]: User {0} {1} does not have a valid home and this grid does not have default locations. Attempting to find random region",
+									"[Login Service]: User {0} {1} does not have a valid home and this grid does not have default locations. Attempting to find random region",
 									account.FirstName, account.LastName);
 								defaults = m_GridService.GetRegionsByName (account.AllScopeIDs, "", 0, 1);
 								if (defaults != null && defaults.Count > 0) {
