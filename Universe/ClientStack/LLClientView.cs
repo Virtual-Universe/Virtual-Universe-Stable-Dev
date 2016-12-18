@@ -6281,7 +6281,7 @@ namespace Universe.ClientStack
 
             #endregion
 
-            //MainConsole.Instance.Info("[LAND]: LAND:" + modify.ToString());
+            //MainConsole.Instance.Info("[Land]: LAND:" + modify.ToString());
             if (modify.ParcelData.Length > 0)
             {
                 if (OnModifyTerrain != null)

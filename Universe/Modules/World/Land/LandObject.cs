@@ -355,7 +355,7 @@ namespace Universe.Modules.Land
 					SendLandUpdateToAvatarsOverMe (snap_selection);
 
 				} catch (Exception ex) {
-					MainConsole.Instance.Warn ("[LAND]: Error updating land object " + LandData.Name + " in region " +
+					MainConsole.Instance.Warn ("[Land]: Error updating land object " + LandData.Name + " in region " +
 					m_scene.RegionInfo.RegionName + " : " + ex);
 				}
 			}
@@ -702,7 +702,7 @@ namespace Universe.Modules.Land
 						}
 					}
 				} catch (InvalidOperationException) {
-					MainConsole.Instance.Error ("[LAND]: Unable to force select the parcel objects. Arr.");
+					MainConsole.Instance.Error ("[Land]: Unable to force select the parcel objects. Arr.");
 				}
 
 				remote_client.SendForceClientSelectObjects (resultLocalIDs);

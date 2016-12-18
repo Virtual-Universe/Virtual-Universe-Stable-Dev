@@ -339,8 +339,8 @@ namespace Universe.Modules.Estate
 
 				TriggerEstateSunUpdate ();
 
-				//MainConsole.Instance.Debug("[ESTATE]: UFS: " + UseFixedSun.ToString());
-				//MainConsole.Instance.Debug("[ESTATE]: SunHour: " + SunHour.ToString());
+				//MainConsole.Instance.Debug("[Estate]: UFS: " + UseFixedSun.ToString());
+				//MainConsole.Instance.Debug("[Estate]: SunHour: " + SunHour.ToString());
 
 				sendRegionInfoPacketToAll ();
 				TriggerRegionInfoChange ();
