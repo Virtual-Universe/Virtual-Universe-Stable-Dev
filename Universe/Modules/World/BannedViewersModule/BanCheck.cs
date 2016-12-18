@@ -64,8 +64,7 @@ namespace Universe.Modules.Ban
 			m_module = new BanCheck (source, registry.RequestModuleInterface<IUserAccountService> ());
 		}
 
-		public LoginResponse Login (Hashtable request, UserAccount account, IAgentInfo agentInfo, string authType,
-		                                  string password, out object data)
+		public LoginResponse Login (Hashtable request, UserAccount account, IAgentInfo agentInfo, string authType, string password, out object data)
 		{
 			data = null;
 
@@ -91,6 +90,7 @@ namespace Universe.Modules.Ban
 				             id0, out message)) {
 				return new LLFailedLoginResponse (LoginResponseEnum.Indeterminant, message, false);
 			}
+
 			return null;
 		}
 
@@ -116,8 +116,7 @@ namespace Universe.Modules.Ban
 		bool m_checkOnTimer = true;
 		bool m_enabled = true;
 
-		ListCombiningTimedSaving<PresenceInfo> _checkForSimilaritiesLater =
-			new ListCombiningTimedSaving<PresenceInfo> ();
+		ListCombiningTimedSaving<PresenceInfo> _checkForSimilaritiesLater = new ListCombiningTimedSaving<PresenceInfo> ();
 
 		#endregion
 
@@ -158,8 +157,7 @@ namespace Universe.Modules.Ban
 			if (m_checkOnTimer)
 				_checkForSimilaritiesLater.Start (5, CheckForSimilaritiesMultiple);
 
-			GrieferAllowLevel =
-                (AllowLevel)Enum.Parse (typeof(AllowLevel), config.GetString ("GrieferAllowLevel", "AllowKnown"));
+			GrieferAllowLevel = (AllowLevel)Enum.Parse (typeof(AllowLevel), config.GetString ("GrieferAllowLevel", "AllowKnown"));
 
 			presenceInfo = Framework.Utilities.DataManager.RequestPlugin<IPresenceInfo> ();
 			m_accountService = userAccountService;
@@ -170,7 +168,6 @@ namespace Universe.Modules.Ban
 
 		void AddCommands ()
 		{
-
 			if (MainConsole.Instance != null) {
 				MainConsole.Instance.Commands.AddCommand (
 					"show user info",
@@ -208,7 +205,6 @@ namespace Universe.Modules.Ban
 					"Removes the block for logging in on a given user",
 					UnBlockUser, false, true);
 			}
-
 		}
 
 		#endregion
@@ -226,8 +222,7 @@ namespace Universe.Modules.Ban
 			presenceInfo.Check (info, m_useIncludeList ? m_allowedViewers : m_bannedViewers, m_useIncludeList);
 		}
 
-		PresenceInfo UpdatePresenceInfo (UUID agentID, PresenceInfo oldInfo, string ip, string version,
-		                                       string platform, string mac, string id0)
+		PresenceInfo UpdatePresenceInfo (UUID agentID, PresenceInfo oldInfo, string ip, string version, string platform, string mac, string id0)
 		{
 			PresenceInfo info = new PresenceInfo ();
 			info.AgentID = agentID;
@@ -286,12 +281,14 @@ namespace Universe.Modules.Ban
 				MainConsole.Instance.Warn ("Cannot find user.");
 				return;
 			}
+
 			UUID AgentID = account.PrincipalID;
 			PresenceInfo info = GetInformation (AgentID);
 			if (info == null) {
 				MainConsole.Instance.Warn ("Cannot find user.");
 				return;
 			}
+
 			DisplayUserInfo (info);
 		}
 
@@ -320,7 +317,7 @@ namespace Universe.Modules.Ban
 
 				agentInfo.Flags |= IAgentFlags.TempBan;
 
-				agentInfo.OtherAgentInformation ["TemperaryBanInfo"] = DateTime.Now.ToUniversalTime ().AddDays (days);
+				agentInfo.OtherAgentInformation ["TemporaryBanInfo"] = DateTime.Now.ToUniversalTime ().AddDays (days);
 			} else {
 				info.Flags |= PresenceInfo.PresenceInfoFlags.Banned;
 				presenceInfo.UpdatePresenceInfo (info);
@@ -346,6 +343,7 @@ namespace Universe.Modules.Ban
 				MainConsole.Instance.Warn ("Cannot find user.");
 				return;
 			}
+
 			info.Flags = PresenceInfo.PresenceInfoFlags.Clean;
 			presenceInfo.UpdatePresenceInfo (info);
 
@@ -354,8 +352,8 @@ namespace Universe.Modules.Ban
 
 			agentInfo.Flags &= IAgentFlags.TempBan;
 			agentInfo.Flags &= IAgentFlags.PermBan;
-			if (agentInfo.OtherAgentInformation.ContainsKey ("TemperaryBanInfo"))
-				agentInfo.OtherAgentInformation.Remove ("TemperaryBanInfo");
+			if (agentInfo.OtherAgentInformation.ContainsKey ("TemporaryBanInfo"))
+				agentInfo.OtherAgentInformation.Remove ("TemporaryBanInfo");
 			conn.UpdateAgent (agentInfo);
 
 			MainConsole.Instance.Fatal ("User block removed");
@@ -369,6 +367,7 @@ namespace Universe.Modules.Ban
 				MainConsole.Instance.Warn ("Cannot find user.");
 				return;
 			}
+
 			UUID agentID = account.PrincipalID;
 			PresenceInfo info = GetInformation (agentID);
 			if (info == null) {
@@ -384,6 +383,7 @@ namespace Universe.Modules.Ban
 				MainConsole.Instance.Warn ("Please choose a valid flag: Clean, Suspected, Known, Banned");
 				return;
 			}
+
 			MainConsole.Instance.Info ("Set Flags for " + info.AgentID + " to " + info.Flags);
 			presenceInfo.UpdatePresenceInfo (info);
 		}
@@ -501,8 +501,7 @@ namespace Universe.Modules.Ban
 
 		#region Public members
 
-		public bool CheckUser (UUID agentID, string ip, string version, string platform, string mac, string id0,
-		                             out string message)
+		public bool CheckUser (UUID agentID, string ip, string version, string platform, string mac, string id0, out string message)
 		{
 			message = "";
 			if (!m_enabled)
@@ -563,6 +562,7 @@ namespace Universe.Modules.Ban
 					if (IPAddress.TryParse (ip, out ipa))
 						IPBans.Add (ipa);
 				}
+
 				IPRangeBans = Util.ConvertToList (config.GetString ("IPRangeBans", ""), true);
 			}
 		}

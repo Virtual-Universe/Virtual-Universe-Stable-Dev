@@ -39,7 +39,7 @@ namespace Universe.Framework.Services.ClassHelpers.Profile
 	public enum IAgentFlags : uint
 	{
 		Foreign = 1,
-		Temperary = 2,
+		Temporary = 2,
 		Minor = 4,
 		Locked = 8,
 		PermBan = 16,
