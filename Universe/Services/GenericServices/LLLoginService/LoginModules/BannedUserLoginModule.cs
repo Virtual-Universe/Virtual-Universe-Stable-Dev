@@ -148,7 +148,7 @@ namespace Universe.Services
 				string until = "";
 
 				if (agentInfo.OtherAgentInformation.ContainsKey ("TemporaryBanInfo")) {
-					DateTime bannedTime = agentInfo.OtherAgentInformation ["TemperaryBanInfo"].AsDate ();
+					DateTime bannedTime = agentInfo.OtherAgentInformation ["TemporaryBanInfo"].AsDate ();
 					until = string.Format (" until {0} {1}", bannedTime.ToLocalTime ().ToShortDateString (),
 						bannedTime.ToLocalTime ().ToLongTimeString ());
 

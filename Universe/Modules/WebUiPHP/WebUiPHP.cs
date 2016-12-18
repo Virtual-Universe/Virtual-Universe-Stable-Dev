@@ -673,8 +673,8 @@ namespace Universe.PHP.WebUI
 					} else if ((agentInfo.Flags & IAgentFlags.TempBan) == IAgentFlags.TempBan) {
 						resp ["why"] = OSD.FromString ("TempBan");
 
-						if (agentInfo.OtherAgentInformation.ContainsKey ("TemperaryBanInfo") == true) {
-							resp ["BannedUntil"] = OSD.FromInteger (Util.ToUnixTime (agentInfo.OtherAgentInformation ["TemperaryBanInfo"]));
+						if (agentInfo.OtherAgentInformation.ContainsKey ("TemporaryBanInfo") == true) {
+							resp ["BannedUntil"] = OSD.FromInteger (Util.ToUnixTime (agentInfo.OtherAgentInformation ["TemporaryBanInfo"]));
 						} else {
 							resp ["BannedUntil"] = OSD.FromInteger (0);
 						}
@@ -1086,7 +1086,7 @@ namespace Universe.PHP.WebUI
 				agentInfo.Flags |= (until.HasValue) ? IAgentFlags.TempBan : IAgentFlags.PermBan;
 
 				if (until.HasValue) {
-					agentInfo.OtherAgentInformation ["TemperaryBanInfo"] = until.Value;
+					agentInfo.OtherAgentInformation ["TemporaryBanInfo"] = until.Value;
 					MainConsole.Instance.TraceFormat ("Temp ban for {0} until {1}", agentID, until.Value.ToString ("s"));
 				}
 				conn.UpdateAgent (agentInfo);
@@ -1125,8 +1125,8 @@ namespace Universe.PHP.WebUI
 			if (GetAgent != null) {
 				GetAgent.Flags &= IAgentFlags.PermBan;
 				GetAgent.Flags &= IAgentFlags.TempBan;
-				if (GetAgent.OtherAgentInformation.ContainsKey ("TemperaryBanInfo") == true)
-					GetAgent.OtherAgentInformation.Remove ("TemperaryBanInfo");
+				if (GetAgent.OtherAgentInformation.ContainsKey ("TemporaryBanInfo") == true)
+					GetAgent.OtherAgentInformation.Remove ("TemporaryBanInfo");
 
 				DataPlugins.RequestPlugin<IAgentConnector> ().UpdateAgent (GetAgent);
 			}
@@ -1153,8 +1153,8 @@ namespace Universe.PHP.WebUI
 						resp ["BanType"] = OSD.FromString ("PermBan");
 					} else if ((agentInfo.Flags & IAgentFlags.TempBan) == IAgentFlags.TempBan) {
 						resp ["BanType"] = OSD.FromString ("TempBan");
-						if (agentInfo.OtherAgentInformation.ContainsKey ("TemperaryBanInfo") == true) {
-							resp ["BannedUntil"] = OSD.FromInteger (Util.ToUnixTime (agentInfo.OtherAgentInformation ["TemperaryBanInfo"]));
+						if (agentInfo.OtherAgentInformation.ContainsKey ("TemporaryBanInfo") == true) {
+							resp ["BannedUntil"] = OSD.FromInteger (Util.ToUnixTime (agentInfo.OtherAgentInformation ["TemporaryBanInfo"]));
 						} else {
 							resp ["BannedUntil"] = OSD.FromInteger (0);
 						}
