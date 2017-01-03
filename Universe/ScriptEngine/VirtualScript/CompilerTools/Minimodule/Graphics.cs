@@ -34,6 +34,7 @@ using OpenMetaverse.Imaging;
 using Universe.Framework.Modules;
 using Universe.Framework.SceneInfo;
 using Universe.Framework.Services.ClassHelpers.Assets;
+using Universe.Framework.Utilities;
 
 namespace Universe.ScriptEngine.VirtualScript.MiniModule
 {
@@ -72,12 +73,9 @@ namespace Universe.ScriptEngine.VirtualScript.MiniModule
 
 		public Bitmap LoadBitmap (UUID assetID)
 		{
-			// from AssetCaps
-			const string MISSING_TEXTURE_ID = "41fcdbb9-0896-495d-8889-1eb6fad88da3";       // texture to use when all else fails...
-
 			byte[] bmp = m_scene.AssetService.GetData (assetID.ToString ());
 			if (bmp == null)
-				bmp = m_scene.AssetService.GetData (MISSING_TEXTURE_ID);
+				bmp = m_scene.AssetService.GetData (Constants.MISSING_TEXTURE_ID);
 
 			if (bmp == null)    // something reqlly wrong here
                 return null;
