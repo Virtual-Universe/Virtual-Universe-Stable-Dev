@@ -132,6 +132,8 @@ namespace Universe.Modules.WorldMap
 
 			terrainRenderer = null;
 
+            GC.Collect();
+
 			MainConsole.Instance.InfoFormat ("[MapTile generator]: Maptile generation took {0} ms",
 				(Environment.TickCount - start));
 
@@ -334,6 +336,7 @@ namespace Universe.Modules.WorldMap
 					m_scene.RegionInfo.RegionSizeX,
 					m_scene.RegionInfo.RegionSizeY
 				);
+
 				ClearWorldviewCachedImages (m_scene.RegionInfo.RegionID);
 
 				CreateTerrainTexture (true);
@@ -344,6 +347,7 @@ namespace Universe.Modules.WorldMap
 				if (gridRegModule != null)
 					gridRegModule.UpdateGridRegion (m_scene);
 
+                GC.Collect();
 			}
 		}
 

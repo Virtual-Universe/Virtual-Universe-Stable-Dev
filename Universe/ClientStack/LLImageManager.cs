@@ -39,260 +39,280 @@ using Universe.Framework.Utilities;
 
 namespace Universe.ClientStack
 {
-	public class LLImageManager
-	{
-		readonly IAssetService m_assetCache;
-		//Asset Cache
-		readonly LLClientView m_client;
-		//Client we're assigned to
-		readonly IJ2KDecoder m_j2kDecodeModule;
-		//Our J2K module
-		readonly PriorityQueue<J2KImage, float> m_queue = new PriorityQueue<J2KImage, float> ();
-		readonly object m_syncRoot = new object ();
-		static AssetBase m_missingImage;
-		bool m_shuttingdown;
+    public class LLImageManager
+    {
+        readonly IAssetService m_assetCache; //Asset Cache
+        readonly LLClientView m_client; //Client we're assigned to
+        readonly IJ2KDecoder m_j2kDecodeModule; //Our J2K module
+        readonly PriorityQueue<J2KImage, float> m_queue = new PriorityQueue<J2KImage, float>();
+        readonly object m_syncRoot = new object();
+        static AssetBase m_missingImage;
+        bool m_shuttingdown;
 
-		public LLImageManager (LLClientView client, IAssetService pAssetCache, IJ2KDecoder pJ2kDecodeModule)
-		{
-			m_client = client;
-			m_assetCache = pAssetCache;
+        public LLImageManager(LLClientView client, IAssetService pAssetCache, IJ2KDecoder pJ2kDecodeModule)
+        {
+            m_client = client;
+            m_assetCache = pAssetCache;
 
-			if (pAssetCache != null && m_missingImage == null)
-				m_missingImage = pAssetCache.Get ("5748decc-f629-461c-9a36-a35a221fe21f");
+            if (pAssetCache != null && m_missingImage == null)
+                m_missingImage = pAssetCache.Get(Constants.MISSING_TEXTURE_ID);
 
-			if (m_missingImage == null)
-				MainConsole.Instance.Error (
-					"[ClientView] - Couldn't set missing image asset, falling back to missing image packet. This is known to crash the client");
+            if (m_missingImage == null)
+                MainConsole.Instance.Error("[Client View] - Couldn't set missing image asset, falling back to missing image packet. This is known to crash the client");
 
-			m_j2kDecodeModule = pJ2kDecodeModule;
-		}
+            m_j2kDecodeModule = pJ2kDecodeModule;
+        }
 
-		public LLClientView Client {
-			get { return m_client; }
-		}
+        public LLClientView Client
+        {
+            get { return m_client; }
+        }
 
-		public AssetBase MissingImage {
-			get { return m_missingImage; }
-		}
+        public AssetBase MissingImage
+        {
+            get { return m_missingImage; }
+        }
 
-		/// <summary>
-		///     Handles an incoming texture request or update to an existing texture request
-		/// </summary>
-		/// <param name="newRequest"></param>
-		public void EnqueueReq (TextureRequestArgs newRequest)
-		{
-			//Make sure we're not shutting down..
-			if (!m_shuttingdown) {
-				// Do a linear search for this texture download
-				J2KImage imgrequest = FindImage (newRequest);
+        /// <summary>
+        ///     Handles an incoming texture request or update to an existing texture request
+        /// </summary>
+        /// <param name="newRequest"></param>
+        public void EnqueueReq(TextureRequestArgs newRequest)
+        {
+            //Make sure we're not shutting down..
+            if (!m_shuttingdown)
+            {
+                // Do a linear search for this texture download
+                J2KImage imgrequest = FindImage(newRequest);
 
-				if (imgrequest != null) {
-					if (newRequest.DiscardLevel == -1 && newRequest.Priority == 0f) {
-						//MainConsole.Instance.Debug("[TEX]: (CAN) ID=" + newRequest.RequestedAssetID);
+                if (imgrequest != null)
+                {
+                    if (newRequest.DiscardLevel == -1 && newRequest.Priority == 0f)
+                    {
+                        //MainConsole.Instance.Debug("[Texture]: (CAN) ID=" + newRequest.RequestedAssetID);
 
-						try {
-							lock (m_syncRoot)
-								m_queue.Remove (imgrequest);
-						} catch (Exception) {
-						}
-					} else {
-						//MainConsole.Instance.DebugFormat("[TEX]: (UPD) ID={0}: D={1}, S={2}, P={3}",
-						//    newRequest.RequestedAssetID, newRequest.DiscardLevel, newRequest.PacketNumber, newRequest.Priority);
+                        try
+                        {
+                            lock (m_syncRoot)
+                                m_queue.Remove(imgrequest);
+                        }
+                        catch (Exception)
+                        {
+                        }
+                    }
+                    else
+                    {
+                        //MainConsole.Instance.DebugFormat("[Texture]: (UPD) ID={0}: D={1}, S={2}, P={3}",
+                        //    newRequest.RequestedAssetID, newRequest.DiscardLevel, newRequest.PacketNumber, newRequest.Priority);
 
-						//Check the packet sequence to make sure this isn't older than 
-						//one we've already received
-						if (newRequest.requestSequence > imgrequest.LastSequence) {
-							//Update the sequence number of the last RequestImage packet
-							imgrequest.LastSequence = newRequest.requestSequence;
+                        //Check the packet sequence to make sure this isn't older than 
+                        //one we've already received
+                        if (newRequest.requestSequence > imgrequest.LastSequence)
+                        {
+                            //Update the sequence number of the last RequestImage packet
+                            imgrequest.LastSequence = newRequest.requestSequence;
 
-							//Update the requested discard level
-							imgrequest.DiscardLevel = newRequest.DiscardLevel;
+                            //Update the requested discard level
+                            imgrequest.DiscardLevel = newRequest.DiscardLevel;
 
-							//Update the requested packet number
-							imgrequest.StartPacket = Math.Max (1, newRequest.PacketNumber);
+                            //Update the requested packet number
+                            imgrequest.StartPacket = Math.Max(1, newRequest.PacketNumber);
 
-							//Update the requested priority
-							imgrequest.Priority = newRequest.Priority;
-							lock (m_syncRoot)
-								m_queue.Remove (imgrequest);
-							AddImageToQueue (imgrequest);
+                            //Update the requested priority
+                            imgrequest.Priority = newRequest.Priority;
+                            lock (m_syncRoot)
+                                m_queue.Remove(imgrequest);
+                            AddImageToQueue(imgrequest);
 
-							//Run an update
-							imgrequest.RunUpdate ();
-						}
-					}
-				} else {
-					if (newRequest.DiscardLevel == -1 && newRequest.Priority == 0f) {
-						//MainConsole.Instance.Debug("[TEX]: (CAN) ID=" + newRequest.RequestedAssetID);
-						//MainConsole.Instance.DebugFormat("[TEX]: (IGN) ID={0}: D={1}, S={2}, P={3}",
-						//    newRequest.RequestedAssetID, newRequest.DiscardLevel, newRequest.PacketNumber, newRequest.Priority);
-					} else {
-						//MainConsole.Instance.DebugFormat("[TEX]: (NEW) ID={0}: D={1}, S={2}, P={3}",
-						//    newRequest.RequestedAssetID, newRequest.DiscardLevel, newRequest.PacketNumber, newRequest.Priority);
+                            //Run an update
+                            imgrequest.RunUpdate();
+                        }
+                    }
+                }
+                else
+                {
+                    if (newRequest.DiscardLevel == -1 && newRequest.Priority == 0f)
+                    {
+                        //MainConsole.Instance.Debug("[Texture]: (CAN) ID=" + newRequest.RequestedAssetID);
+                        //MainConsole.Instance.DebugFormat("[Texture]: (IGN) ID={0}: D={1}, S={2}, P={3}",
+                        //    newRequest.RequestedAssetID, newRequest.DiscardLevel, newRequest.PacketNumber, newRequest.Priority);
+                    }
+                    else
+                    {
+                        //MainConsole.Instance.DebugFormat("[Texture]: (NEW) ID={0}: D={1}, S={2}, P={3}",
+                        //    newRequest.RequestedAssetID, newRequest.DiscardLevel, newRequest.PacketNumber, newRequest.Priority);
 
-						imgrequest = new J2KImage () {
-							J2KDecoder = m_j2kDecodeModule,
-							AssetService = m_assetCache,
-							AgentID = m_client.AgentId,
-							InventoryAccessModule = m_client.Scene.RequestModuleInterface<IInventoryAccessModule> (),
-							DiscardLevel = newRequest.DiscardLevel,
-							StartPacket = Math.Max (1, newRequest.PacketNumber),
-							Priority = newRequest.Priority,
-							TextureID = newRequest.RequestedAssetID
-						};
-						imgrequest.Priority = newRequest.Priority;
+                        imgrequest = new J2KImage()
+                        {
+                            J2KDecoder = m_j2kDecodeModule,
+                            AssetService = m_assetCache,
+                            AgentID = m_client.AgentId,
+                            InventoryAccessModule = m_client.Scene.RequestModuleInterface<IInventoryAccessModule>(),
+                            DiscardLevel = newRequest.DiscardLevel,
+                            StartPacket = Math.Max(1, newRequest.PacketNumber),
+                            Priority = newRequest.Priority,
+                            TextureID = newRequest.RequestedAssetID,
+                            MissingImage = m_missingImage
+                        };
 
-						//Add this download to the priority queue
-						AddImageToQueue (imgrequest);
+                        imgrequest.Priority = newRequest.Priority;
 
-						//Run an update
-						imgrequest.RunUpdate ();
-					}
-				}
-			}
-		}
+                        //Add this download to the priority queue
+                        AddImageToQueue(imgrequest);
 
-		J2KImage FindImage (TextureRequestArgs newRequest)
-		{
-			if (newRequest == null)
-				return null;
+                        //Run an update
+                        imgrequest.RunUpdate();
+                    }
+                }
+            }
+        }
 
-			lock (m_syncRoot)
-				return m_queue.Find (new J2KImage () { TextureID = newRequest.RequestedAssetID }, new Comparer ());
-		}
+        J2KImage FindImage(TextureRequestArgs newRequest)
+        {
+            if (newRequest == null)
+                return null;
 
-		public bool ProcessImageQueue (int packetsToSend)
-		{
-			int StartTime = Util.EnvironmentTickCount ();
+            lock (m_syncRoot)
+                return m_queue.Find(new J2KImage() { TextureID = newRequest.RequestedAssetID }, new Comparer());
+        }
 
-			int packetsSent = 0;
-			List<J2KImage> imagesToReAdd = new List<J2KImage> ();
-			while (packetsSent < packetsToSend) {
-				J2KImage image = GetHighestPriorityImage ();
+        public bool ProcessImageQueue(int packetsToSend)
+        {
+            int StartTime = Util.EnvironmentTickCount();
 
-				// If null was returned, the texture priority queue is currently empty
-				if (image == null)
-					break;
-				//Break so that we add any images back that we might remove because they aren't finished decoding
+            int packetsSent = 0;
+            List<J2KImage> imagesToReAdd = new List<J2KImage>();
+            while (packetsSent < packetsToSend)
+            {
+                J2KImage image = GetHighestPriorityImage();
 
-				if (image.IsDecoded) {
-					if (image.Layers == null) {
-						//We don't have it, tell the client that it doesn't exist
-						m_client.SendAssetUploadCompleteMessage ((sbyte)AssetType.Texture, false, image.TextureID);
-						packetsSent++;
-					} else {
-						int sent;
-						bool imageDone = image.SendPackets (m_client, packetsToSend - packetsSent, out sent);
-						packetsSent += sent;
+                // If null was returned, the texture priority queue is currently empty
+                if (image == null)
+                    break;
+                //Break so that we add any images back that we might remove because they aren't finished decoding
 
-						// If the send is complete, destroy any knowledge of this transfer
-						if (!imageDone)
-							AddImageToQueue (image);
-					}
-				} else {
-					//Add it to the other queue and delete it from the top
-					imagesToReAdd.Add (image);
-					packetsSent++; //We tried to send one
-					// UNTODO: This was a limitation of how LLImageManager is currently
-					// written. Undecoded textures should not be going into the priority
-					// queue, because a high priority undecoded texture will clog up the
-					// pipeline for a client
-					//return true;
-				}
-			}
+                if (image.IsDecoded)
+                {
+                    if (image.Layers == null)
+                    {
+                        //We don't have it, tell the client that it doesn't exist
+                        m_client.SendAssetUploadCompleteMessage((sbyte)AssetType.Texture, false, image.TextureID);
+                        packetsSent++;
+                    }
+                    else
+                    {
+                        int sent;
+                        bool imageDone = image.SendPackets(m_client, packetsToSend - packetsSent, out sent);
+                        packetsSent += sent;
 
-			//Add all the ones we removed so that we wouldn't block the queue
-			if (imagesToReAdd.Count != 0) {
-				foreach (J2KImage image in imagesToReAdd) {
-					AddImageToQueue (image);
-				}
-			}
+                        // If the send is complete, destroy any knowledge of this transfer
+                        if (!imageDone)
+                            AddImageToQueue(image);
+                    }
+                }
+                else
+                {
+                    //Add it to the other queue and delete it from the top
+                    imagesToReAdd.Add(image);
+                    packetsSent++; //We tried to send one
+                    // UNTODO: This was a limitation of how LLImageManager is currently
+                    // written. Undecoded textures should not be going into the priority
+                    // queue, because a high priority undecoded texture will clog up the
+                    // pipeline for a client
+                    //return true;
+                }
+            }
 
-			int EndTime = Util.EnvironmentTickCountSubtract (StartTime);
-			IMonitorModule module = m_client.Scene.RequestModuleInterface<IMonitorModule> ();
-			if (module != null) {
-				IImageFrameTimeMonitor monitor = module.GetMonitor<IImageFrameTimeMonitor> (m_client.Scene);
-				monitor.AddImageTime (EndTime);
-			}
+            //Add all the ones we removed so that we wouldn't block the queue
+            if (imagesToReAdd.Count != 0)
+            {
+                foreach (J2KImage image in imagesToReAdd)
+                {
+                    AddImageToQueue(image);
+                }
+            }
 
-			lock (m_syncRoot)
-				return m_queue.Count > 0;
-		}
+            int EndTime = Util.EnvironmentTickCountSubtract(StartTime);
+            IMonitorModule module = m_client.Scene.RequestModuleInterface<IMonitorModule>();
+            if (module != null)
+            {
+                IImageFrameTimeMonitor monitor = module.GetMonitor<IImageFrameTimeMonitor>(m_client.Scene);
+                monitor.AddImageTime(EndTime);
+            }
 
-		/// <summary>
-		///     Faux destructor
-		/// </summary>
-		public void Close ()
-		{
-			m_shuttingdown = true;
-		}
+            lock (m_syncRoot)
+                return m_queue.Count > 0;
+        }
 
-		#region Priority Queue Helpers
+        /// <summary>
+        ///     Faux destructor
+        /// </summary>
+        public void Close()
+        {
+            m_shuttingdown = true;
+        }
 
-		J2KImage GetHighestPriorityImage ()
-		{
-			J2KImage image = null;
+        #region Priority Queue Helpers
 
-			lock (m_syncRoot) {
-				if (m_queue.Count > 0) {
-					try {
-						PriorityQueueItem<J2KImage, float> item;
-						if (m_queue.TryDequeue (out item))
-							image = item.Value;
-					} catch (Exception) {
-					}
-				}
-			}
-			return image;
-		}
+        J2KImage GetHighestPriorityImage()
+        {
+            J2KImage image = null;
 
-		void AddImageToQueue (J2KImage image)
-		{
-			lock (m_syncRoot)
-				try {
-					m_queue.Enqueue (image, image.Priority);
-				} catch (Exception) {
-				}
-		}
+            lock (m_syncRoot)
+            {
+                if (m_queue.Count > 0)
+                {
+                    try
+                    {
+                        PriorityQueueItem<J2KImage, float> item;
+                        if (m_queue.TryDequeue(out item))
+                            image = item.Value;
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+            }
 
-		#endregion Priority Queue Helpers
+            return image;
+        }
 
-		#region Nested type: Comparer
+        void AddImageToQueue(J2KImage image)
+        {
+            lock (m_syncRoot)
+                try
+                {
+                    m_queue.Enqueue(image, image.Priority);
+                }
+                catch (Exception)
+                {
+                }
+        }
 
-		class Comparer : IComparer<J2KImage>
-		{
-			#region IComparer<J2KImage> Members
+        #endregion Priority Queue Helpers
 
-			public int Compare (J2KImage x, J2KImage y)
-			{
-				if (x == null || y == null)
-					return -1;
-				if (x.TextureID == y.TextureID)
-					return 2;
-				return 0;
-			}
+        #region Nested type: Comparer
 
-			#endregion
-		}
-
-		#endregion
-
-		#region Nested type: J2KImageComparer
-
-		/*
-        sealed class J2KImageComparer : IComparer<J2KImage>
+        class Comparer : IComparer<J2KImage>
         {
             #region IComparer<J2KImage> Members
 
             public int Compare(J2KImage x, J2KImage y)
             {
-                return x.Priority.CompareTo(y.Priority);
+                if (x == null || y == null)
+                    return -1;
+                if (x.TextureID == y.TextureID)
+                    return 2;
+                return 0;
             }
 
             #endregion
         }
-        */
 
-		#endregion
-	}
+        #endregion
+
+        #region Nested type: J2KImageComparer
+
+        #endregion
+    }
 }
