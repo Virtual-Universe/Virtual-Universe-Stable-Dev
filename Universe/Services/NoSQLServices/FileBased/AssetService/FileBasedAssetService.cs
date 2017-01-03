@@ -179,7 +179,7 @@ namespace Universe.FileBasedServices.AssetService
 				return null;
 			}
 
-			AssetBase asset = FileGetAsset (id);
+			AssetBase asset = FileGetAsset (id, showWarnings);
 			if (doDatabaseCaching && cache != null)
 				cache.Cache (id, asset);
 			return asset;
@@ -198,8 +198,14 @@ namespace Universe.FileBasedServices.AssetService
 			return null;
 		}
 
-		[CanBeReflected (ThreatLevel = ThreatLevel.Low)]
-		public virtual byte[] GetData (string id)
+        [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
+        public virtual byte[] GetData(string id)
+        {
+            return GetData(id, true);
+        }
+
+    [CanBeReflected (ThreatLevel = ThreatLevel.Low)]
+		public virtual byte[] GetData (string id, bool showWarnings)
 		{
 			IImprovedAssetCache cache = m_registry.RequestModuleInterface<IImprovedAssetCache> ();
 			if (doDatabaseCaching && cache != null) {
@@ -361,7 +367,12 @@ namespace Universe.FileBasedServices.AssetService
 
 		object _lock = new object ();
 
-		public AssetBase FileGetAsset (string id)
+        public AssetBase FileGetAsset(string id)
+        {
+            return FileGetAsset(id, true);
+        }
+
+        public AssetBase FileGetAsset (string id, bool showWarnings)
 		{
 			AssetBase asset;
 #if ASSET_DEBUG
@@ -380,7 +391,8 @@ namespace Universe.FileBasedServices.AssetService
 					asset.Data = File.ReadAllBytes (GetDataPathForID (asset.HashCode));
 				}
 			} catch (Exception ex) {
-				MainConsole.Instance.WarnFormat ("[Filebased asset service]: Failed to retrieve asset {0}: {1} ", id, ex);
+                if (showWarnings)
+                    MainConsole.Instance.WarnFormat ("[File Based Asset Service]: Failed to retrieve asset {0}: {1} ", id, ex);
 				return null;
 			}
 #if ASSET_DEBUG
@@ -388,8 +400,7 @@ namespace Universe.FileBasedServices.AssetService
             {
                 long endTime = System.Diagnostics.Stopwatch.GetTimestamp();
                 if (MainConsole.Instance != null && asset != null)
-                    MainConsole.Instance.Warn("[FILE BASED ASSET SERVICE]: Took " + (endTime - startTime)/10000 +
-                                              " to get asset " + id + " sized " + asset.Data.Length/(1024) + "kbs");
+                    MainConsole.Instance.Warn("[File Based Asset Service]: Took " + (endTime - startTime)/10000 + " to get asset " + id + " sized " + asset.Data.Length/(1024) + "kbs");
 
             }
 #endif

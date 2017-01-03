@@ -81,12 +81,20 @@ namespace Universe.Framework.Services
 		/// <returns></returns>
 		byte[] GetData (string id);
 
-		/// <summary>
-		///     Synchronously fetches an asset from the local cache only
-		/// </summary>
-		/// <param name="id">Asset ID</param>
-		/// <returns>The fetched asset, or null if it did not exist in the local cache</returns>
-		AssetBase GetCached (string id);
+        /// <summary>
+        /// Gets asset data for the given asset.
+        /// </summary>
+        /// <returns>The data.</returns>
+        /// <param name="id">Identifier.</param>
+        /// <param name="showWarnings">If set to <c>true</c> show warnings.</param>
+        byte[] GetData(string id, bool showWarnings);
+
+        /// <summary>
+        ///     Synchronously fetches an asset from the local cache only
+        /// </summary>
+        /// <param name="id">Asset ID</param>
+        /// <returns>The fetched asset, or null if it did not exist in the local cache</returns>
+        AssetBase GetCached (string id);
 
 		/// <summary>
 		///     Get an asset synchronously or asynchronously (depending on whether
