@@ -10956,8 +10956,8 @@ namespace Universe.ClientStack
             if (m_GroupsModule != null)
             {
                 m_GroupsModule.ActivateGroup(this, activateGroupPacket.AgentData.GroupID);
-            }'
-            '
+            }
+
             return true;
         }
 
