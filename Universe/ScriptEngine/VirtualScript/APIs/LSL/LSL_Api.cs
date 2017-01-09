@@ -7621,9 +7621,20 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
             if (!ScriptProtection.CheckThreatLevel(ThreatLevel.None, "LSL", m_host, "LSL", m_itemID))
                 return new LSL_Key();
 
-            return m_host.SitTargetAvatar.Count > 0
-                       ? new LSL_String(m_host.SitTargetAvatar[0].ToString())
-                       : ScriptBaseClass.NULL_KEY;
+            if (link == ScriptBaseClass.LINK_SET ||
+                link == ScriptBaseClass.LINK_ALL_CHILDREN ||
+                link == ScriptBaseClass.LINK_ALL_OTHERS ||
+                link == 0)
+                return UUID.Zero.ToString();
+
+            var entities = GetLinkParts(link);
+            return entities.Count == 0 ?
+                         UUID.Zero.ToString() :
+                         entities[0].SitTargetAvatar.ToString();
+
+            // return m_host.SitTargetAvatar.Count > 0
+            //           ? new LSL_String(m_host.SitTargetAvatar[0].ToString())
+            //           : ScriptBaseClass.NULL_KEY;
         }
 
         public DateTime llAddToLandPassList(string avatar, double hours)
