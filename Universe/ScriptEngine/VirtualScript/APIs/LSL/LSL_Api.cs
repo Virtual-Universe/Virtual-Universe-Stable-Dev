@@ -7575,6 +7575,7 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
             if (!ScriptProtection.CheckThreatLevel(ThreatLevel.None, "LSL", m_host, "LSL", m_itemID))
                 return;
 
+            /*
             // LSL quaternions can normalize to 0, normal Quaternions can't.
             if (FloatAlmostEqual(rot.s, 0) &&
                 FloatAlmostEqual(rot.x, 0) &&
@@ -7584,6 +7585,8 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
 
             m_host.SitTargetPosition = new Vector3((float)offset.x, (float)offset.y, (float)offset.z);
             m_host.SitTargetOrientation = Rot2Quaternion(rot);
+            */
+            SitTarget(m_host, offset, rot);
         }
 
         public void llLinkSitTarget(LSL_Integer link, LSL_Vector offset, LSL_Rotation rot)
@@ -7591,6 +7594,20 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
             if (!ScriptProtection.CheckThreatLevel(ThreatLevel.None, "LSL", m_host, "LSL", m_itemID))
                 return;
 
+            if (link == ScriptBaseClass.LINK_ROOT)
+                SitTarget(m_host.ParentEntity.RootChild, offset, rot);
+            else if (link == ScriptBaseClass.LINK_THIS)
+                SitTarget(m_host, offset, rot);
+            else
+            {
+                var entity = m_host.ParentEntity.GetLinkNumPart(link);
+                if (entity != null)
+                {
+                    SitTarget((ISceneChildEntity)entity, offset, rot);
+                }
+            }
+
+            /*
             // LSL quaternions can normalize to 0, normal Quaternions can't.
             if (FloatAlmostEqual(rot.s, 0) &&
                 FloatAlmostEqual(rot.x, 0) &&
@@ -7604,6 +7621,7 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
 
             entities[0].SitTargetPosition = new Vector3((float)offset.x, (float)offset.y, (float)offset.z);
             entities[0].SitTargetOrientation = Rot2Quaternion(rot);
+            */
         }
 
         public LSL_String llAvatarOnSitTarget()
