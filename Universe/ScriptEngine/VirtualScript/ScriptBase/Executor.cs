@@ -32,6 +32,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using OpenMetaverse;
+using Universe.Framework.ConsoleFramework;
 using Universe.Framework.Utilities;
 
 namespace Universe.ScriptEngine.VirtualScript.Runtime
@@ -131,14 +132,20 @@ namespace Universe.ScriptEngine.VirtualScript.Runtime
 					if (ev != null)
                         //MainConsole.Instance.Debug("Found handler for " + kvp.Key);
                         eventFlags |= kvp.Value;
-				} catch (Exception) {
-					//MainConsole.Instance.Debug("Exeption in GetMethod:\n"+e.ToString());
+				} catch (Exception e) {
+					MainConsole.Instance.Debug("Exeption in GetMethod:\n"+e.ToString());
 				}
 			}
 
 			// Save the flags we just computed and return the result
 			if (eventFlags != 0)
-				m_stateEvents.Add (state, eventFlags);
+				try
+                {
+                    m_stateEvents.Add(state, eventFlags);
+                } catch (Exception e)
+                {
+                    MainConsole.Instance.Debug("Exception adding state event for state: " + state + "\n" + e);
+                }
 
 			//MainConsole.Instance.Debug("Returning {0:x}", eventFlags);
 			return eventFlags;
