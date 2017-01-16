@@ -625,7 +625,21 @@ namespace Universe.Modules.Currency
 						(fromUserInfo == null ? UUID.Zero : fromUserInfo.CurrentRegionID)
 					);
 
-				if (fromID == toID) {
+                var paidToMsg = "";
+                var paidFromMsg = "";
+                var paidDesc = (description == "" ? "" : " for " + description);
+                
+                if (amount > 0)
+                {
+                    paidFromMsg =
+                    (fromAccount == null ? " received " : fromAccount.Name + " paid you ") +
+                    InWorldCurrency + amount + paidDesc;
+                    paidToMsg = "You paid " +
+                    (toAccount == null ? "" : toAccount.Name + " ") +
+                    InWorldCurrency + amount + paidDesc;
+                }
+
+                if (fromID == toID) {
 					if (toUserInfo != null && toUserInfo.IsOnline)
 						SendUpdateMoneyBalanceToClient (toID, transactionID, toUserInfo.CurrentRegionURI, toCurrency.Amount,
 							toAccount == null ? "" : (toAccount.Name + " paid you " + InWorldCurrency + amount + (description == "" ? "" : ": " + description)));
