@@ -1522,7 +1522,7 @@ namespace Universe.Region
             }
 
             if ((update_movementflag || update_rotation) && (m_parentID == UUID.Zero))
-                Animator.UpdateMovementAnimations(false);
+                Animator.UpdateMovementAnimations(true);
 
 
             IAgentUpdateMonitor reporter =
