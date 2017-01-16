@@ -664,8 +664,8 @@ namespace Universe.Services
 					m_config, DisplayName, avappearance.Serial.ToString (), m_registry.RequestModuleInterface<IGridInfo> ());
 
 				MainConsole.Instance.InfoFormat (
-					"[Login Service]: All clear. Sending login response to client to login to region " +
-					destination.RegionName + ", tried to login to " + startLocation + " at " + position + ".");
+					"[Login Service]: All clear. Sending response to client for to login to region " +
+					destination.RegionName + " at " + position + ".");
 
 				return response;
 			} catch (Exception e) {
@@ -811,14 +811,13 @@ namespace Universe.Services
 					if (position.Y > region.RegionSizeY)
 						position.Y = region.RegionSizeY;
 
-
 					lookAt = pinfo.CurrentLookAt;
 				}
 
 				return region;
 			} else {
 				// free uri form
-				// e.g. New Moon&135&46  New Moon@osgrid.org:8002&153&34
+				// e.g. New Moon&135&46  New Moon@universegrid.org:8002&153&34
 				where = "url";
 				Regex reURI = new Regex (@"^uri:(?<region>[^&]+)&(?<x>\d+)&(?<y>\d+)&(?<z>\d+)$");
 				Match uriMatch = reURI.Match (startLocation);
@@ -831,7 +830,7 @@ namespace Universe.Services
 					List<GridRegion> regions = m_GridService.GetRegionsByName (account.AllScopeIDs, regionName, 0, 1);
 					if ((regions == null) || (regions.Count == 0)) {
 						MainConsole.Instance.InfoFormat (
-							"[LLLOGIN SERVICE]: Got Custom Login URI {0}, can't locate region {1}. Trying defaults.",
+							"[LLogin Service]: Got Custom Login URI {0}, can't locate region {1}. Trying defaults.",
 							startLocation, regionName);
 						regions = m_GridService.GetDefaultRegions (account.AllScopeIDs);
 						if (regions != null && regions.Count > 0) {
@@ -850,17 +849,20 @@ namespace Universe.Services
 							return safeRegions [0];
 						}
 						MainConsole.Instance.InfoFormat (
-							"[LLLOGIN SERVICE]: Got Custom Login URI {0}, Grid does not have any available regions.",
+							"[LLogin Service]: Got Custom Login URI {0}, Grid does not have any available regions.",
 							startLocation);
 						return null;
 					}
 					return regions [0];
 				}
-				//This is so that you can login to other grids via IWC (or HG), example"RegionTest@testingserver.com:8002". All this really needs to do is inform the other grid that we have a user who wants to connect. IWC allows users to login by default to other regions (without the host names), but if one is provided and we don't have a link, we need to create one here.
+                //This is so that you can login to other grids via IWC (or HG), example"RegionTest@universegrid.com:8002". 
+                //All this really needs to do is inform the other grid that we have a user who wants to connect.
+                //IWC allows users to login by default to other regions (without the host names), 
+                //but if one is provided and we don't have a link, we need to create one here.
 				string[] parts = regionName.Split (new char[] { '@' });
 				if (parts.Length < 2) {
 					MainConsole.Instance.InfoFormat (
-						"[LLLOGIN SERVICE]: Got Custom Login URI {0}, can't locate region {1}",
+						"[LLogin Service]: Got Custom Login URI {0}, can't locate region {1}",
 						startLocation, regionName);
 					return null;
 				}
@@ -890,7 +892,7 @@ namespace Universe.Services
 							return safeRegions [0];
 						}
 						MainConsole.Instance.InfoFormat (
-							"[LLLOGIN SERVICE]: Got Custom Login URI {0}, Grid does not have any available regions.",
+							"[LLogin Service]: Got Custom Login URI {0}, Grid does not have any available regions.",
 							startLocation);
 						return null;
 					}
@@ -916,7 +918,7 @@ namespace Universe.Services
 			aCircuit = MakeAgent (destination, account, session, secureSession, circuitCode, position,
 				clientIP);
 			aCircuit.TeleportFlags = (uint)tpFlags;
-			MainConsole.Instance.DebugFormat ("[LoginService]: Attempting to log {0} into {1} at {2}...", account.Name, destination.RegionName, destination.ServerURI);
+			MainConsole.Instance.DebugFormat ("[Login Service]: Attempting to log {0} into {1} at {2}...", account.Name, destination.RegionName, destination.ServerURI);
 			LoginAgentArgs args = m_registry.RequestModuleInterface<IAgentProcessing> ().LoginAgent (destination, aCircuit, friendsToInform);
 			aCircuit.CachedUserInfo = args.CircuitData.CachedUserInfo;
 			aCircuit.RegionUDPPort = args.CircuitData.RegionUDPPort;
@@ -925,7 +927,7 @@ namespace Universe.Services
 			seedCap = args.SeedCap;
 			bool success = args.Success;
 			if (!success && m_GridService != null) {
-				MainConsole.Instance.DebugFormat ("[LoginService]: Failed to log {0} into {1} at {2}...", account.Name, destination.RegionName, destination.ServerURI);
+				MainConsole.Instance.DebugFormat ("[Login Service]: Failed to log {0} into {1} at {2}...", account.Name, destination.RegionName, destination.ServerURI);
 				//Remove the landmark flag (landmark is used for ignoring the landing points in the region)
 				aCircuit.TeleportFlags &= ~(uint)TeleportFlags.ViaLandmark;
 				m_GridService.SetRegionUnsafe (destination.RegionID);
@@ -973,7 +975,7 @@ namespace Universe.Services
 			#endregion
 
 			if (success) {
-				MainConsole.Instance.DebugFormat ("[LoginService]: Successfully logged {0} into {1} at {2}...", account.Name, destination.RegionName, destination.ServerURI);
+				MainConsole.Instance.DebugFormat ("[Login Service]: Successfully logged {0} into {1} at {2}...", account.Name, destination.RegionName, destination.ServerURI);
 				//Set the region to safe since we got there
 				m_GridService.SetRegionSafe (destination.RegionID);
 				return aCircuit;
@@ -991,7 +993,7 @@ namespace Universe.Services
 			foreach (GridRegion r in regions) {
 				if (r == null)
 					continue;
-				MainConsole.Instance.DebugFormat ("[LoginService]: Attempting to log {0} into {1} at {2}...", account.Name, r.RegionName, r.ServerURI);
+				MainConsole.Instance.DebugFormat ("[Login Service]: Attempting to log {0} into {1} at {2}...", account.Name, r.RegionName, r.ServerURI);
 				args = m_registry.RequestModuleInterface<IAgentProcessing> ().
                                   LoginAgent (r, aCircuit, friendsToInform);
 				if (args.Success) {
