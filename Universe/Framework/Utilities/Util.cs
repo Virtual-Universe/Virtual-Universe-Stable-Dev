@@ -568,19 +568,29 @@ namespace Universe.Framework.Utilities
 		public static bool ApproxZero (double valA)
 		{
 			return Math.Abs (valA) <= Constants.FloatDifference;
-		}
+        }
 
-		#endregion
+        /// <summary>
+        /// VAlue is > then the float difference. ( not == 0f)
+        /// </summary>
+        /// <returns><c>true</c>, if greater than float difference, <c>false</c> otherwise.</returns>
+        /// <param name="valA">Value a.</param>
+        public static bool NotZero(double valA)
+        {
+            return Math.Abs (valA) >= Constants.FloatDifference;
+        }
 
-		#region Vector Equations
+    #endregion
 
-		/// <summary>
-		///     Get the distance between two 3d vectors
-		/// </summary>
-		/// <param name="a">A 3d vector</param>
-		/// <param name="b">A 3d vector</param>
-		/// <returns>The distance between the two vectors</returns>
-		public static double GetDistanceTo (Vector3 a, Vector3 b)
+    #region Vector Equations
+
+    /// <summary>
+    ///     Get the distance between two 3d vectors
+    /// </summary>
+    /// <param name="a">A 3d vector</param>
+    /// <param name="b">A 3d vector</param>
+    /// <returns>The distance between the two vectors</returns>
+    public static double GetDistanceTo (Vector3 a, Vector3 b)
 		{
 			float dx = a.X - b.X;
 			float dy = a.Y - b.Y;
