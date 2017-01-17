@@ -37,265 +37,288 @@ using Universe.Framework.Utilities;
 
 namespace Universe.ScriptEngine.VirtualScript.Runtime
 {
-	public class Executor
-	{
-		#region scriptEvents enum
+    public class Executor
+    {
+        #region scriptEvents enum
 
-		[Flags]
-		public enum scriptEvents : long
-		{
-			None = 0,
-			attach = 1,
-			collision = 16,
-			collision_end = 32,
-			collision_start = 64,
-			control = 128,
-			dataserver = 256,
-			email = 512,
-			http_response = 1024,
-			land_collision = 2048,
-			land_collision_end = 4096,
-			land_collision_start = 8192,
-			at_target = 16384,
-			at_rot_target = 16777216,
-			listen = 32768,
-			money = 65536,
-			moving_end = 131072,
-			moving_start = 262144,
-			not_at_rot_target = 524288,
-			not_at_target = 1048576,
-			remote_data = 8388608,
-			run_time_permissions = 268435456,
-			state_entry = 1073741824,
-			state_exit = 2,
-			timer = 4,
-			touch = 8,
-			touch_end = 536870912,
-			touch_start = 2097152,
-			object_rez = 4194304,
-			changed = 2147483648,
-			link_message = 4294967296,
-			no_sensor = 8589934592,
-			on_rez = 17179869184,
-			sensor = 34359738368,
-			transaction_result = 68719476736,
-			http_request = 137438953472
-		}
+        [Flags]
+        public enum scriptEvents : long
+        {
+            None = 0,
+            attach = 1,
+            collision = 16,
+            collision_end = 32,
+            collision_start = 64,
+            control = 128,
+            dataserver = 256,
+            email = 512,
+            http_response = 1024,
+            land_collision = 2048,
+            land_collision_end = 4096,
+            land_collision_start = 8192,
+            at_target = 16384,
+            at_rot_target = 16777216,
+            listen = 32768,
+            money = 65536,
+            moving_end = 131072,
+            moving_start = 262144,
+            not_at_rot_target = 524288,
+            not_at_target = 1048576,
+            remote_data = 8388608,
+            run_time_permissions = 268435456,
+            state_entry = 1073741824,
+            state_exit = 2,
+            timer = 4,
+            touch = 8,
+            touch_end = 536870912,
+            touch_start = 2097152,
+            object_rez = 4194304,
+            changed = 2147483648,
+            link_message = 4294967296,
+            no_sensor = 8589934592,
+            on_rez = 17179869184,
+            sensor = 34359738368,
+            transaction_result = 68719476736,
+            http_request = 137438953472
+        }
 
-		#endregion
+        #endregion
 
-		protected static Dictionary<string, scriptEvents> m_eventFlagsMap = new Dictionary<string, scriptEvents> ();
+        protected static Dictionary<string, scriptEvents> m_eventFlagsMap = new Dictionary<string, scriptEvents>();
 
-		// Cache functions by keeping a reference to them in a dictionary
-		readonly Dictionary<string, scriptEvents> m_stateEvents = new Dictionary<string, scriptEvents> ();
+        // Cache functions by keeping a reference to them in a dictionary
+        readonly Dictionary<string, scriptEvents> m_stateEvents = new Dictionary<string, scriptEvents>();
 
-		bool InTimeSlice;
+        bool InTimeSlice;
 
-		int MaxTimeSlice = 60;
-		// script timeslice execution time in ms , hardwired for now
-		int TimeSliceEnd;
+        int MaxTimeSlice = 60; // script timeslice execution time in ms , hardwired for now
+        int TimeSliceEnd;
 
-		/// <summary>
-		///     Contains the script to execute functions in.
-		/// </summary>
-		protected IScript m_Script;
+        /// <summary>
+        ///     Contains the script to execute functions in.
+        /// </summary>
+        protected IScript m_Script;
 
-		protected Dictionary<Guid, IEnumerator> m_enumerators = new Dictionary<Guid, IEnumerator> ();
-		Type m_scriptType;
+        protected Dictionary<Guid, IEnumerator> m_enumerators = new Dictionary<Guid, IEnumerator>();
+        Type m_scriptType;
 
 
-		public Executor (IScript script)
-		{
-			InTimeSlice = false;
-			m_Script = script;
-			initEventFlags ();
-		}
+        public Executor(IScript script)
+        {
+            InTimeSlice = false;
+            m_Script = script;
+            initEventFlags();
+        }
 
-		public scriptEvents GetStateEventFlags (string state)
-		{
-			// Check to see if we've already computed the flags for this state
-			scriptEvents eventFlags = scriptEvents.None;
-			if (m_stateEvents.TryGetValue (state, out eventFlags))
-				return eventFlags;
+        public scriptEvents GetStateEventFlags(string state)
+        {
+            // Check to see if we've already computed the flags for this state
+            scriptEvents eventFlags = scriptEvents.None;
+            if (m_stateEvents.TryGetValue(state, out eventFlags))
+                return eventFlags;
 
-			if (m_scriptType == null)
-				m_scriptType = m_Script.GetType ();
-			// Fill in the events for this state, cache the results in the map
-			foreach (KeyValuePair<string, scriptEvents> kvp in m_eventFlagsMap) {
-				try {
-					MethodInfo ev = null;
-					string evname = state == "" ? "" : state + "_event_";
-					evname += kvp.Key;
-					//MainConsole.Instance.Debug("Trying event "+evname);
+            if (m_scriptType == null)
+                m_scriptType = m_Script.GetType();
+            // Fill in the events for this state, cache the results in the map
+            foreach (KeyValuePair<string, scriptEvents> kvp in m_eventFlagsMap)
+            {
+                try
+                {
+                    MethodInfo ev = null;
+                    string evname = state == "" ? "" : state + "_event_";
+                    evname += kvp.Key;
+                    //MainConsole.Instance.Debug("Trying event "+evname);
 
-					ev = m_scriptType.GetMethod (evname);
-					if (ev != null)
+                    ev = m_scriptType.GetMethod(evname);
+                    if (ev != null)
                         //MainConsole.Instance.Debug("Found handler for " + kvp.Key);
                         eventFlags |= kvp.Value;
-				} catch (Exception e) {
-					MainConsole.Instance.Debug("Exeption in GetMethod:\n"+e.ToString());
-				}
-			}
+                }
+                catch (Exception e)
+                {
+                    MainConsole.Instance.Debug("Exception in GetMethod for state: " + state + "\n" + e);
+                }
+            }
 
-			// Save the flags we just computed and return the result
-			if (eventFlags != 0)
-				try
+            // Save the flags we just computed and return the result
+            if (eventFlags != 0)
+            {
+                try
                 {
                     m_stateEvents.Add(state, eventFlags);
-                } catch (Exception e)
+                }
+                catch (Exception e)
                 {
                     MainConsole.Instance.Debug("Exception adding state event for state: " + state + "\n" + e);
                 }
+            }
 
-			//MainConsole.Instance.Debug("Returning {0:x}", eventFlags);
-			return eventFlags;
-		}
+            //MainConsole.Instance.Debug("Returning {0:x}", eventFlags);
+            return eventFlags;
+        }
 
-		public void OpenTimeSlice (EnumeratorInfo Start)
-		{
-			TimeSliceEnd = Start == null
-                               ? Util.EnvironmentTickCountAdd (MaxTimeSlice)
-                               : Util.EnvironmentTickCountAdd (MaxTimeSlice / 2);
-			InTimeSlice = true;
-		}
+        public void OpenTimeSlice(EnumeratorInfo Start)
+        {
+            TimeSliceEnd = Start == null
+                               ? Util.EnvironmentTickCountAdd(MaxTimeSlice)
+                               : Util.EnvironmentTickCountAdd(MaxTimeSlice / 2);
+            InTimeSlice = true;
+        }
 
-		public void CloseTimeSlice ()
-		{
-			InTimeSlice = false;
-		}
+        public void CloseTimeSlice()
+        {
+            InTimeSlice = false;
+        }
 
-		public bool CheckSlice ()
-		{
-			return TimeSliceEnd < Util.EnvironmentTickCount ();
-		}
+        public bool CheckSlice()
+        {
+            return TimeSliceEnd < Util.EnvironmentTickCount();
+        }
 
-		public EnumeratorInfo ExecuteEvent (string state, string FunctionName, object[] args, EnumeratorInfo Start,
-		                                         out Exception ex)
-		{
-			ex = null;
-			string EventName = state == "" ? FunctionName : state + "_event_" + FunctionName;
+        public EnumeratorInfo ExecuteEvent(string state, string FunctionName, object[] args, EnumeratorInfo Start,
+                                           out Exception ex)
+        {
+            ex = null;
+            string EventName = state == "" ? FunctionName : state + "_event_" + FunctionName;
 
-			if (InTimeSlice)
+            if (InTimeSlice)
                 //MainConsole.Instance.Output("ScriptEngine TimeSlice Overlap " + FunctionName);
                 return Start;
 
-			IEnumerator thread = null;
+            IEnumerator thread = null;
 
-			OpenTimeSlice (Start);
-			bool running = true;
+            OpenTimeSlice(Start);
+            bool running = true;
 
-			try {
-				if (Start != null) {
-					lock (m_enumerators)
-						m_enumerators.TryGetValue (Start.Key, out thread);
-				} else
-					thread = m_Script.FireEvent (EventName, args);
+            try
+            {
+                if (Start != null)
+                {
+                    lock (m_enumerators)
+                        m_enumerators.TryGetValue(Start.Key, out thread);
+                }
+                else
+                    thread = m_Script.FireEvent(EventName, args);
 
-				if (thread != null)
-					running = thread.MoveNext ();
-			} catch (Exception tie) {
-				// Grab the inner exception and rethrow it, unless the inner
-				// exception is an EventAbortException as this indicates event
-				// invocation termination due to a state change.
-				// DO NOT THROW JUST THE INNER EXCEPTION!
-				// FriendlyErrors depends on getting the whole exception!
-				//
-				if (!(tie is EventAbortException) &&
-				                !(tie is MinEventDelayException) &&
-				                !(tie.InnerException != null &&
-				                ((tie.InnerException.Message.Contains ("EventAbortException")) ||
-				                (tie.InnerException.Message.Contains ("MinEventDelayException")))))
-					ex = tie;
-				if (Start != null) {
-					lock (m_enumerators) {
-						m_enumerators.Remove (Start.Key);
-					}
-				}
-				CloseTimeSlice ();
-				return null;
-			}
+                if (thread != null)
+                    running = thread.MoveNext();
+            }
+            catch (Exception tie)
+            {
+                // Grab the inner exception and rethrow it, unless the inner
+                // exception is an EventAbortException as this indicates event
+                // invocation termination due to a state change.
+                // DO NOT THROW JUST THE INNER EXCEPTION!
+                // FriendlyErrors depends on getting the whole exception!
+                if (!(tie is EventAbortException) &&
+                    !(tie is MinEventDelayException) &&
+                    !(tie.InnerException != null &&
+                      ((tie.InnerException.Message.Contains("EventAbortException")) ||
+                       (tie.InnerException.Message.Contains("MinEventDelayException")))))
+                    ex = tie;
+                if (Start != null)
+                {
+                    lock (m_enumerators)
+                    {
+                        m_enumerators.Remove(Start.Key);
+                    }
+                }
 
-			if (running && thread != null) {
-				if (Start == null) {
-					Start = new EnumeratorInfo { Key = UUID.Random ().Guid };
-				}
-				lock (m_enumerators) {
-					m_enumerators [Start.Key] = thread;
-				}
+                CloseTimeSlice();
+                return null;
+            }
 
-				if (thread.Current is DateTime)
-					Start.SleepTo = (DateTime)thread.Current;
-				else if (thread.Current is string) {
-					ex = new Exception ((string)thread.Current);
-					running = false;
-					lock (m_enumerators) {
-						m_enumerators.Remove (Start.Key);
-					}
-				}
-				CloseTimeSlice ();
-				return Start;
-			} else {
-				//No enumerator.... errr.... something went really wrong here
-				if (Start != null) {
-					lock (m_enumerators) {
-						m_enumerators.Remove (Start.Key);
-					}
-				}
-				CloseTimeSlice ();
-				return null;
-			}
-		}
+            if (running && thread != null)
+            {
+                if (Start == null)
+                {
+                    Start = new EnumeratorInfo { Key = UUID.Random().Guid };
+                }
+                lock (m_enumerators)
+                {
+                    m_enumerators[Start.Key] = thread;
+                }
 
+                if (thread.Current is DateTime)
+                    Start.SleepTo = (DateTime)thread.Current;
+                else if (thread.Current is string)
+                {
+                    ex = new Exception((string)thread.Current);
+                    running = false;
+                    lock (m_enumerators)
+                    {
+                        m_enumerators.Remove(Start.Key);
+                    }
+                }
 
-		protected void initEventFlags ()
-		{
-			// Initialize the table if it hasn't already been done
-			if (m_eventFlagsMap.Count > 0)
-				return;
+                CloseTimeSlice();
+                return Start;
+            }
+            else
+            {
+                //No enumerator.... errr.... something went really wrong here
+                if (Start != null)
+                {
+                    lock (m_enumerators)
+                    {
+                        m_enumerators.Remove(Start.Key);
+                    }
+                }
 
-			m_eventFlagsMap.Add ("attach", scriptEvents.attach);
-			m_eventFlagsMap.Add ("at_rot_target", scriptEvents.at_rot_target);
-			m_eventFlagsMap.Add ("at_target", scriptEvents.at_target);
-			m_eventFlagsMap.Add ("changed", scriptEvents.changed);
-			m_eventFlagsMap.Add ("collision", scriptEvents.collision);
-			m_eventFlagsMap.Add ("collision_end", scriptEvents.collision_end);
-			m_eventFlagsMap.Add ("collision_start", scriptEvents.collision_start);
-			m_eventFlagsMap.Add ("control", scriptEvents.control);
-			m_eventFlagsMap.Add ("dataserver", scriptEvents.dataserver);
-			m_eventFlagsMap.Add ("email", scriptEvents.email);
-			m_eventFlagsMap.Add ("http_request", scriptEvents.http_request);
-			m_eventFlagsMap.Add ("http_response", scriptEvents.http_response);
-			m_eventFlagsMap.Add ("land_collision", scriptEvents.land_collision);
-			m_eventFlagsMap.Add ("land_collision_end", scriptEvents.land_collision_end);
-			m_eventFlagsMap.Add ("land_collision_start", scriptEvents.land_collision_start);
-			m_eventFlagsMap.Add ("link_message", scriptEvents.link_message);
-			m_eventFlagsMap.Add ("listen", scriptEvents.listen);
-			m_eventFlagsMap.Add ("money", scriptEvents.money);
-			m_eventFlagsMap.Add ("moving_end", scriptEvents.moving_end);
-			m_eventFlagsMap.Add ("moving_start", scriptEvents.moving_start);
-			m_eventFlagsMap.Add ("not_at_rot_target", scriptEvents.not_at_rot_target);
-			m_eventFlagsMap.Add ("not_at_target", scriptEvents.not_at_target);
-			m_eventFlagsMap.Add ("no_sensor", scriptEvents.no_sensor);
-			m_eventFlagsMap.Add ("object_rez", scriptEvents.object_rez);            
-			m_eventFlagsMap.Add ("on_rez", scriptEvents.on_rez);
-			m_eventFlagsMap.Add ("remote_data", scriptEvents.remote_data);
-			m_eventFlagsMap.Add ("run_time_permissions", scriptEvents.run_time_permissions);
-			m_eventFlagsMap.Add ("sensor", scriptEvents.sensor);
-			m_eventFlagsMap.Add ("state_entry", scriptEvents.state_entry);
-			m_eventFlagsMap.Add ("state_exit", scriptEvents.state_exit);
-			m_eventFlagsMap.Add ("timer", scriptEvents.timer);
-			m_eventFlagsMap.Add ("touch", scriptEvents.touch);
-			m_eventFlagsMap.Add ("touch_end", scriptEvents.touch_end);
-			m_eventFlagsMap.Add ("touch_start", scriptEvents.touch_start);
-			m_eventFlagsMap.Add ("transaction_result", scriptEvents.transaction_result);
-		}
+                CloseTimeSlice();
+                return null;
+            }
+        }
 
-		public void ResetStateEventFlags ()
-		{
-			m_stateEvents.Clear ();
-			lock (m_enumerators)
-				m_enumerators.Clear ();
-			m_scriptType = null;
-		}
-	}
+        protected void initEventFlags()
+        {
+            // Initialize the table if it hasn't already been done
+            if (m_eventFlagsMap.Count > 0)
+                return;
+
+            m_eventFlagsMap.Add("attach", scriptEvents.attach);
+            m_eventFlagsMap.Add("at_rot_target", scriptEvents.at_rot_target);
+            m_eventFlagsMap.Add("at_target", scriptEvents.at_target);
+            m_eventFlagsMap.Add("changed", scriptEvents.changed);
+            m_eventFlagsMap.Add("collision", scriptEvents.collision);
+            m_eventFlagsMap.Add("collision_end", scriptEvents.collision_end);
+            m_eventFlagsMap.Add("collision_start", scriptEvents.collision_start);
+            m_eventFlagsMap.Add("control", scriptEvents.control);
+            m_eventFlagsMap.Add("dataserver", scriptEvents.dataserver);
+            m_eventFlagsMap.Add("email", scriptEvents.email);
+            m_eventFlagsMap.Add("http_request", scriptEvents.http_request);
+            m_eventFlagsMap.Add("http_response", scriptEvents.http_response);
+            m_eventFlagsMap.Add("land_collision", scriptEvents.land_collision);
+            m_eventFlagsMap.Add("land_collision_end", scriptEvents.land_collision_end);
+            m_eventFlagsMap.Add("land_collision_start", scriptEvents.land_collision_start);
+            m_eventFlagsMap.Add("link_message", scriptEvents.link_message);
+            m_eventFlagsMap.Add("listen", scriptEvents.listen);
+            m_eventFlagsMap.Add("money", scriptEvents.money);
+            m_eventFlagsMap.Add("moving_end", scriptEvents.moving_end);
+            m_eventFlagsMap.Add("moving_start", scriptEvents.moving_start);
+            m_eventFlagsMap.Add("not_at_rot_target", scriptEvents.not_at_rot_target);
+            m_eventFlagsMap.Add("not_at_target", scriptEvents.not_at_target);
+            m_eventFlagsMap.Add("no_sensor", scriptEvents.no_sensor);
+            m_eventFlagsMap.Add("object_rez", scriptEvents.object_rez);
+            m_eventFlagsMap.Add("on_rez", scriptEvents.on_rez);
+            m_eventFlagsMap.Add("remote_data", scriptEvents.remote_data);
+            m_eventFlagsMap.Add("run_time_permissions", scriptEvents.run_time_permissions);
+            m_eventFlagsMap.Add("sensor", scriptEvents.sensor);
+            m_eventFlagsMap.Add("state_entry", scriptEvents.state_entry);
+            m_eventFlagsMap.Add("state_exit", scriptEvents.state_exit);
+            m_eventFlagsMap.Add("timer", scriptEvents.timer);
+            m_eventFlagsMap.Add("touch", scriptEvents.touch);
+            m_eventFlagsMap.Add("touch_end", scriptEvents.touch_end);
+            m_eventFlagsMap.Add("touch_start", scriptEvents.touch_start);
+            m_eventFlagsMap.Add("transaction_result", scriptEvents.transaction_result);
+        }
+
+        public void ResetStateEventFlags()
+        {
+            m_stateEvents.Clear();
+            lock (m_enumerators)
+                m_enumerators.Clear();
+            m_scriptType = null;
+        }
+    }
 }

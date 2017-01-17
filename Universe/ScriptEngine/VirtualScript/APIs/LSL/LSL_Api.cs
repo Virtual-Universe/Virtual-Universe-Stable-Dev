@@ -51,7 +51,7 @@ using Universe.Framework.Serialization;
 using Universe.Framework.Servers;
 using Universe.Framework.Services;
 using Universe.Framework.Services.ClassHelpers.Assets;
-using Universe.Framework.Services.ClassHelpers.Inventory;
+using Univere.Framework.Services.ClassHelpers.Inventory;
 using Universe.Framework.Services.ClassHelpers.Profile;
 using Universe.Framework.Utilities;
 using Universe.ScriptEngine.VirtualScript.Plugins;
@@ -3313,8 +3313,7 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
                             continue;
 
                         new_group.OnFinishedPhysicalRepresentationBuilding +=
-                            delegate()
-                            {
+                            delegate () {
                                 //Do this after the physics engine has built the prim
                                 float groupmass = new_group.GetMass();
                                 //Recoil to the av
@@ -3469,8 +3468,7 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
                     if ((group.RootChild.Flags & PrimFlags.Physics) == PrimFlags.Physics)
                     {
                         group.RootChild.PhysActor.OnPhysicalRepresentationChanged +=
-                            delegate
-                            {
+                            delegate {
                                 float groupmass = group.GetMass();
                                 //Apply the velocity to the object
                                 //llApplyImpulse(new LSL_Vector(llvel.X * groupmass, llvel.Y * groupmass, llvel.Z * groupmass), 0);
@@ -3514,7 +3512,8 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
             LookAt(target, strength, damping, m_host);
         }
 
-        // Fly - Function unknown on the SL Wiki
+        // 04122016 Fly-Man-
+        // This function is unknown on the SL Wiki
         public void llLinkLookAt(LSL_Integer link, LSL_Vector target, double strength, double damping)
         {
             if (!ScriptProtection.CheckThreatLevel(ThreatLevel.None, "LSL", m_host, "LSL", m_itemID))
@@ -3567,7 +3566,8 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
             m_host.RotLookAt(rot, (float)strength, (float)damping);
         }
 
-        // Fly - Function unknown on the SL Wiki
+        // 04122016 Fly-Man-
+        // This function is unknown on the SL Wiki
         public void llLinkRotLookAt(LSL_Integer link, LSL_Rotation target, double strength, double damping)
         {
             if (!ScriptProtection.CheckThreatLevel(ThreatLevel.None, "LSL", m_host, "LSL", m_itemID))
@@ -3965,8 +3965,7 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
                 m_host.UUID,
                 address,
                 subject,
-                email =>
-                {
+                email => {
                     if (email == null)
                         return;
 
@@ -4849,11 +4848,11 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
                 {
                     FromAgentID = m_host.UUID,
                     FromAgentName = m_host.Name + ", an object owned by " +
-                                                                          resolveName(m_host.OwnerID) + ",",
+                                                                              resolveName(m_host.OwnerID) + ",",
                     ToAgentID = destId,
                     Dialog = (byte)InstantMessageDialog.InventoryOffered,
                     Message = objName + "'\n'" + m_host.Name + "' is located at " + m_host.AbsolutePosition +
-                                                       " in '" + World.RegionInfo.RegionName,
+                                                           " in '" + World.RegionInfo.RegionName,
                     SessionID = agentItem.ID,
                     Offline = 1,
                     Position = m_host.AbsolutePosition,
@@ -5034,7 +5033,7 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
                         0);
 
                     World.AssetService.Get(item.AssetID.ToString(), this,
-                                           delegate(string i, object sender, AssetBase a)
+                                           delegate (string i, object sender, AssetBase a)
                                            {
                                                AssetLandmark lm = new AssetLandmark(a);
 
@@ -6531,8 +6530,7 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
             }
 
             World.ForEachScenePresence(
-                delegate(IScenePresence ssp)
-                {
+                delegate (IScenePresence ssp) {
                     // Gods are not listed in SL
                     if (!ssp.IsDeleted && FloatAlmostEqual(ssp.GodLevel, 0.0) && !ssp.IsChildAgent)
                     {
@@ -7262,7 +7260,7 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
                         prules.Pattern = (Primitive.ParticleSystem.SourcePattern)tmpi;
                     }
 
-                        // PSYS_SRC_INNERANGLE and PSYS_SRC_ANGLE_BEGIN use the same variables. The
+                    // PSYS_SRC_INNERANGLE and PSYS_SRC_ANGLE_BEGIN use the same variables. The
                     // PSYS_SRC_OUTERANGLE and PSYS_SRC_ANGLE_END also use the same variable. The
                     // client tells the difference between the two by looking at the 0x02 bit in
                     // the PartFlags variable.
@@ -7467,12 +7465,12 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
             {
                 FromAgentID = m_host.UUID,
                 FromAgentName = m_host.Name + ", an object owned by " +
-                                                                     resolveName(m_host.OwnerID) + ",",
+                                                                         resolveName(m_host.OwnerID) + ",",
                 ToAgentID = destID,
                 Dialog = (byte)InstantMessageDialog.InventoryOffered,
                 Message = category + "\n" + m_host.Name + " is located at " +
-                                                               World.RegionInfo.RegionName + " " +
-                                                               m_host.AbsolutePosition,
+                                                                   World.RegionInfo.RegionName + " " +
+                                                                   m_host.AbsolutePosition,
                 SessionID = folderID,
                 Offline = 1,
                 Position = m_host.AbsolutePosition,
@@ -7570,12 +7568,8 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
             }
         }
 
-        public void llSitTarget(LSL_Vector offset, LSL_Rotation rot)
+        protected void SitTarget(ISceneChildEntity part, LSL_Vector offset, LSL_Rotation rot)
         {
-            if (!ScriptProtection.CheckThreatLevel(ThreatLevel.None, "LSL", m_host, "LSL", m_itemID))
-                return;
-
-            /*
             // LSL quaternions can normalize to 0, normal Quaternions can't.
             if (FloatAlmostEqual(rot.s, 0) &&
                 FloatAlmostEqual(rot.x, 0) &&
@@ -7583,9 +7577,15 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
                 FloatAlmostEqual(rot.z, 0))
                 rot.z = 1; // ZERO_ROTATION = 0,0,0,1
 
-            m_host.SitTargetPosition = new Vector3((float)offset.x, (float)offset.y, (float)offset.z);
-            m_host.SitTargetOrientation = Rot2Quaternion(rot);
-            */
+            part.SitTargetPosition = new Vector3((float)offset.x, (float)offset.y, (float)offset.z); ;
+            part.SitTargetOrientation = Rot2Quaternion(rot); ;
+            part.ParentEntity.HasGroupChanged = true;
+        }
+
+        public void llSitTarget(LSL_Vector offset, LSL_Rotation rot)
+        {
+            if (!ScriptProtection.CheckThreatLevel(ThreatLevel.None, "LSL", m_host, "LSL", m_itemID))
+                return;
             SitTarget(m_host, offset, rot);
         }
 
@@ -7606,53 +7606,33 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
                     SitTarget((ISceneChildEntity)entity, offset, rot);
                 }
             }
-
-            /*
-            // LSL quaternions can normalize to 0, normal Quaternions can't.
-            if (FloatAlmostEqual(rot.s, 0) &&
-                FloatAlmostEqual(rot.x, 0) &&
-                FloatAlmostEqual(rot.y, 0) &&
-                FloatAlmostEqual(rot.z, 0))
-                rot.z = 1; // ZERO_ROTATION = 0,0,0,1
-
-            List<ISceneChildEntity> entities = GetLinkParts(link);
-            if (entities.Count == 0)
-                return;
-
-            entities[0].SitTargetPosition = new Vector3((float)offset.x, (float)offset.y, (float)offset.z);
-            entities[0].SitTargetOrientation = Rot2Quaternion(rot);
-            */
         }
 
         public LSL_String llAvatarOnSitTarget()
         {
             if (!ScriptProtection.CheckThreatLevel(ThreatLevel.None, "LSL", m_host, "LSL", m_itemID))
-                return "";
+                return ScriptBaseClass.NULL_KEY;
 
             return m_host.SitTargetAvatar.Count > 0
                        ? new LSL_String(m_host.SitTargetAvatar[0].ToString())
                        : ScriptBaseClass.NULL_KEY;
         }
 
-        public LSL_Key llAvatarOnLinkSitTarget()
+        public LSL_Key llAvatarOnLinkSitTarget(LSL_Integer link)
         {
             if (!ScriptProtection.CheckThreatLevel(ThreatLevel.None, "LSL", m_host, "LSL", m_itemID))
-                return new LSL_Key();
+                return ScriptBaseClass.NULL_KEY;
 
             if (link == ScriptBaseClass.LINK_SET ||
                 link == ScriptBaseClass.LINK_ALL_CHILDREN ||
                 link == ScriptBaseClass.LINK_ALL_OTHERS ||
                 link == 0)
-                return UUID.Zero.ToString();
+                return ScriptBaseClass.NULL_KEY;
 
             var entities = GetLinkParts(link);
-            return entities.Count == 0 ?
-                         UUID.Zero.ToString() :
-                         entities[0].SitTargetAvatar.ToString();
-
-            // return m_host.SitTargetAvatar.Count > 0
-            //           ? new LSL_String(m_host.SitTargetAvatar[0].ToString())
-            //           : ScriptBaseClass.NULL_KEY;
+            return entities.Count == 0
+                           ? ScriptBaseClass.NULL_KEY
+                           : new LSL_String(entities[0].SitTargetAvatar.ToString());
         }
 
         public DateTime llAddToLandPassList(string avatar, double hours)
@@ -10410,7 +10390,9 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
                 return new LSL_String(World.RegionInfo.EstateSettings.EstateID.ToString());
             if (name == "region_max_prims")
                 return World.RegionInfo.ObjectCapacity.ToString();
+
             return "";
+
         }
 
         public void llTeleportAgent(LSL_Key avatar, LSL_String landmark, LSL_Vector position, LSL_Vector look_at)
@@ -10924,7 +10906,7 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
                         landObject.SetMediaUrl(url);
 
                         // now send to all (non-child) agents
-                        World.ForEachScenePresence(delegate(IScenePresence sp)
+                        World.ForEachScenePresence(delegate (IScenePresence sp)
                         {
                             if (!sp.IsChildAgent &&
                                 (sp.CurrentParcelUUID == landData.GlobalID))
@@ -10963,7 +10945,7 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
                     if (presence == null)
                     {
                         // send to all (non-child) agents
-                        World.ForEachScenePresence(delegate(IScenePresence sp)
+                        World.ForEachScenePresence(delegate (IScenePresence sp)
                         {
                             if (!sp.IsChildAgent)
                             {
@@ -12551,7 +12533,7 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
         protected void WithNotecard(UUID assetID, AssetRequestCallback cb)
         {
             World.AssetService.Get(assetID.ToString(), this,
-                                   delegate(string i, object sender, AssetBase a)
+                                   delegate (string i, object sender, AssetBase a)
                                    {
                                        UUID uuid = UUID.Zero;
                                        UUID.TryParse(i, out uuid);
@@ -12630,7 +12612,7 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
                     results.Add((ContactResult)groundContact);
             }
 
-            results.Sort(delegate(ContactResult a, ContactResult b)
+            results.Sort(delegate (ContactResult a, ContactResult b)
             {
                 return a.Depth.CompareTo(b.Depth);
             });
@@ -12723,7 +12705,7 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
 
             Vector3 ab = rayEnd - rayStart;
 
-            World.ForEachScenePresence(delegate(IScenePresence sp)
+            World.ForEachScenePresence(delegate (IScenePresence sp)
             {
                 Vector3 ac = sp.AbsolutePosition - rayStart;
                 //                Vector3 bc = sp.AbsolutePosition - rayEnd;
@@ -12978,7 +12960,7 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
             if (contacts.Count == 0)
                 return null;
 
-            contacts.Sort(delegate(ContactResult a, ContactResult b)
+            contacts.Sort(delegate (ContactResult a, ContactResult b)
             {
                 return a.Depth.CompareTo(b.Depth);
             });
@@ -13034,7 +13016,7 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
                 return tid.ToString();
             }
 
-            WithNotecard(assetID, delegate(UUID id, AssetBase a)
+            WithNotecard(assetID, delegate (UUID id, AssetBase a)
             {
                 if (a == null || a.Type != 7)
                 {
@@ -13162,7 +13144,7 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
                 return tid.ToString();
             }
 
-            WithNotecard(assetID, delegate(UUID id, AssetBase a)
+            WithNotecard(assetID, delegate (UUID id, AssetBase a)
             {
                 if (a == null || a.Type != 7)
                 {
@@ -13928,6 +13910,90 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
         {
             NotImplemented("llXorBase64", "Not implemented at this moment");
             return string.Empty;
+        }
+        #endregion
+
+        #region Added functions for Experiences
+        public LSL_Integer llAgentInExperience(LSL_Key agent)
+        {
+            NotImplemented("llAgentInExperience", "Not implemented at this moment");
+            return 0;
+        }
+
+        public void llClearExperiencePermissions(LSL_Key agent)
+        {
+            NotImplemented("llClearExperiencePermissions", "Not implemented at this moment");
+        }
+
+        public LSL_Key llCreateKeyValue(LSL_String key, LSL_String value)
+        {
+            NotImplemented("llClearExperiencePermissions", "Not implemented at this moment");
+            return UUID.Zero.ToString();
+        }
+
+        public LSL_Key llDataSizeKeyValue()
+        {
+            NotImplemented("llDataSizeKeyValue", "Not implemented at this moment");
+            return UUID.Zero.ToString();
+        }
+
+        public LSL_Key llDeleteKeyValue(LSL_String key)
+        {
+            NotImplemented("llDeleteKeyValue", "Not implemented at this moment");
+            return UUID.Zero.ToString();
+        }
+
+        public LSL_List llGetExperienceDetails(LSL_Key experience_id)
+        {
+            NotImplemented("llGetExperienceDetails", "Not implemented at this moment");
+            return new LSL_List();
+        }
+
+        public LSL_String llGetExperienceErrorMessage(LSL_Integer value)
+        {
+            NotImplemented("llGetExperienceDetails", "Not implemented at this moment");
+            return String.Empty;
+        }
+
+        public LSL_List llGetExperienceList(LSL_Key agent)
+        {
+            NotImplemented("llGetExperienceDetails", "Function was deprecated");
+            return new LSL_List();
+        }
+
+        public LSL_Key llKeyCountKeyValue()
+        {
+            NotImplemented("llKeyCountKeyValue", "Not implemented at this moment");
+            return UUID.Zero.ToString();
+        }
+
+        public LSL_Key llKeysKeyValue(LSL_Integer first, LSL_Integer count)
+        {
+            NotImplemented("llKeysKeyValue", "Not implemented at this moment");
+            return UUID.Zero.ToString();
+        }
+
+        public LSL_Key llReadKeyValue(LSL_String key)
+        {
+            NotImplemented("llReadKeyValue", "Not implemented at this moment");
+            return UUID.Zero.ToString();
+        }
+
+        public void llRequestExperiencePermissions(LSL_Key agent, LSL_String name)
+        {
+            NotImplemented("llRequestExperiencePermissions", "Not implemented at this moment");
+        }
+
+        public LSL_Integer llSitOnLink(LSL_Key agent_id, LSL_Integer link)
+        {
+            NotImplemented("llSitOnLink", "Not implemented at this moment");
+            return 0;
+        }
+
+        public LSL_Key llUpdateKeyValue(LSL_Key key, LSL_String value, LSL_Integer check, LSL_String original_value)
+        {
+            NotImplemented("llUpdateKeyValue", "Not implemented at this moment");
+            return UUID.Zero.ToString();
         }
         #endregion
     }
