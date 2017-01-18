@@ -117,7 +117,7 @@ namespace Universe.Modules.Chat
 					return;
 				}
 			}
-			//MainConsole.Instance.DebugFormat("[INSTANT MESSAGE]: Delivering IM to {0} via XMLRPC", im.toAgentID);
+			//MainConsole.Instance.DebugFormat("[Instant Message]: Delivering IM to {0} via XMLRPC", im.toAgentID);
 			SendGridInstantMessageViaXMLRPC (im);
 		}
 
@@ -194,7 +194,7 @@ namespace Universe.Modules.Chat
 				return;
 			}
 
-			//MainConsole.Instance.DebugFormat("[INSTANT MESSAGE]: Undeliverable");
+			//MainConsole.Instance.DebugFormat("[Instant Message]: Undeliverable");
 		}
 
 		protected virtual byte [] processGridInstantMessage (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)

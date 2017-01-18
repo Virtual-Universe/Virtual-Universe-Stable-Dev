@@ -168,7 +168,7 @@ namespace Universe.Modules.Archivers
 					MainConsole.Instance.ErrorFormat (
 						"[Archiver]: (... {0} more not shown)", uuids.Count - MAX_UUID_DISPLAY_ON_TIMEOUT);
 
-				MainConsole.Instance.Error ("[Archiver]: OAR save aborted.");
+				MainConsole.Instance.Error ("[Archiver]: Asset save aborted.");
 			} catch (Exception e) {
 				MainConsole.Instance.ErrorFormat ("[Archiver]: Timeout handler exception {0}", e);
 			} finally {
@@ -258,9 +258,7 @@ namespace Universe.Modules.Archivers
 			Initial,
 			Running,
 			Completed,
-			Aborted}
-
-		;
+			Aborted};
 
 		#endregion
 	}
