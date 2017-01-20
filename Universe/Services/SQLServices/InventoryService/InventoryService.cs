@@ -77,6 +77,7 @@ namespace Universe.Services.SQLServices.InventoryService
 
             registry.RegisterModuleInterface<IInventoryService>(this);
             Init(registry, Name, serverPath: "/inventory/", serverHandlerName: "InventoryServerURI");
+
         }
 
         public virtual void Start(IConfigSource config, IRegistryCore registry)
@@ -98,7 +99,7 @@ namespace Universe.Services.SQLServices.InventoryService
                     "fix inventory",
                     "fix inventory",
                     "If the user's inventory has been corrupted, this function will attempt to fix it",
-                    FixInventory, false, true);
+                    CmdFixInventory, false, true);
 
                 // Provide correction for existing users for the updated 
                 //   FolderType definitions implemented Sept 2015
@@ -107,13 +108,12 @@ namespace Universe.Services.SQLServices.InventoryService
                     "verify root folders",
                     "verify root folders",
                     "Verify that the users root folder is the correct type",
-                    VerifyRootFolders, false, true);
+                    CmdVerifyRootFolders, false, true);
             }
 
             _addInventoryItemQueue.Start(
                 0.5,
-                (agentID, itemsToAdd) =>
-                {
+                (agentID, itemsToAdd) => {
                     if (itemsToAdd == null)
                         return;
 
@@ -151,8 +151,7 @@ namespace Universe.Services.SQLServices.InventoryService
 
             _moveInventoryItemQueue.Start(
                 0.5,
-                (agentID, itemsToMove) =>
-                {
+                (agentID, itemsToMove) => {
                     foreach (var item in itemsToMove)
                     {
                         MoveItems(agentID, item.Items);
@@ -166,17 +165,24 @@ namespace Universe.Services.SQLServices.InventoryService
 
         #region IInventoryService Members
 
+        //[CanBeReflected(ThreatLevel = ThreatLevel.Full)]
         public virtual bool CreateUserInventory(UUID principalID, bool createDefaultItems)
         {
+            /*object remoteValue = DoRemoteByURL("InventoryServerURI", principalID, createDefaultItems);
+            if (remoteValue != null || m_doRemoteOnly)
+                return remoteValue == null ? false : (bool)remoteValue;*/
+
             List<InventoryItemBase> items;
             return CreateUserInventory(principalID, createDefaultItems, out items);
         }
 
-        public virtual bool CreateUserInventory(UUID principalID, bool createDefaultItems, out List<InventoryItemBase> defaultItems)
+        public virtual bool CreateUserInventory(UUID principalID, bool createDefaultItems,
+                                                out List<InventoryItemBase> defaultItems)
         {
             // This is brain-dead. We can't ever communicate that we fixed
             // an existing inventory. Well, just return root folder status,
             // but check sanity anyway.
+            //
             bool result = false;
 
             InventoryFolderBase rootFolder = GetRootFolder(principalID);
@@ -195,115 +201,97 @@ namespace Universe.Services.SQLServices.InventoryService
 
             InventoryFolderBase[] sysFolders = GetSystemFolders(principalID);
 
-            if (!Array.Exists(sysFolders, delegate(InventoryFolderBase f)
-            {
+            if (!Array.Exists(sysFolders, delegate (InventoryFolderBase f) {
                 if (f.Type == (short)FolderType.Animation) return true;
                 return false;
             }))
                 CreateFolder(principalID, rootFolder.ID, (int)FolderType.Animation, "Animations");
 
-            if (!Array.Exists(sysFolders, delegate(InventoryFolderBase f)
-            {
+            if (!Array.Exists(sysFolders, delegate (InventoryFolderBase f) {
                 if (f.Type == (short)FolderType.BodyPart) return true;
                 return false;
             }))
                 CreateFolder(principalID, rootFolder.ID, (int)FolderType.BodyPart, "Body Parts");
-            if (!Array.Exists(sysFolders, delegate(InventoryFolderBase f)
-            {
+            if (!Array.Exists(sysFolders, delegate (InventoryFolderBase f) {
                 if (f.Type == (short)FolderType.CallingCard) return true;
                 return false;
             }))
                 CreateFolder(principalID, rootFolder.ID, (int)FolderType.CallingCard, "Calling Cards");
-            if (!Array.Exists(sysFolders, delegate(InventoryFolderBase f)
-            {
+            if (!Array.Exists(sysFolders, delegate (InventoryFolderBase f) {
                 if (f.Type == (short)FolderType.Clothing) return true;
                 return false;
             }))
                 CreateFolder(principalID, rootFolder.ID, (int)FolderType.Clothing, "Clothing");
-            if (!Array.Exists(sysFolders, delegate(InventoryFolderBase f)
-            {
+            if (!Array.Exists(sysFolders, delegate (InventoryFolderBase f) {
                 if (f.Type == (short)FolderType.Gesture) return true;
                 return false;
             }))
                 CreateFolder(principalID, rootFolder.ID, (int)FolderType.Gesture, "Gestures");
-            if (!Array.Exists(sysFolders, delegate(InventoryFolderBase f)
-            {
+            if (!Array.Exists(sysFolders, delegate (InventoryFolderBase f) {
                 if (f.Type == (short)FolderType.Landmark) return true;
                 return false;
             }))
                 CreateFolder(principalID, rootFolder.ID, (int)FolderType.Landmark, "Landmarks");
-            if (!Array.Exists(sysFolders, delegate(InventoryFolderBase f)
-            {
+            if (!Array.Exists(sysFolders, delegate (InventoryFolderBase f) {
                 if (f.Type == (short)FolderType.LostAndFound) return true;
                 return false;
             }))
                 CreateFolder(principalID, rootFolder.ID, (int)FolderType.LostAndFound, "Lost And Found");
-            if (!Array.Exists(sysFolders, delegate(InventoryFolderBase f)
-            {
+            if (!Array.Exists(sysFolders, delegate (InventoryFolderBase f) {
                 if (f.Type == (short)FolderType.Notecard) return true;
                 return false;
             }))
                 CreateFolder(principalID, rootFolder.ID, (int)FolderType.Notecard, "Notecards");
-            if (!Array.Exists(sysFolders, delegate(InventoryFolderBase f)
-            {
+            if (!Array.Exists(sysFolders, delegate (InventoryFolderBase f) {
                 if (f.Type == (short)FolderType.Object) return true;
                 return false;
             }))
                 CreateFolder(principalID, rootFolder.ID, (int)FolderType.Object, "Objects");
-            if (!Array.Exists(sysFolders, delegate(InventoryFolderBase f)
-            {
+            if (!Array.Exists(sysFolders, delegate (InventoryFolderBase f) {
                 if (f.Type == (short)FolderType.Snapshot) return true;
                 return false;
             }))
                 CreateFolder(principalID, rootFolder.ID, (int)FolderType.Snapshot, "Photo Album");
-            if (!Array.Exists(sysFolders, delegate(InventoryFolderBase f)
-            {
+            if (!Array.Exists(sysFolders, delegate (InventoryFolderBase f) {
                 if (f.Type == (short)FolderType.LSLText) return true;
                 return false;
             }))
                 CreateFolder(principalID, rootFolder.ID, (int)FolderType.LSLText, "Scripts");
-            if (!Array.Exists(sysFolders, delegate(InventoryFolderBase f)
-            {
+            if (!Array.Exists(sysFolders, delegate (InventoryFolderBase f) {
                 if (f.Type == (short)FolderType.Sound) return true;
                 return false;
             }))
                 CreateFolder(principalID, rootFolder.ID, (int)FolderType.Sound, "Sounds");
-            if (!Array.Exists(sysFolders, delegate(InventoryFolderBase f)
-            {
+            if (!Array.Exists(sysFolders, delegate (InventoryFolderBase f) {
                 if (f.Type == (short)FolderType.Texture) return true;
                 return false;
             }))
                 CreateFolder(principalID, rootFolder.ID, (int)FolderType.Texture, "Textures");
-            if (!Array.Exists(sysFolders, delegate(InventoryFolderBase f)
-            {
+            if (!Array.Exists(sysFolders, delegate (InventoryFolderBase f) {
                 if (f.Type == (short)FolderType.Trash) return true;
                 return false;
             }))
                 CreateFolder(principalID, rootFolder.ID, (int)FolderType.Trash, "Trash");
 
-            if (!Array.Exists(sysFolders, delegate(InventoryFolderBase f)
-            {
+            if (!Array.Exists(sysFolders, delegate (InventoryFolderBase f) {
                 if (f.Type == (short)FolderType.Mesh) return true;
                 return false;
             }))
                 CreateFolder(principalID, rootFolder.ID, (int)FolderType.Mesh, "Mesh");
 
-            if (!Array.Exists(sysFolders, delegate(InventoryFolderBase f)
-            {
+            if (!Array.Exists(sysFolders, delegate (InventoryFolderBase f) {
                 if (f.Type == (short)FolderType.Inbox) return true;
                 return false;
             }))
                 CreateFolder(principalID, rootFolder.ID, (int)FolderType.Inbox, "Received Items");
 
-            if (!Array.Exists(sysFolders, delegate(InventoryFolderBase f)
-            {
+            if (!Array.Exists(sysFolders, delegate (InventoryFolderBase f) {
                 if (f.Type == (short)FolderType.Outbox) return true;
                 return false;
             }))
                 CreateFolder(principalID, rootFolder.ID, (int)FolderType.Outbox, "Merchant Outbox");
 
-            if (!Array.Exists(sysFolders, delegate(InventoryFolderBase f)
-            {
+            if (!Array.Exists(sysFolders, delegate (InventoryFolderBase f) {
                 if (f.Type == (short)FolderType.CurrentOutfit) return true;
                 return false;
             }))
@@ -311,8 +299,7 @@ namespace Universe.Services.SQLServices.InventoryService
 
             // Marketplace related folders, unchecked at the moment
 
-            if (!Array.Exists(sysFolders, delegate(InventoryFolderBase f)
-            {
+            if (!Array.Exists(sysFolders, delegate (InventoryFolderBase f) {
                 if (f.Type == (short)FolderType.VMMListings) return true;
                 return false;
             }))
@@ -361,6 +348,7 @@ namespace Universe.Services.SQLServices.InventoryService
                     Flags = (uint)WearableType.Skin,
                     ID = UUID.Random()
                 };
+
                 //Give a new copy to every person
                 asset = m_AssetService.Get(AvatarWearable.DEFAULT_SKIN_ASSET.ToString());
                 if (asset != null)
@@ -388,6 +376,7 @@ namespace Universe.Services.SQLServices.InventoryService
                     Flags = (uint)WearableType.Hair,
                     ID = UUID.Random()
                 };
+
                 //Give a new copy to every person
                 asset = m_AssetService.Get(AvatarWearable.DEFAULT_HAIR_ASSET.ToString());
                 if (asset != null)
@@ -415,6 +404,7 @@ namespace Universe.Services.SQLServices.InventoryService
                     Flags = (uint)WearableType.Eyes,
                     ID = UUID.Random()
                 };
+
                 //Give a new copy to every person
                 asset = m_AssetService.Get(AvatarWearable.DEFAULT_EYES_ASSET.ToString());
                 if (asset != null)
@@ -442,6 +432,7 @@ namespace Universe.Services.SQLServices.InventoryService
                     Flags = (uint)WearableType.Shirt,
                     ID = UUID.Random()
                 };
+
                 //Give a new copy to every person
                 asset = m_AssetService.Get(AvatarWearable.DEFAULT_SHIRT_ASSET.ToString());
                 if (asset != null)
@@ -469,6 +460,7 @@ namespace Universe.Services.SQLServices.InventoryService
                     Flags = (uint)WearableType.Pants,
                     ID = UUID.Random()
                 };
+
                 //Give a new copy to every person
                 asset = m_AssetService.Get(AvatarWearable.DEFAULT_PANTS_ASSET.ToString());
                 if (asset != null)
@@ -493,57 +485,76 @@ namespace Universe.Services.SQLServices.InventoryService
             return result;
         }
 
+        //[CanBeReflected(ThreatLevel = ThreatLevel.Full)]
         public virtual List<InventoryFolderBase> GetInventorySkeleton(UUID principalID)
         {
+            /*object remoteValue = DoRemoteByURL("InventoryServerURI", principalID);
+            if (remoteValue != null || m_doRemoteOnly)
+                return (List<InventoryFolderBase>)remoteValue;*/
+
             List<InventoryFolderBase> allFolders = m_Database.GetFolders(
                 new[] { "agentID" },
                 new[] { principalID.ToString() });
+
             if (allFolders.Count == 0)
                 return null;
 
             return allFolders;
         }
 
+        //[CanBeReflected(ThreatLevel = ThreatLevel.Low)]
         public virtual bool FolderExists(UUID folderID)
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemoteByURL("InventoryServerURI", folderID);
+                var remoteValue = DoRemoteByURL("InventoryServerURI", folderID);
                 return remoteValue == null ? false : (bool)remoteValue;
             }
 
             return m_Database.FolderExists(folderID);
         }
 
+        //[CanBeReflected(ThreatLevel = ThreatLevel.Low)]
         public virtual bool FolderItemExists(UUID folderID, UUID itemID)
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemoteByURL("InventoryServerURI", folderID, itemID);
+                var remoteValue = DoRemoteByURL("InventoryServerURI", folderID, itemID);
                 return remoteValue == null ? false : (bool)remoteValue;
             }
 
             return m_Database.FolderItemExists(folderID, itemID);
         }
 
+        //[CanBeReflected(ThreatLevel = ThreatLevel.Low)]
         public virtual bool ItemExists(UUID itemID)
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemoteByURL("InventoryServerURI", itemID);
+                var remoteValue = DoRemoteByURL("InventoryServerURI", itemID);
                 return remoteValue == null ? false : (bool)remoteValue;
             }
 
             return m_Database.ItemExists(itemID);
         }
 
+        //[CanBeReflected(ThreatLevel = ThreatLevel.Full)]
         public virtual List<string> GetUserFolderID(UUID principalID, string folderName)
         {
+            /*object remoteValue = DoRemoteByURL("InventoryServerURI", principalID);
+            if (remoteValue != null || m_doRemoteOnly)
+                return (List<InventoryFolderBase>)remoteValue;*/
+
             return m_Database.GetUserFolderID(principalID, folderName);
         }
 
+        //[CanBeReflected(ThreatLevel = ThreatLevel.Full)]
         public virtual List<InventoryFolderBase> GetRootFolders(UUID principalID)
         {
+            /*object remoteValue = DoRemoteByURL("InventoryServerURI", principalID);
+            if (remoteValue != null || m_doRemoteOnly)
+                return (List<InventoryFolderBase>)remoteValue;*/
+
             return m_Database.GetFolders(
                 new[] { "agentID", "parentFolderID" },
                 new[] { principalID.ToString(), UUID.Zero.ToString() });
@@ -554,7 +565,7 @@ namespace Universe.Services.SQLServices.InventoryService
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemoteByURL("InventoryServerURI", principalID);
+                var remoteValue = DoRemoteByURL("InventoryServerURI", principalID);
                 return remoteValue != null ? (InventoryFolderBase)remoteValue : null;
             }
 
@@ -577,18 +588,19 @@ namespace Universe.Services.SQLServices.InventoryService
             return root;
         }
 
+
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
         public virtual InventoryFolderBase GetFolderForType(UUID principalID, InventoryType invType, FolderType type)
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemoteByURL("InventoryServerURI", principalID, invType, type);
+                var remoteValue = DoRemoteByURL("InventoryServerURI", principalID, invType, type);
                 return remoteValue != null ? (InventoryFolderBase)remoteValue : null;
             }
 
+            //Fix for snapshots, as they get the texture asset type, but need to get checked as snapshot folder types
             if (invType == InventoryType.Snapshot)
                 type = FolderType.Snapshot;
-            //Fix for snapshots, as they get the texture asset type, but need to get checked as snapshot folder types
 
             List<InventoryFolderBase> folders = m_Database.GetFolders(
                 new[] { "agentID", "type" },
@@ -596,12 +608,13 @@ namespace Universe.Services.SQLServices.InventoryService
 
             if (folders.Count == 0)
             {
-                //MainConsole.Instance.WarnFormat("[Inventory Service]: Found no folder for type {0} for user {1}", type, principalID);
+                //                MainConsole.Instance.WarnFormat("[XINVENTORY SERVICE]: Found no folder for type {0} for user {1}", type, principalID);
                 return null;
             }
 
-            //MainConsole.Instance.DebugFormat(
-            //    "[Inventory Service]: Found folder {0} {1} for type {2} for user {3}", folders[0].folderName, folders[0].folderID, type, principalID);
+            //            MainConsole.Instance.DebugFormat(
+            //                "[XINVENTORY SERVICE]: Found folder {0} {1} for type {2} for user {3}", 
+            //                folders[0].folderName, folders[0].folderID, type, principalID);
 
             return folders[0];
         }
@@ -611,13 +624,14 @@ namespace Universe.Services.SQLServices.InventoryService
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemoteByURL("InventoryServerURI", userID, folderID);
+                var remoteValue = DoRemoteByURL("InventoryServerURI", userID, folderID);
                 return remoteValue != null ? (InventoryCollection)remoteValue : null;
             }
 
             // This method doesn't receive a valid principal id from the
             // connector. So we disregard the principal and look
             // by ID.
+            //
             MainConsole.Instance.DebugFormat("[Inventory Service]: Fetch contents for folder {0}", folderID);
             InventoryCollection inventory = new InventoryCollection();
             inventory.UserID = userID;
@@ -628,29 +642,37 @@ namespace Universe.Services.SQLServices.InventoryService
             return inventory;
         }
 
+        //[CanBeReflected(ThreatLevel = ThreatLevel.Full)]
         public virtual List<InventoryItemBase> GetFolderItems(UUID principalID, UUID folderID)
         {
+            /*object remoteValue = DoRemoteByURL("InventoryServerURI", principalID, folderID);
+            if (remoteValue != null || m_doRemoteOnly)
+                return (List<InventoryItemBase>)remoteValue;*/
+
             if (principalID != UUID.Zero)
                 return m_Database.GetItems(principalID,
                                            new[] { "parentFolderID", "avatarID" },
                                            new[] { folderID.ToString(), principalID.ToString() });
+
             return m_Database.GetItems(principalID,
                                        new[] { "parentFolderID" },
                                        new[] { folderID.ToString() });
         }
+
 
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
         public virtual List<InventoryFolderBase> GetFolderFolders(UUID principalID, UUID folderID)
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemoteByURL("InventoryServerURI", principalID, folderID);
+                var remoteValue = DoRemoteByURL("InventoryServerURI", principalID, folderID);
                 return remoteValue != null
                     ? (List<InventoryFolderBase>)remoteValue
                     : new List<InventoryFolderBase>();
             }
 
             // Since we probably don't get a valid principal here, either ...
+            //
             List<InventoryFolderBase> invItems = m_Database.GetFolders(
                 new[] { "parentFolderID" },
                 new[] { folderID.ToString() });
@@ -663,7 +685,7 @@ namespace Universe.Services.SQLServices.InventoryService
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemoteByURL("InventoryServerURI", folder);
+                var remoteValue = DoRemoteByURL("InventoryServerURI", folder);
                 return remoteValue != null ? (bool)remoteValue : false;
             }
 
@@ -679,7 +701,7 @@ namespace Universe.Services.SQLServices.InventoryService
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemoteByURL("InventoryServerURI", folder);
+                var remoteValue = DoRemoteByURL("InventoryServerURI", folder);
                 return remoteValue != null ? (bool)remoteValue : false;
             }
 
@@ -714,7 +736,7 @@ namespace Universe.Services.SQLServices.InventoryService
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemoteByURL("InventoryServerURI", folder);
+                var remoteValue = DoRemoteByURL("InventoryServerURI", folder);
                 return remoteValue != null ? (bool)remoteValue : false;
             }
 
@@ -731,12 +753,13 @@ namespace Universe.Services.SQLServices.InventoryService
         }
 
         // We don't check the principal's ID here
+        //
         [CanBeReflected(ThreatLevel = ThreatLevel.High)]
         public virtual bool DeleteFolders(UUID principalID, List<UUID> folderIDs)
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemoteByURL("InventoryServerURI", principalID, folderIDs);
+                var remoteValue = DoRemoteByURL("InventoryServerURI", principalID, folderIDs);
                 return remoteValue != null ? (bool)remoteValue : false;
             }
 
@@ -754,6 +777,7 @@ namespace Universe.Services.SQLServices.InventoryService
             }
 
             // Ignore principal ID, it's bogus at connector level
+            //
             foreach (UUID id in folderIDs)
             {
                 if (!ParentIsTrash(id))
@@ -771,7 +795,7 @@ namespace Universe.Services.SQLServices.InventoryService
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemoteByURL("InventoryServerURI", folder);
+                var remoteValue = DoRemoteByURL("InventoryServerURI", folder);
                 return remoteValue != null ? (bool)remoteValue : false;
             }
 
@@ -801,7 +825,7 @@ namespace Universe.Services.SQLServices.InventoryService
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemoteByURL("InventoryServerURI", folder);
+                var remoteValue = DoRemoteByURL("InventoryServerURI", folder);
                 return remoteValue != null ? (bool)remoteValue : false;
             }
 
@@ -826,7 +850,7 @@ namespace Universe.Services.SQLServices.InventoryService
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemoteByURL("InventoryServerURI", item);
+                var remoteValue = DoRemoteByURL("InventoryServerURI", item);
                 return remoteValue != null ? (bool)remoteValue : false;
             }
 
@@ -860,7 +884,7 @@ namespace Universe.Services.SQLServices.InventoryService
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemoteByURL("InventoryServerURI", item);
+                var remoteValue = DoRemoteByURL("InventoryServerURI", item);
                 return remoteValue != null ? (bool)remoteValue : false;
             }
 
@@ -876,7 +900,7 @@ namespace Universe.Services.SQLServices.InventoryService
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemoteByURL("InventoryServerURI", itemID, assetID);
+                var remoteValue = DoRemoteByURL("InventoryServerURI", itemID, assetID);
                 return remoteValue != null ? (bool)remoteValue : false;
             }
 
@@ -888,7 +912,7 @@ namespace Universe.Services.SQLServices.InventoryService
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemoteByURL("InventoryServerURI", principalID, items);
+                var remoteValue = DoRemoteByURL("InventoryServerURI", principalID, items);
                 return remoteValue != null ? (bool)remoteValue : false;
             }
 
@@ -898,7 +922,8 @@ namespace Universe.Services.SQLServices.InventoryService
                 InventoryItemBase item = GetItem(UUID.Zero, i.ID);
                 if (item == null)
                     continue;
-                // Cannot move this item, its from libraryowner
+
+                // Cannot move this item, if it is from the libraryowner
                 if (item.Owner == m_LibraryService.LibraryOwnerUUID)
                     continue;
 
@@ -916,7 +941,7 @@ namespace Universe.Services.SQLServices.InventoryService
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemoteByURL("InventoryServerURI", principalID, itemIDs);
+                var remoteValue = DoRemoteByURL("InventoryServerURI", principalID, itemIDs);
                 return remoteValue != null ? (bool)remoteValue : false;
             }
 
@@ -927,24 +952,30 @@ namespace Universe.Services.SQLServices.InventoryService
                     InventoryItemBase item = GetItem(principalID, id);
                     if (item == null)
                         continue;
+
                     m_Database.IncrementFolder(item.Folder);
                     if (!ParentIsLinkFolder(item.Folder))
                         continue;
+
                     if (item.Owner == m_LibraryService.LibraryOwnerUUID)
                         continue;
+
                     m_Database.DeleteItems("inventoryID", id.ToString());
                 }
                 return true;
             }
 
-            // Just use the ID
+            // Just use the ID... *facepalms*
+            //
             foreach (UUID id in itemIDs)
             {
                 InventoryItemBase item = GetItem(UUID.Zero, id);
                 if (item == null)
                     continue;
+
                 if (item.Owner == m_LibraryService.LibraryOwnerUUID)
                     continue;
+
                 m_Database.DeleteItems("inventoryID", id.ToString());
                 m_Database.IncrementFolderByItem(id);
             }
@@ -963,7 +994,7 @@ namespace Universe.Services.SQLServices.InventoryService
 
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemoteByURL("InventoryServerURI", userID, inventoryID);
+                var remoteValue = DoRemoteByURL("InventoryServerURI", userID, inventoryID);
                 return remoteValue != null ? (InventoryItemBase)remoteValue : null;
             }
 
@@ -990,13 +1021,13 @@ namespace Universe.Services.SQLServices.InventoryService
 
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemoteByURL("InventoryServerURI", userID, inventoryID);
+                var remoteValue = DoRemoteByURL("InventoryServerURI", userID, inventoryID);
                 return remoteValue != null ? (UUID)remoteValue : UUID.Zero;
             }
 
             List<UUID> items = m_Database.GetItemAssetIDs(userID,
-                                                          new[] { "inventoryID", "avatarID" },
-                                                          new[] { inventoryID.ToString(), userID.ToString() });
+                                                           new[] { "inventoryID", "avatarID" },
+                                                           new[] { inventoryID.ToString(), userID.ToString() });
 
             if (items.Count == 0)
                 return UUID.Zero;
@@ -1004,8 +1035,15 @@ namespace Universe.Services.SQLServices.InventoryService
             return items[0];
         }
 
+        //[CanBeReflected(ThreatLevel = ThreatLevel.Full)]
         public virtual OSDArray GetOSDItem(UUID avatarID, UUID itemID)
         {
+            /* if (m_doRemoteOnly) {
+                var remoteValue = DoRemoteByURL("InventoryServerURI", avatarID, itemID);
+                if (remoteValue != null || m_doRemoteOnly)
+                    return (OSDArray)remoteValue;
+               }
+            */
             if (avatarID != UUID.Zero)
             {
                 return m_Database.GetLLSDItems(
@@ -1022,7 +1060,7 @@ namespace Universe.Services.SQLServices.InventoryService
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemoteByURL("InventoryServerURI", folder);
+                var remoteValue = DoRemoteByURL("InventoryServerURI", folder);
                 return remoteValue != null ? (InventoryFolderBase)remoteValue : null;
             }
 
@@ -1041,7 +1079,7 @@ namespace Universe.Services.SQLServices.InventoryService
         {
             if (m_doRemoteOnly)
             {
-                object remoteValue = DoRemoteByURL("InventoryServerURI", folderOwner, folderName);
+                var remoteValue = DoRemoteByURL("InventoryServerURI", folderOwner, folderName);
                 return remoteValue != null ? (InventoryFolderBase)remoteValue : null;
             }
 
@@ -1055,8 +1093,13 @@ namespace Universe.Services.SQLServices.InventoryService
             return folders[0];
         }
 
+        //[CanBeReflected(ThreatLevel = ThreatLevel.Full)]
         public virtual List<InventoryItemBase> GetActiveGestures(UUID principalID)
         {
+            /*object remoteValue = DoRemoteByURL("InventoryServerURI", principalID);
+            if (remoteValue != null || m_doRemoteOnly)
+                return (List<InventoryItemBase>)remoteValue;*/
+
             return new List<InventoryItemBase>(m_Database.GetActiveGestures(principalID));
         }
 
@@ -1069,11 +1112,10 @@ namespace Universe.Services.SQLServices.InventoryService
                 foreach (var folder in skel)
                 {
                     var items = GetFolderContent(user, folder.ID);
-                    DeleteItems(user, items.Items.ConvertAll<UUID>(item => item.ID));
+                    DeleteItems(user, items.Items.ConvertAll(item => item.ID));
                     ForcePurgeFolder(folder);
                 }
             }
-
             return null;
         }
 
@@ -1081,20 +1123,22 @@ namespace Universe.Services.SQLServices.InventoryService
 
         #region Asynchronous Commands
 
-        protected ListCombiningTimedSaving<AddInventoryItemStore> _addInventoryItemQueue = new ListCombiningTimedSaving<AddInventoryItemStore>();
+        protected ListCombiningTimedSaving<AddInventoryItemStore> _addInventoryItemQueue =
+            new ListCombiningTimedSaving<AddInventoryItemStore>();
 
-        protected ListCombiningTimedSaving<MoveInventoryItemStore> _moveInventoryItemQueue = new ListCombiningTimedSaving<MoveInventoryItemStore>();
+        protected ListCombiningTimedSaving<MoveInventoryItemStore> _moveInventoryItemQueue =
+            new ListCombiningTimedSaving<MoveInventoryItemStore>();
 
         public void AddItemAsync(InventoryItemBase item, Action<InventoryItemBase> success)
         {
             if (item == null)
                 return;
+
             lock (_tempItemCache)
             {
                 if (!_tempItemCache.ContainsKey(item.ID))
                     _tempItemCache.Add(item.ID, item);
             }
-
             _addInventoryItemQueue.Add(item.Owner, new AddInventoryItemStore(item, success));
         }
 
@@ -1107,11 +1151,13 @@ namespace Universe.Services.SQLServices.InventoryService
         {
             if (item == null)
                 return;
+
             lock (_tempItemCache)
             {
                 if (!_tempItemCache.ContainsKey(item.ID))
                     _tempItemCache.Add(item.ID, item);
             }
+            //_addInventoryItemQueue.Add(item.Owner, new AddInventoryItemStore(item, success));
         }
 
         /// <summary>
@@ -1129,15 +1175,17 @@ namespace Universe.Services.SQLServices.InventoryService
         /// <returns>
         ///     The inventory folder copy given, null if the copy was unsuccessful
         /// </returns>
-        public void GiveInventoryFolderAsync(UUID recipientId, UUID senderId, UUID folderId, UUID recipientParentFolderId, GiveFolderParam success)
+        public void GiveInventoryFolderAsync(UUID recipientId, UUID senderId, UUID folderId,
+                                              UUID recipientParentFolderId, GiveFolderParam success)
         {
-            Util.FireAndForget(o =>
-            {
+            Util.FireAndForget(o => {
                 // Retrieve the folder from the sender
-                InventoryFolderBase folder = GetFolder(new InventoryFolderBase(folderId));
+                var folder = GetFolder(new InventoryFolderBase(folderId));
                 if (null == folder)
                 {
-                    MainConsole.Instance.ErrorFormat("[Inventory service]: Could not find inventory folder {0} to give", folderId);
+                    MainConsole.Instance.ErrorFormat(
+                        "[Inventory service]: Could not find inventory folder {0} to give",
+                        folderId);
                     success(null);
                     return;
                 }
@@ -1145,21 +1193,21 @@ namespace Universe.Services.SQLServices.InventoryService
                 //Find the folder for the receiver
                 if (recipientParentFolderId == UUID.Zero)
                 {
-                    InventoryFolderBase recipientRootFolder = GetRootFolder(recipientId);
+                    var recipientRootFolder = GetRootFolder(recipientId);
                     if (recipientRootFolder != null)
                         recipientParentFolderId = recipientRootFolder.ID;
                     else
                     {
-                        MainConsole.Instance.WarnFormat("[Inventory service]: Unable to find root folder for receiving agent");
+                        MainConsole.Instance.WarnFormat(
+                            "[Inventory service]: Unable to find root folder for receiving agent");
                         success(null);
                         return;
                     }
                 }
 
-                UUID newFolderId = UUID.Random();
-                InventoryFolderBase newFolder = new InventoryFolderBase(
-                        newFolderId, folder.Name, recipientId, folder.Type,
-                        recipientParentFolderId, folder.Version);
+                var newFolderId = UUID.Random();
+                var newFolder = new InventoryFolderBase(
+                    newFolderId, folder.Name, recipientId, folder.Type, recipientParentFolderId, folder.Version);
                 AddFolder(newFolder);
 
                 // Give all the subfolders
@@ -1174,7 +1222,6 @@ namespace Universe.Services.SQLServices.InventoryService
                 {
                     InnerGiveInventoryItem(recipientId, senderId, item, newFolder.ID, true, true);
                 }
-
                 success(newFolder);
             });
         }
@@ -1194,23 +1241,24 @@ namespace Universe.Services.SQLServices.InventoryService
         /// <returns>
         ///     The inventory item copy given, null if the give was unsuccessful
         /// </returns>
-        public void GiveInventoryItemAsync(UUID recipient, UUID senderId, UUID itemId, UUID recipientFolderId, bool doOwnerCheck, GiveItemParam success)
+        public void GiveInventoryItemAsync(UUID recipient, UUID senderId, UUID itemId,
+                                            UUID recipientFolderId, bool doOwnerCheck, GiveItemParam success)
         {
-            Util.FireAndForget(o =>
-            {
+            Util.FireAndForget(o => {
                 InventoryItemBase item = GetItem(senderId, itemId);
                 success(InnerGiveInventoryItem(recipient, senderId, item, recipientFolderId, doOwnerCheck, true));
             });
         }
 
-        public InventoryItemBase InnerGiveInventoryItem(
-            UUID recipient, UUID senderId, InventoryItemBase item, UUID recipientFolderId, bool doOwnerCheck, bool checkTransferPermission)
+        public InventoryItemBase InnerGiveInventoryItem(UUID recipient, UUID senderId, InventoryItemBase item,
+                                                         UUID recipientFolderId, bool doOwnerCheck, bool checkTransferPermission)
         {
             if (item == null)
             {
                 MainConsole.Instance.Info("[Inventory service]: Could not find item to give to " + recipient);
                 return null;
             }
+
             if (!doOwnerCheck || item.Owner == senderId)
             {
                 if (checkTransferPermission)
@@ -1411,10 +1459,10 @@ namespace Universe.Services.SQLServices.InventoryService
 
         #region Console Commands
 
-        public virtual void FixInventory(IScene scene, string[] cmd)
+        public virtual void CmdFixInventory(IScene scene, string[] cmd)
         {
-            string userName = MainConsole.Instance.Prompt("Name of user (First Last)");
-            UserAccount account = m_UserAccountService.GetUserAccount(null, userName);
+            var userName = MainConsole.Instance.Prompt("Name of user <First Last>");
+            var account = m_UserAccountService.GetUserAccount(null, userName);
             if (account == null)
             {
                 MainConsole.Instance.WarnFormat("Sorry.. Could not find user '{0}'", userName);
@@ -1422,12 +1470,13 @@ namespace Universe.Services.SQLServices.InventoryService
             }
 
             MainConsole.Instance.Info("Verifying inventory for " + account.Name);
-            InventoryFolderBase rootFolder = GetRootFolder(account.PrincipalID);
+            var rootFolder = GetRootFolder(account.PrincipalID);
 
             //Fix having a default root folder
             if (rootFolder == null)
             {
                 MainConsole.Instance.Warn("Fixing default root folder...");
+
                 List<InventoryFolderBase> skel;
                 skel = GetInventorySkeleton(account.PrincipalID);
                 if (skel == null)
@@ -1468,32 +1517,36 @@ namespace Universe.Services.SQLServices.InventoryService
             }
 
             //Check against multiple root folders
-            List<InventoryFolderBase> rootFolders = GetRootFolders(account.PrincipalID);
-            List<UUID> badFolders = new List<UUID>();
+            var rootFolders = GetRootFolders(account.PrincipalID);
+            var badFolders = new List<UUID>();
+
             if (rootFolders.Count != 1)
             {
                 //No duplicate folders!
-                foreach (
-                    InventoryFolderBase f in rootFolders.Where(f => !badFolders.Contains(f.ID) && f.ID != rootFolder.ID)
-                    )
+                foreach (InventoryFolderBase f in rootFolders
+                         .Where(f => !badFolders.Contains(f.ID) && f.ID != rootFolder.ID))
                 {
                     MainConsole.Instance.Warn("Removing duplicate root folder " + f.Name);
                     badFolders.Add(f.ID);
                 }
             }
+
             //Fix any root folders that shouldn't be root folders
-            List<InventoryFolderBase> skeleton = GetInventorySkeleton(account.PrincipalID);
-            List<UUID> foundFolders = new List<UUID>();
+            var skeleton = GetInventorySkeleton(account.PrincipalID);
+            var foundFolders = new List<UUID>();
+
             foreach (InventoryFolderBase f in skeleton)
             {
                 if (!foundFolders.Contains(f.ID))
                     foundFolders.Add(f.ID);
+
                 if (f.Name == InventoryFolderBase.ROOT_FOLDER_NAME && f.ParentID != UUID.Zero)
                 {
                     //Merge them all together
                     badFolders.Add(f.ID);
                 }
             }
+
             foreach (InventoryFolderBase f in skeleton)
             {
                 if ((!foundFolders.Contains(f.ParentID) && f.ParentID != UUID.Zero) ||
@@ -1543,19 +1596,24 @@ namespace Universe.Services.SQLServices.InventoryService
                 }
                 else if (f.Type == (short)FolderType.Mesh)
                 {
+                    MainConsole.Instance.Warn("Purging mesh folder");
                     ForcePurgeFolder(f);  // Why?
                 }
             }
+
             foreach (UUID id in badFolders)
             {
                 m_Database.DeleteFolders("folderID", id.ToString(), false);
             }
+
             //Make sure that all default folders exist
             CreateUserInventory(account.PrincipalID, false);
+
             //Re-fetch the skeleton now
             skeleton = GetInventorySkeleton(account.PrincipalID);
-            Dictionary<int, UUID> defaultFolders = new Dictionary<int, UUID>();
-            Dictionary<UUID, UUID> changedFolders = new Dictionary<UUID, UUID>();
+            var defaultFolders = new Dictionary<int, UUID>();
+            var changedFolders = new Dictionary<UUID, UUID>();
+
             foreach (InventoryFolderBase folder in skeleton.Where(folder => folder.Type != (short)FolderType.None))
             {
                 if (!defaultFolders.ContainsKey(folder.Type))
@@ -1563,6 +1621,7 @@ namespace Universe.Services.SQLServices.InventoryService
                 else
                     changedFolders.Add(folder.ID, defaultFolders[folder.Type]);
             }
+
             foreach (InventoryFolderBase folder in skeleton)
             {
                 if (folder.Type != (short)FolderType.None && defaultFolders[folder.Type] != folder.ID)
@@ -1585,7 +1644,7 @@ namespace Universe.Services.SQLServices.InventoryService
 
         // update verification for new folder types - Sep 2015
         // This can be removed for future releases - greythane - 
-        void VerifyRootFolders(IScene scene, string[] cmd)
+        void CmdVerifyRootFolders(IScene scene, string[] cmd)
         {
             List<UserAccount> userAccounts;
             userAccounts = m_UserAccountService.GetUserAccounts(null, "*");
@@ -1642,15 +1701,13 @@ namespace Universe.Services.SQLServices.InventoryService
 
             InventoryFolderBase[] sysFolders = Array.FindAll(
                 allFolders,
-                delegate(InventoryFolderBase f)
-                {
+                delegate (InventoryFolderBase f) {
                     if (f.Type > 0)
                         return true;
                     return false;
                 });
 
-            //MainConsole.Instance.DebugFormat(
-            //    "[Inventory Service]: Found {0} system folders for {1}", sysFolders.Length, principalID);
+            //MainConsole.Instance.DebugFormat("[Inventory Service]: Found {0} system folders for {1}", sysFolders.Length, principalID);
 
             return sysFolders;
         }
@@ -1661,22 +1718,20 @@ namespace Universe.Services.SQLServices.InventoryService
             if (folder.Count < 1)
                 return false;
 
-            if (folder[0].Type == (int)FolderType.Trash ||
-                folder[0].Type == (int)FolderType.LostAndFound)
+            if (folder[0].Type == (int)FolderType.Trash || folder[0].Type == (int)FolderType.LostAndFound)
                 return true;
 
             UUID parentFolder = folder[0].ParentID;
 
             while (parentFolder != UUID.Zero)
             {
-                List<InventoryFolderBase> parent = m_Database.GetFolders(new[] { "folderID" },
-                                                                         new[] { parentFolder.ToString() });
+                List<InventoryFolderBase> parent = m_Database.GetFolders(new[] { "folderID" }, new[] { parentFolder.ToString() });
                 if (parent.Count < 1)
                     return false;
 
-                if (parent[0].Type == (int)FolderType.Trash ||
-                    parent[0].Type == (int)FolderType.LostAndFound)
+                if (parent[0].Type == (int)FolderType.Trash || parent[0].Type == (int)FolderType.LostAndFound)
                     return true;
+
                 if (parent[0].Type == (int)FolderType.Root)
                     return false;
 
@@ -1699,12 +1754,13 @@ namespace Universe.Services.SQLServices.InventoryService
             while (parentFolder != UUID.Zero)
             {
                 List<InventoryFolderBase> parent = m_Database.GetFolders(new[] { "folderID" },
-                                                                         new[] { parentFolder.ToString() });
+                                                                          new[] { parentFolder.ToString() });
                 if (parent.Count < 1)
                     return false;
 
                 if (parent[0].Type == (int)AssetType.LinkFolder)
                     return true;
+
                 if (parent[0].Type == (int)FolderType.Root)
                     return false;
 

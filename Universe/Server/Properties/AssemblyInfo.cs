@@ -36,7 +36,7 @@ using System.Resources;
 ///     the following set of attributes.  We change these attribute values to modify
 ///     the information associated with an assembly
 /// </summary>
-[assembly: AssemblyCompany("Second Galaxy Development Team")]
+[assembly: AssemblyCompany("Virtual Universe Development Team")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCopyright("Copyright © 2016-2025")]
 [assembly: AssemblyCulture("")]
