@@ -1459,14 +1459,18 @@ namespace Universe.Region
 						duplicatedGroup.RootPart.SalePrice = 10;
 					}
 
-					// Since we copy from a source group that is in selected
-					// state, but the copy is shown deselected in the viewer,
-					// We need to clear the selection flag here, else that
-					// prim never gets persisted at all. The client doesn't
-					// think it's selected, so it will never send a deselect...
-					duplicatedGroup.IsSelected = false;
+                    // Since we copy from a source group that is in selected
+                    // state, but the copy is shown deselected in the viewer,
+                    // We need to clear the selection flag here, else that
+                    // prim never gets persisted at all. The client doesn't
+                    // think it's selected, so it will never send a deselect...
+                    //duplicatedGroup.IsSelected = false;
 
-					if (rot != Quaternion.Identity) {
+                    // 2017-Jan-20- EmperorStarfinder
+                    //Viewers are actually this so we should be making uses of this
+                    copy.IsSelected = createSelected;
+
+                    if (rot != Quaternion.Identity) {
 						duplicatedGroup.UpdateGroupRotationR (rot);
 					}
 
