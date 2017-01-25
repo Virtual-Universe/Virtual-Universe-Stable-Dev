@@ -47,243 +47,281 @@ using GridRegion = Universe.Framework.Services.GridRegion;
 
 namespace Universe.Modules.SimConsole
 {
-	/// <summary>
-	///     This module allows for the console to be accessed in V2 viewers that support SimConsole
-	///     This will eventually be extended in Imprudence so that full console support can be added into the viewer (this module already supports the eventual extension)
-	/// </summary>
-	public class SimConsole : INonSharedRegionModule
-	{
-		#region Declares
+    /// <summary>
+    ///     This module allows for the console to be accessed in V2 viewers that support SimConsole
+    ///     This will eventually be extended in Imprudence so that full console support can be added into the viewer (this module already supports the eventual extension)
+    /// </summary>
+    public class SimConsole : INonSharedRegionModule
+    {
+        enum Access
+        {
+            ReadWrite,
+            Read,
+            Write,
+            None
+        }
 
-		private readonly Dictionary<UUID, Access> m_authorizedParticipants = new Dictionary<UUID, Access> ();
-		private IScene m_Scene;
-		private readonly Dictionary<string, Access> m_userKeys = new Dictionary<string, Access> ();
-		private readonly Dictionary<UUID, string> m_userLogLevel = new Dictionary<UUID, string> ();
-		private bool m_enabled;
+        #region Declares
 
-		#region Enums
+        readonly Dictionary<UUID, Access> m_authorizedParticipants = new Dictionary<UUID, Access>();
+        IScene m_Scene;
+        readonly Dictionary<string, Access> m_userKeys = new Dictionary<string, Access>();
+        readonly Dictionary<UUID, string> m_userLogLevel = new Dictionary<UUID, string>();
+        bool m_enabled;
+        IEventQueueService msgQ;
 
-		private enum Access
-		{
-			ReadWrite,
-			Read,
-			Write,
-			None
-		}
+        #endregion
 
-		#endregion
+        #region INonSharedRegionModule
 
-		#endregion
+        public void Initialize(IConfigSource source)
+        {
+            IConfig config = source.Configs["SimConsole"];
+            if (config != null)
+            {
+                m_enabled = config.GetBoolean("Enabled", false);
+                if (!m_enabled)
+                    return;
 
-		#region INonSharedRegionModule
+                string User = config.GetString("Users", "");
+                string[] Users = User.Split(new string[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
 
-		public void Initialize (IConfigSource source)
-		{
-			IConfig config = source.Configs ["SimConsole"];
-			if (config != null) {
-				m_enabled = config.GetBoolean ("Enabled", false);
-				if (!m_enabled)
-					return;
-				string User = config.GetString ("Users", "");
-				string[] Users = User.Split (new string[1] { "|" }, StringSplitOptions.RemoveEmptyEntries);
-				MainConsole.OnIncomingLogWrite += IncomingLogWrite; //Get this hooked up
-				for (int i = 0; i < Users.Length; i += 2) {
-					if (!m_userKeys.ContainsKey (Users [i]) && (i + 1) < Users.Length) {
-						m_userKeys.Add (Users [i], (Access)Enum.Parse (typeof(Access), Users [i + 1]));
-					} else
-						MainConsole.Instance.Warn ("[SimConsole]: No second configuration option given for SimConsole Users, ignoring");
-				}
-			}
-		}
+                MainConsole.OnIncomingLogWrite += IncomingLogWrite; //Get this hooked up
 
-		public void AddRegion (IScene scene)
-		{
-			if (!m_enabled)
-				return;
+                // See who can access the console
+                if (Users.Length > 0)
+                {
+                    for (int i = 0; i < Users.Length; i += 2)
+                    {
+                        if (!m_userKeys.ContainsKey(Users[i]) && (i + 1) < Users.Length)                            m_userKeys.Add(Users[i], (Access)Enum.Parse(typeof(Access), Users[i + 1]));
+                    }
+                }
+                else
+                    MainConsole.Instance.Warn("[SimConsole]: No SimConsole users specified. God access only.");
+            }
+        }
 
-			scene.EventManager.OnRegisterCaps += OnRegisterCaps;
-			scene.EventManager.OnMakeRootAgent += EventManager_OnMakeRootAgent;
-			scene.EventManager.OnMakeChildAgent += EventManager_OnMakeChildAgent;
-			m_Scene = scene;
-		}
+        public void AddRegion(IScene scene)
+        {
+            if (!m_enabled)
+                return;
 
-		public void RegionLoaded (IScene scene)
-		{
-		}
+            m_Scene = scene;
 
-		public void RemoveRegion (IScene scene)
-		{
-			m_Scene = null;
-			scene.EventManager.OnRegisterCaps -= OnRegisterCaps;
-			scene.EventManager.OnMakeRootAgent -= EventManager_OnMakeRootAgent;
-			scene.EventManager.OnMakeChildAgent -= EventManager_OnMakeChildAgent;
-		}
+            // set up event queue for messaging
+            msgQ = m_Scene.RequestModuleInterface<IEventQueueService>();
+            if (msgQ == null)
+            {
+                m_enabled = false;      // no point if we cannot send messages
+                MainConsole.Instance.Warn("[Sim console]: Disabled as no message queue is available.");
+                return;
+            }
 
-		public void Close ()
-		{
-		}
+            scene.EventManager.OnRegisterCaps += OnRegisterCaps;
+            scene.EventManager.OnMakeRootAgent += EventManager_OnMakeRootAgent;
+            scene.EventManager.OnMakeChildAgent += EventManager_OnMakeChildAgent;
+        }
 
-		public string Name {
-			get { return "SimConsole"; }
-		}
+        public void RegionLoaded(IScene scene)
+        {
+        }
 
-		public Type ReplaceableInterface {
-			get { return null; }
-		}
+        public void RemoveRegion(IScene scene)
+        {
+            scene.EventManager.OnRegisterCaps -= OnRegisterCaps;
+            scene.EventManager.OnMakeRootAgent -= EventManager_OnMakeRootAgent;
+            scene.EventManager.OnMakeChildAgent -= EventManager_OnMakeChildAgent;
+            m_Scene = null;
+        }
 
-		#endregion
+        public void Close()
+        {
+        }
 
-		#region CAPS
+        public string Name
+        {
+            get { return "SimConsole"; }
+        }
 
-		public OSDMap OnRegisterCaps (UUID agentID, IHttpServer server)
-		{
-			OSDMap retVal = new OSDMap ();
-			retVal ["SimConsoleAsync"] = CapsUtil.CreateCAPS ("SimConsoleAsync", "");
+        public Type ReplaceableInterface
+        {
+            get { return null; }
+        }
 
-			server.AddStreamHandler (new GenericStreamHandler ("POST", retVal ["SimConsoleAsync"],
-				delegate(string path, Stream request,
-				                                                                  OSHttpRequest httpRequest,
-				                                                                  OSHttpResponse httpResponse) {
-					return SimConsoleAsyncResponder (request, agentID);
-				}));
-			return retVal;
-		}
+        #endregion
 
-		private byte[] SimConsoleAsyncResponder (Stream request, UUID agentID)
-		{
-			IScenePresence SP = m_Scene.GetScenePresence (agentID);
-			if (SP == null)
-				return new byte[0]; //They don't exist
+        #region CAPS
 
-			OSD rm = OSDParser.DeserializeLLSDXml (HttpServerHandlerHelpers.ReadFully (request));
+        public OSDMap OnRegisterCaps(UUID agentID, IHttpServer server)
+        {
+            HttpServerHandle consoleCaps = delegate (
+                string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse) {
+                    return SimConsoleAsyncResponder(agentID, request);
+                };
 
-			string message = rm.AsString ();
+            OSDMap retVal = new OSDMap();
+            retVal["SimConsoleAsync"] = CapsUtil.CreateCAPS("SimConsoleAsync", "");
 
-			//Is a god, or they authenticated to the server and have write access
-			if (AuthenticateUser (SP, message) && CanWrite (SP.UUID))
-				FireConsole (message);
-			return OSDParser.SerializeLLSDXmlBytes ("");
-		}
+            server.AddStreamHandler(new GenericStreamHandler("POST", retVal["SimConsoleAsync"], consoleCaps));
 
-		private void FireConsole (string message)
-		{
-			Util.FireAndForget (delegate {
-				MainConsole.Instance.RunCommand (message);
-			});
-		}
+            return retVal;
+        }
 
-		#endregion
+        byte[] SimConsoleAsyncResponder(UUID agentID, Stream request)
+        {
+            IScenePresence SP = m_Scene.GetScenePresence(agentID);
+            if (SP == null)
+                return new byte[0]; //They don't exist
 
-		#region Authentication
+            OSD rm = OSDParser.DeserializeLLSDXml(HttpServerHandlerHelpers.ReadFully(request));
 
-		private bool CanWrite (UUID AgentID)
-		{
-			if (m_authorizedParticipants.ContainsKey (AgentID)) {
-				return m_authorizedParticipants [AgentID] == Access.Write
-				|| m_authorizedParticipants [AgentID] == Access.ReadWrite;
-			}
-			return false;
-		}
+            string message = rm.AsString();
 
-		private bool CanRead (UUID AgentID)
-		{
-			if (m_authorizedParticipants.ContainsKey (AgentID)) {
-				return m_authorizedParticipants [AgentID] == Access.Read
-				|| m_authorizedParticipants [AgentID] == Access.ReadWrite;
-			}
-			return false;
-		}
+            //Is a god, or they authenticated to the server and have write access
+            if (AuthenticateUser(SP, message) && CanWrite(SP.UUID))
+                FireConsole(message);
 
-		private bool AuthenticateUser (IScenePresence sp, string message)
-		{
-			if (m_authorizedParticipants.ContainsKey (sp.UUID)) {
-				if (message == "")
-					return true; //Just checking whether it exists then
-				bool firstLogin = false;
-				if (!m_userLogLevel.ContainsKey (sp.UUID)) {
-					m_userLogLevel.Add (sp.UUID, "Info");
-					firstLogin = true;
-				}
-				return ParseMessage (sp, message, firstLogin);
-			} else {
-				if (m_userKeys.ContainsKey (sp.Name)) {
-					m_authorizedParticipants.Add (sp.UUID, m_userKeys [sp.Name]);
-					if (message == "")
-						return true; //Just checking whether it exists then
-					return ParseMessage (sp, message, true);
-				}
-			}
-			return false;
-		}
+            return OSDParser.SerializeLLSDXmlBytes("");
+        }
 
-		private bool ParseMessage (IScenePresence sp, string message, bool firstLogin)
-		{
-			if (firstLogin) {
-				SendConsoleEventEQM (sp.UUID,
-					"Welcome to the console, type /help for more information about viewer console commands");
-			} else if (message.StartsWith ("/logout")) {
-				m_authorizedParticipants.Remove (sp.UUID);
-				SendConsoleEventEQM (sp.UUID, "Log out successful.");
-				return false; //Don't execute the message anymore
-			} else if (message.StartsWith ("/set log level")) {
-				string[] words = message.Split (' ');
-				if (words.Length == 4) {
-					m_userLogLevel [sp.UUID] = words [3];
-					SendConsoleEventEQM (sp.UUID, "Set log level successful.");
-				} else
-					SendConsoleEventEQM (sp.UUID, "Set log level failed, please use a valid log level.");
-				return false; //Don't execute the message anymore
-			} else if (message.StartsWith ("/help")) {
-				SendConsoleEventEQM (sp.UUID, "/logout - logout of the console.");
-				SendConsoleEventEQM (sp.UUID, "/set log level - shows only certain messages to the viewer console.");
-				SendConsoleEventEQM (sp.UUID, "/help - show this message again.");
-				return false; //Don't execute the message anymore
-			}
-			return true;
-		}
+        void FireConsole(string message)
+        {
+            Util.FireAndForget(delegate { MainConsole.Instance.RunCommand(message); });
+        }
 
-		#endregion
+        #endregion
 
-		private void EventManager_OnMakeRootAgent (IScenePresence presence)
-		{
-			//See whether they are authenticated so that we can start sending them messages
-			AuthenticateUser (presence, "");
-		}
+        #region Authentication
 
-		private void EventManager_OnMakeChildAgent (IScenePresence presence, GridRegion destination)
-		{
-			m_authorizedParticipants.Remove (presence.UUID);
-			m_userLogLevel.Remove (presence.UUID);
-		}
+        bool CanWrite(UUID AgentID)
+        {
+            if (m_authorizedParticipants.ContainsKey(AgentID))
+            {
+                return m_authorizedParticipants[AgentID] == Access.Write || m_authorizedParticipants[AgentID] == Access.ReadWrite;
+            }
 
-		public void IncomingLogWrite (string level, string text)
-		{
-			if (text == "")
-				return;
+            return false;
+        }
 
-			foreach (
+        bool CanRead(UUID AgentID)
+        {
+            if (m_authorizedParticipants.ContainsKey(AgentID))
+            {
+                return m_authorizedParticipants[AgentID] == Access.Read || m_authorizedParticipants[AgentID] == Access.ReadWrite;
+            }
+
+            return false;
+        }
+
+        bool AuthenticateUser(IScenePresence sp, string message)
+        {
+            if (m_authorizedParticipants.ContainsKey(sp.UUID))
+            {
+                if (message == "")
+                    return true; //Just checking whether it exists then
+
+                bool firstLogin = false;
+                if (!m_userLogLevel.ContainsKey(sp.UUID))
+                {
+                    m_userLogLevel.Add(sp.UUID, "Info");
+                    firstLogin = true;
+                }
+
+                return ParseMessage(sp, message, firstLogin);
+            }
+
+            if (m_userKeys.ContainsKey(sp.Name))
+            {
+                m_authorizedParticipants.Add(sp.UUID, m_userKeys[sp.Name]);
+                if (message == "")
+                    return true; //Just checking whether it exists then
+
+                return ParseMessage(sp, message, true);
+            }
+
+            return false;
+        }
+
+        bool ParseMessage(IScenePresence sp, string message, bool firstLogin)
+        {
+            if (firstLogin)
+            {
+                SendConsoleEventEQM(sp.UUID, "Welcome to the console, type /help for more information about viewer console commands");
+            }
+            else if (message.StartsWith("/logout", StringComparison.Ordinal))
+            {
+                m_authorizedParticipants.Remove(sp.UUID);
+                SendConsoleEventEQM(sp.UUID, "Log out successful.");
+                return false; //Don't execute the message anymore
+            }
+            else if (message.StartsWith("/set log level", StringComparison.Ordinal))
+            {
+                string[] words = message.Split(' ');
+                if (words.Length == 4)
+                {
+                    m_userLogLevel[sp.UUID] = words[3];
+                    SendConsoleEventEQM(sp.UUID, "Set log level successful.");
+                }
+                else
+                    SendConsoleEventEQM(sp.UUID, "Set log level failed, please use a valid log level.");
+
+                return false; //Don't execute the message anymore
+
+            }
+            else if (message.StartsWith("/help", StringComparison.Ordinal))
+            {
+                SendConsoleEventEQM(sp.UUID, "/logout - logout of the console.");
+                SendConsoleEventEQM(sp.UUID, "/set log level - shows only certain messages to the viewer console.");
+                SendConsoleEventEQM(sp.UUID, "/help - show this message again.");
+                return false; //Don't execute the message anymore
+            }
+
+            return true;
+        }
+
+        #endregion
+
+        void EventManager_OnMakeRootAgent(IScenePresence presence)
+        {
+            //See whether they are authenticated so that we can start sending them messages
+            AuthenticateUser(presence, "");
+        }
+
+        void EventManager_OnMakeChildAgent(IScenePresence presence, GridRegion destination)
+        {
+            m_authorizedParticipants.Remove(presence.UUID);
+            m_userLogLevel.Remove(presence.UUID);
+        }
+
+        public void IncomingLogWrite(string level, string text)
+        {
+            if (text == "")
+                return;
+
+            foreach (
                 KeyValuePair<UUID, Access> kvp in
                     m_authorizedParticipants.Where(kvp => kvp.Value == Access.ReadWrite || kvp.Value == Access.Read)
-                                            .Where(
-                                                kvp =>
-                                                m_userLogLevel.ContainsKey(kvp.Key) &&
-                                                MainConsole.Instance.CompareLogLevels(m_userLogLevel[kvp.Key], level))) {
-				//Send the EQM with the message to all people who have read access
-				SendConsoleEventEQM (kvp.Key, text);
-			}
-		}
+                                            .Where(kvp => m_userLogLevel.ContainsKey(kvp.Key) &&
+                                                   MainConsole.Instance.CompareLogLevels(m_userLogLevel[kvp.Key], level)))
+            {
+                //Send the EQM with the message to all people who have read access
+                SendConsoleEventEQM(kvp.Key, text);
+            }
+        }
 
-		/// <summary>
-		///     Send a console message to the viewer
-		/// </summary>
-		/// <param name="AgentID"></param>
-		/// <param name="text"></param>
-		private void SendConsoleEventEQM (UUID AgentID, string text)
-		{
-			OSDMap item = new OSDMap { { "body", text }, { "message", OSD.FromString ("SimConsoleResponse") } };
-			IEventQueueService eq = m_Scene.RequestModuleInterface<IEventQueueService> ();
-			if (eq != null)
-				eq.Enqueue (item, AgentID, m_Scene.RegionInfo.RegionID);
-		}
-	}
+        /// <summary>
+        ///     Send a console message to the viewer
+        /// </summary>
+        /// <param name="AgentID"></param>
+        /// <param name="text"></param>
+        void SendConsoleEventEQM(UUID AgentID, string text)
+        {
+            OSDMap item = new OSDMap {
+                {"body", text},
+                {"message", OSD.FromString("SimConsoleResponse")}
+            };
+
+            msgQ.Enqueue(item, AgentID, m_Scene.RegionInfo.RegionID);
+        }
+    }
 }
