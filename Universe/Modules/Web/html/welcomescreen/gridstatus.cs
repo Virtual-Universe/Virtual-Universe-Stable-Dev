@@ -64,7 +64,7 @@ namespace Universe.Modules.Web
 			response = null;
 			var vars = new Dictionary<string, object> ();
 
-			IAgentInfoConnector recentUsers = Framework.Utilities.DataManager.RequestPlugin<IAgentInfoConnector> ();
+			IAgentInfoConnector agentInfo = Framework.Utilities.DataManager.RequestPlugin<IAgentInfoConnector> ();
 			IGenericsConnector connector = Framework.Utilities.DataManager.RequestPlugin<IGenericsConnector> ();
 			GridWelcomeScreen welcomeInfo = null;
 			if (connector != null)
@@ -104,10 +104,11 @@ namespace Universe.Modules.Web
 			vars.Add ("CurrencyActive",
 				webInterface.Registry.RequestModuleInterface<IMoneyModule> () != null ? enabled : disabled);
 
-			if (recentUsers != null) {
+			if (agentInfo != null) {
 				vars.Add ("UniqueVisitorCount", recentUsers.RecentlyOnline ((uint)TimeSpan.FromDays (30).TotalSeconds, false).ToString ());
-				vars.Add ("OnlineNowCount", recentUsers.RecentlyOnline (5 * 60, true).ToString ());
-				vars.Add ("RecentlyOnlineCount", recentUsers.RecentlyOnline (10 * 60, false).ToString ());
+                //vars.Add ("OnlineNowCount", recentUsers.RecentlyOnline (5 * 60, true).ToString ());
+                vars.Add("OnlineNowCount", angentInfo.OnlineUsers(0).ToString());
+                vars.Add ("RecentlyOnlineCount", recentUsers.RecentlyOnline (10 * 60, false).ToString ());
 			} else {
 				vars.Add ("UniqueVisitorCount", "");
 				vars.Add ("OnlineNowCount", "");
