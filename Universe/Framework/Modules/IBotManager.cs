@@ -42,22 +42,15 @@ namespace Universe.Framework.Modules
 		Teleport,
 		Wait,
 		TriggerHereEvent,
-		None}
-
-	;
+		None};
 
 	public interface IBotManager
 	{
 		#region Create/Remove bot
 
-		UUID CreateAvatar (string firstName, string LastName, IScene scene, UUID cloneAppearanceFrom, UUID creatorID,
-		                        Vector3 startPos);
-
-		UUID CreateAvatar (string firstName, string lastName, IScene scene, AvatarAppearance avatarApp,
-		                         UUID creatorID, Vector3 startPos);
-
+		UUID CreateAvatar (string firstName, string LastName, IScene scene, UUID cloneAppearanceFrom, UUID creatorID, Vector3 startPos);
+		UUID CreateAvatar (string firstName, string lastName, IScene scene, AvatarAppearance avatarApp, UUID creatorID, Vector3 startPos);
 		void RemoveAvatar (UUID Bot, IScene iScene, UUID userAttempting);
-
 		bool SetAvatarAppearance (UUID botID, AvatarAppearance avatarApp, IScene scene);
 
 		#endregion
@@ -65,9 +58,7 @@ namespace Universe.Framework.Modules
 		#region Tag/Remove bots
 
 		void AddTagToBot (UUID Bot, string tag, UUID userAttempting);
-
 		List<UUID> GetBotsWithTag (string tag);
-
 		void RemoveBots (string tag, UUID userAttempting);
 
 		#endregion
@@ -81,21 +72,13 @@ namespace Universe.Framework.Modules
 		#region Basic Movement
 
 		void SetBotMap (UUID Bot, List<Vector3> positions, List<TravelMode> mode, int flags, UUID userAttempting);
-
 		void SetMovementSpeedMod (UUID Bot, float modifier, UUID userAttempting);
-
 		void SetBotShouldFly (UUID botID, bool shouldFly, UUID userAttempting);
-
 		void PauseMovement (UUID botID, UUID userAttempting);
-
 		void ResumeMovement (UUID botID, UUID userAttempting);
-
 		void SetSpeed (UUID botID, UUID userAttempting, float speedModifier);
-
 		void MoveToTarget (UUID botID, Vector3 destination, int options, UUID userAttempting);
-
 		void StopMoving (UUID botID, UUID userAttempting);
-
 		void WalkTo (UUID botID, Vector3 destination, UUID userAttempting);
 
 		#endregion
@@ -104,7 +87,6 @@ namespace Universe.Framework.Modules
 
 		void FollowAvatar (UUID botID, string avatarName, float startFollowDistance, float endFollowDistance,
 		                        bool requireLOS, Vector3 offsetFromAvatar, UUID userAttempting);
-
 		void StopFollowAvatar (UUID botID, UUID userAttempting);
 
 		#endregion
@@ -112,17 +94,15 @@ namespace Universe.Framework.Modules
 		#region Chat
 
 		void SendChatMessage (UUID botID, string message, int sayType, int channel, UUID userAttempting);
-
 		void SendIM (UUID botID, UUID toUser, string message, UUID userAttempting);
 
-		#endregion
+        #endregion
 
-		#region helpers
+        #region helpers
 
+        bool IsNpcAgent (UUID bot);
 		UUID GetOwner (UUID botID);
-
 		Vector3 GetPosition (UUID botID, UUID userAttempting);
-
 		Quaternion GetRotation (UUID botID, UUID userAttempting);
 
 		#endregion
@@ -130,9 +110,7 @@ namespace Universe.Framework.Modules
 		#region Characters
 
 		void CreateCharacter (UUID primID, IScene scene);
-
 		void RemoveCharacter (UUID primID);
-
 		IBotController GetCharacterManager (UUID primID);
 
 		#endregion

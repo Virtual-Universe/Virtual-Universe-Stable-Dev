@@ -51,7 +51,7 @@ using Universe.Framework.Serialization;
 using Universe.Framework.Servers;
 using Universe.Framework.Services;
 using Universe.Framework.Services.ClassHelpers.Assets;
-using Univere.Framework.Services.ClassHelpers.Inventory;
+using Universe.Framework.Services.ClassHelpers.Inventory;
 using Universe.Framework.Services.ClassHelpers.Profile;
 using Universe.Framework.Utilities;
 using Universe.ScriptEngine.VirtualScript.Plugins;
@@ -3313,7 +3313,8 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
                             continue;
 
                         new_group.OnFinishedPhysicalRepresentationBuilding +=
-                            delegate () {
+                            delegate ()
+                            {
                                 //Do this after the physics engine has built the prim
                                 float groupmass = new_group.GetMass();
                                 //Recoil to the av
@@ -3468,7 +3469,8 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
                     if ((group.RootChild.Flags & PrimFlags.Physics) == PrimFlags.Physics)
                     {
                         group.RootChild.PhysActor.OnPhysicalRepresentationChanged +=
-                            delegate {
+                            delegate
+                            {
                                 float groupmass = group.GetMass();
                                 //Apply the velocity to the object
                                 //llApplyImpulse(new LSL_Vector(llvel.X * groupmass, llvel.Y * groupmass, llvel.Z * groupmass), 0);
@@ -3965,7 +3967,8 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
                 m_host.UUID,
                 address,
                 subject,
-                email => {
+                email =>
+                {
                     if (email == null)
                         return;
 
@@ -4367,6 +4370,36 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
                 string ownerName = "";
                 IScenePresence ownerPresence = World.GetScenePresence(m_host.ParentEntity.RootChild.OwnerID);
                 ownerName = ownerPresence == null ? resolveName(m_host.OwnerID) : ownerPresence.Name;
+
+                // If permissions are being requested from an NPC bot and were not implicitly granted above then
+                // auto grant all requested permissions if the script is owned by the NPC or the NPCs owner
+                var botMgr = World.RequestModuleInterface<IBotManager>();
+                if (botMgr != null && botMgr.IsNpcAgent(agentID))
+                {
+                    if (botMgr.CheckPermission(agentID, m_host.OwnerID))
+                    {
+
+                        lock (m_host.TaskInventory)
+                        {
+                            m_host.TaskInventory[invItemID].PermsGranter = agentID;
+                            m_host.TaskInventory[invItemID].PermsMask = 0;
+                        }
+
+                        m_ScriptEngine.PostScriptEvent(
+                        m_itemID,
+                        m_host.UUID,
+                        new EventParams(
+                        "run_time_permissions",
+                        new object[] { new LSL_Integer(perm) },
+                        new DetectParams[0]),
+                        EventPriority.FirstStart
+                                                );
+                    }
+
+                    // it is an NPC, exit even if the permissions werent granted above, they are not going to answer
+                    // the question!
+                    return;
+                }
 
                 if (ownerName == string.Empty)
                     ownerName = "(hippos)";
@@ -6530,7 +6563,8 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
             }
 
             World.ForEachScenePresence(
-                delegate (IScenePresence ssp) {
+                delegate (IScenePresence ssp)
+                {
                     // Gods are not listed in SL
                     if (!ssp.IsDeleted && FloatAlmostEqual(ssp.GodLevel, 0.0) && !ssp.IsChildAgent)
                     {

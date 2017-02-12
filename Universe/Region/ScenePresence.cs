@@ -575,6 +575,17 @@ namespace Universe.Region
             set { m_isChildAgent = value; }
         }
 
+        /// <summary>
+        /// The agent is an npc.
+        /// </summary>
+        protected bool m_isNpcAgent = false;
+
+        public bool IsNpcAgent
+        {
+            get { return m_isNpcAgent; }
+            set { m_isNpcAgent = value; }
+        }
+
         protected UUID m_parentID;
 
         public UUID ParentID

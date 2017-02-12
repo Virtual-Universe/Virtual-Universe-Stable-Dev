@@ -77,10 +77,16 @@ namespace Universe.Framework.PresenceInfo
 		/// </summary>
 		bool IsChildAgent { get; set; }
 
-		/// <summary>
-		///     Where this client is looking
-		/// </summary>
-		Vector3 Lookat { get; }
+        /// <summary>
+        /// Gets or sets a value indicating whether this presence is a npc.
+        /// </summary>
+        /// <value><c>true</c> if is npc; otherwise, <c>false</c>.</value>
+        bool IsNpcAgent { get; set; }
+
+        /// <summary>
+        ///     Where this client is looking
+        /// </summary>
+        Vector3 Lookat { get; }
 
 		Vector3 CameraPosition { get; }
 
