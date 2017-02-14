@@ -48,7 +48,7 @@ namespace Universe.Framework.Utilities
 		#endregion
 
 		public const string VERSION_NUMBER = "1.0.3";
-		public const Flavour VERSION_FLAVOUR = Flavour.Development;
+		public const Flavour VERSION_FLAVOUR = Flavour.RC1;
 		public const string VERSION_NAME = "Universe";
 		public const string CODE_NAME = "Earth";
 		public const string CODE_REL = "Server Version: " + VERSION_NUMBER + ", Server Name: " + VERSION_NAME + ", Code Name: " + CODE_NAME + ", Release: ";
