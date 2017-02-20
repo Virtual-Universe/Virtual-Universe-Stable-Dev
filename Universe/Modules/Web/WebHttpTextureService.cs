@@ -150,8 +150,7 @@ namespace Universe.Modules.Web
 		}
 
 
-		public byte [] OnHTTPGetAvatarImage (string path, Stream request, OSHttpRequest httpRequest,
-		                                         OSHttpResponse httpResponse)
+		public byte [] OnHTTPGetAvatarImage (string path, Stream request, OSHttpRequest httpRequest, OSHttpResponse httpResponse)
 		{
 			httpResponse.ContentType = "image/jpeg";
 

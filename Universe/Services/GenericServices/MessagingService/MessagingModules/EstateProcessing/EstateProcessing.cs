@@ -119,9 +119,9 @@ namespace Universe.Services
 					foreach (IScene scene in manager.Scenes) {
 						if (scene.RegionInfo.EstateSettings.EstateID == estateID) {
 							EstateSettings es = null;
-							if ((es = estateConnector.GetEstateSettings (regionID)) != null && es.EstateID != 0) {
+							if ((es = estateConnector.GetRegionEstateSettings (regionID)) != null && es.EstateID != 0) {
 								scene.RegionInfo.EstateSettings = es;
-								MainConsole.Instance.Debug ("[EstateProcessor]: Updated estate information.");
+								MainConsole.Instance.Debug ("[Estate Processor]: Updated estate information.");
 							}
 						}
 					}

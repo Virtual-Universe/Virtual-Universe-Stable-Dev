@@ -69,7 +69,7 @@ namespace Universe.Modules.Web
 
 				foreach (var estate in estates) {
 					var estateID = estateConnector.GetEstateID (estate);
-					EstateSettings ES = estateConnector.GetEstateSettings (estateID);
+					EstateSettings ES = estateConnector.GetEstateIDSettings (estateID);
 
 					if (ES != null) {
 						var estateOwner = accountService.GetUserAccount (null, ES.EstateOwner);

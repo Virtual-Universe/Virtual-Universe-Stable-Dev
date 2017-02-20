@@ -206,7 +206,7 @@ namespace Universe.Services.GenericServices.System
                     UpdateSystemEstates(m_estateConnector, ES, estateID);
             }
 
-            ES = m_estateConnector.GetEstateSettings(estateID);
+            ES = m_estateConnector.GetEstateIDSettings(estateID);
             if ((ES != null) && (ES.EstateID != 0))
             {
                 // ensure correct owner
@@ -384,8 +384,8 @@ namespace Universe.Services.GenericServices.System
                 ES = estateConnector.GetEstateSettings(SystemEstateName);
                 if (ES == null)
                 {
-                    MainConsole.Instance.ErrorFormat("[EstateService]: The estate '{0}' does not exist yet!", SystemEstateName);
-                    MainConsole.Instance.Warn("[EstateService]: It will be created when you link a region to the estate");
+                    MainConsole.Instance.ErrorFormat("[Estate Service]: The estate '{0}' does not exist yet!", SystemEstateName);
+                    MainConsole.Instance.Warn("[Estate Service]: It will be created when you link a region to the estate");
                 }
             }
 
@@ -408,7 +408,7 @@ namespace Universe.Services.GenericServices.System
                 if (update)
                 {
                     estateConnector.SaveEstateSettings(ES);
-                    MainConsole.Instance.Warn("[EstateService]: Estate details have been updated");
+                    MainConsole.Instance.Warn("[Estate Service]: Estate details have been updated");
                 }
             }
 
@@ -496,7 +496,7 @@ namespace Universe.Services.GenericServices.System
                     if (account == null)
                     {
                         MainConsole.Instance.ErrorFormat(
-                            "[EstateService]: Unable to store account details.\n   If this simulator is connected to a grid, create the estate owner account first at the grid level.");
+                            "[Estate Service]: Unable to store account details.\n   If this simulator is connected to a grid, create the estate owner account first at the grid level.");
                         return;
                     }
                 }
@@ -512,7 +512,7 @@ namespace Universe.Services.GenericServices.System
             // check for bogies...
             if (Utilities.IsSystemUser(account.PrincipalID))
             {
-                MainConsole.Instance.Info("[EstateService]: Tsk, tsk.  System users should not be used as estate managers!");
+                MainConsole.Instance.Info("[Estate Service]: Tsk, tsk.  System users should not be used as estate managers!");
                 return;
             }
 
@@ -529,7 +529,7 @@ namespace Universe.Services.GenericServices.System
                 //EstateName holds the error. See LocalEstateConnector for more info.
             }
             else
-                MainConsole.Instance.InfoFormat("[EstateService]: The estate '{0}' owned by '{1}' has been created.", estateName, estateOwner);
+                MainConsole.Instance.InfoFormat("[Estate Service]: The estate '{0}' owned by '{1}' has been created.", estateName, estateOwner);
         }
 
         /// <summary>
@@ -555,14 +555,14 @@ namespace Universe.Services.GenericServices.System
             EstateSettings ES = estateConnector.GetEstateSettings(estateName);
             if (ES == null)
             {
-                MainConsole.Instance.ErrorFormat("[EstateService]: The estate '{0}' does not exist!", estateName);
+                MainConsole.Instance.ErrorFormat("[Estate Service]: The estate '{0}' does not exist!", estateName);
                 return;
             }
 
             // check for bogies...
             if (Utilities.IsSystemUser(ES.EstateOwner))
             {
-                MainConsole.Instance.Info("[EstateService]: Tsk, tsk.  System estates should not be deleted!");
+                MainConsole.Instance.Info("[Estate Service]: Tsk, tsk.  System estates should not be deleted!");
                 return;
             }
 
@@ -570,7 +570,7 @@ namespace Universe.Services.GenericServices.System
             var regions = estateConnector.GetRegions((int)ES.EstateID);
             if (regions.Count > 0)
             {
-                MainConsole.Instance.InfoFormat("[EstateService]: The estate '{0}' has {1} associated regions. These must be unlinked before deletion!",
+                MainConsole.Instance.InfoFormat("[Estate Service]: The estate '{0}' has {1} associated regions. These must be unlinked before deletion!",
                     estateName, regions.Count);
                 return;
             }
@@ -582,7 +582,7 @@ namespace Universe.Services.GenericServices.System
                 MainConsole.Instance.Warn(estateName + " has been deleted");
             }
             else
-                MainConsole.Instance.InfoFormat("[EstateService]: The estate '{0}' has not been deleted.", estateName);
+                MainConsole.Instance.InfoFormat("[Estate Service]: The estate '{0}' has not been deleted.", estateName);
         }
 
         /// <summary>
@@ -610,7 +610,7 @@ namespace Universe.Services.GenericServices.System
             EstateSettings ES = estateConnector.GetEstateSettings(estateName);
             if (ES == null)
             {
-                MainConsole.Instance.WarnFormat("[EstateService]: The estate '{0}' does not exist!", estateName);
+                MainConsole.Instance.WarnFormat("[Estate Service]: The estate '{0}' does not exist!", estateName);
                 return;
             }
 
@@ -642,7 +642,7 @@ namespace Universe.Services.GenericServices.System
             // check for bogies...
             if (Utilities.IsSystemUser(ownerAccount.PrincipalID))
             {
-                MainConsole.Instance.Info("[EstateService]: Tsk, tsk.  System users should not be used as estate managers!");
+                MainConsole.Instance.Info("[Estate Service]: Tsk, tsk.  System users should not be used as estate managers!");
                 return;
             }
 
@@ -650,7 +650,7 @@ namespace Universe.Services.GenericServices.System
             ES.EstateOwner = ownerAccount.PrincipalID;
             estateConnector.SaveEstateSettings(ES);
 
-            MainConsole.Instance.InfoFormat("[EstateService]: Estate owner for '{0}' changed to '{1}'", estateName, estateOwner);
+            MainConsole.Instance.InfoFormat("[Estate Service]: Estate owner for '{0}' changed to '{1}'", estateName, estateOwner);
         }
 
         /// <summary>
@@ -676,7 +676,7 @@ namespace Universe.Services.GenericServices.System
             EstateSettings ES = estateConnector.GetEstateSettings(estateName);
             if (ES == null)
             {
-                MainConsole.Instance.ErrorFormat("[EstateService]: The estate '{0}' does not exist!", estateName);
+                MainConsole.Instance.ErrorFormat("[Estate Service]: The estate '{0}' does not exist!", estateName);
                 return;
             }
 
@@ -691,7 +691,7 @@ namespace Universe.Services.GenericServices.System
             ES.EstateName = estateNewName;
             estateConnector.SaveEstateSettings(ES);
 
-            MainConsole.Instance.InfoFormat("[EstateService]: Estate '{0}' changed to '{1}'", estateName, estateNewName);
+            MainConsole.Instance.InfoFormat("[Estate Service]: Estate '{0}' changed to '{1}'", estateName, estateNewName);
         }
 
         static void UpdateConsoleRegionEstate(string regionName, EstateSettings estateSettings)
@@ -727,7 +727,7 @@ namespace Universe.Services.GenericServices.System
             EstateSettings ES = estateConnector.GetEstateSettings(estateName);
             if (ES == null)
             {
-                MainConsole.Instance.ErrorFormat("[EstateService]: The estate '{0}' does not exist!", estateName);
+                MainConsole.Instance.ErrorFormat("[Estate Service]: The estate '{0}' does not exist!", estateName);
                 return;
             }
 
@@ -745,7 +745,7 @@ namespace Universe.Services.GenericServices.System
             var region = gridService.GetRegionByName(null, regionName);
             if (region == null)
             {
-                MainConsole.Instance.ErrorFormat("[EstateService]: The requested region '{0}' does not exist!", regionName);
+                MainConsole.Instance.ErrorFormat("[Estate Service]: The requested region '{0}' does not exist!", regionName);
                 return;
             }
 
@@ -754,12 +754,12 @@ namespace Universe.Services.GenericServices.System
             if (estateConnector.LinkRegion(region.RegionID, (int)ES.EstateID))
             {
                 // check for update..
-                var es = estateConnector.GetEstateSettings(region.RegionID);
+                var es = estateConnector.GetRegionEstateSettings(region.RegionID);
                 if ((es == null) || (es.EstateID == 0))
-                    MainConsole.Instance.Warn("The region link failed, please try again soon.");
+                    MainConsole.Instance.Warn("[Estate Service]: The region link failed, please try again soon.");
                 else
                 {
-                    MainConsole.Instance.InfoFormat("Region '{0}' is now attached to estate '{1}'", regionName, estateName);
+                    MainConsole.Instance.InfoFormat("[Estate Service]: Region '{0}' is now attached to estate '{1}'", regionName, estateName);
                     UpdateConsoleRegionEstate(regionName, es);
                 }
             }
@@ -791,7 +791,7 @@ namespace Universe.Services.GenericServices.System
             EstateSettings ES = estateConnector.GetEstateSettings(estateName);
             if (ES == null)
             {
-                MainConsole.Instance.ErrorFormat("[EstateService]: The estate '{0}' does not exist!", estateName);
+                MainConsole.Instance.ErrorFormat("[Estate Service]: The estate '{0}' does not exist!", estateName);
                 return;
             }
 
@@ -809,7 +809,7 @@ namespace Universe.Services.GenericServices.System
             var region = gridService.GetRegionByName(null, regionName);
             if (region == null)
             {
-                MainConsole.Instance.ErrorFormat("[EstateService]: The requested region '{0}' does not exist!", regionName);
+                MainConsole.Instance.ErrorFormat("[Estate Service]: The requested region '{0}' does not exist!", regionName);
                 return;
             }
 
@@ -818,7 +818,7 @@ namespace Universe.Services.GenericServices.System
             // verify that the region is actually part of the estate
             if (!estateConnector.EstateRegionExists((int)ES.EstateID, region.RegionID))
             {
-                MainConsole.Instance.ErrorFormat("[EstateService]: The requested region '{0}' is not part of the '{1}' estate!",
+                MainConsole.Instance.ErrorFormat("[Estate Service]: The requested region '{0}' is not part of the '{1}' estate!",
                     regionName, ES.EstateName);
                 return;
             }
@@ -875,7 +875,7 @@ namespace Universe.Services.GenericServices.System
             foreach (string estate in estates)
             {
                 var estateID = estateConnector.GetEstateID(estate);
-                EstateSettings ES = estateConnector.GetEstateSettings(estateID);
+                EstateSettings ES = estateConnector.GetEstateIDSettings(estateID);
 
                 if (ES != null)
                 {
@@ -936,7 +936,7 @@ namespace Universe.Services.GenericServices.System
             EstateSettings ES = estateConnector.GetEstateSettings(estateName);
             if (ES == null)
             {
-                MainConsole.Instance.ErrorFormat("[EstateService]: The estate '{0}' does not exist!", estateName);
+                MainConsole.Instance.ErrorFormat("[Estate Service]: The estate '{0}' does not exist!", estateName);
                 return;
             }
 
@@ -957,8 +957,7 @@ namespace Universe.Services.GenericServices.System
 
             MainConsole.Instance.CleanInfo(regionInfo);
 
-            MainConsole.Instance.CleanInfo(
-                "----------------------------------------------------------------------------------------------------");
+            MainConsole.Instance.CleanInfo("----------------------------------------------------------------------------------------------------");
 
             foreach (UUID regionID in estateregions)
             {
@@ -968,7 +967,6 @@ namespace Universe.Services.GenericServices.System
 
                 estRegions++;
                 estateArea = estateArea + region.RegionArea;
-
 
                 if (!region.IsOnline)
                     offLine++;

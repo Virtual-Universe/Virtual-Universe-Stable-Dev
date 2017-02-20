@@ -46,14 +46,14 @@ namespace Universe.Framework.DatabaseInterfaces
 		/// </summary>
 		/// <param name="regionID"></param>
 		/// <returns></returns>
-		EstateSettings GetEstateSettings (UUID regionID);
+		EstateSettings GetRegionEstateSettings (UUID regionID);
 
 		/// <summary>
 		///     Loads the estate data for the specified estateID
 		/// </summary>
 		/// <param name="estateID"></param>
 		/// <returns></returns>
-		EstateSettings GetEstateSettings (int estateID);
+		EstateSettings GetRegionEstateSettings (int estateID);
 
 		/// <summary>
 		///     Loads the estate data for the specified estate name (local only)
@@ -138,7 +138,7 @@ namespace Universe.Framework.DatabaseInterfaces
 		/// </summary>
 		/// <param name="regionID"></param>
 		/// <returns></returns>
-		int GetEstateID (UUID regionID);
+		int GetRegionEstateID (UUID regionID);
 
 		/// <summary>
 		///     Add a new region to the estate, authenticates with the password

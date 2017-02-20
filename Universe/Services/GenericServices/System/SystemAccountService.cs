@@ -112,7 +112,7 @@ namespace Universe.Services.GenericServices.System
 
         public string GetSystemEstateOwnerName(int estateID)
         {
-            if (estateID == 1)  // Mainland estate
+            if (estateID == Constants.MainlandEstateID)  // Mainland estate
                 return governorName;
 
             // System estate then
@@ -121,7 +121,7 @@ namespace Universe.Services.GenericServices.System
 
         public UUID GetSystemEstateOwner(int estateID)
         {
-            if (estateID == 1)  // Mainland estate
+            if (estateID == Constants.MainlandEstateID)  // Mainland estate
                 return GovernorUUID;
 
             // System estate then

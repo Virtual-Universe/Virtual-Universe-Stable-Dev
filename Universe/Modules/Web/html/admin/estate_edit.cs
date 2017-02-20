@@ -95,7 +95,7 @@ namespace Universe.Modules.Web
 			if (requestParameters.ContainsKey ("Submit")) {
 				var estateSettings = new EstateSettings ();
 				if (estateid >= 0)
-					estateSettings = estateConnector.GetEstateSettings (estateid);
+					estateSettings = estateConnector.GetEstateIDSettings (estateid);
 
 				var estateOwner = requestParameters ["EstateOwner"].ToString ();
 
@@ -131,7 +131,7 @@ namespace Universe.Modules.Web
 				vars.Add ("Submit", translator.GetTranslatedString ("AddEstateText"));
 			} else {
 				// get selected estate details
-				var estateSettings = estateConnector.GetEstateSettings (estateid);
+				var estateSettings = estateConnector.GetEstateIDSettings (estateid);
 				if (estateSettings != null) {
 					vars.Add ("EstateID", estateSettings.EstateID.ToString ());
 					vars.Add ("EstateName", estateSettings.EstateName);

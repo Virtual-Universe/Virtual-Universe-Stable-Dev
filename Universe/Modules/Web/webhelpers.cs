@@ -47,17 +47,16 @@ namespace Universe.Modules.Web
         {
             var yesNoArgs = new List<Dictionary<string, object>>();
             yesNoArgs.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Yes") },
-				{ "selected", condition ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("Yes")},
+                {"selected", condition ? "selected" : ""}
+            });
             yesNoArgs.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("No") },
-				{ "selected", !condition ? "selected" : "" }
-			});
+                { "Value", translator.GetTranslatedString ("No") },
+                {"selected", !condition ? "selected" : ""}
+            });
 
             return yesNoArgs;
         }
-
 
         public static string YesNo(ITranslator translator, bool condition)
         {
@@ -69,41 +68,29 @@ namespace Universe.Modules.Web
             // index is assumed Jan - 1 etc
             var monthsArgs = new List<Dictionary<string, object>>();
             monthsArgs.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Jan_Short") }
-			});
+                {"Value", translator.GetTranslatedString("Jan_Short")} });
             monthsArgs.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Feb_Short") }
-			});
+                { "Value", translator.GetTranslatedString ("Feb_Short") } });
             monthsArgs.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Mar_Short") }
-			});
+                { "Value", translator.GetTranslatedString ("Mar_Short") } });
             monthsArgs.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Apr_Short") }
-			});
+                { "Value", translator.GetTranslatedString ("Apr_Short") } });
             monthsArgs.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("May_Short") }
-			});
+                { "Value", translator.GetTranslatedString ("May_Short") } });
             monthsArgs.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Jun_Short") }
-			});
+                { "Value", translator.GetTranslatedString ("Jun_Short") } });
             monthsArgs.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Jul_Short") }
-			});
+                { "Value", translator.GetTranslatedString ("Jul_Short") } });
             monthsArgs.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Aug_Short") }
-			});
+                { "Value", translator.GetTranslatedString ("Aug_Short") } });
             monthsArgs.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Sep_Short") }
-			});
+                { "Value", translator.GetTranslatedString ("Sep_Short") } });
             monthsArgs.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Oct_Short") }
-			});
+                { "Value", translator.GetTranslatedString ("Oct_Short") } });
             monthsArgs.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Nov_Short") }
-			});
+                { "Value", translator.GetTranslatedString ("Nov_Short") } });
             monthsArgs.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Dec_Short") }
-			});
+                { "Value", translator.GetTranslatedString("Dec_Short")}});
 
             return monthsArgs;
         }
@@ -117,55 +104,45 @@ namespace Universe.Modules.Web
             // build category selections for classifieds
             var categories = new List<Dictionary<string, object>>();
             categories.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("CatAll") },
-				{ "Index","0" },
-				{ "selected", category == 0 ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("CatAll")},
+                {"Index","0"},
+                {"selected", category == 0 ? "selected" : "" } });
             categories.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("CatShopping") },
-				{ "Index","1" },
-				{ "selected", category == 1 ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("CatShopping")},
+                {"Index","1"},
+                {"selected", category == 1 ? "selected" : "" } });
             categories.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("CatLandRental") },
-				{ "Index","2" },
-				{ "selected", category == 2 ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("CatLandRental")},
+                {"Index","2"},
+                {"selected", category == 2 ? "selected" : "" } });
             categories.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("CatPropertyRental") },
-				{ "Index","3" },
-				{ "selected", category == 3 ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("CatPropertyRental")},
+                {"Index","3"},
+                {"selected", category == 3 ? "selected" : "" } });
             categories.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("CatSpecialAttraction") },
-				{ "Index","4" },
-				{ "selected", category == 4 ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("CatSpecialAttraction")},
+                {"Index","4"},
+                {"selected", category == 4 ? "selected" : "" } });
             categories.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("CatNewProducts") },
-				{ "Index","5" },
-				{ "selected", category == 5 ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("CatNewProducts")},
+                {"Index","5"},
+                {"selected", category == 5 ? "selected" : "" } });
             categories.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("CatEmployment") },
-				{ "Index","6" },
-				{ "selected", category == 6 ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("CatEmployment")},
+                {"Index","6"},
+                {"selected", category == 6 ? "selected" : "" } });
             categories.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("CatWanted") },
-				{ "Index","7" },
-				{ "selected", category == 7 ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("CatWanted")},
+                {"Index","7"},
+                {"selected", category == 7 ? "selected" : "" } });
             categories.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("CatService") },
-				{ "Index","8" },
-				{ "selected", category == 8 ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("CatService")},
+                {"Index","8"},
+                {"selected", category == 8 ? "selected" : "" } });
             categories.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("CatPersonal") },
-				{ "Index","9" },
-				{ "selected", category == 9 ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("CatPersonal")},
+                {"Index","9"},
+                {"selected", category == 9 ? "selected" : "" } });
 
             return categories;
         }
@@ -189,24 +166,15 @@ namespace Universe.Modules.Web
         {
             switch (category)
             {
-                case 1:
-                    return translator.GetTranslatedString("CatShopping");
-                case 2:
-                    return translator.GetTranslatedString("CatLandRental");
-                case 3:
-                    return translator.GetTranslatedString("CatPropertyRental");
-                case 4:
-                    return translator.GetTranslatedString("CatSpecialAttraction");
-                case 5:
-                    return translator.GetTranslatedString("CatNewProducts");
-                case 6:
-                    return translator.GetTranslatedString("CatEmployment");
-                case 7:
-                    return translator.GetTranslatedString("CatWanted");
-                case 8:
-                    return translator.GetTranslatedString("CatService");
-                case 9:
-                    return translator.GetTranslatedString("CatPersonal");
+                case 1: return translator.GetTranslatedString("CatShopping");
+                case 2: return translator.GetTranslatedString("CatLandRental");
+                case 3: return translator.GetTranslatedString("CatPropertyRental");
+                case 4: return translator.GetTranslatedString("CatSpecialAttraction");
+                case 5: return translator.GetTranslatedString("CatNewProducts");
+                case 6: return translator.GetTranslatedString("CatEmployment");
+                case 7: return translator.GetTranslatedString("CatWanted");
+                case 8: return translator.GetTranslatedString("CatService");
+                case 9: return translator.GetTranslatedString("CatPersonal");
                 default:
                     return translator.GetTranslatedString("CatAll");
             }
@@ -221,102 +189,83 @@ namespace Universe.Modules.Web
             // build category selection
             var categories = new List<Dictionary<string, object>>();
             categories.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("CatSelect") },
-				{ "Index","0" },
-				{ "selected", category == -1 ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("CatSelect")},
+                {"Index","0"},
+                {"selected", category == -1 ? "selected" : "" } });
             categories.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("CatAll") },
-				{ "Index","0" },
-				{ "selected", category == 0 ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("CatAll")},
+                {"Index","0"},
+                {"selected", category == 0 ? "selected" : "" } });
             categories.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("CatDiscussion") },
-				{ "Index","18" },
-				{ "selected", category == 18 ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("CatDiscussion")},
+                {"Index","18"},
+                {"selected", category == 18 ? "selected" : "" } });
             categories.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("CatSports") },
-				{ "Index","19" },
-				{ "selected", category == 19 ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("CatSports")},
+                {"Index","19"},
+                {"selected", category == 19 ? "selected" : "" } });
             categories.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("CatLiveMusic") },
-				{ "Index","20" },
-				{ "selected", category == 20 ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("CatLiveMusic")},
+                {"Index","20"},
+                {"selected", category == 20 ? "selected" : "" } });
             categories.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("CatCommercial") },
-				{ "Index","22" },
-				{ "selected", category == 22 ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("CatCommercial")},
+                {"Index","22"},
+                {"selected", category == 22 ? "selected" : "" } });
             categories.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("CatEntertainment") },
-				{ "Index","23" },
-				{ "selected", category == 23 ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("CatEntertainment")},
+                {"Index","23"},
+                {"selected", category == 23 ? "selected" : "" } });
             categories.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("CatGames") },
-				{ "Index","24" },
-				{ "selected", category == 24 ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("CatGames")},
+                {"Index","24"},
+                {"selected", category == 24 ? "selected" : "" } });
             categories.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("CatPageants") },
-				{ "Index","25" },
-				{ "selected", category == 25 ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("CatPageants")},
+                {"Index","25"},
+                {"selected", category == 25 ? "selected" : "" } });
             categories.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("CatEducation") },
-				{ "Index","26" },
-				{ "selected", category == 26 ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("CatEducation")},
+                {"Index","26"},
+                {"selected", category == 26 ? "selected" : "" } });
             categories.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("CatArtsCulture") },
-				{ "Index","27" },
-				{ "selected", category == 27 ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("CatArtsCulture")},
+                {"Index","27"},
+                {"selected", category == 27 ? "selected" : "" } });
             categories.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("CatCharitySupport") },
-				{ "Index","28" },
-				{ "selected", category == 28 ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("CatCharitySupport")},
+                {"Index","28"},
+                {"selected", category == 28 ? "selected" : "" } });
             categories.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("CatMiscellaneous") },
-				{ "Index","29" },
-				{ "selected", category == 29 ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("CatMiscellaneous")},
+                {"Index","29"},
+                {"selected", category == 29 ? "selected" : "" } });
 
             return categories;
         }
 
         public static List<Dictionary<string, object>> EventTimeframesSelections(int timeframe, ITranslator translator)
         {
-
             // build timeframes
             var timeframes = new List<Dictionary<string, object>>();
             timeframes.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Next24Hours") },
-				{ "Index","24" },
-				{ "selected", timeframe == 24 ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("Next24Hours")},
+                {"Index","24"},
+                {"selected", timeframe == 24 ? "selected" : "" } });
             timeframes.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Next10Hours") },
-				{ "Index","10" },
-				{ "selected", timeframe == 10 ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("Next10Hours")},
+                {"Index","10"},
+                {"selected", timeframe == 10 ? "selected" : "" } });
             timeframes.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Next4Hours") },
-				{ "Index","4" },
-				{ "selected", timeframe == 4 ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("Next4Hours")},
+                {"Index","4"},
+                {"selected", timeframe == 4 ? "selected" : "" } });
             timeframes.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Next2Hours") },
-				{ "Index","2" },
-				{ "selected", timeframe == 2 ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("Next2Hours")},
+                {"Index","2"},
+                {"selected", timeframe == 2 ? "selected" : "" } });
 
             return timeframes;
-
         }
 
         // Time selections
@@ -324,245 +273,198 @@ namespace Universe.Modules.Web
         {
             var timeoptions = new List<Dictionary<string, object>>();
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "12:00 am" },
-				{ "Index","00:00:00" },
-				{ "selected", nearestHalf == "00:00:00" ? "selected" : "" }
-			});
+                {"Value", "12:00 am"},
+                {"Index","00:00:00"},
+                {"selected", nearestHalf == "00:00:00" ? "selected" : "" }
+            });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "12:30 am" },
-				{ "Index","00:30:00" },
-				{ "selected", nearestHalf == "00:30:00" ? "selected" : "" }
-			});
+                {"Value", "12:30 am"},
+                {"Index","00:30:00"},
+                {"selected", nearestHalf == "00:30:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "1:00 am" },
-				{ "Index","01:00:00" },
-				{ "selected", nearestHalf == "01:00:00" ? "selected" : "" }
-			});
+                {"Value", "1:00 am"},
+                {"Index","01:00:00"},
+                {"selected", nearestHalf == "01:00:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "1:30 am" },
-				{ "Index","01:30:00" },
-				{ "selected", nearestHalf == "01:30:00" ? "selected" : "" }
-			});
+                {"Value", "1:30 am"},
+                {"Index","01:30:00"},
+                {"selected", nearestHalf == "01:30:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "2:00 am" },
-				{ "Index","02:00:00" },
-				{ "selected", nearestHalf == "02:00:00" ? "selected" : "" }
-			});
+                {"Value", "2:00 am"},
+                {"Index","02:00:00"},
+                {"selected", nearestHalf == "02:00:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "2:30 am" },
-				{ "Index","02:30:00" },
-				{ "selected", nearestHalf == "02:30:00" ? "selected" : "" }
-			});
+                {"Value", "2:30 am"},
+                {"Index","02:30:00"},
+                {"selected", nearestHalf == "02:30:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "3:00 am" },
-				{ "Index","03:00:00" },
-				{ "selected", nearestHalf == "03:00:00" ? "selected" : "" }
-			});
+                {"Value", "3:00 am"},
+                {"Index","03:00:00"},
+                {"selected", nearestHalf == "03:00:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "3:30 am" },
-				{ "Index","03:30:00" },
-				{ "selected", nearestHalf == "03:30:00" ? "selected" : "" }
-			});
+                {"Value", "3:30 am"},
+                {"Index","03:30:00"},
+                {"selected", nearestHalf == "03:30:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "4:00 am" },
-				{ "Index","04:00:00" },
-				{ "selected", nearestHalf == "04:00:00" ? "selected" : "" }
-			});
+                {"Value", "4:00 am"},
+                {"Index","04:00:00"},
+                {"selected", nearestHalf == "04:00:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "4:30 am" },
-				{ "Index","04:30:00" },
-				{ "selected", nearestHalf == "04:30:00" ? "selected" : "" }
-			});
+                {"Value", "4:30 am"},
+                {"Index","04:30:00"},
+                {"selected", nearestHalf == "04:30:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "5:00 am" },
-				{ "Index","05:00:00" },
-				{ "selected", nearestHalf == "05:00:00" ? "selected" : "" }
-			});
+                {"Value", "5:00 am"},
+                {"Index","05:00:00"},
+                {"selected", nearestHalf == "05:00:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "5:30 am" },
-				{ "Index","05:30:00" },
-				{ "selected", nearestHalf == "05:30:00" ? "selected" : "" }
-			});
+                {"Value", "5:30 am"},
+                {"Index","05:30:00"},
+                {"selected", nearestHalf == "05:30:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "6:00 am" },
-				{ "Index","06:00:00" },
-				{ "selected", nearestHalf == "06:00:00" ? "selected" : "" }
-			});
+                {"Value", "6:00 am"},
+                {"Index","06:00:00"},
+                {"selected", nearestHalf == "06:00:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "6:30 am" },
-				{ "Index","06:30:00" },
-				{ "selected", nearestHalf == "06:30:00" ? "selected" : "" }
-			});
+                {"Value", "6:30 am"},
+                {"Index","06:30:00"},
+                {"selected", nearestHalf == "06:30:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "7:00 am" },
-				{ "Index","07:00:00" },
-				{ "selected", nearestHalf == "07:00:00" ? "selected" : "" }
-			});
+                {"Value", "7:00 am"},
+                {"Index","07:00:00"},
+                {"selected", nearestHalf == "07:00:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "7:30 am" },
-				{ "Index","07:30:00" },
-				{ "selected", nearestHalf == "07:30:00" ? "selected" : "" }
-			});
+                {"Value", "7:30 am"},
+                {"Index","07:30:00"},
+                {"selected", nearestHalf == "07:30:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "8:00 am" },
-				{ "Index","08:00:00" },
-				{ "selected", nearestHalf == "08:00:00" ? "selected" : "" }
-			});
+                {"Value", "8:00 am"},
+                {"Index","08:00:00"},
+                {"selected", nearestHalf == "08:00:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "8:30 am" },
-				{ "Index","08:30:00" },
-				{ "selected", nearestHalf == "08:30:00" ? "selected" : "" }
-			});
+                {"Value", "8:30 am"},
+                {"Index","08:30:00"},
+                {"selected", nearestHalf == "08:30:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "9:00 am" },
-				{ "Index","09:00:00" },
-				{ "selected", nearestHalf == "09:00:00" ? "selected" : "" }
-			});
+                {"Value", "9:00 am"},
+                {"Index","09:00:00"},
+                {"selected", nearestHalf == "09:00:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "9:30 am" },
-				{ "Index","09:30:00" },
-				{ "selected", nearestHalf == "09:30:00" ? "selected" : "" }
-			});
+                {"Value", "9:30 am"},
+                {"Index","09:30:00"},
+                {"selected", nearestHalf == "09:30:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "10:00 am" },
-				{ "Index","10:00:00" },
-				{ "selected", nearestHalf == "10:00:00" ? "selected" : "" }
-			});
+                {"Value", "10:00 am"},
+                {"Index","10:00:00"},
+                {"selected", nearestHalf == "10:00:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "10:30 am" },
-				{ "Index","10:30:00" },
-				{ "selected", nearestHalf == "10:30:00" ? "selected" : "" }
-			});
+                {"Value", "10:30 am"},
+                {"Index","10:30:00"},
+                {"selected", nearestHalf == "10:30:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "11:00 am" },
-				{ "Index","11:00:00" },
-				{ "selected", nearestHalf == "11:00:00" ? "selected" : "" }
-			});
+                {"Value", "11:00 am"},
+                {"Index","11:00:00"},
+                {"selected", nearestHalf == "11:00:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "11:30 am" },
-				{ "Index","11:30:00" },
-				{ "selected", nearestHalf == "11:30:00" ? "selected" : "" }
-			});
+                {"Value", "11:30 am"},
+                {"Index","11:30:00"},
+                {"selected", nearestHalf == "11:30:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "12:00 pm" },
-				{ "Index","12:00:00" },
-				{ "selected", nearestHalf == "12:00:00" ? "selected" : "" }
-			});
+                {"Value", "12:00 pm"},
+                {"Index","12:00:00"},
+                {"selected", nearestHalf == "12:00:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "12:30 pm" },
-				{ "Index","12:30:00" },
-				{ "selected", nearestHalf == "12:30:00" ? "selected" : "" }
-			});
+                {"Value", "12:30 pm"},
+                {"Index","12:30:00"},
+                {"selected", nearestHalf == "12:30:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "1:00 pm" },
-				{ "Index","13:00:00" },
-				{ "selected", nearestHalf == "13:00:00" ? "selected" : "" }
-			});
+                {"Value", "1:00 pm"},
+                {"Index","13:00:00"},
+                {"selected", nearestHalf == "13:00:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "1:30 pm" },
-				{ "Index","13:30:00" },
-				{ "selected", nearestHalf == "13:30:00" ? "selected" : "" }
-			});
+                {"Value", "1:30 pm"},
+                {"Index","13:30:00"},
+                {"selected", nearestHalf == "13:30:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "2:00 pm" },
-				{ "Index","14:00:00" },
-				{ "selected", nearestHalf == "14:00:00" ? "selected" : "" }
-			});
+                {"Value", "2:00 pm"},
+                {"Index","14:00:00"},
+                {"selected", nearestHalf == "14:00:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "2:30 pm" },
-				{ "Index","14:30:00" },
-				{ "selected", nearestHalf == "14:30:00" ? "selected" : "" }
-			});
+                {"Value", "2:30 pm"},
+                {"Index","14:30:00"},
+                {"selected", nearestHalf == "14:30:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "3:00 pm" },
-				{ "Index","15:00:00" },
-				{ "selected", nearestHalf == "15:00:00" ? "selected" : "" }
-			});
+                {"Value", "3:00 pm"},
+                {"Index","15:00:00"},
+                {"selected", nearestHalf == "15:00:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "3:30 pm" },
-				{ "Index","15:30:00" },
-				{ "selected", nearestHalf == "15:30:00" ? "selected" : "" }
-			});
+                {"Value", "3:30 pm"},
+                {"Index","15:30:00"},
+                {"selected", nearestHalf == "15:30:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "4:00 pm" },
-				{ "Index","16:00:00" },
-				{ "selected", nearestHalf == "16:00:00" ? "selected" : "" }
-			});
+                {"Value", "4:00 pm"},
+                {"Index","16:00:00"},
+                {"selected", nearestHalf == "16:00:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "4:30 pm" },
-				{ "Index","16:30:00" },
-				{ "selected", nearestHalf == "16:30:00" ? "selected" : "" }
-			});
+                {"Value", "4:30 pm"},
+                {"Index","16:30:00"},
+                {"selected", nearestHalf == "16:30:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "5:00 pm" },
-				{ "Index","17:00:00" },
-				{ "selected", nearestHalf == "17:00:00" ? "selected" : "" }
-			});
+                {"Value", "5:00 pm"},
+                {"Index","17:00:00"},
+                {"selected", nearestHalf == "17:00:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "5:30 pm" },
-				{ "Index","17:30:00" },
-				{ "selected", nearestHalf == "17:30:00" ? "selected" : "" }
-			});
+                {"Value", "5:30 pm"},
+                {"Index","17:30:00"},
+                {"selected", nearestHalf == "17:30:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "6:00 pm" },
-				{ "Index","18:00:00" },
-				{ "selected", nearestHalf == "18:00:00" ? "selected" : "" }
-			});
+                {"Value", "6:00 pm"},
+                {"Index","18:00:00"},
+                {"selected", nearestHalf == "18:00:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "6:30 pm" },
-				{ "Index","18:30:00" },
-				{ "selected", nearestHalf == "18:30:00" ? "selected" : "" }
-			});
+                {"Value", "6:30 pm"},
+                {"Index","18:30:00"},
+                {"selected", nearestHalf == "18:30:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "7:00 pm" },
-				{ "Index","19:00:00" },
-				{ "selected", nearestHalf == "19:00:00" ? "selected" : "" }
-			});
+                {"Value", "7:00 pm"},
+                {"Index","19:00:00"},
+                {"selected", nearestHalf == "19:00:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "7:30 pm" },
-				{ "Index","19:30:00" },
-				{ "selected", nearestHalf == "19:30:00" ? "selected" : "" }
-			});
+                {"Value", "7:30 pm"},
+                {"Index","19:30:00"},
+                {"selected", nearestHalf == "19:30:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "8:00 pm" },
-				{ "Index","20:00:00" },
-				{ "selected", nearestHalf == "20:00:00" ? "selected" : "" }
-			});
+                {"Value", "8:00 pm"},
+                {"Index","20:00:00"},
+                {"selected", nearestHalf == "20:00:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "8:30 pm" },
-				{ "Index","20:30:00" },
-				{ "selected", nearestHalf == "20:30:00" ? "selected" : "" }
-			});
+                {"Value", "8:30 pm"},
+                {"Index","20:30:00"},
+                {"selected", nearestHalf == "20:30:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "9:00 pm" },
-				{ "Index","21:00:00" },
-				{ "selected", nearestHalf == "21:00:00" ? "selected" : "" }
-			});
+                {"Value", "9:00 pm"},
+                {"Index","21:00:00"},
+                {"selected", nearestHalf == "21:00:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "9:30 pm" },
-				{ "Index","21:30:00" },
-				{ "selected", nearestHalf == "21:30:00" ? "selected" : "" }
-			});
+                {"Value", "9:30 pm"},
+                {"Index","21:30:00"},
+                {"selected", nearestHalf == "21:30:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "10:00 pm" },
-				{ "Index","22:00:00" },
-				{ "selected", nearestHalf == "22:00:00" ? "selected" : "" }
-			});
+                {"Value", "10:00 pm"},
+                {"Index","22:00:00"},
+                {"selected", nearestHalf == "22:00:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "10:30 pm" },
-				{ "Index","22:30:00" },
-				{ "selected", nearestHalf == "22:3:00" ? "selected" : "" }
-			});
+                {"Value", "10:30 pm"},
+                {"Index","22:30:00"},
+                {"selected", nearestHalf == "22:3:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "11:00 pm" },
-				{ "Index","23:00:00" },
-				{ "selected", nearestHalf == "23:00:00" ? "selected" : "" }
-			});
+                {"Value", "11:00 pm"},
+                {"Index","23:00:00"},
+                {"selected", nearestHalf == "23:00:00" ? "selected" : "" } });
             timeoptions.Add(new Dictionary<string, object> {
-				{ "Value", "11:30 pm" },
-				{ "Index","23:30:00" },
-				{ "selected", nearestHalf == "23:30:00" ? "selected" : "" }
-			});
+                {"Value", "11:30 pm"},
+                {"Index","23:30:00"},
+                {"selected", nearestHalf == "23:30:00" ? "selected" : "" } });
 
             return timeoptions;
         }
@@ -572,110 +474,89 @@ namespace Universe.Modules.Web
         {
             var durations = new List<Dictionary<string, object>>();
             durations.Add(new Dictionary<string, object> {
-				{ "Value", "10 minutes" },
-				{ "Index","10" },
-				{ "selected", duration == 10 ? "selected" : "" }
-			});
+                {"Value", "10 minutes"},
+                {"Index","10"},
+                {"selected", duration == 10 ? "selected" : "" } });
             durations.Add(new Dictionary<string, object> {
-				{ "Value", "15 minutes" },
-				{ "Index","15" },
-				{ "selected", duration == 15 ? "selected" : "" }
-			});
+                {"Value", "15 minutes"},
+                {"Index","15"},
+                {"selected", duration == 15 ? "selected" : "" } });
             durations.Add(new Dictionary<string, object> {
-				{ "Value", "20 minutes" },
-				{ "Index","20" },
-				{ "selected", duration == 20 ? "selected" : "" }
-			});
+                {"Value", "20 minutes"},
+                {"Index","20"},
+                {"selected", duration == 20 ? "selected" : "" } });
             durations.Add(new Dictionary<string, object> {
-				{ "Value", "25 minutes" },
-				{ "Index","25" },
-				{ "selected", duration == 25 ? "selected" : "" }
-			});
+                {"Value", "25 minutes"},
+                {"Index","25"},
+                {"selected", duration == 25 ? "selected" : "" } });
             durations.Add(new Dictionary<string, object> {
-				{ "Value", "30 minutes" },
-				{ "Index","30" },
-				{ "selected", duration == 30 ? "selected" : "" }
-			});
+                {"Value", "30 minutes"},
+                {"Index","30"},
+                {"selected", duration == 30 ? "selected" : "" } });
             durations.Add(new Dictionary<string, object> {
-				{ "Value", "45 minutes" },
-				{ "Index","45" },
-				{ "selected", duration == 45 ? "selected" : "" }
-			});
+                {"Value", "45 minutes"},
+                {"Index","45"},
+                {"selected", duration == 45 ? "selected" : "" } });
             durations.Add(new Dictionary<string, object> {
-				{ "Value", "1 hour" },
-				{ "Index","60" },
-				{ "selected", duration == 60 ? "selected" : "" }
-			});
+                {"Value", "1 hour"},
+                {"Index","60"},
+                {"selected", duration == 60 ? "selected" : "" } });
             durations.Add(new Dictionary<string, object> {
-				{ "Value", "1.5 hours" },
-				{ "Index","90" },
-				{ "selected", duration == 90 ? "selected" : "" }
-			});
+                {"Value", "1.5 hours"},
+                {"Index","90"},
+                {"selected", duration == 90 ? "selected" : "" } });
             durations.Add(new Dictionary<string, object> {
-				{ "Value", "2 hours" },
-				{ "Index","120" },
-				{ "selected", duration == 120 ? "selected" : "" }
-			});
+                {"Value", "2 hours"},
+                {"Index","120"},
+                {"selected", duration == 120 ? "selected" : "" } });
             durations.Add(new Dictionary<string, object> {
-				{ "Value", "2.5 hours" },
-				{ "Index","150" },
-				{ "selected", duration == 150 ? "selected" : "" }
-			});
+                {"Value", "2.5 hours"},
+                {"Index","150"},
+                {"selected", duration == 150 ? "selected" : "" } });
             durations.Add(new Dictionary<string, object> {
-				{ "Value", "3 hours" },
-				{ "Index","180" },
-				{ "selected", duration == 180 ? "selected" : "" }
-			});
+                {"Value", "3 hours"},
+                {"Index","180"},
+                {"selected", duration == 180 ? "selected" : "" } });
             durations.Add(new Dictionary<string, object> {
-				{ "Value", "4 hours" },
-				{ "Index","240" },
-				{ "selected", duration == 240 ? "selected" : "" }
-			});
+                {"Value", "4 hours"},
+                {"Index","240"},
+                {"selected", duration == 240 ? "selected" : "" } });
             durations.Add(new Dictionary<string, object> {
-				{ "Value", "5 hours" },
-				{ "Index","300" },
-				{ "selected", duration == 300 ? "selected" : "" }
-			});
+                {"Value", "5 hours"},
+                {"Index","300"},
+                {"selected", duration == 300 ? "selected" : "" } });
             durations.Add(new Dictionary<string, object> {
-				{ "Value", "6 hours" },
-				{ "Index","360" },
-				{ "selected", duration == 360 ? "selected" : "" }
-			});
+                {"Value", "6 hours"},
+                {"Index","360"},
+                {"selected", duration == 360 ? "selected" : "" } });
             durations.Add(new Dictionary<string, object> {
-				{ "Value", "7 hours" },
-				{ "Index","420" },
-				{ "selected", duration == 420 ? "selected" : "" }
-			});
+                {"Value", "7 hours"},
+                {"Index","420"},
+                {"selected", duration == 420 ? "selected" : "" } });
             durations.Add(new Dictionary<string, object> {
-				{ "Value", "8 hours" },
-				{ "Index","480" },
-				{ "selected", duration == 480 ? "selected" : "" }
-			});
+                {"Value", "8 hours"},
+                {"Index","480"},
+                {"selected", duration == 480 ? "selected" : "" } });
             durations.Add(new Dictionary<string, object> {
-				{ "Value", "9 hours" },
-				{ "Index","540" },
-				{ "selected", duration == 540 ? "selected" : "" }
-			});
+                {"Value", "9 hours"},
+                {"Index","540"},
+                {"selected", duration == 540 ? "selected" : "" } });
             durations.Add(new Dictionary<string, object> {
-				{ "Value", "10 hours" },
-				{ "Index","600" },
-				{ "selected", duration == 600 ? "selected" : "" }
-			});
+                {"Value", "10 hours"},
+                {"Index","600"},
+                {"selected", duration == 600 ? "selected" : "" } });
             durations.Add(new Dictionary<string, object> {
-				{ "Value", "11 hours" },
-				{ "Index","660" },
-				{ "selected", duration == 660 ? "selected" : "" }
-			});
+                {"Value", "11 hours"},
+                {"Index","660"},
+                {"selected", duration == 660 ? "selected" : "" } });
             durations.Add(new Dictionary<string, object> {
-				{ "Value", "12 hours" },
-				{ "Index","720" },
-				{ "selected", duration == 720 ? "selected" : "" }
-			});
+                {"Value", "12 hours"},
+                {"Index","720"},
+                {"selected", duration == 720 ? "selected" : "" } });
             durations.Add(new Dictionary<string, object> {
-				{ "Value", "24 hours" },
-				{ "Index","1440" },
-				{ "selected", duration == 1440 ? "selected" : "" }
-			});
+                {"Value", "24 hours"},
+                {"Index","1440"},
+                {"selected", duration == 1440 ? "selected" : "" } });
 
             return durations;
         }
@@ -688,6 +569,9 @@ namespace Universe.Modules.Web
             foreach (var parcel in myParcels)
             {
                 var region = regionData.Get(parcel.LandData.RegionID, null);
+
+                if (region == null)     // something screwy here
+                    continue;
 
                 // future proofing
                 if (region.IsForeign || region.IsHgRegion)
@@ -720,13 +604,13 @@ namespace Universe.Modules.Web
                         selected = "selected";
 
                 parcelList.Add(new Dictionary<string, object> {
-					{ "Value",regionMaturity + " " + parcelName + " in " + regionName + " " + regionArea },
-					{ "Index",parcelLocation + "," + parcelLanding + "," + parcelUUID },
-					{ "disabled", region.IsOnline ? "" : "disabled" },        // always enabled as offline regions are ignored for now
-					{ "selected", selected }
-				});
-
+                    {"Value",regionMaturity + " " + parcelName + " in " + regionName + " " + regionArea},
+                            {"Index",parcelLocation + "," + parcelLanding + "," + parcelUUID},
+                            {"disabled", region.IsOnline ? "" : "disabled"},        // always enabled as offline regions are ignored for now
+                            {"selected", selected}
+                    });
             }
+
             return parcelList;
         }
 
@@ -740,67 +624,70 @@ namespace Universe.Modules.Web
             var friendsService = registry.RequestModuleInterface<IFriendsService>();
 
             regionList.Add(new Dictionary<string, object> {
-				{ "Value", "---MY PARCELS---" },
-				{ "Index","0" },
-				{ "disabled","disabled" },
-				{ "selected", "" }
-			});
+                {"Value", "---MY PARCELS---"},
+                {"Index","0"},
+                {"disabled","disabled"},
+                {"selected", ""}
+            });
 
+            #region user land
             if (user != null)
             {
                 var myParcels = directoryService.GetParcelByOwner(user.PrincipalID);
                 if (myParcels.Count > 0)
                     regionList.AddRange(ParcelLocations(myParcels, selParcel));
-            }
 
-            // Group owned parcels
-            regionList.Add(new Dictionary<string, object> {
-				{ "Value", "---GROUP PARCELS---" },
-				{ "Index","0" },
-				{ "disabled","disabled" },
-				{ "selected", "" }
-			});
+                // Group owned parcels
+                regionList.Add(new Dictionary<string, object> {
+                    {"Value", "---GROUP PARCELS---"},
+                    {"Index","0"},
+                    {"disabled","disabled"},
+                    {"selected", ""}
+                });
 
-            if (groupService != null)
-            {
-                var grpmembership = groupService.GetMembershipData(user.PrincipalID);
-                if (grpmembership != null)
+                if (groupService != null)
                 {
-                    foreach (var grp in grpmembership)
+                    var grpmembership = groupService.GetMembershipData(user.PrincipalID);
+                    if (grpmembership != null)
                     {
-                        var groupParcels = directoryService.GetParcelByOwner(grp.GroupID);
-                        if (groupParcels.Count > 0)
-                            regionList.AddRange(ParcelLocations(groupParcels, selParcel));
+                        foreach (var grp in grpmembership)
+                        {
+                            var groupParcels = directoryService.GetParcelByOwner(grp.GroupID);
+                            if (groupParcels.Count > 0)
+                                regionList.AddRange(ParcelLocations(groupParcels, selParcel));
+                        }
                     }
                 }
+
+                // Private Estate parcels
+                regionList.Add(new Dictionary<string, object> {
+                    {"Value", "---PRIVATE ESTATE PARCELS---"},
+                    {"Index","0"},
+                    {"disabled","disabled"},
+                    {"selected", ""}
+                });
             }
 
-            // Private Estate parcels
-            regionList.Add(new Dictionary<string, object> {
-				{ "Value", "---PRIVATE ESTATE PARCELS---" },
-				{ "Index","0" },
-				{ "disabled","disabled" },
-				{ "selected", "" }
-			});
+            #endregion
 
             // Public parcels
             regionList.Add(new Dictionary<string, object> {
-				{ "Value", "---PUBLIC PARCELS---" },
-				{ "Index","0" },
-				{ "disabled","disabled" },
-				{ "selected", "" }
-			});
-            var mainlandParcels = directoryService.GetParcelByOwner((UUID)Constants.GovernorUUID);
+                {"Value", "---PUBLIC PARCELS---"},
+                {"Index","0"},
+                {"disabled","disabled"},
+                {"selected", ""}
+            });
+            var mainlandParcels = directoryService.GetParcelByOwner((UUID)Constants.RealEstateOwnerUUID);
             if (mainlandParcels.Count > 0)
                 regionList.AddRange(ParcelLocations(mainlandParcels, selParcel));
 
             // Friends parcels
             regionList.Add(new Dictionary<string, object> {
-				{ "Value", "---MY FRIENDS PARCELS---" },
-				{ "Index","0" },
-				{ "disabled","disabled" },
-				{ "selected", "" }
-			});
+                {"Value", "---MY FRIENDS PARCELS---"},
+                {"Index","0"},
+                {"disabled","disabled"},
+                {"selected", ""}
+            });
 
             if (user != null)
             {
@@ -856,85 +743,51 @@ namespace Universe.Modules.Web
             }
         }
 
-
         public static string EventCategory(int category, ITranslator translator)
         {
             switch (category)
             {
-                case 18:
-                    return translator.GetTranslatedString("CatDiscussion");
-                case 19:
-                    return translator.GetTranslatedString("CatSports");
-                case 20:
-                    return translator.GetTranslatedString("CatLiveMusic");
-                case 22:
-                    return translator.GetTranslatedString("CatCommercial");
-                case 23:
-                    return translator.GetTranslatedString("CatEntertainment");
-                case 24:
-                    return translator.GetTranslatedString("CatGames");
-                case 25:
-                    return translator.GetTranslatedString("CatPageants");
-                case 26:
-                    return translator.GetTranslatedString("CatEducation");
-                case 27:
-                    return translator.GetTranslatedString("CatArtsCulture");
-                case 28:
-                    return translator.GetTranslatedString("CatCharitySupport");
-                case 29:
-                    return translator.GetTranslatedString("CatMiscellaneous");
+                case 18: return translator.GetTranslatedString("CatDiscussion");
+                case 19: return translator.GetTranslatedString("CatSports");
+                case 20: return translator.GetTranslatedString("CatLiveMusic");
+                case 22: return translator.GetTranslatedString("CatCommercial");
+                case 23: return translator.GetTranslatedString("CatEntertainment");
+                case 24: return translator.GetTranslatedString("CatGames");
+                case 25: return translator.GetTranslatedString("CatPageants");
+                case 26: return translator.GetTranslatedString("CatEducation");
+                case 27: return translator.GetTranslatedString("CatArtsCulture");
+                case 28: return translator.GetTranslatedString("CatCharitySupport");
+                case 29: return translator.GetTranslatedString("CatMiscellaneous");
                 default: // 0
                     return translator.GetTranslatedString("CatAll");
             }
-
         }
 
         public static string EventDuration(int duration, ITranslator translator)
         {
             switch (duration)
             {
-                case 10:
-                    return "10 " + translator.GetTranslatedString("MinutesText");
-                case 15:
-                    return "15 " + translator.GetTranslatedString("MinutesText");
-                case 20:
-                    return "20 " + translator.GetTranslatedString("MinutesText");
-                case 25:
-                    return "25 " + translator.GetTranslatedString("MinutesText");
-                case 30:
-                    return "30 " + translator.GetTranslatedString("MinutesText");
-                case 45:
-                    return "45 " + translator.GetTranslatedString("MinutesText");
-                case 60:
-                    return "1 " + translator.GetTranslatedString("HourText");
-                case 90:
-                    return "1.5 " + translator.GetTranslatedString("HoursText");
-                case 120:
-                    return "2 " + translator.GetTranslatedString("HoursText");
-                case 150:
-                    return "2.5 " + translator.GetTranslatedString("HoursText");
-                case 180:
-                    return "3 " + translator.GetTranslatedString("HoursText");
-                case 240:
-                    return "4 " + translator.GetTranslatedString("HoursText");
-                case 300:
-                    return "5 " + translator.GetTranslatedString("HoursText");
-                case 360:
-                    return "6 " + translator.GetTranslatedString("HoursText");
-                case 420:
-                    return "7 " + translator.GetTranslatedString("HoursText");
-                case 480:
-                    return "8 " + translator.GetTranslatedString("HoursText");
-                case 540:
-                    return "9 " + translator.GetTranslatedString("HoursText");
-                case 600:
-                    return "10 " + translator.GetTranslatedString("HoursText");
-                case 660:
-                    return "11 " + translator.GetTranslatedString("HoursText");
-                case 720:
-                    return "12 " + translator.GetTranslatedString("HoursText");
-                case 1440:
-                    return "24 " + translator.GetTranslatedString("HoursText");
+                case 10: return "10 " + translator.GetTranslatedString("MinutesText");
+                case 15: return "15 " + translator.GetTranslatedString("MinutesText");
+                case 20: return "20 " + translator.GetTranslatedString("MinutesText");
+                case 25: return "25 " + translator.GetTranslatedString("MinutesText");
+                case 30: return "30 " + translator.GetTranslatedString("MinutesText");
+                case 45: return "45 " + translator.GetTranslatedString("MinutesText");
+                case 60: return "1 " + translator.GetTranslatedString("HourText");
+                case 90: return "1.5 " + translator.GetTranslatedString("HoursText");
+                case 120: return "2 " + translator.GetTranslatedString("HoursText");
+                case 150: return "2.5 " + translator.GetTranslatedString("HoursText");
+                case 180: return "3 " + translator.GetTranslatedString("HoursText");
+                case 240: return "4 " + translator.GetTranslatedString("HoursText");
+                case 300: return "5 " + translator.GetTranslatedString("HoursText");
+                case 360: return "6 " + translator.GetTranslatedString("HoursText");
+                case 420: return "7 " + translator.GetTranslatedString("HoursText");
+                case 480: return "8 " + translator.GetTranslatedString("HoursText");
+                case 540: return "9 " + translator.GetTranslatedString("HoursText");
+                case 600: return "10 " + translator.GetTranslatedString("HoursText");
+                case 660: return "11 " + translator.GetTranslatedString("HoursText");
+                case 720: return "12 " + translator.GetTranslatedString("HoursText");
+                case 1440: return "24 " + translator.GetTranslatedString("HoursText");
                 default:
                     return duration.ToString();
             }
@@ -950,15 +803,16 @@ namespace Universe.Modules.Web
                 selType = selType.ToLower().Substring(0, 1);
             var args = new List<Dictionary<string, object>>();
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Mainland") },
-				{ "Index","m" },
-				{ "selected", selType == "m" ? "selected" : "" }
-			});
+                { "Value", translator.GetTranslatedString("Mainland")},
+                { "Index","m"},
+                { "selected", selType == "m" ? "selected" : "" }
+            });
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Estate") },
-				{ "Index","e" },
-				{ "selected", selType == "e" ? "selected" : "" }
-			});
+                { "Value", translator.GetTranslatedString("Estate")},
+                { "Index","e"},
+                { "selected", selType == "e" ? "selected" : "" }
+            });
+
             return args;
         }
 
@@ -968,30 +822,31 @@ namespace Universe.Modules.Web
                 selPreset = selPreset.ToLower().Substring(0, 1);
             var args = new List<Dictionary<string, object>>();
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("FullRegion") },
-				{ "Index","f" },
-				{ "selected", selPreset == "f" ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("FullRegion")},
+                {"Index","f"},
+                { "selected", selPreset == "f" ? "selected" : "" }
+            });
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Homestead") },
-				{ "Index","h" },
-				{ "selected", selPreset == "h" ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("Homestead")},
+                {"Index","h"},
+                { "selected", selPreset == "h" ? "selected" : "" }
+            });
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Openspace") },
-				{ "Index","o" },
-				{ "selected", selPreset == "o" ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("Openspace")},
+                {"Index","o"},
+                { "selected", selPreset == "o" ? "selected" : "" }
+            });
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Universe") },
-				{ "Index","w" },
-				{ "selected", selPreset == "w" ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("Universe")},
+                {"Index","w"},
+                { "selected", selPreset == "w" ? "selected" : "" }
+            });
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Custom") },
-				{ "Index","c" },
-				{ "selected", selPreset == "c" ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("Custom")},
+                {"Index","c"},
+                { "selected", selPreset == "c" ? "selected" : "" }
+            });
+
             return args;
         }
 
@@ -1001,30 +856,31 @@ namespace Universe.Modules.Web
                 selTerrain = selTerrain.ToLower().Substring(0, 1);
             var args = new List<Dictionary<string, object>>();
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Flatland") },
-				{ "Index","f" },
-				{ "selected", selTerrain == "f" ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("Flatland")},
+                {"Index","f"},
+                { "selected", selTerrain == "f" ? "selected" : "" }
+            });
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Grassland") },
-				{ "Index","g" },
-				{ "selected", selTerrain == "g" ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("Grassland")},
+                {"Index","g"},
+                { "selected", selTerrain == "g" ? "selected" : "" }
+            });
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Island") },
-				{ "Index","i" },
-				{ "selected", selTerrain == "i" ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("Island")},
+                {"Index","i"},
+                { "selected", selTerrain == "i" ? "selected" : "" }
+            });
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Aquatic") },
-				{ "Index","a" },
-				{ "selected", selTerrain == "a" ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("Aquatic")},
+                {"Index","a"},
+                { "selected", selTerrain == "a" ? "selected" : "" }
+            });
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Custom") },
-				{ "Index","c" },
-				{ "selected", selTerrain == "c" ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("Custom")},
+                {"Index","c"},
+                { "selected", selTerrain == "c" ? "selected" : "" }
+            });
+
             return args;
         }
 
@@ -1046,7 +902,7 @@ namespace Universe.Modules.Web
             foreach (var estate in estates)
             {
                 var estateID = estateConnector.GetEstateID(estate);
-                EstateSettings ES = estateConnector.GetEstateSettings(estateID);
+                EstateSettings ES = estateConnector.GetEstateIDSettings(estateID);
 
                 if (ES != null)
                 {
@@ -1058,13 +914,13 @@ namespace Universe.Modules.Web
                             selected = "selected";
 
                     estateList.Add(new Dictionary<string, object> {
-						{ "Value", ES.EstateName + " (" + EstateOwner.Name + ")" },
-						{ "Index", estateID },
-						{ "selected", selected }
-					});
-
+                        {"Value", ES.EstateName + " (" + EstateOwner.Name + ")"},
+                        {"Index", estateID},
+                        {"selected", selected}
+                    });
                 }
             }
+
             return estateList;
         }
 
@@ -1078,15 +934,15 @@ namespace Universe.Modules.Web
         {
             var args = new List<Dictionary<string, object>>();
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("NormalText") },
-				{ "Index","n" },
-				{ "selected", selStartup == StartupType.Normal ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("NormalText")},
+                {"Index","n"},
+                { "selected", selStartup == StartupType.Normal ? "selected" : "" }
+            });
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("DelayedText") },
-				{ "Index","m" },
-				{ "selected", selStartup == StartupType.Medium ? "selected" : "" }
-			});
+                {"Value", translator.GetTranslatedString("DelayedText")},
+                {"Index","m"},
+                { "selected", selStartup == StartupType.Medium ? "selected" : "" }
+            });
 
             return args;
         }
@@ -1104,7 +960,6 @@ namespace Universe.Modules.Web
             var defaultOarDir = Path.Combine(simBase.DefaultDataPath, Constants.DEFAULT_OARARCHIVE_DIR);
             var regionArchives = new List<Dictionary<string, object>>();
 
-
             if (Directory.Exists(defaultOarDir))
             {
                 var archives = new List<string>(Directory.GetFiles(defaultOarDir, "*.oar"));
@@ -1114,21 +969,21 @@ namespace Universe.Modules.Web
                     var localPic = Path.ChangeExtension(file, "jpg");
                     if (File.Exists(localPic))
                         regionArchives.Add(new Dictionary<string, object> {
-							{ "RegionArchiveSnapshotURL", webTextureService.GetImageURL (localPic) },
-							{ "RegionArchive", file },
-							{ "RegionArchiveName", Path.GetFileNameWithoutExtension (file) }
-						});
+                        {"RegionArchiveSnapshotURL", webTextureService.GetImageURL(localPic)},
+                        {"RegionArchive", file},
+                        {"RegionArchiveName", Path.GetFileNameWithoutExtension(file)}
+                    });
                     else
                         regionArchives.Add(new Dictionary<string, object> {
-							{ "RegionArchiveSnapshotURL", "../images/icons/no_terrain.jpg" },
-							{ "RegionArchive", file },
-							{ "RegionArchiveName", Path.GetFileNameWithoutExtension (file) }
-						});
+                        {"RegionArchiveSnapshotURL", "../images/icons/no_terrain.jpg"},
+                        {"RegionArchive", file},
+                        {"RegionArchiveName", Path.GetFileNameWithoutExtension(file)}
+                    });
                 }
             }
+
             return regionArchives;
         }
-
 
         #endregion
 
@@ -1143,26 +998,27 @@ namespace Universe.Modules.Web
         {
             var args = new List<Dictionary<string, object>>();
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Citizen") }, { "Index","0" }
-			});
+                { "Value", translator.GetTranslatedString ("Citizen") }, { "Index","0" }
+            });
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Member") }, { "Index","1" }
-			});
+                { "Value", translator.GetTranslatedString ("Member") }, { "Index","1" }
+            });
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Contractor") }, { "Index","2" }
-			});
+                { "Value", translator.GetTranslatedString ("Contractor") }, { "Index","2" }
+            });
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Mentor") }, { "Index","3" }
-			});
+                { "Value", translator.GetTranslatedString ("Mentor") }, { "Index","3" }
+            });
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Staff") }, { "Index","4" }
-			});
+                { "Value", translator.GetTranslatedString ("Staff") }, { "Index","4" }
+            });
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Assistant Developer") }, { "Index","5" }
-			});
+                { "Value", translator.GetTranslatedString ("Assistant Developer") }, { "Index","5" }
+            });
             args.Add(new Dictionary<string, object> {
-				{ "Value", translator.GetTranslatedString ("Core Developer") }, { "Index","6" }
-			});
+                { "Value", translator.GetTranslatedString ("Core Developer") }, { "Index","6" }
+            });
+
             return args;
         }
 
@@ -1202,7 +1058,6 @@ namespace Universe.Modules.Web
         /// <param name = "translator"></param>
         public static string UserFlagToType(int userFlags, ITranslator translator)
         {
-
             switch (userFlags)
             {
                 case Constants.USER_FLAG_GUEST:
@@ -1226,7 +1081,6 @@ namespace Universe.Modules.Web
             }
         }
 
-
         /// <summary>
         /// User account selections.
         /// </summary>
@@ -1237,7 +1091,6 @@ namespace Universe.Modules.Web
         {
             var userList = new List<Dictionary<string, object>>();
             var accountService = registry.RequestModuleInterface<IUserAccountService>();
-
             var users = accountService.GetUserAccounts(null, "*");
 
             foreach (var user in users)
@@ -1248,13 +1101,12 @@ namespace Universe.Modules.Web
                     selected = "selected";
 
                 userList.Add(new Dictionary<string, object> {
-					{ "Value", user.Name },
-					{ "Index",user.PrincipalID },
-					{ "selected", selected }
-				});
-
-
+                    { "Value", user.Name },
+                    { "Index",user.PrincipalID },
+                    { "selected", selected }
+                });
             }
+
             return userList;
         }
 
@@ -1279,66 +1131,54 @@ namespace Universe.Modules.Web
                                  ? webTextureService.GetAvatarImageURL(archive.LocalSnapshot)
                                  : webTextureService.GetTextureURL(archive.Snapshot)
                 );
+
                 avatarArchives.Add(archiveInfo);
             }
 
             return avatarArchives;
         }
 
-
         // user regions
         /*        public static List<Dictionary<string, object>> UserRegionSelections (UserAccount user, string selRegion)
                 {
                     var regionList = new List<Dictionary<string, object>> ();
                     var directoryService = Framework.Utilities.DataManager.RequestPlugin<IDirectoryServiceConnector> ();
-
-
                     regionList.Add (new Dictionary<string, object> {
                             {"Value", "---MY REGIONS---"},
                             {"Index","0"},
                             {"disabled","disabled"},
                             {"selected", ""}
                             });
-
                     if (user != null) {
                         var myParcels = directoryService.GetParcelByOwner (user.PrincipalID);
                         if (myParcels.Count == 0) 
                             return regionList;
-
                         // build the user region list
-
                         var regionuuids = new List<UUID> ();
                         foreach (var parcel in myParcels) {
                             if (regionuuids.Contains (parcel.LandData.RegionID))
                                 continue;
                             regionuuids.Add (parcel.LandData.RegionID);
                         }
-
                         var regionData = Framework.Utilities.DataManager.RequestPlugin<IRegionData> ();
                         foreach (UUID regionID in regionuuids) {
                             var region = regionData.Get (regionID, null);
-
                             // future proofing
                             if (region.IsForeign || region.IsHgRegion)
                                 continue;
-
                             // this might change
                             if (!region.IsOnline)
                                 continue;
-
                             var regionArea = region.RegionArea < 1000000
                                        ? region.RegionArea + " m2"
                                        : (region.RegionArea / 1000000) + " km2";
                             var regionLocX = region.RegionLocX / Constants.RegionSize;
                             var regionLocY = region.RegionLocY / Constants.RegionSize;
-
                             var regionName = region.RegionName;
-
                             var selected = "";
                             if (selRegion != "")
                                 if (region.RegionID.ToString () == selRegion)
                                     selected = "selected";
-
                             regionList.Add (new Dictionary<string, object> {
                                     {"Value", region.RegionName + " " + regionArea},
                                     {"Index", region.RegionID},
@@ -1346,8 +1186,8 @@ namespace Universe.Modules.Web
                                     {"selected", selected},
                                 });
                         }
-
                     }
+
                     return regionList;
                 }
         */
