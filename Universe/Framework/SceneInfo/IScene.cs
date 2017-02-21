@@ -71,9 +71,13 @@ namespace Universe.Framework.SceneInfo
 		/// <summary>
 		///     deeded object back to last owner's inventory
 		/// </summary>
-		ReturnToLastOwner = 10}
+		ReturnToLastOwner = 10,
 
-	;
+        /// <summary>
+        /// Delete a temporary object.
+        /// </summary>
+        DeleteTemporary = 11
+    };
 
 	public enum ShutdownType
 	{
