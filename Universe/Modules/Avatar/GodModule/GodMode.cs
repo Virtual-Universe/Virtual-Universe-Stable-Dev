@@ -143,41 +143,42 @@ namespace Universe.Modules.Gods
 			}
 		}
 
-		/// <summary>
-		///     Save the state of the region
-		/// </summary>
-		/// <param name="client"></param>
-		/// <param name="agentID"></param>
-		public void GodSaveState (IClientAPI client, UUID agentID)
-		{
-			//Check for god perms
-			if (client.Scene.Permissions.IsGod (client.AgentId)) {
-				IScene scene = MainConsole.Instance.ConsoleScene; //Switch back later
-				MainConsole.Instance.RunCommand ("change region " + client.Scene.RegionInfo.RegionName);
-				MainConsole.Instance.RunCommand (
-					"save oar "
-					+ m_savestate_oar_directory
-					+ client.Scene.RegionInfo.RegionName.Replace (" ", "%20")// Check if the region name has spaces in them
-					+ ".statesave.oar");
-				if (scene == null)
-					MainConsole.Instance.RunCommand ("change region root");
-				else
-					MainConsole.Instance.RunCommand ("change region " + scene.RegionInfo.RegionName);
-			}
-		}
+        /// <summary>
+        ///     Save the state of the region
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="agentID"></param>
+        public void GodSaveState(IClientAPI client, UUID agentID)
+        {
+            //Check for god perms
+            if (client.Scene.Permissions.IsGod(client.AgentId))
+            {
+                IScene scene = MainConsole.Instance.ConsoleScene; //Switch back later
+                MainConsole.Instance.RunCommand("change region " + client.Scene.RegionInfo.RegionName);
+                MainConsole.Instance.RunCommand(
+                    "save oar \""
+                    + m_savestate_oar_directory
+                    + client.Scene.RegionInfo.RegionName
+                    + ".statesave.oar\"");
+                if (scene == null)
+                    MainConsole.Instance.RunCommand("change region root");
+                else
+                    MainConsole.Instance.RunCommand("change region " + scene.RegionInfo.RegionName);
+            }
+        }
 
-		/// <summary>
-		///     The god has requested that we update something in the region configuration
-		/// </summary>
-		/// <param name="client"></param>
-		/// <param name="BillableFactor"></param>
-		/// <param name="PricePerMeter"></param>
-		/// <param name="EstateID"></param>
-		/// <param name="RegionFlags"></param>
-		/// <param name="SimName"></param>
-		/// <param name="RedirectX"></param>
-		/// <param name="RedirectY"></param>
-		public void GodUpdateRegionInfoUpdate (IClientAPI client, float BillableFactor, int PricePerMeter, ulong EstateID,
+        /// <summary>
+        ///     The god has requested that we update something in the region configuration
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="BillableFactor"></param>
+        /// <param name="PricePerMeter"></param>
+        /// <param name="EstateID"></param>
+        /// <param name="RegionFlags"></param>
+        /// <param name="SimName"></param>
+        /// <param name="RedirectX"></param>
+        /// <param name="RedirectY"></param>
+        public void GodUpdateRegionInfoUpdate (IClientAPI client, float BillableFactor, int PricePerMeter, ulong EstateID,
 		                                             ulong RegionFlags, byte[] SimName, int RedirectX, int RedirectY)
 		{
 			IEstateConnector estateConnector = Framework.Utilities.DataManager.RequestPlugin<IEstateConnector> ();
