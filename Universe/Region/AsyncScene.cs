@@ -739,8 +739,8 @@ namespace Universe.Region
 				presence.RemoveAllInterfaces ();
 
 				AuthenticateHandler.RemoveCircuit (presence.UUID);
-				//MainConsole.Instance.InfoFormat("[SCENE] Memory pre  GC {0}", System.GC.GetTotalMemory(false));
-				//MainConsole.Instance.InfoFormat("[SCENE] Memory post GC {0}", System.GC.GetTotalMemory(true));
+				//MainConsole.Instance.InfoFormat("[Scene] Memory pre  GC {0}", System.GC.GetTotalMemory(false));
+				//MainConsole.Instance.InfoFormat("[Scene] Memory post GC {0}", System.GC.GetTotalMemory(true));
 			});
 			return true;
 		}

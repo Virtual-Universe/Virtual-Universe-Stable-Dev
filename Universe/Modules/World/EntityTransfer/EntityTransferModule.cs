@@ -955,7 +955,7 @@ namespace Universe.Modules.EntityTransfer
 		/// <param name="agentID"></param>
 		public bool IncomingCloseAgent (IScene scene, UUID agentID)
 		{
-			//MainConsole.Instance.DebugFormat("[SCENE]: Processing incoming close agent for {0}", agentID);
+			//MainConsole.Instance.DebugFormat("[Scene]: Processing incoming close agent for {0}", agentID);
 
 			IScenePresence presence = scene.GetScenePresence (agentID);
 			if (presence != null)
