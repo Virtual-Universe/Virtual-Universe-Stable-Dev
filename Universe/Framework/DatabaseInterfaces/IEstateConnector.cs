@@ -53,7 +53,7 @@ namespace Universe.Framework.DatabaseInterfaces
 		/// </summary>
 		/// <param name="estateID"></param>
 		/// <returns></returns>
-		EstateSettings GetRegionEstateSettings (int estateID);
+		EstateSettings GetEstateIDSettings (int estateID);
 
 		/// <summary>
 		///     Loads the estate data for the specified estate name (local only)
