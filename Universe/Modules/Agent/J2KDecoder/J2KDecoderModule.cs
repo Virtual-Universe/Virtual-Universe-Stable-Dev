@@ -232,7 +232,7 @@ namespace Universe.Modules.Agent.J2KDecoder
                     }
                     catch (Exception ex)
                     {
-                        MainConsole.Instance.Warn("[J2KDecoderModule]: CSJ2K threw an exception decoding texture " +
+                        MainConsole.Instance.Warn("[J2K Decoder Module]: CSJ2K threw an exception decoding texture " +
                                                   assetID + ": " + ex.Message);
                     }
                 }
@@ -241,7 +241,7 @@ namespace Universe.Modules.Agent.J2KDecoder
                     int components;
                     if (!OpenJPEG.DecodeLayerBoundaries(j2kData, out layers, out components))
                     {
-                        MainConsole.Instance.Warn("[J2KDecoderModule]: OpenJPEG failed to decode texture " + assetID);
+                        MainConsole.Instance.Warn("[J2K Decoder Module]: OpenJPEG failed to decode texture " + assetID);
                     }
                 }
 
@@ -249,7 +249,7 @@ namespace Universe.Modules.Agent.J2KDecoder
                 {
                     if (useCSJ2K == m_useCSJ2K)
                     {
-                        MainConsole.Instance.Warn("[J2KDecoderModule]: Failed to decode layer data with (" +
+                        MainConsole.Instance.Warn("[J2K Decoder Module]: Failed to decode layer data with (" +
                                                   (m_useCSJ2K ? "CSJ2K" : "OpenJPEG") + ") for texture " + assetID +
                                                   ", length " + j2kData.Length +
                                                   " trying " + (!m_useCSJ2K ? "CSJ2K" : "OpenJPEG"));
@@ -258,7 +258,7 @@ namespace Universe.Modules.Agent.J2KDecoder
                     else
                     {
                         //Second attempt at decode with the other j2k decoder, give up
-                        MainConsole.Instance.Warn("[J2KDecoderModule]: Failed to decode layer data (" +
+                        MainConsole.Instance.Warn("[J2K Decoder Module]: Failed to decode layer data (" +
                                                   (m_useCSJ2K ? "CSJ2K" : "OpenJPEG") + ") for texture " + assetID +
                                                   ", length " + j2kData.Length + " guessing sane defaults");
 
