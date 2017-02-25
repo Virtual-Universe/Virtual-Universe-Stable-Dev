@@ -1055,7 +1055,7 @@ namespace Universe.Modules.Inventory
 						if (item != null) {
 							part.ParentEntity.AddInventoryItem (remoteClient, primLocalID, item, copyID);
 							MainConsole.Instance.InfoFormat (
-								"[Prim inventory]: Update with item {0} requested of prim {1} for {2}",
+								"[Prim Inventory]: Update with item {0} requested of prim {1} for {2}",
 								item.Name, primLocalID, remoteClient.Name);
 							part.GetProperties (remoteClient);
 							if (!m_scene.Permissions.BypassPermissions ()) {
@@ -1066,7 +1066,7 @@ namespace Universe.Modules.Inventory
 							}
 						} else {
 							MainConsole.Instance.ErrorFormat (
-								"[Prim inventory]: Could not find inventory item {0} to update for {1}!",
+								"[Prim Inventory]: Could not find inventory item {0} to update for {1}!",
 								itemID, remoteClient.Name);
 						}
 					}
@@ -1103,7 +1103,7 @@ namespace Universe.Modules.Inventory
 				}
 			} else {
 				MainConsole.Instance.WarnFormat (
-					"[Prim inventory]: Update with item {0} requested of prim {1} for {2} but this prim does not exist",
+					"[Prim Inventory]: Update with item {0} requested of prim {1} for {2} but this prim does not exist",
 					itemID, primLocalID, remoteClient.Name);
 			}
 		}
@@ -1139,13 +1139,13 @@ namespace Universe.Modules.Inventory
 						part.GetProperties (remoteClient);
 					} else {
 						MainConsole.Instance.ErrorFormat (
-							"[Prim inventory]: Could not rez script {0} into prim local ID {1} for user {2}"
+							"[Prim Inventory]: Could not rez script {0} into prim local ID {1} for user {2}"
 							+ " because the prim could not be found in the region!",
 							item.Name, localID, remoteClient.Name);
 					}
 				} else {
 					MainConsole.Instance.ErrorFormat (
-						"[Prim inventory]: Could not find script inventory item {0} to rez for {1}!",
+						"[Prim Inventory]: Could not find script inventory item {0} to rez for {1}!",
 						itemID, remoteClient.Name);
 				}
 			} else { // script has been rezzed directly into a prim's inventory
@@ -1214,7 +1214,7 @@ namespace Universe.Modules.Inventory
 
 			if (null == taskItem) {
 				MainConsole.Instance.ErrorFormat (
-					"[Prim inventory]: Tried to retrieve item ID {0} from prim {1}, {2} for creating an avatar"
+					"[Prim Inventory]: Tried to retrieve item ID {0} from prim {1}, {2} for creating an avatar"
 					+ " inventory item from a prim's inventory item "
 					+ " but the required item does not exist in the prim's inventory",
 					itemId, part.Name, part.UUID);
@@ -1324,7 +1324,7 @@ namespace Universe.Modules.Inventory
 
 			if (srcTaskItem == null) {
 				MainConsole.Instance.ErrorFormat (
-					"[Prim inventory]: Could not find part {0} to insert script item {1} from {2} {3} in {4}",
+					"[Prim Inventory]: Could not find part {0} to insert script item {1} from {2} {3} in {4}",
 					destId, srcId, srcPart.Name, srcPart.UUID, Name);
 				return;
 			}
@@ -1333,7 +1333,7 @@ namespace Universe.Modules.Inventory
 
 			if (destPart == null) {
 				MainConsole.Instance.ErrorFormat (
-					"[Prim inventory]: Could not find script for ID {0}",
+					"[Prim Inventory]: Could not find script for ID {0}",
 					destId);
 				return;
 			}
@@ -1351,7 +1351,7 @@ namespace Universe.Modules.Inventory
 
 			if (destPart.ScriptAccessPin == 0 || destPart.ScriptAccessPin != pin) {
 				MainConsole.Instance.WarnFormat (
-					"[Prim inventory]: Script in object {0} : {1}, attempted to load script {2} : {3} into object {4} : {5} with invalid pin {6}",
+					"[Prim Inventory]: Script in object {0} : {1}, attempted to load script {2} : {3} into object {4} : {5} with invalid pin {6}",
 					srcPart.Name, srcId, srcTaskItem.Name, srcTaskItem.ItemID, destPart.Name, destId, pin);
 				// the LSL Wiki says we are supposed to shout on the DEBUG_CHANNEL -
 				//   "Object: Task Object trying to illegally load script onto task Other_Object!"
@@ -1438,7 +1438,7 @@ namespace Universe.Modules.Inventory
 
 			if (srcTaskItem == null) {
 				MainConsole.Instance.ErrorFormat (
-					"[Prim inventory]: Tried to retrieve item ID {0} from prim {1}, {2} for moving"
+					"[Prim Inventory]: Tried to retrieve item ID {0} from prim {1}, {2} for moving"
 					+ " but the item does not exist in this inventory",
 					itemId, part.Name, part.UUID);
 
@@ -1448,7 +1448,7 @@ namespace Universe.Modules.Inventory
 			ISceneChildEntity destPart = m_scene.GetSceneObjectPart (destId);
 
 			if (destPart == null) {
-				MainConsole.Instance.ErrorFormat ("[Prim inventory]: Could not find prim for ID {0}", destId);
+				MainConsole.Instance.ErrorFormat ("[Prim Inventory]: Could not find prim for ID {0}", destId);
 				return;
 			}
 
@@ -1912,7 +1912,7 @@ namespace Universe.Modules.Inventory
 				ISceneChildEntity part = m_scene.GetSceneObjectPart (primId);
 				if (null == part || null == part.ParentEntity) {
 					MainConsole.Instance.ErrorFormat (
-						"[Prim inventory]: " +
+						"[Prim Inventory]: " +
 						"Prim inventory update requested for item ID {0} in prim ID {1} but this prim does not exist",
 						itemId, primId);
 
@@ -1926,7 +1926,7 @@ namespace Universe.Modules.Inventory
 
 				if (null == item) {
 					MainConsole.Instance.ErrorFormat (
-						"[Prim inventory]: Tried to retrieve item ID {0} from prim {1}, {2} for caps script update "
+						"[Prim Inventory]: Tried to retrieve item ID {0} from prim {1}, {2} for caps script update "
 						+ " but the item does not exist in this inventory",
 						itemId, part.Name, part.UUID);
 
