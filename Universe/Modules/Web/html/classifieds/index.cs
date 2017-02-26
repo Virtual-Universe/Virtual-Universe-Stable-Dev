@@ -37,139 +37,155 @@ using Universe.Framework.Utilities;
 
 namespace Universe.Modules.Web
 {
-	public class ClassifiedsMain : IWebInterfacePage
-	{
-		public string[] FilePath {
-			get {
-				return new[] {
-					"html/classifieds/inex.html"
-				};
-			}
-		}
+    public class ClassifiedsMain : IWebInterfacePage
+    {
+        public string[] FilePath
+        {
+            get
+            {
+                return new[]
+                           {
+                               "html/classifieds.html"
+                           };
+            }
+        }
 
-		public bool RequiresAuthentication {
-			get { return false; }
-		}
+        public bool RequiresAuthentication
+        {
+            get { return false; }
+        }
 
-		public bool RequiresAdminAuthentication {
-			get { return false; }
-		}
+        public bool RequiresAdminAuthentication
+        {
+            get { return false; }
+        }
 
-		public Dictionary<string, object> Fill (WebInterface webInterface, string filename, OSHttpRequest httpRequest,
-		                                              OSHttpResponse httpResponse, Dictionary<string, object> requestParameters,
-		                                              ITranslator translator, out string response)
-		{
-			response = null;
-			var vars = new Dictionary<string, object> ();
-			var directoryService = Framework.Utilities.DataManager.RequestPlugin<IDirectoryServiceConnector> ();
-			var classifiedListVars = new List<Dictionary<string, object>> ();
-			IMoneyModule moneyModule = webInterface.Registry.RequestModuleInterface<IMoneyModule> ();
+        public Dictionary<string, object> Fill (WebInterface webInterface, string filename, OSHttpRequest httpRequest,
+                                               OSHttpResponse httpResponse, Dictionary<string, object> requestParameters,
+                                               ITranslator translator, out string response)
+        {
+            response = null;
+            var vars = new Dictionary<string, object> ();
+            var directoryService = Framework.Utilities.DataManager.RequestPlugin<IDirectoryServiceConnector> ();
+            var classifiedListVars = new List<Dictionary<string, object>> ();
+            IMoneyModule moneyModule = webInterface.Registry.RequestModuleInterface<IMoneyModule> ();
 
-			var currencySymbol = "$";
-			if (moneyModule != null)
-				currencySymbol = moneyModule.InWorldCurrencySymbol;
+            var currencySymbol = "$";
+            if (moneyModule != null)
+                currencySymbol = moneyModule.InWorldCurrencySymbol;
 
-			var pg_checked = "checked";
-			var ma_checked = "";
-			var ao_checked = "";
-			var classifiedLevel = (uint)DirectoryManager.ClassifiedQueryFlags.PG;
-			var category = (int)DirectoryManager.ClassifiedCategories.Any;
-			if (requestParameters.ContainsKey ("Submit")) {
-				uint level = 0;
-				pg_checked = "";
-				ma_checked = "";
-				ao_checked = "";
-				if (requestParameters.ContainsKey ("display_pg")) {
-					level += (uint)DirectoryManager.ClassifiedQueryFlags.PG;
-					pg_checked = "checked";
-				}
-				if (requestParameters.ContainsKey ("display_ma")) {
-					level += (uint)DirectoryManager.ClassifiedQueryFlags.Mature;
-					ma_checked = "checked";
-				}
-				if (requestParameters.ContainsKey ("display_ao")) {
-					level += (uint)DirectoryManager.ClassifiedQueryFlags.Adult;
-					ao_checked = "checked";
-				}
-				classifiedLevel = level;
-				string cat = requestParameters ["category"].ToString ();
-				category = int.Parse (cat);
-			}
+            var pg_checked = "checked";
+            var ma_checked = "";
+            var ao_checked = "";
+            var classifiedLevel = (uint)DirectoryManager.ClassifiedQueryFlags.PG;
+            var category = (int)DirectoryManager.ClassifiedCategories.Any;
+            if (requestParameters.ContainsKey ("Submit")) {
+                uint level = 0;
+                pg_checked = "";
+                ma_checked = "";
+                ao_checked = "";
+                if (requestParameters.ContainsKey ("display_pg")) {
+                    level += (uint)DirectoryManager.ClassifiedQueryFlags.PG;
+                    pg_checked = "checked";
+                }
+                if (requestParameters.ContainsKey ("display_ma")) {
+                    level += (uint)DirectoryManager.ClassifiedQueryFlags.Mature;
+                    ma_checked = "checked";
+                }
+                if (requestParameters.ContainsKey ("display_ao")) {
+                    level += (uint)DirectoryManager.ClassifiedQueryFlags.Adult;
+                    ao_checked = "checked";
+                }
+                classifiedLevel = level;
+                string cat = requestParameters ["category"].ToString ();
+                category = int.Parse (cat);
+            }
 
-			// build category selection
-			vars.Add ("CategoryType", WebHelpers.ClassifiedCategorySelections (category, translator));
+            // build category selection
+            vars.Add ("CategoryType", WebHelpers.ClassifiedCategorySelections(category, translator));
 
-			// maturity selections
-			vars.Add ("PG_checked", pg_checked);
-			vars.Add ("MA_checked", ma_checked);
-			vars.Add ("AO_checked", ao_checked);
+            // maturity selections
+            vars.Add ("PG_checked", pg_checked);
+            vars.Add ("MA_checked", ma_checked);
+            vars.Add ("AO_checked", ao_checked);
 
-			// get some classifieds
-			if (directoryService != null) {
+            // get some classifieds
+            if (directoryService != null) {
 
-				var classifieds = new List<Classified> ();
-				classifieds = directoryService.GetAllClassifieds (category, classifiedLevel);
+                var classifieds = new List<Classified> ();
+                classifieds = directoryService.GetAllClassifieds ( category, classifiedLevel);
 
-				if (classifieds.Count == 0) { 
-					classifiedListVars.Add (new Dictionary<string, object> {
-						{ "ClassifiedUUID", "" },
-						{ "CreationDate", "" },
-						{ "ExpirationDate", "" },
-						{ "Category", "" },
-						{ "Name", "" },
-						{ "Description", translator.GetTranslatedString ("NoDetailsText") },
-						{ "SnapshotUUID", "" },
-						{ "SimName", "" },
-						{ "GPosX", "" },
-						{ "GPosY", "" },
-						{ "GPosZ", "" },
-						{ "ParcelName", "" },
-						{ "Maturity", "" },
-						{ "PriceForListing", "" }
-					});
-				} else {
-					foreach (var classified in classifieds) {
-						classifiedListVars.Add (new Dictionary<string, object> {
-							{ "ClassifiedUUID", classified.ClassifiedUUID },
-							{ "CreationDate", Util.ToDateTime (classified.CreationDate).ToShortDateString () },
-							{ "ExpirationDate", Util.ToDateTime (classified.ExpirationDate).ToShortDateString () },
-							{ "Category", WebHelpers.ClassifiedCategory (classified.Category, translator) },
-							{ "Name", classified.Name },
-							{ "Description", classified.Description },
-							{ "SnapshotUUID", classified.SnapshotUUID },
-							{ "SimName", classified.SimName },
-							{ "GPosX", classified.GlobalPos.X.ToString () },
-							{ "GPosY", classified.GlobalPos.Y.ToString () },
-							{ "GPosZ",classified.GlobalPos.Z.ToString () },
-							{ "ParcelName", classified.ParcelName },
-							{ "Maturity", WebHelpers.ClassifiedMaturity (classified.ClassifiedFlags) },
-							{ "PriceForListing", currencySymbol + " " + classified.PriceForListing }
-						});
-					}
-				}
-
-				vars.Add ("ClassifiedList", classifiedListVars);
-			}
+                if (classifieds.Count == 0) { 
+                    classifiedListVars.Add (new Dictionary<string, object> {
+                        { "ClassifiedUUID", "" },
+                        //{ "CreatorUUID", "" },
+                        { "CreationDate", "" },
+                        { "ExpirationDate", "" },
+                        { "Category", "" },
+                        { "Name", "" },
+                        { "Description", translator.GetTranslatedString("NoDetailsText") },
+                        //{ "ParcelUUID", "") },
+                        //{ "ParentEstate", "" },
+                        { "SnapshotUUID", "" },
+                        //{ "ScopeID", "" },
+                        { "SimName", "" },
+                        { "GPosX", "" },
+                        { "GPosY", "" },
+                        { "GPosZ", "" },
+                        { "ParcelName", "" },
+                        { "Maturity", "" },
+                        { "PriceForListing", "" }
+                    });
+                } else {
+                    foreach (var classified in classifieds) {
+                        classifiedListVars.Add (new Dictionary<string, object> {
+                            { "ClassifiedUUID", classified.ClassifiedUUID },
+                            //{ "CreatorUUID", classified.CreatorUUID) },
+                            { "CreationDate", Util.ToDateTime (classified.CreationDate).ToShortDateString () },
+                            { "ExpirationDate", Util.ToDateTime (classified.ExpirationDate).ToShortDateString () },
+                            { "Category", WebHelpers.ClassifiedCategory(classified.Category, translator) },
+                            { "Name", classified.Name },
+                            { "Description", classified.Description },
+                            //{ "ParcelUUID", classified.ParcelUUID },
+                            //{ "ParentEstate",classified.(ParentEstate },
+                            { "SnapshotUUID", classified.SnapshotUUID },
+                            //{ "ScopeID",clasified.ScopeID },
+                            { "SimName", classified.SimName },
+                            { "GPosX", classified.GlobalPos.X.ToString () },
+                            { "GPosY", classified.GlobalPos.Y.ToString () },
+                            { "GPosZ",classified.GlobalPos.Z.ToString () },
+                            { "ParcelName", classified.ParcelName },
+                            { "Maturity", WebHelpers.ClassifiedMaturity(classified.ClassifiedFlags) },
+                            { "PriceForListing", currencySymbol + " " + classified.PriceForListing }
+                        });
+                    }
+                }
+                vars.Add ("ClassifiedList", classifiedListVars);
+            }
             
-			vars.Add ("Classifieds", translator.GetTranslatedString ("Classifieds"));
+            vars.Add ("Classifieds", translator.GetTranslatedString ("Classifieds"));
 
 			// labels
-			vars.Add ("ClassifiedsText", translator.GetTranslatedString ("ClassifiedsText"));
-			vars.Add ("CreationDateText", translator.GetTranslatedString ("CreationDateText"));
-			vars.Add ("CategoryText", translator.GetTranslatedString ("CategoryText"));
-			vars.Add ("ClassifiedNameText", translator.GetTranslatedString ("ClassifiedText"));
-			vars.Add ("DescriptionText", translator.GetTranslatedString ("DescriptionText"));
-			vars.Add ("MaturityText", translator.GetTranslatedString ("MaturityText"));
-			vars.Add ("PriceOfListingText", translator.GetTranslatedString ("PriceOfListingText"));
-			vars.Add ("ExpirationDateText", translator.GetTranslatedString ("ExpirationDateText"));
+            vars.Add ("ClassifiedsText", translator.GetTranslatedString("ClassifiedsText"));
+            vars.Add ("CreationDateText", translator.GetTranslatedString ("CreationDateText"));
+            vars.Add ("CategoryText", translator.GetTranslatedString ("CategoryText"));
+            vars.Add ("ClassifiedNameText", translator.GetTranslatedString ("ClassifiedText"));
+            vars.Add ("DescriptionText", translator.GetTranslatedString ("DescriptionText"));
+            vars.Add ("MaturityText", translator.GetTranslatedString ("MaturityText"));
+            vars.Add ("GeneralText", translator.GetTranslatedString ("GeneralText"));
+            vars.Add ("MatureText", translator.GetTranslatedString ("MatureText"));
+            vars.Add ("AdultText", translator.GetTranslatedString ("AdultText"));
+            vars.Add ("PriceOfListingText", translator.GetTranslatedString ("PriceOfListingText"));
+            vars.Add ("ExpirationDateText", translator.GetTranslatedString ("ExpirationDateText"));
+            vars.Add ("SearchText", translator.GetTranslatedString ("SearchText"));
 
-			return vars;
-		}
+            return vars;
+        }
 
-		public bool AttemptFindPage (string filename, ref OSHttpResponse httpResponse, out string text)
-		{
-			text = "";
-			return false;
-		}
-	}
+        public bool AttemptFindPage(string filename, ref OSHttpResponse httpResponse, out string text)
+        {
+            text = "";
+            return false;
+        }
+    }
 }

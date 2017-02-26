@@ -58,6 +58,7 @@ namespace Universe.Modules.Web
             return yesNoArgs;
         }
 
+
         public static string YesNo(ITranslator translator, bool condition)
         {
             return condition ? translator.GetTranslatedString("Yes") : translator.GetTranslatedString("No");
@@ -246,6 +247,7 @@ namespace Universe.Modules.Web
 
         public static List<Dictionary<string, object>> EventTimeframesSelections(int timeframe, ITranslator translator)
         {
+
             // build timeframes
             var timeframes = new List<Dictionary<string, object>>();
             timeframes.Add(new Dictionary<string, object> {
@@ -266,6 +268,7 @@ namespace Universe.Modules.Web
                 {"selected", timeframe == 2 ? "selected" : "" } });
 
             return timeframes;
+
         }
 
         // Time selections
@@ -609,8 +612,8 @@ namespace Universe.Modules.Web
                             {"disabled", region.IsOnline ? "" : "disabled"},        // always enabled as offline regions are ignored for now
                             {"selected", selected}
                     });
-            }
 
+            }
             return parcelList;
         }
 
@@ -636,6 +639,7 @@ namespace Universe.Modules.Web
                 var myParcels = directoryService.GetParcelByOwner(user.PrincipalID);
                 if (myParcels.Count > 0)
                     regionList.AddRange(ParcelLocations(myParcels, selParcel));
+
 
                 // Group owned parcels
                 regionList.Add(new Dictionary<string, object> {
@@ -666,8 +670,8 @@ namespace Universe.Modules.Web
                     {"disabled","disabled"},
                     {"selected", ""}
                 });
-            }
 
+            }
             #endregion
 
             // Public parcels
@@ -743,6 +747,7 @@ namespace Universe.Modules.Web
             }
         }
 
+
         public static string EventCategory(int category, ITranslator translator)
         {
             switch (category)
@@ -761,6 +766,7 @@ namespace Universe.Modules.Web
                 default: // 0
                     return translator.GetTranslatedString("CatAll");
             }
+
         }
 
         public static string EventDuration(int duration, ITranslator translator)
@@ -812,7 +818,6 @@ namespace Universe.Modules.Web
                 { "Index","e"},
                 { "selected", selType == "e" ? "selected" : "" }
             });
-
             return args;
         }
 
@@ -846,7 +851,6 @@ namespace Universe.Modules.Web
                 {"Index","c"},
                 { "selected", selPreset == "c" ? "selected" : "" }
             });
-
             return args;
         }
 
@@ -880,7 +884,6 @@ namespace Universe.Modules.Web
                 {"Index","c"},
                 { "selected", selTerrain == "c" ? "selected" : "" }
             });
-
             return args;
         }
 
@@ -918,9 +921,9 @@ namespace Universe.Modules.Web
                         {"Index", estateID},
                         {"selected", selected}
                     });
+
                 }
             }
-
             return estateList;
         }
 
@@ -960,6 +963,7 @@ namespace Universe.Modules.Web
             var defaultOarDir = Path.Combine(simBase.DefaultDataPath, Constants.DEFAULT_OARARCHIVE_DIR);
             var regionArchives = new List<Dictionary<string, object>>();
 
+
             if (Directory.Exists(defaultOarDir))
             {
                 var archives = new List<string>(Directory.GetFiles(defaultOarDir, "*.oar"));
@@ -981,9 +985,9 @@ namespace Universe.Modules.Web
                     });
                 }
             }
-
             return regionArchives;
         }
+
 
         #endregion
 
