@@ -4077,7 +4077,6 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
             if (!ScriptProtection.CheckThreatLevel(ThreatLevel.None, "LSL", m_host, "LSL", m_itemID))
                 return;
 
-
             UUID invItemID = InventorySelf();
             if (invItemID == UUID.Zero)
                 return;
@@ -4124,7 +4123,6 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
         {
             if (!ScriptProtection.CheckThreatLevel(ThreatLevel.None, "LSL", m_host, "LSL", m_itemID))
                 return;
-
 
             UUID invItemID = InventorySelf();
             if (invItemID == UUID.Zero)
@@ -4180,10 +4178,12 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
 
         public void llPointAt(LSL_Vector pos)
         {
+            NotImplemented("llPointAt", "Function has been depreciated");
         }
 
         public void llStopPointAt()
         {
+            NotImplemented("llStopPointAt", "Function has been depreciated");
         }
 
         public void llTargetOmega(LSL_Vector axis, LSL_Float spinrate, LSL_Float gain)
