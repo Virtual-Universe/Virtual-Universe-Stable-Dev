@@ -25,3 +25,21 @@ Thank you
 The Virtual Universe Development Team
 
 The Virtual Universe project is owned by the Second Galaxy Development Team.  A group dedicated to the development of virtual world grid architecture that promotes the future of virtual worlds.
+
+
+*NOTES:*
+
+*- As of March 22, 2017, the LibOMV libraries are included as a submodule of the Virtual Universe repositories. When cloning, ensure that the submodules are included.*
+
+`git clone --recursive https://github.com/Virtual-Universe/Virtual-LibOMV.git`
+
+To update an existing repository that does not have the LibOMV submodule
+
+	cd <your Virtual Universe repository>
+	git submodule init
+	git submodule update
+
+*If you do not know what submodules are, or you are not using git from the command line, PLEASE make sure to fetch the submodules too.*
+
+**If you download the repo using the zip file option, you will also need to download the Virtual-LibOMV submodule and extract it in your local Virtual Universe repo.**
+`https://github.com/Virtual-Universe/Virtual-LibOMV`
