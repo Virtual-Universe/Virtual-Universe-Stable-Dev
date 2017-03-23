@@ -1,7 +1,7 @@
 #
 # Deutsch translation for Virtual Universe.
 # This file is distributed under the same license as the Virtual Universe package.
-# IrishwolfStarfinder <irishwolf@secondgalaxy.com>, 2017.
+# Irishwolf Starfinder <irishwolf@secondgalaxy.com>, 2016.
 #
 
 
@@ -9,12 +9,12 @@ msgid ""
 msgstr ""
 
 "Project-Id-Version: Virtual Universe Version 1.0.3\n"
-"Report-Msgid-Bugs-To: IrishwolfStarfinder <irishwolf@secondgalaxy.com>\n"
+"Report-Msgid-Bugs-To: Irishwolf Starfinder <irishwolf@secondgalaxy.com>\n"
 
-"POT-Creation-Date: 2017-02-25 14:11:31Z\n"
-"PO-Revision-Date: 2017-02-25 14:11:31Z\n"
-"Last-Translator: IrishwolfStarfinder <irishwolf@secondgalaxy.com>\n"
-"Language-Team: Second Galaxy Development Team <info@secondgalaxy.com>\n"
+"POT-Creation-Date: 2016-11-23 14:11:31Z\n"
+"PO-Revision-Date: 2016-11-23 14:11:31Z\n"
+"Last-Translator: Irishwolf Starfinder <irishwolf@secondgalaxy.com>\n"
+"Language-Team: Second Galaxy Development Team <irishwolf@secondgalaxy.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -465,9 +465,6 @@ msgstr "Friends"
 
 msgid "FullRegion"
 msgstr "Voll Region"
-
-msgid "ga"
-msgstr "Irish"
 
 msgid "GeneralText"
 msgstr "General"
