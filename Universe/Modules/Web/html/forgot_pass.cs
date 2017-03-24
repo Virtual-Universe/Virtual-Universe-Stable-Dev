@@ -121,6 +121,7 @@ namespace Universe.Modules.Web
                 } else
                     response = "<h3>The email functions are local to the grid or have not yet been set up<h3>Please contact the administrator directly<br>Redirecting to main page</h3>";
 
+
                 response = response +
                     "<script language=\"javascript\">" +
                     "setTimeout(function() {window.location.href = \"index.html\";}, 5000);" +
@@ -128,6 +129,7 @@ namespace Universe.Modules.Web
 
                 return null;
             }
+
 
             vars.Add ("ErrorMessage", error);
             vars.Add ("ForgotPassword", translator.GetTranslatedString ("ForgotPassword"));

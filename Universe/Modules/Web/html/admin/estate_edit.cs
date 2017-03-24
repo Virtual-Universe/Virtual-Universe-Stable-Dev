@@ -147,6 +147,7 @@ namespace Universe.Modules.Web
                 }
             }
 
+
             // labels
             vars.Add ("EstateManagerText", translator.GetTranslatedString ("MenuEstateManager"));
             vars.Add ("EstateNameText", translator.GetTranslatedString ("EstateText"));
@@ -160,6 +161,7 @@ namespace Universe.Modules.Web
             vars.Add ("InfoMessage", "");
 
             return vars;
+
         }
 
         public bool AttemptFindPage (string filename, ref OSHttpResponse httpResponse, out string text)

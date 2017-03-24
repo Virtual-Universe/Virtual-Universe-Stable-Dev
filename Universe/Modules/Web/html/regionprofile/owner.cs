@@ -80,10 +80,16 @@ namespace Universe.Modules.Web
 
                 account = webInterface.Registry.RequestModuleInterface<IUserAccountService>().
                     GetUserAccount(null, userid);
-            }
 
+                //IEstateConnector estateConnector = Framework.Utilities.DataManager.RequestPlugin<IEstateConnector> ();
+                //EstateSettings estate = estateConnector.GetEstateSettings (region.RegionID);
+            }
             if (account == null)
                 return vars;
+
+            // There is no harm in showing the system users here, actually it is required
+            //if ( Utilities.IsSytemUser(account.PrincipalID))
+            //    return vars;
 
             vars.Add("UserName", account.Name);
             //  TODO: User Profile inworld shows this as the standard mm/dd/yyyy
@@ -97,7 +103,7 @@ namespace Universe.Modules.Web
                                               GetUserProfile(account.PrincipalID);
             if (profile != null)
             {
-                vars.Add ("UserType", profile.MembershipGroup == "" ? "Citizen" : profile.MembershipGroup);
+                vars.Add ("UserType", profile.MembershipGroup == "" ? "Resident" : profile.MembershipGroup);
                 if (profile != null)
                 {
                     if (profile.Partner != UUID.Zero)
@@ -123,6 +129,7 @@ namespace Universe.Modules.Web
                 vars.Add ("UserPartner", "Unknown");
                 vars.Add ("UserPictureURL", "../images/icons/no_avatar.jpg");
             }
+
 
             UserAccount ourAccount = Authenticator.GetAuthentication(httpRequest);
             if (ourAccount != null)
@@ -157,6 +164,7 @@ namespace Universe.Modules.Web
                 vars.Add("UserIsOnline", false);
                 vars.Add("IsOnline", translator.GetTranslatedString("Offline"));
             }
+
 
             vars.Add("UserProfileFor", translator.GetTranslatedString("UserProfileFor"));
             vars.Add("ResidentSince", translator.GetTranslatedString("ResidentSince"));

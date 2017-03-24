@@ -69,19 +69,16 @@ namespace Universe.Region
     /// </summary>
     [Serializable, ProtoContract()]
     public partial class SceneObjectGroup : ISceneEntity
+        //(ISceneObject implements ISceneEntity and IEntity)
     {
         readonly List<uint> m_lastColliders = new List<uint>();
         readonly Dictionary<uint, scriptRotTarget> m_rotTargets = new Dictionary<uint, scriptRotTarget>();
         readonly Dictionary<uint, scriptPosTarget> m_targets = new Dictionary<uint, scriptPosTarget>();
-        [XmlIgnore]
-        bool m_ValidgrpOOB; // control recalcutation
-        [XmlIgnore]
-        float m_grpBSphereRadiusSQ; // the square of the radius of a sphere containing the oob
-        [XmlIgnore]
-        Vector3 m_grpOOBoffset; // the position center of the bounding box relative to it's Position
+        [XmlIgnore] bool m_ValidgrpOOB; // control recalcutation
+        [XmlIgnore] float m_grpBSphereRadiusSQ; // the square of the radius of a sphere containing the oob
+        [XmlIgnore] Vector3 m_grpOOBoffset; // the position center of the bounding box relative to it's Position
 
-        [XmlIgnore]
-        Vector3 m_grpOOBsize;
+        [XmlIgnore] Vector3 m_grpOOBsize;
         // the size of a bounding box oriented as prim, is future will consider cutted prims, meshs etc
 
         public bool IsInTransit { get; set; }
@@ -382,7 +379,8 @@ namespace Universe.Region
         /// <summary>
         ///     Constructor.  This object is added to the scene later via AttachToScene()
         /// </summary>
-        public SceneObjectGroup(UUID ownerID, Vector3 pos, Quaternion rot, PrimitiveBaseShape shape, string name, IScene scene) : this(scene)
+        public SceneObjectGroup(UUID ownerID, Vector3 pos, Quaternion rot, PrimitiveBaseShape shape, string name,
+                                IScene scene) : this(scene)
         {
             SceneObjectPart part = new SceneObjectPart(ownerID, shape, pos, rot, Vector3.Zero, name);
             SetRootPart(part);
@@ -412,7 +410,8 @@ namespace Universe.Region
 
             if (m_rootPart.Shape == null)
             {
-                MainConsole.Instance.Warn("[Scene Object Group]: Found null shape for prim " + UUID + ", creating default box shape");
+                MainConsole.Instance.Warn("[SceneObjectGroup]: Found null shape for prim " + UUID +
+                                          ", creating default box shape");
                 m_rootPart.Shape = new PrimitiveBaseShape();
             }
 
@@ -483,7 +482,7 @@ namespace Universe.Region
 
             foreach (SceneObjectPart part in m_partsList)
             {
-                Vector3 partscale = part.Scale * 0.5f;
+                Vector3 partscale = part.Scale*0.5f;
 
                 // not assuming root is at index 0
                 if (part.ParentID == 0) // root is in local frame of reference, partscale.? are positive, no rotations
@@ -688,13 +687,13 @@ namespace Universe.Region
                 }
             }
             // size == the vertice of box with all coords positive
-            m_grpOOBsize.X = 0.5f * Math.Abs(maxScale.X - minScale.X);
-            m_grpOOBsize.Y = 0.5f * Math.Abs(maxScale.Y - minScale.Y);
-            m_grpOOBsize.Z = 0.5f * Math.Abs(maxScale.Z - minScale.Z);
+            m_grpOOBsize.X = 0.5f*Math.Abs(maxScale.X - minScale.X);
+            m_grpOOBsize.Y = 0.5f*Math.Abs(maxScale.Y - minScale.Y);
+            m_grpOOBsize.Z = 0.5f*Math.Abs(maxScale.Z - minScale.Z);
             // centroid:
-            m_grpOOBoffset.X = 0.5f * (maxScale.X + minScale.X);
-            m_grpOOBoffset.Y = 0.5f * (maxScale.Y + minScale.Y);
-            m_grpOOBoffset.Z = 0.5f * (maxScale.Z + minScale.Z);
+            m_grpOOBoffset.X = 0.5f*(maxScale.X + minScale.X);
+            m_grpOOBoffset.Y = 0.5f*(maxScale.Y + minScale.Y);
+            m_grpOOBoffset.Z = 0.5f*(maxScale.Z + minScale.Z);
             // containing sphere:
             m_grpBSphereRadiusSQ = m_grpOOBsize.LengthSquared();
 
@@ -713,9 +712,11 @@ namespace Universe.Region
             foreach (SceneObjectPart part in m_partsList)
             {
                 // Temporary commented to stop compiler warning
-                //Vector3 partPosition = new Vector3(part.AbsolutePosition.X, part.AbsolutePosition.Y, part.AbsolutePosition.Z);
+                //Vector3 partPosition =
+                //    new Vector3(part.AbsolutePosition.X, part.AbsolutePosition.Y, part.AbsolutePosition.Z);
                 Quaternion parentrotation = GroupRotation;
                 // Telling the prim to raytrace.
+                //EntityIntersection inter = part.TestIntersection(hRay, parentrotation);
                 EntityIntersection inter = part.TestIntersectionOBB(hRay, parentrotation, frontFacesOnly, faceCenters);
 
                 // This may need to be updated to the maximum draw distance possible..
@@ -748,16 +749,18 @@ namespace Universe.Region
         ///     offsetHeight is the offset in the Z axis from the centre of the bounding box to the centre of the root prim
         /// </summary>
         /// <returns></returns>
-        public void GetAxisAlignedBoundingBoxRaw(out float minX, out float maxX, out float minY, out float maxY, out float minZ, out float maxZ)
+        public void GetAxisAlignedBoundingBoxRaw(out float minX, out float maxX, out float minY, out float maxY,
+                                                 out float minZ, out float maxZ)
         {
             Vector3 pos = m_rootPart.AbsolutePosition;
             Quaternion rot = m_rootPart.GetRotationOffset();
+//            Vector3 size = GroupScale();
             Vector3 minScale = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
             Vector3 maxScale = new Vector3(float.MinValue, float.MinValue, float.MinValue);
             //limits in group frame
             foreach (SceneObjectPart part in m_partsList)
             {
-                Vector3 partscale = part.Scale * 0.5f;
+                Vector3 partscale = part.Scale*0.5f;
                 Vector3 partoffset = part.OffsetPosition;
                 if (part.ParentID != 0) // prims are rotated in group
                 {
@@ -786,13 +789,13 @@ namespace Universe.Region
             }
 
             Vector3 tmp;
-            tmp.X = 0.5f * Math.Abs(maxScale.X - minScale.X);
-            tmp.Y = 0.5f * Math.Abs(maxScale.Y - minScale.Y);
-            tmp.Z = 0.5f * Math.Abs(maxScale.Z - minScale.Z);
+            tmp.X = 0.5f*Math.Abs(maxScale.X - minScale.X);
+            tmp.Y = 0.5f*Math.Abs(maxScale.Y - minScale.Y);
+            tmp.Z = 0.5f*Math.Abs(maxScale.Z - minScale.Z);
             // tmp has half scale
 
             // group rotation
-            tmp = tmp * rot;
+            tmp = tmp*rot;
             // scale is positive
             tmp.X = Math.Abs(tmp.X);
             tmp.Y = Math.Abs(tmp.Y);
@@ -805,6 +808,195 @@ namespace Universe.Region
             maxX = pos.X + tmp.X;
             maxY = pos.Y + tmp.Y;
             maxZ = pos.Z + tmp.Z;
+
+/*
+            maxX = -256f;
+            maxY = -256f;
+            maxZ = -256f;
+            minX = 256f;
+            minY = 256f;
+            minZ = 8192f;
+
+            foreach (SceneObjectPart part in m_partsList)
+            {
+                Vector3 worldPos = part.GetWorldPosition();
+                Vector3 offset = worldPos - AbsolutePosition;
+                Quaternion worldRot;
+                if (part.ParentID == 0)
+                    worldRot = part.RotationOffset;
+                else
+                    worldRot = part.GetWorldRotation();
+                Vector3 frontTopLeft;
+                Vector3 frontTopRight;
+                Vector3 frontBottomLeft;
+                Vector3 frontBottomRight;
+                Vector3 backTopLeft;
+                Vector3 backTopRight;
+                Vector3 backBottomLeft;
+                Vector3 backBottomRight;
+                Vector3 orig = Vector3.Zero;
+
+                frontTopLeft.X = orig.X - (part.Scale.X / 2);
+                frontTopLeft.Y = orig.Y - (part.Scale.Y / 2);
+                frontTopLeft.Z = orig.Z + (part.Scale.Z / 2);
+
+                frontTopRight.X = orig.X - (part.Scale.X / 2);
+                frontTopRight.Y = orig.Y + (part.Scale.Y / 2);
+                frontTopRight.Z = orig.Z + (part.Scale.Z / 2);
+
+                frontBottomLeft.X = orig.X - (part.Scale.X / 2);
+                frontBottomLeft.Y = orig.Y - (part.Scale.Y / 2);
+                frontBottomLeft.Z = orig.Z - (part.Scale.Z / 2);
+
+                frontBottomRight.X = orig.X - (part.Scale.X / 2);
+                frontBottomRight.Y = orig.Y + (part.Scale.Y / 2);
+                frontBottomRight.Z = orig.Z - (part.Scale.Z / 2);
+
+                backTopLeft.X = orig.X + (part.Scale.X / 2);
+                backTopLeft.Y = orig.Y - (part.Scale.Y / 2);
+                backTopLeft.Z = orig.Z + (part.Scale.Z / 2);
+
+                backTopRight.X = orig.X + (part.Scale.X / 2);
+                backTopRight.Y = orig.Y + (part.Scale.Y / 2);
+                backTopRight.Z = orig.Z + (part.Scale.Z / 2);
+
+                backBottomLeft.X = orig.X + (part.Scale.X / 2);
+                backBottomLeft.Y = orig.Y - (part.Scale.Y / 2);
+                backBottomLeft.Z = orig.Z - (part.Scale.Z / 2);
+
+                backBottomRight.X = orig.X + (part.Scale.X / 2);
+                backBottomRight.Y = orig.Y + (part.Scale.Y / 2);
+                backBottomRight.Z = orig.Z - (part.Scale.Z / 2);
+
+                frontTopLeft = frontTopLeft * worldRot;
+                frontTopRight = frontTopRight * worldRot;
+                frontBottomLeft = frontBottomLeft * worldRot;
+                frontBottomRight = frontBottomRight * worldRot;
+
+                backBottomLeft = backBottomLeft * worldRot;
+                backBottomRight = backBottomRight * worldRot;
+                backTopLeft = backTopLeft * worldRot;
+                backTopRight = backTopRight * worldRot;
+
+                frontTopLeft += offset;
+                frontTopRight += offset;
+                frontBottomLeft += offset;
+                frontBottomRight += offset;
+
+                backBottomLeft += offset;
+                backBottomRight += offset;
+                backTopLeft += offset;
+                backTopRight += offset;
+
+                if (frontTopRight.X > maxX)
+                    maxX = frontTopRight.X;
+                if (frontTopLeft.X > maxX)
+                    maxX = frontTopLeft.X;
+                if (frontBottomRight.X > maxX)
+                    maxX = frontBottomRight.X;
+                if (frontBottomLeft.X > maxX)
+                    maxX = frontBottomLeft.X;
+
+                if (backTopRight.X > maxX)
+                    maxX = backTopRight.X;
+                if (backTopLeft.X > maxX)
+                    maxX = backTopLeft.X;
+                if (backBottomRight.X > maxX)
+                    maxX = backBottomRight.X;
+                if (backBottomLeft.X > maxX)
+                    maxX = backBottomLeft.X;
+
+                if (frontTopRight.X < minX)
+                    minX = frontTopRight.X;
+                if (frontTopLeft.X < minX)
+                    minX = frontTopLeft.X;
+                if (frontBottomRight.X < minX)
+                    minX = frontBottomRight.X;
+                if (frontBottomLeft.X < minX)
+                    minX = frontBottomLeft.X;
+
+                if (backTopRight.X < minX)
+                    minX = backTopRight.X;
+                if (backTopLeft.X < minX)
+                    minX = backTopLeft.X;
+                if (backBottomRight.X < minX)
+                    minX = backBottomRight.X;
+                if (backBottomLeft.X < minX)
+                    minX = backBottomLeft.X;
+
+                if (frontTopRight.Y > maxY)
+                    maxY = frontTopRight.Y;
+                if (frontTopLeft.Y > maxY)
+                    maxY = frontTopLeft.Y;
+                if (frontBottomRight.Y > maxY)
+                    maxY = frontBottomRight.Y;
+                if (frontBottomLeft.Y > maxY)
+                    maxY = frontBottomLeft.Y;
+
+                if (backTopRight.Y > maxY)
+                    maxY = backTopRight.Y;
+                if (backTopLeft.Y > maxY)
+                    maxY = backTopLeft.Y;
+                if (backBottomRight.Y > maxY)
+                    maxY = backBottomRight.Y;
+                if (backBottomLeft.Y > maxY)
+                    maxY = backBottomLeft.Y;
+
+                if (backTopRight.Y < minY)
+                    minY = backTopRight.Y;
+                if (backTopLeft.Y < minY)
+                    minY = backTopLeft.Y;
+                if (backBottomRight.Y < minY)
+                    minY = backBottomRight.Y;
+                if (backBottomLeft.Y < minY)
+                    minY = backBottomLeft.Y;
+
+                if (backTopRight.Y < minY)
+                    minY = backTopRight.Y;
+                if (backTopLeft.Y < minY)
+                    minY = backTopLeft.Y;
+                if (backBottomRight.Y < minY)
+                    minY = backBottomRight.Y;
+                if (backBottomLeft.Y < minY)
+                    minY = backBottomLeft.Y;
+
+                if (frontTopRight.Z > maxZ)
+                    maxZ = frontTopRight.Z;
+                if (frontTopLeft.Z > maxZ)
+                    maxZ = frontTopLeft.Z;
+                if (frontBottomRight.Z > maxZ)
+                    maxZ = frontBottomRight.Z;
+                if (frontBottomLeft.Z > maxZ)
+                    maxZ = frontBottomLeft.Z;
+
+                if (backTopRight.Z > maxZ)
+                    maxZ = backTopRight.Z;
+                if (backTopLeft.Z > maxZ)
+                    maxZ = backTopLeft.Z;
+                if (backBottomRight.Z > maxZ)
+                    maxZ = backBottomRight.Z;
+                if (backBottomLeft.Z > maxZ)
+                    maxZ = backBottomLeft.Z;
+
+                if (frontTopRight.Z < minZ)
+                    minZ = frontTopRight.Z;
+                if (frontTopLeft.Z < minZ)
+                    minZ = frontTopLeft.Z;
+                if (frontBottomRight.Z < minZ)
+                    minZ = frontBottomRight.Z;
+                if (frontBottomLeft.Z < minZ)
+                    minZ = frontBottomLeft.Z;
+
+                if (backTopRight.Z < minZ)
+                    minZ = backTopRight.Z;
+                if (backTopLeft.Z < minZ)
+                    minZ = backTopLeft.Z;
+                if (backBottomRight.Z < minZ)
+                    minZ = backBottomRight.Z;
+                if (backBottomLeft.Z < minZ)
+                    minZ = backBottomLeft.Z;
+            }
+ */
         }
 
         public Vector3 GetAxisAlignedBoundingBox(out float offsetHeight)
@@ -819,9 +1011,24 @@ namespace Universe.Region
             GetAxisAlignedBoundingBoxRaw(out minX, out maxX, out minY, out maxY, out minZ, out maxZ);
             Vector3 boundingBox = new Vector3(maxX - minX, maxY - minY, maxZ - minZ);
 
-            offsetHeight = 0.5f * (maxZ + minZ);
+
+            offsetHeight = 0.5f*(maxZ + minZ);
             offsetHeight -= m_rootPart.AbsolutePosition.Z;
 
+            /*
+                        offsetHeight = 0;
+                        float lower = (minZ * -1);
+                        if (lower > maxZ)
+                        {
+                            offsetHeight = lower - (boundingBox.Z / 2);
+
+                        }
+                        else if (maxZ > lower)
+                        {
+                            offsetHeight = maxZ - (boundingBox.Z / 2);
+                            offsetHeight *= -1;
+                        }
+            */
             // MainConsole.Instance.InfoFormat("BoundingBox is {0} , {1} , {2} ", boundingBox.X, boundingBox.Y, boundingBox.Z);
             return boundingBox;
         }
@@ -853,7 +1060,7 @@ namespace Universe.Region
             {
                 if (child is SceneObjectPart)
                 {
-                    SceneObjectPart part = (SceneObjectPart)child;
+                    SceneObjectPart part = (SceneObjectPart) child;
                     //Root part is first
                     if (m_partsList.Count == 0)
                     {
@@ -894,7 +1101,7 @@ namespace Universe.Region
             {
                 if (child is SceneObjectPart)
                 {
-                    SceneObjectPart part = (SceneObjectPart)child;
+                    SceneObjectPart part = (SceneObjectPart) child;
                     //Root part is first
                     if (m_partsList.Count == 0)
                     {
@@ -928,7 +1135,7 @@ namespace Universe.Region
             {
                 if (child is SceneObjectPart)
                 {
-                    SceneObjectPart part = (SceneObjectPart)child;
+                    SceneObjectPart part = (SceneObjectPart) child;
                     m_parts.Remove(part.UUID);
                     m_partsList.Remove(part);
                     m_ValidgrpOOB = false;
@@ -959,7 +1166,7 @@ namespace Universe.Region
                 m_partsList.Sort(Scene.SceneGraph.LinkSetSorter);
                 foreach (SceneObjectPart t in m_partsList)
                 {
-                    //If it isn't the same as the last seen +1, fix it
+//If it isn't the same as the last seen +1, fix it
                     if (t != null && t.LinkNum != lastSeenLinkNum)
                         t.LinkNum = lastSeenLinkNum;
 
@@ -1089,6 +1296,8 @@ namespace Universe.Region
             get { return m_rootPart.IsAttachment; }
         }
 
+        //bool m_isBackedUp = false;
+
         public byte GetAttachmentPoint()
         {
             return m_rootPart.Shape.State;
@@ -1101,7 +1310,7 @@ namespace Universe.Region
 
         public byte GetSavedAttachmentPoint()
         {
-            return (byte)m_rootPart.SavedAttachmentPoint;
+            return (byte) m_rootPart.SavedAttachmentPoint;
         }
 
         public void FinishedSerializingGenericProperties()
@@ -1151,9 +1360,13 @@ namespace Universe.Region
             }
 
             m_rootPart.SetParentLocalId(0);
+            //m_rootPart.SetAttachmentPoint((byte)0);
             m_rootPart.IsAttachment = false;
             AbsolutePosition = m_rootPart.AttachedPos;
             m_ValidgrpOOB = false;
+            //m_rootPart.ApplyPhysics(m_rootPart.GetEffectiveObjectFlags(), m_scene.m_physicalPrim);
+            //AttachToBackup();
+            //m_rootPart.ScheduleFullUpdate();
         }
 
         // justincc: I don't believe this hack is needed any longer, especially since the physics
@@ -1183,11 +1396,17 @@ namespace Universe.Region
 
         public void SetOwnerId(UUID userId)
         {
-            ForEachPart(delegate (SceneObjectPart part)
-            {
-                part.LastOwnerID = part.OwnerID;
-                part.OwnerID = userId;
-            });
+        	ForEachPart(delegate(SceneObjectPart part)
+        	            {
+        	            	if (part.OwnerID != userId)
+        	            	{
+        	            		if (part.GroupID != part.OwnerID)
+        	            		{
+        	            			part.LastOwnerID = part.OwnerID;
+        	            			part.OwnerID = userId;
+        	            		}
+        	            	}
+        	            });
         }
 
         public float GetMass()
@@ -1235,7 +1454,7 @@ namespace Universe.Region
 
         public void FireAttachmentCollisionEvents(EventArgs e)
         {
-            CollisionEventUpdate a = (CollisionEventUpdate)e;
+            CollisionEventUpdate a = (CollisionEventUpdate) e;
             Dictionary<uint, ContactPoint> collissionswith = a.GetCollisionEvents();
             List<uint> thisHitColliders = new List<uint>();
             List<uint> startedColliders = new List<uint>();
@@ -1249,7 +1468,7 @@ namespace Universe.Region
                 {
                     startedColliders.Add(localid);
                 }
-                //MainConsole.Instance.Debug("[Object]: Collided with:" + localid.ToString() + " at depth of: " + collissionswith[localid].ToString());
+                //MainConsole.Instance.Debug("[OBJECT]: Collided with:" + localid.ToString() + " at depth of: " + collissionswith[localid].ToString());
             }
 
             // calculate things that ended colliding
@@ -1276,7 +1495,7 @@ namespace Universe.Region
                 RootPart.SendSound(RootPart.CollisionSound.ToString(), RootPart.CollisionSoundVolume, true, 0, 0);
             }
             if (RootPart.CollisionSprite != UUID.Zero && RootPart.CollisionSoundVolume > 0.0f)
-            // The collision volume isn't a mistake, its an SL feature/bug
+                // The collision volume isn't a mistake, its an SL feature/bug
             {
                 // TODO: make a sprite!
             }
@@ -1307,16 +1526,16 @@ namespace Universe.Region
                                     if (found)
                                     {
                                         DetectedObject detobj = new DetectedObject
-                                        {
-                                            keyUUID = obj.UUID,
-                                            nameStr = obj.Name,
-                                            ownerUUID = obj.OwnerID,
-                                            posVector = obj.AbsolutePosition,
-                                            rotQuat = obj.GetWorldRotation(),
-                                            velVector = obj.Velocity,
-                                            colliderType = 0,
-                                            groupUUID = obj.GroupID
-                                        };
+                                                                    {
+                                                                        keyUUID = obj.UUID,
+                                                                        nameStr = obj.Name,
+                                                                        ownerUUID = obj.OwnerID,
+                                                                        posVector = obj.AbsolutePosition,
+                                                                        rotQuat = obj.GetWorldRotation(),
+                                                                        velVector = obj.Velocity,
+                                                                        colliderType = 0,
+                                                                        groupUUID = obj.GroupID
+                                                                    };
                                         colliding.Add(detobj);
                                     }
                                     //If it is 0, it is to not accept collisions from this object
@@ -1328,16 +1547,16 @@ namespace Universe.Region
                                     if (!found)
                                     {
                                         DetectedObject detobj = new DetectedObject
-                                        {
-                                            keyUUID = obj.UUID,
-                                            nameStr = obj.Name,
-                                            ownerUUID = obj.OwnerID,
-                                            posVector = obj.AbsolutePosition,
-                                            rotQuat = obj.GetWorldRotation(),
-                                            velVector = obj.Velocity,
-                                            colliderType = 0,
-                                            groupUUID = obj.GroupID
-                                        };
+                                                                    {
+                                                                        keyUUID = obj.UUID,
+                                                                        nameStr = obj.Name,
+                                                                        ownerUUID = obj.OwnerID,
+                                                                        posVector = obj.AbsolutePosition,
+                                                                        rotQuat = obj.GetWorldRotation(),
+                                                                        velVector = obj.Velocity,
+                                                                        colliderType = 0,
+                                                                        groupUUID = obj.GroupID
+                                                                    };
                                         colliding.Add(detobj);
                                     }
                                 }
@@ -1355,16 +1574,17 @@ namespace Universe.Region
                                         if (found)
                                         {
                                             DetectedObject detobj = new DetectedObject
-                                            {
-                                                keyUUID = av.UUID,
-                                                nameStr = av.ControllingClient.Name,
-                                                ownerUUID = av.UUID,
-                                                posVector = av.AbsolutePosition,
-                                                rotQuat = av.Rotation,
-                                                velVector = av.Velocity,
-                                                colliderType = 0,
-                                                groupUUID = av.ControllingClient.ActiveGroupId
-                                            };
+                                                                        {
+                                                                            keyUUID = av.UUID,
+                                                                            nameStr = av.ControllingClient.Name,
+                                                                            ownerUUID = av.UUID,
+                                                                            posVector = av.AbsolutePosition,
+                                                                            rotQuat = av.Rotation,
+                                                                            velVector = av.Velocity,
+                                                                            colliderType = 0,
+                                                                            groupUUID =
+                                                                                av.ControllingClient.ActiveGroupId
+                                                                        };
                                             colliding.Add(detobj);
                                         }
                                         //If it is 0, it is to not accept collisions from this avatar
@@ -1376,16 +1596,17 @@ namespace Universe.Region
                                         if (!found)
                                         {
                                             DetectedObject detobj = new DetectedObject
-                                            {
-                                                keyUUID = av.UUID,
-                                                nameStr = av.ControllingClient.Name,
-                                                ownerUUID = av.UUID,
-                                                posVector = av.AbsolutePosition,
-                                                rotQuat = av.Rotation,
-                                                velVector = av.Velocity,
-                                                colliderType = 0,
-                                                groupUUID = av.ControllingClient.ActiveGroupId
-                                            };
+                                                                        {
+                                                                            keyUUID = av.UUID,
+                                                                            nameStr = av.ControllingClient.Name,
+                                                                            ownerUUID = av.UUID,
+                                                                            posVector = av.AbsolutePosition,
+                                                                            rotQuat = av.Rotation,
+                                                                            velVector = av.Velocity,
+                                                                            colliderType = 0,
+                                                                            groupUUID =
+                                                                                av.ControllingClient.ActiveGroupId
+                                                                        };
                                             colliding.Add(detobj);
                                         }
                                     }
@@ -1430,16 +1651,16 @@ namespace Universe.Region
                                     if (found)
                                     {
                                         DetectedObject detobj = new DetectedObject
-                                        {
-                                            keyUUID = obj.UUID,
-                                            nameStr = obj.Name,
-                                            ownerUUID = obj.OwnerID,
-                                            posVector = obj.AbsolutePosition,
-                                            rotQuat = obj.GetWorldRotation(),
-                                            velVector = obj.Velocity,
-                                            colliderType = 0,
-                                            groupUUID = obj.GroupID
-                                        };
+                                                                    {
+                                                                        keyUUID = obj.UUID,
+                                                                        nameStr = obj.Name,
+                                                                        ownerUUID = obj.OwnerID,
+                                                                        posVector = obj.AbsolutePosition,
+                                                                        rotQuat = obj.GetWorldRotation(),
+                                                                        velVector = obj.Velocity,
+                                                                        colliderType = 0,
+                                                                        groupUUID = obj.GroupID
+                                                                    };
                                         colliding.Add(detobj);
                                     }
                                     //If it is 0, it is to not accept collisions from this object
@@ -1451,16 +1672,16 @@ namespace Universe.Region
                                     if (!found)
                                     {
                                         DetectedObject detobj = new DetectedObject
-                                        {
-                                            keyUUID = obj.UUID,
-                                            nameStr = obj.Name,
-                                            ownerUUID = obj.OwnerID,
-                                            posVector = obj.AbsolutePosition,
-                                            rotQuat = obj.GetWorldRotation(),
-                                            velVector = obj.Velocity,
-                                            colliderType = 0,
-                                            groupUUID = obj.GroupID
-                                        };
+                                                                    {
+                                                                        keyUUID = obj.UUID,
+                                                                        nameStr = obj.Name,
+                                                                        ownerUUID = obj.OwnerID,
+                                                                        posVector = obj.AbsolutePosition,
+                                                                        rotQuat = obj.GetWorldRotation(),
+                                                                        velVector = obj.Velocity,
+                                                                        colliderType = 0,
+                                                                        groupUUID = obj.GroupID
+                                                                    };
                                         colliding.Add(detobj);
                                     }
                                 }
@@ -1478,16 +1699,17 @@ namespace Universe.Region
                                         if (found)
                                         {
                                             DetectedObject detobj = new DetectedObject
-                                            {
-                                                keyUUID = av.UUID,
-                                                nameStr = av.ControllingClient.Name,
-                                                ownerUUID = av.UUID,
-                                                posVector = av.AbsolutePosition,
-                                                rotQuat = av.Rotation,
-                                                velVector = av.Velocity,
-                                                colliderType = 0,
-                                                groupUUID = av.ControllingClient.ActiveGroupId
-                                            };
+                                                                        {
+                                                                            keyUUID = av.UUID,
+                                                                            nameStr = av.ControllingClient.Name,
+                                                                            ownerUUID = av.UUID,
+                                                                            posVector = av.AbsolutePosition,
+                                                                            rotQuat = av.Rotation,
+                                                                            velVector = av.Velocity,
+                                                                            colliderType = 0,
+                                                                            groupUUID =
+                                                                                av.ControllingClient.ActiveGroupId
+                                                                        };
                                             colliding.Add(detobj);
                                         }
                                         //If it is 0, it is to not accept collisions from this avatar
@@ -1499,16 +1721,17 @@ namespace Universe.Region
                                         if (!found)
                                         {
                                             DetectedObject detobj = new DetectedObject
-                                            {
-                                                keyUUID = av.UUID,
-                                                nameStr = av.ControllingClient.Name,
-                                                ownerUUID = av.UUID,
-                                                posVector = av.AbsolutePosition,
-                                                rotQuat = av.Rotation,
-                                                velVector = av.Velocity,
-                                                colliderType = 0,
-                                                groupUUID = av.ControllingClient.ActiveGroupId
-                                            };
+                                                                        {
+                                                                            keyUUID = av.UUID,
+                                                                            nameStr = av.ControllingClient.Name,
+                                                                            ownerUUID = av.UUID,
+                                                                            posVector = av.AbsolutePosition,
+                                                                            rotQuat = av.Rotation,
+                                                                            velVector = av.Velocity,
+                                                                            colliderType = 0,
+                                                                            groupUUID =
+                                                                                av.ControllingClient.ActiveGroupId
+                                                                        };
                                             colliding.Add(detobj);
                                         }
                                     }
@@ -1553,16 +1776,16 @@ namespace Universe.Region
                                     if (found)
                                     {
                                         DetectedObject detobj = new DetectedObject
-                                        {
-                                            keyUUID = obj.UUID,
-                                            nameStr = obj.Name,
-                                            ownerUUID = obj.OwnerID,
-                                            posVector = obj.AbsolutePosition,
-                                            rotQuat = obj.GetWorldRotation(),
-                                            velVector = obj.Velocity,
-                                            colliderType = 0,
-                                            groupUUID = obj.GroupID
-                                        };
+                                                                    {
+                                                                        keyUUID = obj.UUID,
+                                                                        nameStr = obj.Name,
+                                                                        ownerUUID = obj.OwnerID,
+                                                                        posVector = obj.AbsolutePosition,
+                                                                        rotQuat = obj.GetWorldRotation(),
+                                                                        velVector = obj.Velocity,
+                                                                        colliderType = 0,
+                                                                        groupUUID = obj.GroupID
+                                                                    };
                                         colliding.Add(detobj);
                                     }
                                     //If it is 0, it is to not accept collisions from this object
@@ -1574,16 +1797,16 @@ namespace Universe.Region
                                     if (!found)
                                     {
                                         DetectedObject detobj = new DetectedObject
-                                        {
-                                            keyUUID = obj.UUID,
-                                            nameStr = obj.Name,
-                                            ownerUUID = obj.OwnerID,
-                                            posVector = obj.AbsolutePosition,
-                                            rotQuat = obj.GetWorldRotation(),
-                                            velVector = obj.Velocity,
-                                            colliderType = 0,
-                                            groupUUID = obj.GroupID
-                                        };
+                                                                    {
+                                                                        keyUUID = obj.UUID,
+                                                                        nameStr = obj.Name,
+                                                                        ownerUUID = obj.OwnerID,
+                                                                        posVector = obj.AbsolutePosition,
+                                                                        rotQuat = obj.GetWorldRotation(),
+                                                                        velVector = obj.Velocity,
+                                                                        colliderType = 0,
+                                                                        groupUUID = obj.GroupID
+                                                                    };
                                         colliding.Add(detobj);
                                     }
                                 }
@@ -1601,16 +1824,17 @@ namespace Universe.Region
                                         if (found)
                                         {
                                             DetectedObject detobj = new DetectedObject
-                                            {
-                                                keyUUID = av.UUID,
-                                                nameStr = av.ControllingClient.Name,
-                                                ownerUUID = av.UUID,
-                                                posVector = av.AbsolutePosition,
-                                                rotQuat = av.Rotation,
-                                                velVector = av.Velocity,
-                                                colliderType = 0,
-                                                groupUUID = av.ControllingClient.ActiveGroupId
-                                            };
+                                                                        {
+                                                                            keyUUID = av.UUID,
+                                                                            nameStr = av.ControllingClient.Name,
+                                                                            ownerUUID = av.UUID,
+                                                                            posVector = av.AbsolutePosition,
+                                                                            rotQuat = av.Rotation,
+                                                                            velVector = av.Velocity,
+                                                                            colliderType = 0,
+                                                                            groupUUID =
+                                                                                av.ControllingClient.ActiveGroupId
+                                                                        };
                                             colliding.Add(detobj);
                                         }
                                         //If it is 0, it is to not accept collisions from this avatar
@@ -1622,16 +1846,17 @@ namespace Universe.Region
                                         if (!found)
                                         {
                                             DetectedObject detobj = new DetectedObject
-                                            {
-                                                keyUUID = av.UUID,
-                                                nameStr = av.ControllingClient.Name,
-                                                ownerUUID = av.UUID,
-                                                posVector = av.AbsolutePosition,
-                                                rotQuat = av.Rotation,
-                                                velVector = av.Velocity,
-                                                colliderType = 0,
-                                                groupUUID = av.ControllingClient.ActiveGroupId
-                                            };
+                                                                        {
+                                                                            keyUUID = av.UUID,
+                                                                            nameStr = av.ControllingClient.Name,
+                                                                            ownerUUID = av.UUID,
+                                                                            posVector = av.AbsolutePosition,
+                                                                            rotQuat = av.Rotation,
+                                                                            velVector = av.Velocity,
+                                                                            colliderType = 0,
+                                                                            groupUUID =
+                                                                                av.ControllingClient.ActiveGroupId
+                                                                        };
                                             colliding.Add(detobj);
                                         }
                                     }
@@ -1650,7 +1875,6 @@ namespace Universe.Region
                     }
                 }
             }
-
             if ((RootPart.ScriptEvents & scriptEvents.land_collision_start) != 0)
             {
                 if (startedColliders.Count > 0)
@@ -1659,16 +1883,16 @@ namespace Universe.Region
                     List<DetectedObject> colliding = (from localId in startedColliders
                                                       where localId == 0
                                                       select new DetectedObject
-                                                      {
-                                                          keyUUID = UUID.Zero,
-                                                          nameStr = "",
-                                                          ownerUUID = UUID.Zero,
-                                                          posVector = RootPart.AbsolutePosition,
-                                                          rotQuat = Quaternion.Identity,
-                                                          velVector = Vector3.Zero,
-                                                          colliderType = 0,
-                                                          groupUUID = UUID.Zero
-                                                      }).ToList();
+                                                                 {
+                                                                     keyUUID = UUID.Zero,
+                                                                     nameStr = "",
+                                                                     ownerUUID = UUID.Zero,
+                                                                     posVector = RootPart.AbsolutePosition,
+                                                                     rotQuat = Quaternion.Identity,
+                                                                     velVector = Vector3.Zero,
+                                                                     colliderType = 0,
+                                                                     groupUUID = UUID.Zero
+                                                                 }).ToList();
 
                     if (colliding.Count > 0)
                     {
@@ -1680,7 +1904,6 @@ namespace Universe.Region
                     }
                 }
             }
-
             if ((RootPart.ScriptEvents & scriptEvents.land_collision) != 0)
             {
                 if (m_lastColliders.Count > 0)
@@ -1689,16 +1912,16 @@ namespace Universe.Region
                     List<DetectedObject> colliding = (from localId in startedColliders
                                                       where localId == 0
                                                       select new DetectedObject
-                                                      {
-                                                          keyUUID = UUID.Zero,
-                                                          nameStr = "",
-                                                          ownerUUID = UUID.Zero,
-                                                          posVector = RootPart.AbsolutePosition,
-                                                          rotQuat = Quaternion.Identity,
-                                                          velVector = Vector3.Zero,
-                                                          colliderType = 0,
-                                                          groupUUID = UUID.Zero
-                                                      }).ToList();
+                                                                 {
+                                                                     keyUUID = UUID.Zero,
+                                                                     nameStr = "",
+                                                                     ownerUUID = UUID.Zero,
+                                                                     posVector = RootPart.AbsolutePosition,
+                                                                     rotQuat = Quaternion.Identity,
+                                                                     velVector = Vector3.Zero,
+                                                                     colliderType = 0,
+                                                                     groupUUID = UUID.Zero
+                                                                 }).ToList();
 
                     if (colliding.Count > 0)
                     {
@@ -1710,7 +1933,6 @@ namespace Universe.Region
                     }
                 }
             }
-
             if ((RootPart.ScriptEvents & scriptEvents.land_collision_end) != 0)
             {
                 if (endedColliders.Count > 0)
@@ -1719,16 +1941,16 @@ namespace Universe.Region
                     List<DetectedObject> colliding = (from localId in startedColliders
                                                       where localId == 0
                                                       select new DetectedObject
-                                                      {
-                                                          keyUUID = UUID.Zero,
-                                                          nameStr = "",
-                                                          ownerUUID = UUID.Zero,
-                                                          posVector = RootPart.AbsolutePosition,
-                                                          rotQuat = Quaternion.Identity,
-                                                          velVector = Vector3.Zero,
-                                                          colliderType = 0,
-                                                          groupUUID = UUID.Zero
-                                                      }).ToList();
+                                                                 {
+                                                                     keyUUID = UUID.Zero,
+                                                                     nameStr = "",
+                                                                     ownerUUID = UUID.Zero,
+                                                                     posVector = RootPart.AbsolutePosition,
+                                                                     rotQuat = Quaternion.Identity,
+                                                                     velVector = Vector3.Zero,
+                                                                     colliderType = 0,
+                                                                     groupUUID = UUID.Zero
+                                                                 }).ToList();
 
                     if (colliding.Count > 0)
                     {
@@ -1747,7 +1969,7 @@ namespace Universe.Region
         public ISceneChildEntity RootChild
         {
             get { return m_rootPart; }
-            set { m_rootPart = (SceneObjectPart)value; }
+            set { m_rootPart = (SceneObjectPart) value; }
         }
 
         #endregion
@@ -1794,7 +2016,7 @@ namespace Universe.Region
             }
             else
             {
-                SceneObjectPart part = (SceneObjectPart)GetChildPart(localId);
+                SceneObjectPart part = (SceneObjectPart) GetChildPart(localId);
                 OnGrabPart(part, offsetPos, remoteClient);
             }
         }
@@ -1812,7 +2034,7 @@ namespace Universe.Region
 
         public void aggregateScriptEvents()
         {
-            PrimFlags objectflagupdate = (PrimFlags)RootPart.GetEffectiveObjectFlags();
+            PrimFlags objectflagupdate = (PrimFlags) RootPart.GetEffectiveObjectFlags();
 
             scriptEvents aggregateScriptEvents = 0;
 
@@ -1832,7 +2054,6 @@ namespace Universe.Region
                     m_targets.Clear();
                 RemoveGroupTarget(this);
             }
-
             m_scriptListens_atRotTarget = ((aggregateScriptEvents & scriptEvents.at_rot_target) != 0);
             m_scriptListens_notAtRotTarget = ((aggregateScriptEvents & scriptEvents.not_at_rot_target) != 0);
 
@@ -1848,10 +2069,10 @@ namespace Universe.Region
 
         public void SetText(string text, Vector3 color, double alpha)
         {
-            Color = Color.FromArgb(0xff - (int)(alpha * 0xff),
-                                   (int)(color.X * 0xff),
-                                   (int)(color.Y * 0xff),
-                                   (int)(color.Z * 0xff));
+            Color = Color.FromArgb(0xff - (int) (alpha*0xff),
+                                   (int) (color.X*0xff),
+                                   (int) (color.Y*0xff),
+                                   (int) (color.Z*0xff));
             Text = text;
 
             m_rootPart.ScheduleUpdate(PrimUpdateFlags.Text);
@@ -1898,21 +2119,21 @@ namespace Universe.Region
 
         public int registerRotTargetWaypoint(Quaternion target, float tolerance)
         {
-            scriptRotTarget waypoint = new scriptRotTarget { targetRot = target, tolerance = tolerance };
+            scriptRotTarget waypoint = new scriptRotTarget {targetRot = target, tolerance = tolerance};
             uint handle = m_scene.SceneGraph.AllocateLocalId();
             waypoint.handle = handle;
 
             lock (m_rotTargets)
                 m_rotTargets.Add(handle, waypoint);
-
+            
             AddGroupTarget(this);
-            return (int)handle;
+            return (int) handle;
         }
 
         public void unregisterRotTargetWaypoint(int handle)
         {
             lock (m_rotTargets)
-                m_rotTargets.Remove((uint)handle);
+                m_rotTargets.Remove((uint) handle);
             lock (m_targets)
                 if (m_targets.Count == 0)
                     RemoveGroupTarget(this);
@@ -1920,22 +2141,22 @@ namespace Universe.Region
 
         public int registerTargetWaypoint(Vector3 target, float tolerance)
         {
-            scriptPosTarget waypoint = new scriptPosTarget { targetPos = target, tolerance = tolerance };
+            scriptPosTarget waypoint = new scriptPosTarget {targetPos = target, tolerance = tolerance};
             uint handle = m_scene.SceneGraph.AllocateLocalId();
             waypoint.handle = handle;
 
             lock (m_targets)
                 m_targets.Add(handle, waypoint);
-
+            
             AddGroupTarget(this);
-            return (int)handle;
+            return (int) handle;
         }
 
         public void unregisterTargetWaypoint(int handle)
         {
             lock (m_targets)
             {
-                m_targets.Remove((uint)handle);
+                m_targets.Remove((uint) handle);
                 if (m_targets.Count == 0)
                     RemoveGroupTarget(this);
             }
@@ -2031,7 +2252,8 @@ namespace Universe.Region
                             if (m_rootPart.KeyframeAnimation.CurrentAnimationPosition ==
                                 m_rootPart.KeyframeAnimation.TimeList.Length)
                             {
-                                m_rootPart.KeyframeAnimation.PingPongForwardMotion = !m_rootPart.KeyframeAnimation.PingPongForwardMotion;
+                                m_rootPart.KeyframeAnimation.PingPongForwardMotion =
+                                    !m_rootPart.KeyframeAnimation.PingPongForwardMotion;
                                 m_rootPart.KeyframeAnimation.CurrentAnimationPosition -= 2;
                             }
                         }
@@ -2040,12 +2262,12 @@ namespace Universe.Region
                             m_rootPart.KeyframeAnimation.CurrentAnimationPosition -= 1;
                             if (m_rootPart.KeyframeAnimation.CurrentAnimationPosition < 0)
                             {
-                                m_rootPart.KeyframeAnimation.PingPongForwardMotion = !m_rootPart.KeyframeAnimation.PingPongForwardMotion;
+                                m_rootPart.KeyframeAnimation.PingPongForwardMotion =
+                                    !m_rootPart.KeyframeAnimation.PingPongForwardMotion;
                                 m_rootPart.KeyframeAnimation.CurrentAnimationPosition += 2;
                             }
                         }
                     }
-
                     m_rootPart.KeyframeAnimation.CurrentFrame = Environment.TickCount;
                     MadeItToCheckpoint = true;
                 }
@@ -2067,7 +2289,6 @@ namespace Universe.Region
                         SetAbsolutePosition(true, m_rootPart.KeyframeAnimation.InitialPosition + _target_velocity);
                     }
                 }
-
                 if (m_rootPart.KeyframeAnimation.RotationList.Length != 0)
                 {
                     target = m_rootPart.KeyframeAnimation.InitialRotation * target;
@@ -2086,7 +2307,6 @@ namespace Universe.Region
             {
                 m_scene.EventManager.OnFrame -= moveKeyframeMotion;
             }
-
             ScheduleGroupTerseUpdate();
         }
 
@@ -2101,6 +2321,8 @@ namespace Universe.Region
                 if (targetCount > 0)
                 {
                     bool at_target = false;
+                    //Vector3 targetPos;
+                    //uint targetHandle;
                     Dictionary<uint, scriptPosTarget> atTargets = new Dictionary<uint, scriptPosTarget>();
                     lock (m_targets)
                     {
@@ -2114,11 +2336,11 @@ namespace Universe.Region
                                 {
                                     at_target = true;
                                     scriptPosTarget att = new scriptPosTarget
-                                    {
-                                        targetPos = target.targetPos,
-                                        tolerance = target.tolerance,
-                                        handle = target.handle
-                                    };
+                                                              {
+                                                                  targetPos = target.targetPos,
+                                                                  tolerance = target.tolerance,
+                                                                  handle = target.handle
+                                                              };
                                     atTargets.Add(idx, att);
                                 }
                             }
@@ -2167,13 +2389,12 @@ namespace Universe.Region
                     }
                 }
             }
-
             if (m_scriptListens_atRotTarget || m_scriptListens_notAtRotTarget)
             {
                 var rotCount = 0;
-                lock (m_rotTargets)
+                lock(m_rotTargets)
                     rotCount = m_rotTargets.Count;
-
+                
                 if (rotCount > 0)
                 {
                     bool at_Rottarget = false;
@@ -2184,12 +2405,12 @@ namespace Universe.Region
                         {
                             scriptRotTarget target = m_rotTargets[idx];
                             double angle =
-                                Math.Acos(target.targetRot.X * m_rootPart.GetRotationOffset().X +
-                                          target.targetRot.Y * m_rootPart.GetRotationOffset().Y +
-                                          target.targetRot.Z * m_rootPart.GetRotationOffset().Z +
-                                          target.targetRot.W * m_rootPart.GetRotationOffset().W) * 2;
+                                Math.Acos(target.targetRot.X*m_rootPart.GetRotationOffset().X +
+                                          target.targetRot.Y*m_rootPart.GetRotationOffset().Y +
+                                          target.targetRot.Z*m_rootPart.GetRotationOffset().Z +
+                                          target.targetRot.W*m_rootPart.GetRotationOffset().W)*2;
                             if (angle < 0) angle = -angle;
-                            if (angle > Math.PI) angle = (Math.PI * 2 - angle);
+                            if (angle > Math.PI) angle = (Math.PI*2 - angle);
                             if (angle <= target.tolerance)
                             {
                                 // trigger at_rot_target
@@ -2197,11 +2418,11 @@ namespace Universe.Region
                                 {
                                     at_Rottarget = true;
                                     scriptRotTarget att = new scriptRotTarget
-                                    {
-                                        targetRot = target.targetRot,
-                                        tolerance = target.tolerance,
-                                        handle = target.handle
-                                    };
+                                                              {
+                                                                  targetRot = target.targetRot,
+                                                                  tolerance = target.tolerance,
+                                                                  handle = target.handle
+                                                              };
                                     atRotTargets.Add(idx, att);
                                 }
                             }
@@ -2258,8 +2479,8 @@ namespace Universe.Region
             {
                 if (part.Shape == null)
                     continue;
-                if (!(RootPart.PhysicsType == (byte)PhysicsShapeType.None ||
-                      part.PhysicsType == (byte)PhysicsShapeType.None ||
+                if (!(RootPart.PhysicsType == (byte) PhysicsShapeType.None ||
+                      part.PhysicsType == (byte) PhysicsShapeType.None ||
                       ((part.Flags & PrimFlags.Phantom) == PrimFlags.Phantom &&
                        !part.VolumeDetectActive) ||
                       ((RootPart.Flags & PrimFlags.Phantom) == PrimFlags.Phantom &&
@@ -2270,6 +2491,7 @@ namespace Universe.Region
                         // If no sculpt data exists, we need to get the data
                         m_scene.AssetService.Get(part.Shape.SculptTexture.ToString(), true, part.AssetReceived);
                         //In the mean time...
+                        //part.Shape.SculptEntry = false;
                         part.Shape.SculptData = new byte[0];
                     }
                 }
@@ -2326,9 +2548,11 @@ namespace Universe.Region
         /// <returns></returns>
         public ISceneEntity Copy(bool clonePhys)
         {
-            SceneObjectGroup dupe = (SceneObjectGroup)MemberwiseClone();
+            SceneObjectGroup dupe = (SceneObjectGroup) MemberwiseClone();
+
             dupe.m_parts = new Dictionary<UUID, SceneObjectPart>();
             dupe.m_partsList = new List<SceneObjectPart>();
+
             dupe.m_scene = Scene;
 
             // Warning, The following code related to previousAttachmentStatus is needed so that clones of 
@@ -2341,12 +2565,19 @@ namespace Universe.Region
             // This is only necessary when userExposed is false!
 
             dupe.ClearChildren();
+
             dupe.AddChild(m_rootPart.Copy(dupe, clonePhys), m_rootPart.LinkNum);
+
             bool previousAttachmentStatus = dupe.RootPart.IsAttachment;
+
             dupe.RootPart.IsAttachment = true;
+
             dupe.AbsolutePosition = AbsolutePosition;
+
             dupe.RootPart.IsAttachment = previousAttachmentStatus;
+
             dupe.m_rootPart.TrimPermissions();
+
             List<SceneObjectPart> partList = new List<SceneObjectPart>();
 
             lock (m_partsLock)
@@ -2366,7 +2597,6 @@ namespace Universe.Region
                     dupe.LinkChild(copy);
                 }
             }
-
             dupe.m_ValidgrpOOB = false;
 
             return dupe;
@@ -2384,7 +2614,7 @@ namespace Universe.Region
             int i;
 
             lock (m_partsLock)//Force the root to be deleted last
-                parts = m_partsList.OrderBy((sop) => -sop.LinkNum).ToArray();
+                parts = m_partsList.OrderBy((sop)=>-sop.LinkNum).ToArray();
 
             if (RootPart.PhysActor != null)
                 RootPart.PhysActor.BlockPhysicalReconstruction = true;
@@ -2392,7 +2622,8 @@ namespace Universe.Region
             for (i = 0; i < parts.Length; i++)
             {
                 part = parts[i];
-
+                //                PhysicsObject oldActor = part.PhysActor;
+                //                PrimitiveBaseShape pbs = part.Shape;
                 if (part.PhysActor != null)
                 {
                     part.PhysActor.RotationalVelocity = Vector3.Zero;
@@ -2401,14 +2632,14 @@ namespace Universe.Region
                     part.PhysActor.OnSignificantMovement -= part.ParentGroup.CheckForSignificantMovement;
                     part.PhysActor.OnOutOfBounds -= part.PhysicsOutOfBounds;
 
+                    //part.PhysActor.delink ();
                     //Remove the old one so that we don't have more than we should,
                     //  as when we copy, it readds it to the PhysicsScene somehow
-                    //The root removes all children
+                    //if (part.IsRoot)//The root removes all children
                     m_scene.PhysicsScene.RemovePrim(part.PhysActor);
                     part.FireOnRemovedPhysics();
                     part.PhysActor = null;
                 }
-
                 //Reset any old data that we have
                 part.Velocity = Vector3.Zero;
                 part.AngularVelocity = Vector3.Zero;
@@ -2416,7 +2647,7 @@ namespace Universe.Region
                 part.GenerateRotationalVelocityFromOmega();
             }
 
-            if (actionWhileNoPhysActor != null)
+            if(actionWhileNoPhysActor != null)
                 actionWhileNoPhysActor();
 
             //Check for meshes and stuff
@@ -2449,13 +2680,14 @@ namespace Universe.Region
             RootPart.PhysActor.VolumeDetect = RootPart.VolumeDetectActive;
 
             //Add collision updates
+            //part.PhysActor.OnCollisionUpdate += RootPart.PhysicsCollision;
             RootPart.PhysActor.OnRequestTerseUpdate += RootPart.PhysicsRequestingTerseUpdate;
             RootPart.PhysActor.OnSignificantMovement += RootPart.ParentGroup.CheckForSignificantMovement;
             RootPart.PhysActor.OnOutOfBounds += RootPart.PhysicsOutOfBounds;
 
             RootPart.FireOnAddedPhysics();
             RootPart.aggregateScriptEvents();
-
+            
             PhysicsActor[] actors = new PhysicsActor[parts.Length - 1];
             for (i = 0; i < parts.Length; i++)
             {
@@ -2477,7 +2709,8 @@ namespace Universe.Region
                     part.Friction, part.Restitution, part.GravityMultiplier, part.Density);
                 if (part.PhysActor == null)
                     continue;
-
+                //                    part.PhysActor.BuildingRepresentation = true;
+                //                    if(part.IsRoot)
                 //Don't let it rebuild it until we have all the links done
 
                 part.PhysActor.VolumeDetect = part.VolumeDetectActive;
@@ -2490,17 +2723,26 @@ namespace Universe.Region
                 part.FireOnAddedPhysics();
                 part.aggregateScriptEvents();
                 actors[i] = part.PhysActor;
-
-                if (!m_scene.PhysicsScene.AllowGroupLink)
+                
+                if(!m_scene.PhysicsScene.AllowGroupLink)
                     part.PhysActor.Link(RootPart.PhysActor);
             }
-
             if (m_scene.PhysicsScene.AllowGroupLink)
                 RootPart.PhysActor.LinkGroupToThis(actors);
 
             Scene.UniverseEventManager.FireGenericEventHandler("ObjectChangedPhysicalStatus", this);
 
             FixVehicleParams(RootPart);
+
+            /*if (physical != RootPart.PhysActor.IsPhysical)
+            {
+                RootPart.PhysActor.IsPhysical = physical;
+                foreach (SceneObjectPart p in parts)
+                {
+                    if(!p.IsRoot)
+                        p.PhysActor.IsPhysical = physical;
+                }
+            }*/
 
             //Force deselection here so that it isn't stuck forever
             IsSelected = keepSelectedStatuses && IsSelected;
@@ -2510,6 +2752,7 @@ namespace Universe.Region
             OnFinishedPhysicalRepresentationBuilding = null;
         }
 
+
         /// <summary>
         ///     Fix all the vehicle params after rebuilding the representation
         /// </summary>
@@ -2518,6 +2761,7 @@ namespace Universe.Region
         {
             part.PhysActor.VehicleType = part.VehicleType;
 
+            // OSD o = part.GetComponentState("VehicleParameters");
             foreach (OSD param in part.VehicleFlags)
             {
                 part.PhysActor.VehicleFlags(param.AsInteger(), false);
@@ -2526,10 +2770,10 @@ namespace Universe.Region
             foreach (KeyValuePair<string, OSD> param in part.VehicleParameters)
             {
                 if (param.Value.Type == OSDType.Real)
-                    part.PhysActor.VehicleFloatParam(int.Parse(param.Key), (float)param.Value.AsReal());
+                    part.PhysActor.VehicleFloatParam(int.Parse(param.Key), (float) param.Value.AsReal());
                 else if (param.Value.Type == OSDType.Array)
                 {
-                    OSDArray a = (OSDArray)param.Value;
+                    OSDArray a = (OSDArray) param.Value;
                     if (a.Count == 3)
                         part.PhysActor.VehicleVectorParam(int.Parse(param.Key), param.Value.AsVector3());
                     else
@@ -2559,7 +2803,6 @@ namespace Universe.Region
                     }
                 }
             }
-
             return Vector3.Zero;
         }
 
@@ -2727,15 +2970,12 @@ namespace Universe.Region
             {
                 if (rootpart.PhysActor != null)
                 {
-                    if (Math.Abs(height) > 0.01f)
-                    {
+                    if (Math.Abs (height) > 0.01f) {
                         rootpart.PIDHoverHeight = height;
                         rootpart.PIDHoverType = hoverType;
                         rootpart.PIDTau = tau;
                         rootpart.PIDHoverActive = true;
-                    }
-                    else
-                    {
+                    } else {
                         rootpart.PIDHoverActive = false;
                     }
                 }
@@ -2850,7 +3090,6 @@ namespace Universe.Region
                     return part;
                 }
             }
-
             //Check sitting avatars
             int count = m_parts.Count + 1;
             foreach (UUID agentID in SitTargetAvatar)
@@ -2859,7 +3098,6 @@ namespace Universe.Region
                 {
                     return m_scene.GetScenePresence(agentID);
                 }
-
                 count++;
             }
 
@@ -2925,12 +3163,12 @@ namespace Universe.Region
         public void LinkToGroup(ISceneEntity grp)
         {
             //MainConsole.Instance.DebugFormat(
-            //    "[Scene Object Group]: Linking group with root part {0}, {1} to group with root part {2}, {3}",
+            //    "[SCENE OBJECT GROUP]: Linking group with root part {0}, {1} to group with root part {2}, {3}",
             //    objectGroup.RootPart.Name, objectGroup.RootPart.UUID, RootPart.Name, RootPart.UUID);
 
             if (!(grp is SceneObjectGroup))
                 return;
-            SceneObjectGroup objectGroup = (SceneObjectGroup)grp;
+            SceneObjectGroup objectGroup = (SceneObjectGroup) grp;
 
             if (m_rootPart.PhysActor != null)
                 m_rootPart.PhysActor.BlockPhysicalReconstruction = true;
@@ -2947,7 +3185,7 @@ namespace Universe.Region
             axPos *= Quaternion.Inverse(parentRot);
             linkPart.SetOffsetPosition(axPos);
 
-            Quaternion newRot = Quaternion.Inverse(parentRot) * oldRootRotation;
+            Quaternion newRot = Quaternion.Inverse(parentRot)*oldRootRotation;
             linkPart.SetRotationOffset(false, newRot, false);
 
             //Fix the link number for the root
@@ -2973,7 +3211,7 @@ namespace Universe.Region
                 // let physics link it
                 if (linkPart.PhysActor != null && m_rootPart.PhysActor != null)
                 {
-                    if (linkPart.PhysicsType != (byte)PhysicsShapeType.None)
+                    if (linkPart.PhysicsType != (byte) PhysicsShapeType.None)
                         linkPart.PhysActor.Link(m_rootPart.PhysActor);
                 }
                 //rest of parts
@@ -2986,7 +3224,6 @@ namespace Universe.Region
                         part.PhysActor.Link(m_rootPart.PhysActor);
                 }
             }
-
             // Here's the deal, this is ABSOLUTELY CRITICAL so the physics scene gets the update about the 
             // position of linkset prims.  IF YOU CHANGE THIS, YOU MUST TEST colliding with just linked and 
             // unmoved prims!
@@ -3009,8 +3246,9 @@ namespace Universe.Region
             if (!(part is SceneObjectPart))
                 return null;
             SceneObjectPart linkPart = part as SceneObjectPart;
-            //MainConsole.Instance.DebugFormat(
-            //    "[Scene Object Group]: Delinking part {0}, {1} from group with root part {2}, {3}", linkPart.Name, linkPart.UUID, RootPart.Name, RootPart.UUID);
+//                MainConsole.Instance.DebugFormat(
+//                    "[SCENE OBJECT GROUP]: Delinking part {0}, {1} from group with root part {2}, {3}",
+//                    linkPart.Name, linkPart.UUID, RootPart.Name, RootPart.UUID);
 
             Quaternion worldRot = linkPart.GetWorldRotation();
 
@@ -3046,6 +3284,9 @@ namespace Universe.Region
 
             linkPart.Rezzed = RootPart.Rezzed;
 
+
+            //This is already set multiple places, no need to do it again
+            //HasGroupChanged = true;
             //We need to send this so that we don't have issues with the client not realizing that the prims were unlinked
             ScheduleGroupUpdate(PrimUpdateFlags.ForcedFullUpdate);
 
@@ -3053,9 +3294,10 @@ namespace Universe.Region
             return objectGroup;
         }
 
-        void LinkNonRootPart(SceneObjectPart part, Vector3 oldGroupPosition, Quaternion oldGroupRotation, int linkNum)
+        void LinkNonRootPart(SceneObjectPart part, Vector3 oldGroupPosition, Quaternion oldGroupRotation,
+                                     int linkNum)
         {
-            Quaternion WorldRot = oldGroupRotation * part.GetRotationOffset();
+            Quaternion WorldRot = oldGroupRotation*part.GetRotationOffset();
 
             // first fix from old local to world 
             // position
@@ -3076,7 +3318,7 @@ namespace Universe.Region
             pos *= Quaternion.Inverse(rootRotation);
             part.SetOffsetPosition(pos);
 
-            Quaternion newRot = Quaternion.Inverse(rootRotation) * WorldRot;
+            Quaternion newRot = Quaternion.Inverse(rootRotation)*WorldRot;
             part.SetRotationOffset(false, newRot, false);
             // caller will tell the rest about this position changes..
         }
@@ -3092,10 +3334,12 @@ namespace Universe.Region
             m_rootPart.GetProperties(client);
         }
 
-        public void UpdatePermissions(UUID AgentID, byte field, uint localID, uint mask, byte addRemTF)
+        public void UpdatePermissions(UUID AgentID, byte field, uint localID,
+                                      uint mask, byte addRemTF)
         {
             foreach (SceneObjectPart part in m_partsList)
-                part.UpdatePermissions(AgentID, field, localID, mask, addRemTF);
+                part.UpdatePermissions(AgentID, field, localID, mask,
+                                       addRemTF);
 
             HasGroupChanged = true;
         }
@@ -3118,7 +3362,7 @@ namespace Universe.Region
                         if (!m_rootPart.BlockGrab && !m_rootPart.BlockGrabObject)
                         {
                             Vector3 grabforce = pos - AbsolutePosition;
-                            grabforce = grabforce * m_rootPart.PhysActor.Mass;
+                            grabforce = grabforce*m_rootPart.PhysActor.Mass;
                             m_rootPart.PhysActor.AddForce(grabforce, true);
                             // This is outside the above permissions condition
                             // so that if the object is locked the client moving the object
@@ -3206,20 +3450,20 @@ namespace Universe.Region
                             // save and update old orientation
                             Quaternion old = m_rootPart.SpinOldOrientation;
                             m_rootPart.SpinOldOrientation = newOrientation;
-                            //MainConsole.Instance.Error("[Scene Object Group]: Old orientation is " + old);
-                            //MainConsole.Instance.Error("[Scene Object Group]: Incoming new orientation is " + newOrientation);
+                            //MainConsole.Instance.Error("[SCENE OBJECT GROUP]: Old orientation is " + old);
+                            //MainConsole.Instance.Error("[SCENE OBJECT GROUP]: Incoming new orientation is " + newOrientation);
 
                             // compute difference between previous old rotation and new incoming rotation
-                            Quaternion minimalRotationFromQ1ToQ2 = Quaternion.Inverse(old) * newOrientation;
+                            Quaternion minimalRotationFromQ1ToQ2 = Quaternion.Inverse(old)*newOrientation;
 
                             float rotationAngle;
                             Vector3 rotationAxis;
                             minimalRotationFromQ1ToQ2.GetAxisAngle(out rotationAxis, out rotationAngle);
                             rotationAxis.Normalize();
 
-                            //MainConsole.Instance.Error("Scene Object Group]: rotation axis is " + rotationAxis);
+                            //MainConsole.Instance.Error("SCENE OBJECT GROUP]: rotation axis is " + rotationAxis);
                             Vector3 spinforce = new Vector3(rotationAxis.X, rotationAxis.Y, rotationAxis.Z);
-                            spinforce = (spinforce / 8) * m_rootPart.PhysActor.Mass;
+                            spinforce = (spinforce/8)*m_rootPart.PhysActor.Mass;
                             // 8 is an arbitrary torque scaling factor
                             m_rootPart.PhysActor.AddAngularForce(spinforce, true);
                         }
@@ -3311,7 +3555,7 @@ namespace Universe.Region
                     }
                 }
 
-                bool needsPhysicalRebuild = ((SceneObjectPart)selectionPart).UpdatePrimFlags(UsePhysics, IsTemporary,
+                bool needsPhysicalRebuild = ((SceneObjectPart) selectionPart).UpdatePrimFlags(UsePhysics, IsTemporary,
                                                                                               IsPhantom, IsVolumeDetect,
                                                                                               blocks);
 
@@ -3331,7 +3575,7 @@ namespace Universe.Region
 
         public void UpdateExtraParam(uint localID, ushort type, bool inUse, byte[] data)
         {
-            SceneObjectPart part = (SceneObjectPart)GetChildPart(localID);
+            SceneObjectPart part = (SceneObjectPart) GetChildPart(localID);
             if (part != null)
             {
                 part.UpdateExtraParam(type, inUse, data);
@@ -3346,7 +3590,7 @@ namespace Universe.Region
         /// <param name="sendChangedEvent"></param>
         public void UpdateTextureEntry(uint localID, byte[] textureEntry, bool sendChangedEvent)
         {
-            SceneObjectPart part = (SceneObjectPart)GetChildPart(localID);
+            SceneObjectPart part = (SceneObjectPart) GetChildPart(localID);
             if (part != null)
             {
                 part.UpdateTextureEntry(textureEntry, sendChangedEvent);
@@ -3363,7 +3607,7 @@ namespace Universe.Region
         /// <param name="localID"></param>
         public void UpdateShape(ObjectShapePacket.ObjectDataBlock shapeBlock, uint localID)
         {
-            SceneObjectPart part = (SceneObjectPart)GetChildPart(localID);
+            SceneObjectPart part = (SceneObjectPart) GetChildPart(localID);
             if (part != null)
             {
                 part.UpdateShape(shapeBlock);
@@ -3421,12 +3665,13 @@ namespace Universe.Region
 
             m_ValidgrpOOB = false;
 
-            SceneObjectPart part = (SceneObjectPart)GetChildPart(localID);
+            SceneObjectPart part = (SceneObjectPart) GetChildPart(localID);
             if (part != null)
             {
                 part.Resize(scale);
                 if (part.PhysActor != null)
                     part.PhysActor.Size = scale;
+                //if (part.UUID != m_rootPart.UUID)
 
                 HasGroupChanged = true;
                 ScheduleGroupUpdate(PrimUpdateFlags.Shape);
@@ -3435,7 +3680,7 @@ namespace Universe.Region
 
         public void GroupResize(Vector3 scale, uint localID)
         {
-            SceneObjectPart part = (SceneObjectPart)GetChildPart(localID);
+            SceneObjectPart part = (SceneObjectPart) GetChildPart(localID);
             if (part != null)
             {
                 CheckSculptAndLoad();
@@ -3477,9 +3722,9 @@ namespace Universe.Region
                     }
                 }
 
-                float x = (scale.X / part.Scale.X);
-                float y = (scale.Y / part.Scale.Y);
-                float z = (scale.Z / part.Scale.Z);
+                float x = (scale.X/part.Scale.X);
+                float y = (scale.Y/part.Scale.Y);
+                float z = (scale.Z/part.Scale.Z);
 
                 if (x == 1.0f && y == 1.0f && z == 1.0f)
                     return;
@@ -3490,36 +3735,38 @@ namespace Universe.Region
                 }
 
                 //On some linked objects this hangs (maybe deadlock), do we need this?
+                //part.PhysActor.BlockPhysicalReconstruction = true;
+
                 RebuildPhysicalRepresentation(true, () =>
-                {
-                    Vector3 prevScale = part.Scale;
-                    prevScale.X *= x;
-                    prevScale.Y *= y;
-                    prevScale.Z *= z;
-                    part.Resize(prevScale);
-
-                    foreach (SceneObjectPart obPart in m_partsList.Where(obPart => obPart.UUID != m_rootPart.UUID))
                     {
-                        obPart.IgnoreUndoUpdate = true;
-                        Vector3 currentpos = new Vector3(obPart.OffsetPosition);
-                        currentpos.X *= x;
-                        currentpos.Y *= y;
-                        currentpos.Z *= z;
-                        Vector3 newSize = new Vector3(obPart.Scale);
-                        newSize.X *= x;
-                        newSize.Y *= y;
-                        newSize.Z *= z;
-                        obPart.Resize(newSize);
-                        obPart.UpdateOffSet(currentpos);
-                        obPart.IgnoreUndoUpdate = false;
-                    }
+                        Vector3 prevScale = part.Scale;
+                        prevScale.X *= x;
+                        prevScale.Y *= y;
+                        prevScale.Z *= z;
+                        part.Resize(prevScale);
 
-                    part.IgnoreUndoUpdate = false;
-                    m_rootPart.IgnoreUndoUpdate = false;
-                    HasGroupChanged = true;
-                    ScheduleGroupTerseUpdate();
-                    m_ValidgrpOOB = false;
-                });
+                        foreach (SceneObjectPart obPart in m_partsList.Where(obPart => obPart.UUID != m_rootPart.UUID))
+                        {
+                            obPart.IgnoreUndoUpdate = true;
+                            Vector3 currentpos = new Vector3(obPart.OffsetPosition);
+                            currentpos.X *= x;
+                            currentpos.Y *= y;
+                            currentpos.Z *= z;
+                            Vector3 newSize = new Vector3(obPart.Scale);
+                            newSize.X *= x;
+                            newSize.Y *= y;
+                            newSize.Z *= z;
+                            obPart.Resize(newSize);
+                            obPart.UpdateOffSet(currentpos);
+                            obPart.IgnoreUndoUpdate = false;
+                        }
+
+                        part.IgnoreUndoUpdate = false;
+                        m_rootPart.IgnoreUndoUpdate = false;
+                        HasGroupChanged = true;
+                        ScheduleGroupTerseUpdate();
+                        m_ValidgrpOOB = false;
+                    });
             }
         }
 
@@ -3699,11 +3946,10 @@ namespace Universe.Region
                             }
                         }
                         IsInTransit = false;
-
-                        if (RootPart.VehicleType == (int)Vehicle.TYPE_NONE)
-                        {
+                        
+                        if(RootPart.VehicleType == (int)Vehicle.TYPE_NONE) {
                             //The group should have crossed a region, but no region was found so return it instead
-                            MainConsole.Instance.Info("[Scene Object Group]: Returning prim " + Name + " @ " +
+                            MainConsole.Instance.Info("[SceneObjectGroup]: Returning prim " + Name + " @ " +
                                                       AbsolutePosition +
                                                       " because it has gone out of bounds.");
                             ILLClientInventory inventoryModule = Scene.RequestModuleInterface<ILLClientInventory>();
@@ -3746,7 +3992,7 @@ namespace Universe.Region
         /// <param name="SaveUpdate"></param>
         public void UpdateSinglePosition(Vector3 pos, uint localID, bool SaveUpdate)
         {
-            SceneObjectPart part = (SceneObjectPart)GetChildPart(localID);
+            SceneObjectPart part = (SceneObjectPart) GetChildPart(localID);
             if (part != null)
             {
                 if (!SaveUpdate)
@@ -3870,7 +4116,7 @@ namespace Universe.Region
         /// <param name="localID"></param>
         public void UpdateSingleRotation(Quaternion rot, uint localID)
         {
-            SceneObjectPart part = (SceneObjectPart)GetChildPart(localID);
+            SceneObjectPart part = (SceneObjectPart) GetChildPart(localID);
             foreach (SceneObjectPart parts in ChildrenList)
             {
                 parts.StoreUndoState();
@@ -3895,7 +4141,7 @@ namespace Universe.Region
         /// <param name="localID"></param>
         public void UpdateSingleRotation(Quaternion rot, Vector3 pos, uint localID)
         {
-            SceneObjectPart part = (SceneObjectPart)GetChildPart(localID);
+            SceneObjectPart part = (SceneObjectPart) GetChildPart(localID);
             if (part != null)
             {
                 if (part.UUID == m_rootPart.UUID)
@@ -3933,10 +4179,10 @@ namespace Universe.Region
 
                 // fix rotation
                 // get in world coords
-                Quaternion primsRot = old_global_group_rot * childPrim.GetRotationOffset();
+                Quaternion primsRot = old_global_group_rot*childPrim.GetRotationOffset();
                 // set new offset as inverse of the one on root
                 // so world is right
-                primsRot = Quaternion.Inverse(new_global_group_rot) * primsRot;
+                primsRot = Quaternion.Inverse(new_global_group_rot)*primsRot;
                 // just store it
                 childPrim.SetRotationOffset(false, primsRot, false);
 

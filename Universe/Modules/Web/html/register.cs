@@ -41,6 +41,7 @@ using Universe.Framework.Services.ClassHelpers.Profile;
 using Universe.Framework.Utilities;
 using RegionFlags = Universe.Framework.Services.RegionFlags;
 
+
 namespace Universe.Modules.Web
 {
     public class RegisterPage : IWebInterfacePage
@@ -180,7 +181,7 @@ namespace Universe.Modules.Web
                     return null;
                 }
 
-                // Only one space is allowed in the name to seperate First and Last of the avatar name
+                // Thish -  Only one space is allowed in the name to seperate First and Last of the avatar name
                 if (AvatarName.Split (' ').Length != 2)
                 {
                     response = "<h3>" + translator.GetTranslatedString("AvatarNameSpacingError") + "</h3>";

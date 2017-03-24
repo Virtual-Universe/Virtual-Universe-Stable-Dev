@@ -106,11 +106,13 @@ namespace Universe.Modules.Web
                      config.Configs["Voice"].GetString("Module", "GenericVoice") != "GenericVoice"
                          ? enabled
                          : disabled);
-            vars.Add("CurrencyActive", webInterface.Registry.RequestModuleInterface<IMoneyModule>() != null ? enabled : disabled);
+            vars.Add("CurrencyActive",
+                     webInterface.Registry.RequestModuleInterface<IMoneyModule>() != null ? enabled : disabled);
 
             if (agentInfo != null)
             {
                 vars.Add("UniqueVisitorCount", agentInfo.RecentlyOnline((uint) TimeSpan.FromDays(30).TotalSeconds, false).ToString());
+                //vars.Add ("OnlineNowCount", recentUsers.RecentlyOnline (5 * 60, true).ToString ());
                 vars.Add ("OnlineNowCount", agentInfo.OnlineUsers(0).ToString ());
                 vars.Add("RecentlyOnlineCount", agentInfo.RecentlyOnline(10*60, false).ToString());
             }

@@ -105,7 +105,7 @@ namespace Universe.Modules.Web
 
             if (profile != null)
             {
-                vars.Add("UserType", profile.MembershipGroup == "" ? "Citizen" : profile.MembershipGroup);
+                vars.Add("UserType", profile.MembershipGroup == "" ? "Resident" : profile.MembershipGroup);
                                if (profile.Partner != UUID.Zero)
                 {
                     account = webInterface.Registry.RequestModuleInterface<IUserAccountService>().
@@ -122,10 +122,11 @@ namespace Universe.Modules.Web
             } else
             {
                 // no profile yet
-                vars.Add ("UserType", "Citizen");
+                vars.Add ("UserType", "Guest");
                 vars.Add ("UserPartner", "Not specified yet");
                 vars.Add ("UserAboutMe", "Nothing here yet");
                 vars.Add("UserPictureURL", "../images/icons/no_avatar.jpg");
+
             }
 
             vars.Add("UsersGroupsText", translator.GetTranslatedString("UsersGroupsText"));
@@ -146,6 +147,7 @@ namespace Universe.Modules.Web
                         { "GroupPictureURL", url },
                         { "GroupName", grp.GroupName }
                     });
+
                 }
 
                 if (groups.Count == 0)
@@ -154,7 +156,9 @@ namespace Universe.Modules.Web
                         { "GroupPictureURL", "../images/icons/no_groups.jpg" },
                         { "GroupName", "None yet" }
                     });
+
                 }
+
             }
 
             vars.Add("GroupNameText", translator.GetTranslatedString("GroupNameText"));

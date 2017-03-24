@@ -87,6 +87,7 @@ namespace Universe.Modules.Web
             vars.Add ("MainlandEstateName", settings.MainlandEstateName);
             vars.Add ("SystemEstateName", settings.SystemEstateName);
 
+
             vars.Add ("GridSettingsManager", translator.GetTranslatedString ("GridSettingsManager"));
             vars.Add ("GridnameText", translator.GetTranslatedString ("GridnameText"));
             vars.Add ("GridnickText", translator.GetTranslatedString ("GridnickText"));
@@ -97,6 +98,8 @@ namespace Universe.Modules.Web
             vars.Add ("MarketPlaceOwnerNameText", translator.GetTranslatedString ("MarketPlaceOwnerNameText"));
             vars.Add ("MainlandEstateNameText", translator.GetTranslatedString ("MainlandEstateNameText"));
             vars.Add ("SystemEstateNameText", translator.GetTranslatedString ("SystemEstateNameText"));
+
+
 
             vars.Add ("Save", translator.GetTranslatedString ("Save"));
             vars.Add ("No", translator.GetTranslatedString ("No"));

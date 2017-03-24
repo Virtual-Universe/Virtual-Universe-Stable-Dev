@@ -132,6 +132,7 @@ namespace Universe.Modules.Web
                             { "RealAmount",((float) purchase.RealAmount/100).ToString("0.00") },
                             { "PurchaseDate", Culture.LocaleDate (purchase.PurchaseDate.ToLocalTime(), "MMM dd, hh:mm:ss tt") },
                             { "UpdateDate", Culture.LocaleDate (purchase.UpdateDate.ToLocalTime(), "MMM dd, hh:mm:ss tt") }
+
                         });
                         }
                     }

@@ -138,6 +138,7 @@ namespace Universe.Modules.Web
             vars.Add ("InfoMessage", "");
 
             return vars;
+
         }
 
         public bool AttemptFindPage (string filename, ref OSHttpResponse httpResponse, out string text)

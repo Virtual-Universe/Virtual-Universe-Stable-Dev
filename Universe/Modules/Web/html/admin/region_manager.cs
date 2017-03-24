@@ -97,6 +97,7 @@ namespace Universe.Modules.Web
             vars.Add ("RegionListText", translator.GetTranslatedString ("RegionListText"));
             vars.Add ("RegionText", translator.GetTranslatedString ("Region"));
 
+
             vars.Add ("RegionNameText", translator.GetTranslatedString ("RegionNameText"));
             vars.Add ("RegionLocXText", translator.GetTranslatedString ("RegionLocXText"));
             vars.Add ("RegionLocYText", translator.GetTranslatedString ("RegionLocYText"));

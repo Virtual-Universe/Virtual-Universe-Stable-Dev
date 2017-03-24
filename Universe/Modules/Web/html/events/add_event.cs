@@ -152,6 +152,7 @@ namespace Universe.Modules.Web
             vars.Add ("EventCoverChargeText", translator.GetTranslatedString ("CoverChargeText") + " " + currencySymbol);
             vars.Add ("EventDescriptionText", translator.GetTranslatedString ("DescriptionText"));
 
+
             vars.Add ("ErrorMessage", "");
             vars.Add ("Submit", translator.GetTranslatedString ("AddEventText"));
 

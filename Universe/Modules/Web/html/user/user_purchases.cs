@@ -73,6 +73,7 @@ namespace Universe.Modules.Web
             string dateStart = thirtyDays.ToShortDateString ();
             string dateEnd = today.ToShortDateString ();
 
+
             IMoneyModule moneyModule = webInterface.Registry.RequestModuleInterface<IMoneyModule> ();
             string noDetails = translator.GetTranslatedString ("NoPurchasesText");
 
@@ -82,6 +83,7 @@ namespace Universe.Modules.Web
                     dateStart = requestParameters ["date_start"].ToString ();
                 if (requestParameters.ContainsKey ("date_end"))
                     dateEnd = requestParameters ["date_end"].ToString ();
+
             }
 
             UserAccount user = Authenticator.GetAuthentication (httpRequest);
@@ -119,6 +121,7 @@ namespace Universe.Modules.Web
                         { "RealAmount",((float) purchase.RealAmount/100).ToString("0.00") },
                         { "PurchaseDate", Culture.LocaleDate (purchase.PurchaseDate.ToLocalTime(), "MMM dd, hh:mm:ss tt") },
                         { "UpdateDate", Culture.LocaleDate (purchase.UpdateDate.ToLocalTime(), "MMM dd, hh:mm:ss tt") }
+
                     });
                 }
             }
@@ -135,6 +138,7 @@ namespace Universe.Modules.Web
                     {"RealAmount",""},
                     {"PurchaseDate",""},
                     {"UpdateDate", ""}
+
                 });
             }
 

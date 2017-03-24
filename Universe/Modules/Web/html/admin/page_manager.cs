@@ -109,13 +109,12 @@ namespace Universe.Modules.Web
                            "</script>";
                 return null;
             }
-
             if (requestParameters.ContainsKey("AddItem"))
             {
+                //generics.AddGeneric(UUID.Zero, "WebPages", "Root", rootPage.ToOSD());
                 vars.Add("EdittingPageID", -2);
                 vars.Add("DisplayEdit", true);
             }
-
             if (requestParameters.ContainsKey("SelectItem"))
             {
                 GridPage page = rootPage.GetPageByLocation(MenuItem);
@@ -160,7 +159,6 @@ namespace Universe.Modules.Web
                                       }
                                   });
                 }
-
                 vars.Add("ParentPagesList", pages);
             }
 
@@ -199,7 +197,6 @@ namespace Universe.Modules.Web
                                       {"PageSelected", ""}
                                   });
                 }
-
                 vars.Add("ParentPagesList", pages);
             }
 

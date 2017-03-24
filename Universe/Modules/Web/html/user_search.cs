@@ -127,6 +127,7 @@ namespace Universe.Modules.Web
                 }
             }
 
+
             vars.Add ("NoDetailsText", noDetails);
             vars.Add ("UsersList", usersList);
             vars.Add ("UserSearchText", translator.GetTranslatedString ("UserSearchText") + (IsAdmin ? "" : " (Friends)"));

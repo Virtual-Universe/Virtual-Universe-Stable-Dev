@@ -108,7 +108,7 @@ namespace Universe.Modules.Web
             List<Dictionary<string, object>> picks = new List<Dictionary<string, object>>();
             if (profile != null)
             {
-                vars.Add("UserType", profile.MembershipGroup == "" ? "Citizen" : profile.MembershipGroup);
+                vars.Add("UserType", profile.MembershipGroup == "" ? "Resident" : profile.MembershipGroup);
 
                 if (profile.Partner != UUID.Zero)
                 {
@@ -142,6 +142,7 @@ namespace Universe.Modules.Web
                                       {"PickLocation", pickLoc}
                                   });
                 }
+
             }
 
             if (picks.Count == 0)
@@ -154,7 +155,6 @@ namespace Universe.Modules.Web
                     {"PickLocation", ""}
                 });
             }
-
             vars.Add("UsersPicksText", translator.GetTranslatedString("UsersPicksText"));
             vars.Add("PickNameText", translator.GetTranslatedString("PickNameText"));
             vars.Add("PickRegionText", translator.GetTranslatedString("PickRegionText"));

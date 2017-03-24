@@ -110,6 +110,8 @@ namespace Universe.Modules.Web
             var pingTime = dc.Get ("ping").ConvertAll ((s) => float.Parse (s));
             var agentsInView = dc.Get ("agents_in_view").ConvertAll ((s) => int.Parse (s));
 
+
+
             // data
             vars.Add ("ViewersList", viewerList);
             vars.Add ("GPUList", gpuList);
@@ -133,6 +135,7 @@ namespace Universe.Modules.Web
             vars.Add ("AgentsInViewText", translator.GetTranslatedString ("AgentsInViewText"));
 
             vars.Add ("ClearStatsText", translator.GetTranslatedString ("ClearStatsText"));
+
 
             return vars;
         }

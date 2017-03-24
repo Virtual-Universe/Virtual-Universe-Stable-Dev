@@ -37,6 +37,7 @@ namespace Universe.Modules.Web.Translators
             get { return "ru"; }
         }
 
+
         public string FullLanguageName {
             get { return "Russian"; }
         }

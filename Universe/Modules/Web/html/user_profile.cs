@@ -82,13 +82,15 @@ namespace Universe.Modules.Web
             vars.Add ("UserName", account.Name);
             //  TODO: User Profile inworld shows this as the standard mm/dd/yyyy
             //  Do we want this to be localised into the users Localisation or keep it as standard ?
+            //
+            //  vars.Add("UserBorn", Culture.LocaleDate(Util.ToDateTime(account.Created)));
             vars.Add ("UserBorn", Util.ToDateTime (account.Created).ToShortDateString ());
 
             IUserProfileInfo profile = Framework.Utilities.DataManager.RequestPlugin<IProfileConnector> ().
                 GetUserProfile (account.PrincipalID);
             string picUrl = "../images/icons/no_avatar.jpg";
             if (profile != null) {
-                vars.Add ("UserType", profile.MembershipGroup == "" ? "Citizen" : profile.MembershipGroup);
+                vars.Add ("UserType", profile.MembershipGroup == "" ? "Resident" : profile.MembershipGroup);
 
                 if (profile.Partner != UUID.Zero) {
                     account = webInterface.Registry.RequestModuleInterface<IUserAccountService> ().
@@ -101,9 +103,10 @@ namespace Universe.Modules.Web
                     picUrl = webhttpService.GetTextureURL (profile.Image);
             } else {
                 // no profile yet
-                vars.Add ("UserType", "Citizen");
+                vars.Add ("UserType", "Guest");
                 vars.Add ("UserPartner", "Not specified yet");
                 vars.Add ("UserAboutMe", "Nothing here yet");
+
             }
             vars.Add ("UserPictureURL", picUrl);
 
@@ -158,12 +161,15 @@ namespace Universe.Modules.Web
                     }
                 }
 
+
                 if (groups.Count == 0) {
                     groups.Add (new Dictionary<string, object> {
                         { "GroupPictureURL", "../images/icons/no_groups.jpg" },
                         { "GroupName", "None yet" }
                     });
+
                 }
+
             }
 
             vars.Add ("GroupNameText", translator.GetTranslatedString ("GroupNameText"));
@@ -204,11 +210,9 @@ namespace Universe.Modules.Web
             vars.Add ("en", translator.GetTranslatedString ("en"));
             vars.Add ("fr", translator.GetTranslatedString ("fr"));
             vars.Add ("de", translator.GetTranslatedString ("de"));
-            vars.Add ("ga", translator.GetTranslatedString ("ga"));
             vars.Add ("it", translator.GetTranslatedString ("it"));
             vars.Add ("es", translator.GetTranslatedString ("es"));
             vars.Add ("nl", translator.GetTranslatedString ("nl"));
-            vars.Add ("ru", translator.GetTranslatedString ("ru"));
 
             var settings = webInterface.GetWebUISettings ();
             vars.Add ("ShowLanguageTranslatorBar", !settings.HideLanguageTranslatorBar);

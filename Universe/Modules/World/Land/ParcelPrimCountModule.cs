@@ -48,7 +48,8 @@ namespace Universe.Modules.Land
         public int Selected;
         public int Temporary;
 
-        public Dictionary<UUID, int> Users = new Dictionary<UUID, int>();
+        public Dictionary<UUID, int> Users =
+            new Dictionary<UUID, int>();
     }
 
     public class PrimCountModule : IPrimCountModule, INonSharedRegionModule
@@ -105,7 +106,7 @@ namespace Universe.Modules.Land
 
                 lock (m_TaintLock)
                     m_Tainted = true;
-
+            
             return true;
         }
 
@@ -163,9 +164,9 @@ namespace Universe.Modules.Land
         {
             // Normal Calculations
             // max = (this Land area) / (calculated region area) * region capacity * bonus  [ bonus is normally = 1 ]
-            return (int)Math.Round(
-                ((float)thisObject.LandData.Area / (m_Scene.RegionInfo.RegionSizeX * m_Scene.RegionInfo.RegionSizeY)) *
-                m_Scene.RegionInfo.ObjectCapacity * (float)m_Scene.RegionInfo.RegionSettings.ObjectBonus
+            return (int) Math.Round(
+                ((float) thisObject.LandData.Area / (m_Scene.RegionInfo.RegionSizeX * m_Scene.RegionInfo.RegionSizeY)) *   
+                m_Scene.RegionInfo.ObjectCapacity * (float) m_Scene.RegionInfo.RegionSettings.ObjectBonus
             );
         }
 
@@ -181,7 +182,6 @@ namespace Universe.Modules.Land
                 primCounts = new PrimCounts(parcelID, this);
                 m_PrimCounts[parcelID] = primCounts;
             }
-
             return primCounts;
         }
 
@@ -222,6 +222,7 @@ namespace Universe.Modules.Land
             if (obj.IsAttachment)
                 return;
 
+
             Vector3 pos = obj.AbsolutePosition;
             var landObject = m_Scene.RequestModuleInterface<IParcelManagementModule>().GetLandObject(pos.X, pos.Y);
             if (landObject == null)
@@ -236,10 +237,9 @@ namespace Universe.Modules.Land
 
                 // check for temporary objects first
                 if (((obj.RootChild.Flags & PrimFlags.TemporaryOnRez) != 0) ||
-                    ((obj.RootChild.Flags & PrimFlags.Temporary) != 0))
-                {
+                    ((obj.RootChild.Flags & PrimFlags.Temporary) != 0)) {
                     parcelCounts.Temporary += obj.PrimCount;
-
+                 
                     // do not add temporary counts further
                     return;
                 }
@@ -295,8 +295,7 @@ namespace Universe.Modules.Land
 
                 // check for temporary objects first
                 if (((obj.RootChild.Flags & PrimFlags.TemporaryOnRez) != 0) ||
-                    ((obj.RootChild.Flags & PrimFlags.Temporary) != 0))
-                {
+                    ((obj.RootChild.Flags & PrimFlags.Temporary) != 0)) {
                     parcelCounts.Temporary -= obj.PrimCount;
 
                     // do not process temporary objects further
@@ -363,7 +362,6 @@ namespace Universe.Modules.Land
                     return new Dictionary<UUID, int>(counts.Users);
                 }
             }
-
             return new Dictionary<UUID, int>();
         }
 
@@ -380,7 +378,6 @@ namespace Universe.Modules.Land
                     return new List<ISceneEntity>(counts.Objects.Values);
                 }
             }
-
             return new List<ISceneEntity>();
         }
 
@@ -395,7 +392,6 @@ namespace Universe.Modules.Land
                 if (m_ParcelCounts.TryGetValue(parcelID, out counts))
                     return counts.Owner;
             }
-
             return 0;
         }
 
@@ -410,7 +406,6 @@ namespace Universe.Modules.Land
                 if (m_ParcelCounts.TryGetValue(parcelID, out counts))
                     return counts.Group;
             }
-
             return 0;
         }
 
@@ -425,7 +420,6 @@ namespace Universe.Modules.Land
                 if (m_ParcelCounts.TryGetValue(parcelID, out counts))
                     return counts.Others;
             }
-
             return 0;
         }
 
@@ -440,7 +434,6 @@ namespace Universe.Modules.Land
                 if (m_ParcelCounts.TryGetValue(parcelID, out counts))
                     return counts.Selected;
             }
-
             return 0;
         }
 
@@ -459,7 +452,6 @@ namespace Universe.Modules.Land
                         return val;
                 }
             }
-
             return 0;
         }
 
@@ -474,7 +466,6 @@ namespace Universe.Modules.Land
                 if (m_ParcelCounts.TryGetValue(parcelID, out counts))
                     return counts.Temporary;
             }
-
             return 0;
         }
 
@@ -493,7 +484,6 @@ namespace Universe.Modules.Land
                         return val;
                 }
             }
-
             return 0;
         }
 
@@ -523,7 +513,8 @@ namespace Universe.Modules.Land
                 catch (Exception e)
                 {
                     // Catch it and move on. This includes situations where splist has inconsistent info
-                    MainConsole.Instance.WarnFormat("[Parcel Prim Count Module]: Problem processing action in Recount: {0}", e);
+                    MainConsole.Instance.WarnFormat(
+                        "[ParcelPrimCountModule]: Problem processing action in Recount: {0}", e);
                 }
             }
 
@@ -553,21 +544,21 @@ namespace Universe.Modules.Land
         {
             if (FunctionName == "ObjectChangedOwner")
             {
-                TaintPrimCount((int)((ISceneEntity)parameters).AbsolutePosition.X,
-                               (int)((ISceneEntity)parameters).AbsolutePosition.Y);
+                TaintPrimCount((int) ((ISceneEntity) parameters).AbsolutePosition.X,
+                               (int) ((ISceneEntity) parameters).AbsolutePosition.Y);
             }
             else if (FunctionName == "ObjectEnteringNewParcel")
             {
                 //Taint the parcels
-                var newParcel = (UUID)(((object[])parameters)[1]);
-                var oldParcel = (UUID)(((object[])parameters)[2]);
+                //SceneObjectGroup grp = (((Object[])parameters)[0]) as SceneObjectGroup;
+                var newParcel = (UUID) (((object[]) parameters)[1]);
+                var oldParcel = (UUID) (((object[]) parameters)[2]);
                 var oldlandObject = m_Scene.RequestModuleInterface<IParcelManagementModule>().GetLandObject(oldParcel);
                 var newlandObject = m_Scene.RequestModuleInterface<IParcelManagementModule>().GetLandObject(newParcel);
 
                 TaintPrimCount(oldlandObject);
                 TaintPrimCount(newlandObject);
             }
-
             return null;
         }
     }

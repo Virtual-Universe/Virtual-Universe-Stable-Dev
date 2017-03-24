@@ -93,6 +93,7 @@ namespace Universe.Modules.Web
                                 UUID.TryParse (friend.Friend, out friendID);
 
                                 if (friendID != UUID.Zero)
+                                    // if ( (friendID != UUID.Zero) && (friendID == ourAccount.PrincipalID)) 
                                     activeUsersList.Add (friendID);
                             }
                         }
@@ -144,6 +145,7 @@ namespace Universe.Modules.Web
                 if (requestParameters ["Order"].ToString () == "UserName")
                     usersList.Sort ((a, b) => a ["UserName"].ToString ().CompareTo (b ["UserName"].ToString ()));
             }
+
 
             vars.Add ("OnlineUsersText", onlineText);
             vars.Add ("UsersOnlineList", usersList);

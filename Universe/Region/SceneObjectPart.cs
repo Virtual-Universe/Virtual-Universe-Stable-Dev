@@ -95,7 +95,7 @@ namespace Universe.Region
         public Color4 GetTextColor()
         {
             Color color = Color;
-            return new Color4(color.R, color.G, color.B, (byte)(0xFF - color.A));
+            return new Color4(color.R, color.G, color.B, (byte) (0xFF - color.A));
         }
 
         public void SetSoundQueueing(int queue)
@@ -121,38 +121,24 @@ namespace Universe.Region
         #region Fields
 
         readonly List<uint> m_lastColliders = new List<uint>();
-        [XmlIgnore]
-        public scriptEvents AggregateScriptEvents;
-        [XmlIgnore]
-        public bool IgnoreUndoUpdate;
-        [XmlIgnore]
-        public bool IsWaitingForFirstSpinUpdatePacket;
-        [XmlIgnore]
-        PrimFlags LocalFlags;
-        [XmlIgnore]
-        public Vector3 RotationAxis = Vector3.One;
-        [XmlIgnore]
-        public Quaternion SpinOldOrientation = Quaternion.Identity;
-        [XmlIgnore]
-        public uint TimeStampLastActivity;
-        // Will be used for AutoReturn
+        [XmlIgnore] public scriptEvents AggregateScriptEvents;
+        [XmlIgnore] public bool IgnoreUndoUpdate;
+        [XmlIgnore] public bool IsWaitingForFirstSpinUpdatePacket;
+        [XmlIgnore] PrimFlags LocalFlags;
+        [XmlIgnore] public Vector3 RotationAxis = Vector3.One;
+        [XmlIgnore] public Quaternion SpinOldOrientation = Quaternion.Identity;
+        [XmlIgnore] public uint TimeStampLastActivity; // Will be used for AutoReturn
 
         [XmlIgnore]
         public bool Undoing { get; set; }
 
         UUID _creatorID;
 
-        [XmlIgnore]
-        UUID m_AttachedAvatar;
-        [XmlIgnore]
-        Dictionary<int, string> m_CollisionFilter = new Dictionary<int, string>();
-        [XmlIgnore]
-        bool m_IsAttachment;
-        [XmlIgnore]
-        int[] m_PayPrice = { -2, -2, -2, -2, -2 };
-        [XmlIgnore]
-        bool m_ValidpartOOB;
-        // control recalculation
+        [XmlIgnore] UUID m_AttachedAvatar;
+        [XmlIgnore] Dictionary<int, string> m_CollisionFilter = new Dictionary<int, string>();
+        [XmlIgnore] bool m_IsAttachment;
+        [XmlIgnore] int[] m_PayPrice = {-2, -2, -2, -2, -2};
+        [XmlIgnore] bool m_ValidpartOOB; // control recalculation
         protected Vector3 m_acceleration;
         protected Vector3 m_angularVelocity;
         byte m_clickAction;
@@ -183,16 +169,12 @@ namespace Universe.Region
         protected Vector3 m_offsetPosition;
 
         protected SceneObjectGroup m_parentGroup;
-        [XmlIgnore]
-        float m_partBSphereRadiusSQ;
-        // the square of the radius of a sphere containing the oob
+        [XmlIgnore] float m_partBSphereRadiusSQ; // the square of the radius of a sphere containing the oob
 
-        [XmlIgnore]
-        Vector3 m_partOOBoffset;
+        [XmlIgnore] Vector3 m_partOOBoffset;
         // the position center of the bounding box relative to it's Position
 
-        [XmlIgnore]
-        Vector3 m_partOOBsize;
+        [XmlIgnore] Vector3 m_partOOBsize;
         // the size of a bounding box oriented as prim, is future will consider cutted prims, meshs etc
 
         protected byte[] m_particleSystem = Utils.EmptyBytes;
@@ -202,10 +184,8 @@ namespace Universe.Region
         bool m_pidActive;
         bool m_pidhoverActive;
         protected ulong m_regionHandle;
-        [XmlIgnore]
-        int m_scriptAccessPin;
-        [XmlIgnore]
-        Dictionary<UUID, scriptEvents> m_scriptEvents = new Dictionary<UUID, scriptEvents>();
+        [XmlIgnore] int m_scriptAccessPin;
+        [XmlIgnore] Dictionary<UUID, scriptEvents> m_scriptEvents = new Dictionary<UUID, scriptEvents>();
         protected PrimitiveBaseShape m_shape;
         string m_sitAnimation = "SIT";
         string m_sitName = String.Empty;
@@ -213,11 +193,11 @@ namespace Universe.Region
         string m_text = String.Empty;
         string m_touchName = String.Empty;
 
-        readonly object _undoLock = new object();
-        readonly object _redoLock = new object();
+        readonly object _undoLock = new object ();
+        readonly object _redoLock = new object ();
 
         UndoStack<UndoState> m_undo = new UndoStack<UndoState>(5);
-        UndoStack<UndoState> m_redo = new UndoStack<UndoState>(5);
+        UndoStack<UndoState> m_redo = new UndoStack<UndoState> (5);
 
         protected UUID m_uuid;
         bool m_volumeDetectActive;
@@ -324,7 +304,7 @@ namespace Universe.Region
             get { return m_physActor; }
             set
             {
-                //                MainConsole.Instance.DebugFormat("[SOP]: PhysActor set to {0} for {1} {2}", value, Name, UUID);
+//                MainConsole.Instance.DebugFormat("[SOP]: PhysActor set to {0} for {1} {2}", value, Name, UUID);
                 m_physActor = value;
             }
         }
@@ -489,7 +469,7 @@ namespace Universe.Region
 
             m_inventory = new SceneObjectPartInventory(this);
             m_shape = new PrimitiveBaseShape();
-            Material = (int)OpenMetaverse.Material.Wood;
+            Material = (int) OpenMetaverse.Material.Wood;
         }
 
         /// <summary>
@@ -507,7 +487,7 @@ namespace Universe.Region
         {
             m_name = name;
 
-            CreationDate = (int)Utils.DateTimeToUnixTime(DateTime.Now);
+            CreationDate = (int) Utils.DateTimeToUnixTime(DateTime.Now);
             _ownerID = ownerID;
             _creatorID = _ownerID;
             LastOwnerID = UUID.Zero;
@@ -543,7 +523,7 @@ namespace Universe.Region
             //m_undo = new UndoStack<UndoState>(ParentGroup.GetSceneMaxUndo());
 
             m_inventory = new SceneObjectPartInventory(this);
-            Material = (int)OpenMetaverse.Material.Wood;
+            Material = (int) OpenMetaverse.Material.Wood;
         }
 
         public override int GetHashCode()
@@ -555,16 +535,16 @@ namespace Universe.Region
 
         #region XML Schema
 
-        uint _baseMask = (uint)PermissionMask.All;
+        uint _baseMask = (uint) PermissionMask.All;
         uint _category;
-        uint _everyoneMask = (uint)PermissionMask.None;
+        uint _everyoneMask = (uint) PermissionMask.None;
         PrimFlags _flags = PrimFlags.None;
         UUID _groupID;
-        uint _groupMask = (uint)PermissionMask.None;
-        uint _nextOwnerMask = (uint)PermissionMask.All;
+        uint _groupMask = (uint) PermissionMask.None;
+        uint _nextOwnerMask = (uint) PermissionMask.All;
         byte _objectSaleType;
         UUID _ownerID;
-        uint _ownerMask = (uint)PermissionMask.All;
+        uint _ownerMask = (uint) PermissionMask.All;
         int _ownershipCost;
         uint _parentID;
         int _salePrice;
@@ -591,7 +571,7 @@ namespace Universe.Region
             {
                 if (!string.IsNullOrEmpty(m_creatorData))
                     return _creatorID.ToString() + ';' + m_creatorData;
-
+                
                 return _creatorID.ToString();
             }
             set
@@ -602,14 +582,14 @@ namespace Universe.Region
                     return;
                 }
 
-                if (!value.Contains(";"))
-                { // plain UUID
+                if (!value.Contains(";")) // plain UUID
+                {
                     UUID uuid = UUID.Zero;
                     UUID.TryParse(value, out uuid);
                     _creatorID = uuid;
                 }
-                else
-                { // <uuid>[;<endpoint>[;name]]
+                else // <uuid>[;<endpoint>[;name]]
+                {
                     string name = "Unknown User";
                     string[] parts = value.Split(';');
                     if (parts.Length >= 1)
@@ -634,12 +614,12 @@ namespace Universe.Region
         [Obsolete("Use Flags property instead")]
         public uint ObjectFlags
         {
-            get { return (uint)Flags; }
+            get { return (uint) Flags; }
             set
             {
                 if (ParentGroup != null)
                     ParentGroup.HasGroupChanged = true;
-                Flags = (PrimFlags)value;
+                Flags = (PrimFlags) value;
             }
         }
 
@@ -686,10 +666,10 @@ namespace Universe.Region
                 {
                     if (IsAttachment)
                         return OffsetPosition;
-
+                    
                     return AbsolutePosition;
                 }
-
+               
                 return OffsetPosition;
             }
         }
@@ -936,7 +916,7 @@ namespace Universe.Region
             if (_parentID == 0 && (m_shape.PCode != 9 || m_shape.State == 0) && actor != null)
             {
                 if (actor.Orientation.X != 0f || actor.Orientation.Y != 0f
-                                || actor.Orientation.Z != 0f || actor.Orientation.W != 0f)
+                    || actor.Orientation.Z != 0f || actor.Orientation.W != 0f)
                 {
                     RotationOffset = actor.Orientation;
                 }
@@ -997,8 +977,8 @@ namespace Universe.Region
                 }
                 return m_angularVelocity;
             }
-            set
-            {
+            set 
+            { 
                 m_angularVelocity = value;
                 PhysicsActor actor = PhysActor;
                 if ((actor != null) && actor.IsPhysical)
@@ -1011,9 +991,9 @@ namespace Universe.Region
             if (OmegaGain == 0.0f) //Disable spin
                 AngularVelocity = Vector3.Zero;
             else
-                AngularVelocity = new Vector3((float)(OmegaAxis.X * OmegaSpinRate),
-                    (float)(OmegaAxis.Y * OmegaSpinRate),
-                    (float)(OmegaAxis.Z * OmegaSpinRate));
+                AngularVelocity = new Vector3((float) (OmegaAxis.X*OmegaSpinRate),
+                                              (float) (OmegaAxis.Y*OmegaSpinRate),
+                                              (float) (OmegaAxis.Z*OmegaSpinRate));
         }
 
         /// <summary>
@@ -1049,9 +1029,9 @@ namespace Universe.Region
         public void UpdateColor(Color c, bool triggerChangedColor)
         {
             if (c.A != Color.A ||
-                         c.B != Color.B ||
-                         c.G != Color.G ||
-                         c.R != Color.R)
+                c.B != Color.B ||
+                c.G != Color.G ||
+                c.R != Color.R)
             {
                 if (ParentGroup != null)
                     ParentGroup.HasGroupChanged = true;
@@ -1187,8 +1167,8 @@ namespace Universe.Region
 
                         PhysicsActor actor = PhysActor;
                         if (actor != null && m_parentGroup != null &&
-                                              m_parentGroup.Scene != null &&
-                                              m_parentGroup.Scene.PhysicsScene != null)
+                            m_parentGroup.Scene != null &&
+                            m_parentGroup.Scene.PhysicsScene != null)
                             actor.Size = m_shape.Scale;
                         TriggerScriptChangedEvent(Changed.SCALE);
                     }
@@ -1245,11 +1225,11 @@ namespace Universe.Region
             {
                 double threshold = 0.02;
                 return (Math.Abs(Velocity.X) < threshold &&
-                Math.Abs(Velocity.Y) < threshold &&
-                Math.Abs(Velocity.Z) < threshold &&
-                Math.Abs(AngularVelocity.X) < threshold &&
-                Math.Abs(AngularVelocity.Y) < threshold &&
-                Math.Abs(AngularVelocity.Z) < threshold);
+                        Math.Abs(Velocity.Y) < threshold &&
+                        Math.Abs(Velocity.Z) < threshold &&
+                        Math.Abs(AngularVelocity.X) < threshold &&
+                        Math.Abs(AngularVelocity.Y) < threshold &&
+                        Math.Abs(AngularVelocity.Z) < threshold);
             }
         }
 
@@ -1274,7 +1254,7 @@ namespace Universe.Region
             {
                 if (ParentGroup != null && ParentGroup.Scene != null)
                     return ParentGroup.Scene.RegionInfo.RegionID;
-
+                
                 return UUID.Zero;
             }
             set { } // read only
@@ -1449,7 +1429,7 @@ namespace Universe.Region
             get { return _flags; }
             set
             {
-                //                MainConsole.Instance.DebugFormat("[SOP]: Setting flags for {0} {1} to {2}", UUID, Name, value);
+//                MainConsole.Instance.DebugFormat("[SOP]: Setting flags for {0} {1} to {2}", UUID, Name, value);
                 //if (ParentGroup != null && _flags != value)
                 //    ParentGroup.HasGroupChanged = true;
                 _flags = value;
@@ -1543,9 +1523,9 @@ namespace Universe.Region
 
             Vector3 ts = Scale;
 
-            m_partOOBsize.X = ts.X * 0.5f;
-            m_partOOBsize.Y = ts.Y * 0.5f;
-            m_partOOBsize.Z = ts.Z * 0.5f;
+            m_partOOBsize.X = ts.X*0.5f;
+            m_partOOBsize.Y = ts.Y*0.5f;
+            m_partOOBsize.Z = ts.Z*0.5f;
 
             m_partBSphereRadiusSQ = m_partOOBsize.LengthSquared();
             ValidpartOOB = true;
@@ -1799,14 +1779,10 @@ namespace Universe.Region
                 // The flags don't like conversion from uint to byte, so we have to do
                 // it the crappy way.  See the above function :(
 
-                data[pos] = ConvertScriptUintToByte((uint)pTexAnim.Flags);
-                pos++;
-                data[pos] = (byte)pTexAnim.Face;
-                pos++;
-                data[pos] = (byte)pTexAnim.SizeX;
-                pos++;
-                data[pos] = (byte)pTexAnim.SizeY;
-                pos++;
+                data[pos] = ConvertScriptUintToByte((uint)pTexAnim.Flags); pos++;
+                data[pos] = (byte)pTexAnim.Face; pos++;
+                data[pos] = (byte)pTexAnim.SizeX; pos++;
+                data[pos] = (byte)pTexAnim.SizeY; pos++;
 
                 Utils.FloatToBytes(pTexAnim.Start).CopyTo(data, pos);
                 Utils.FloatToBytes(pTexAnim.Length).CopyTo(data, pos + 4);
@@ -1823,13 +1799,14 @@ namespace Universe.Region
             if (volume < 0)
                 volume = 0;
 
-            m_parentGroup.Scene.ForEachScenePresence(delegate (IScenePresence sp) {
-                if (!sp.IsChildAgent)
-                    sp.ControllingClient.SendAttachedSoundGainChange(UUID,
-                        (float
+            m_parentGroup.Scene.ForEachScenePresence(delegate(IScenePresence sp)
+                                                         {
+                                                             if (!sp.IsChildAgent)
+                                                                 sp.ControllingClient.SendAttachedSoundGainChange(UUID,
+                                                                                                                  (float
                                                                                                                   )
                                                                                                                   volume);
-            });
+                                                         });
         }
 
         /// <summary>
@@ -1848,7 +1825,7 @@ namespace Universe.Region
                 Quaternion grot = GetWorldRotation();
                 Quaternion AXgrot = grot;
                 Vector3 AXimpulsei = impulsei;
-                Vector3 newimpulse = AXimpulsei * AXgrot;
+                Vector3 newimpulse = AXimpulsei*AXgrot;
                 impulse = newimpulse;
             }
 
@@ -1874,7 +1851,7 @@ namespace Universe.Region
                 Quaternion grot = GetWorldRotation();
                 Quaternion AXgrot = grot;
                 Vector3 AXimpulsei = impulsei;
-                Vector3 newimpulse = AXimpulsei * AXgrot;
+                Vector3 newimpulse = AXimpulsei*AXgrot;
                 impulse = newimpulse;
             }
 
@@ -1900,7 +1877,7 @@ namespace Universe.Region
                 Quaternion grot = GetWorldRotation();
                 Quaternion AXgrot = grot;
                 Vector3 AXimpulsei = impulsei;
-                Vector3 newimpulse = AXimpulsei * AXgrot;
+                Vector3 newimpulse = AXimpulsei*AXgrot;
                 impulse = newimpulse;
             }
 
@@ -2003,11 +1980,11 @@ namespace Universe.Region
         {
             // Commenting this section of code out since it doesn't actually do anything, as enums are handled by 
             // value rather than reference
-            //            PrimFlags f = _flags;
-            //            if (m_parentGroup == null || m_parentGroup.RootPart == this)
-            //                f &= ~(PrimFlags.Touch | PrimFlags.Money);
+//            PrimFlags f = _flags;
+//            if (m_parentGroup == null || m_parentGroup.RootPart == this)
+//                f &= ~(PrimFlags.Touch | PrimFlags.Money);
 
-            return (uint)Flags | (uint)LocalFlags;
+            return (uint) Flags | (uint) LocalFlags;
         }
 
         public Vector3 GetGeometricCenter()
@@ -2053,8 +2030,8 @@ namespace Universe.Region
         {
             IScenePresence sp;
             if (ParentGroup != null && ParentGroup.Scene != null &&
-                         (sp = ParentGroup.Scene.GetScenePresence(client.AgentId)) != null)
-                sp.SceneViewer.QueuePartsForPropertiesUpdate(new ISceneChildEntity[1] { this });
+                (sp = ParentGroup.Scene.GetScenePresence(client.AgentId)) != null)
+                sp.SceneViewer.QueuePartsForPropertiesUpdate(new ISceneChildEntity[1] {this});
         }
 
         /// <summary>
@@ -2064,7 +2041,7 @@ namespace Universe.Region
         /// <returns>A Linked Child Prim objects position in world</returns>
         public Vector3 GetWorldPosition()
         {
-            return IsRoot ? GroupPosition : GroupPosition + OffsetPosition * ParentGroup.RootPart.GetRotationOffset();
+            return IsRoot ? GroupPosition : GroupPosition + OffsetPosition*ParentGroup.RootPart.GetRotationOffset();
         }
 
         /// <summary>
@@ -2078,7 +2055,7 @@ namespace Universe.Region
             if (_parentID != 0)
             {
                 Quaternion parentRot = ParentGroup.RootPart.GetRotationOffset();
-                newRot = parentRot * newRot;
+                newRot = parentRot*newRot;
             }
 
             return newRot;
@@ -2130,7 +2107,7 @@ namespace Universe.Region
                 }
             }
 
-            m_parentGroup.Scene.ForEachScenePresence(delegate (IScenePresence sp) {
+            m_parentGroup.Scene.ForEachScenePresence(delegate(IScenePresence sp) {
                 if (sp.IsChildAgent)
                     return;
                 if (!(Util.GetDistanceTo(sp.AbsolutePosition, AbsolutePosition) >= 100))
@@ -2199,7 +2176,7 @@ namespace Universe.Region
             APIDDamp = damp;
             APIDStrength = strength;
             APIDTarget = rot;
-            APIDIterations = 1 + (int)(Math.PI * APIDStrength);
+            APIDIterations = 1 + (int) (Math.PI*APIDStrength);
         }
 
         /// <summary>
@@ -2274,7 +2251,7 @@ namespace Universe.Region
                     foreach (
                         KeyValuePair<UUID, TaskInventoryItem> item in
                             TaskInventory.Where(
-                                item => item.Value.Name == sound && item.Value.Type == (int)AssetType.Sound))
+                                item => item.Value.Name == sound && item.Value.Type == (int) AssetType.Sound))
                     {
                         soundID = item.Value.ItemID;
                         break;
@@ -2290,7 +2267,7 @@ namespace Universe.Region
             {
                 if (triggered)
                     soundModule.TriggerSound(soundID, ownerID, objectID, parentID, volume, position, regionHandle,
-                        radius);
+                                                radius);
                 else
                     soundModule.PlayAttachedSound(soundID, ownerID, objectID, volume, position, flags, radius);
             }
@@ -2415,13 +2392,13 @@ namespace Universe.Region
             Color4 texcolor;
             if (face >= 0 && face < GetNumberOfSides())
             {
-                texcolor = tex.CreateFace((uint)face).RGBA;
+                texcolor = tex.CreateFace((uint) face).RGBA;
                 texcolor.R = Util.Clip(color.X, 0.0f, 1.0f);
                 texcolor.G = Util.Clip(color.Y, 0.0f, 1.0f);
                 texcolor.B = Util.Clip(color.Z, 0.0f, 1.0f);
                 if (!(tex.FaceTextures[face].RGBA.R == texcolor.R &&
-                                tex.FaceTextures[face].RGBA.G == texcolor.G &&
-                                tex.FaceTextures[face].RGBA.B == texcolor.B))
+                      tex.FaceTextures[face].RGBA.G == texcolor.G &&
+                      tex.FaceTextures[face].RGBA.B == texcolor.B))
                 {
                     tex.FaceTextures[face].RGBA = texcolor;
                     UpdateTexture(tex, true);
@@ -2439,8 +2416,8 @@ namespace Universe.Region
                         texcolor.G = Util.Clip(color.Y, 0.0f, 1.0f);
                         texcolor.B = Util.Clip(color.Z, 0.0f, 1.0f);
                         if (!(tex.FaceTextures[i].RGBA.R == texcolor.R &&
-                                              tex.FaceTextures[i].RGBA.G == texcolor.G &&
-                                              tex.FaceTextures[i].RGBA.B == texcolor.B))
+                              tex.FaceTextures[i].RGBA.G == texcolor.G &&
+                              tex.FaceTextures[i].RGBA.B == texcolor.B))
                             changed = true;
                         tex.FaceTextures[i].RGBA = texcolor;
                     }
@@ -2449,8 +2426,8 @@ namespace Universe.Region
                     texcolor.G = Util.Clip(color.Y, 0.0f, 1.0f);
                     texcolor.B = Util.Clip(color.Z, 0.0f, 1.0f);
                     if (!(tex.DefaultTexture.RGBA.R == texcolor.R &&
-                                       tex.DefaultTexture.RGBA.G == texcolor.G &&
-                                       tex.DefaultTexture.RGBA.B == texcolor.B))
+                          tex.DefaultTexture.RGBA.G == texcolor.G &&
+                          tex.DefaultTexture.RGBA.B == texcolor.B))
                         changed = true;
                     tex.DefaultTexture.RGBA = texcolor;
                 }
@@ -2478,60 +2455,42 @@ namespace Universe.Region
             {
                 case PrimType.BOX:
                     ret = 6;
-                    if (hasCut)
-                        ret += 2;
-                    if (hasHollow)
-                        ret += 1;
+                    if (hasCut) ret += 2;
+                    if (hasHollow) ret += 1;
                     break;
                 case PrimType.CYLINDER:
                     ret = 3;
-                    if (hasCut)
-                        ret += 2;
-                    if (hasHollow)
-                        ret += 1;
+                    if (hasCut) ret += 2;
+                    if (hasHollow) ret += 1;
                     break;
                 case PrimType.PRISM:
                     ret = 5;
-                    if (hasCut)
-                        ret += 2;
-                    if (hasHollow)
-                        ret += 1;
+                    if (hasCut) ret += 2;
+                    if (hasHollow) ret += 1;
                     break;
                 case PrimType.SPHERE:
                     ret = 1;
-                    if (hasCut)
-                        ret += 2;
-                    if (hasDimple)
-                        ret += 2;
-                    if (hasHollow)
-                        ret += 1;
+                    if (hasCut) ret += 2;
+                    if (hasDimple) ret += 2;
+                    if (hasHollow) ret += 1;
                     break;
                 case PrimType.TORUS:
                     ret = 1;
-                    if (hasCut)
-                        ret += 2;
-                    if (hasProfileCut)
-                        ret += 2;
-                    if (hasHollow)
-                        ret += 1;
+                    if (hasCut) ret += 2;
+                    if (hasProfileCut) ret += 2;
+                    if (hasHollow) ret += 1;
                     break;
                 case PrimType.TUBE:
                     ret = 4;
-                    if (hasCut)
-                        ret += 2;
-                    if (hasProfileCut)
-                        ret += 2;
-                    if (hasHollow)
-                        ret += 1;
+                    if (hasCut) ret += 2;
+                    if (hasProfileCut) ret += 2;
+                    if (hasHollow) ret += 1;
                     break;
                 case PrimType.RING:
                     ret = 3;
-                    if (hasCut)
-                        ret += 2;
-                    if (hasProfileCut)
-                        ret += 2;
-                    if (hasHollow)
-                        ret += 1;
+                    if (hasCut) ret += 2;
+                    if (hasProfileCut) ret += 2;
+                    if (hasHollow) ret += 1;
                     break;
                 case PrimType.SCULPT:
                     // Special mesh handling
@@ -2556,31 +2515,31 @@ namespace Universe.Region
         {
             if (Shape.SculptEntry)
                 return PrimType.SCULPT;
-            if ((Shape.ProfileCurve & 0x07) == (byte)ProfileShape.Square)
+            if ((Shape.ProfileCurve & 0x07) == (byte) ProfileShape.Square)
             {
-                if (Shape.PathCurve == (byte)Extrusion.Straight)
+                if (Shape.PathCurve == (byte) Extrusion.Straight)
                     return PrimType.BOX;
-                else if (Shape.PathCurve == (byte)Extrusion.Curve1)
+                else if (Shape.PathCurve == (byte) Extrusion.Curve1)
                     return PrimType.TUBE;
             }
-            else if ((Shape.ProfileCurve & 0x07) == (byte)ProfileShape.Circle)
+            else if ((Shape.ProfileCurve & 0x07) == (byte) ProfileShape.Circle)
             {
-                if (Shape.PathCurve == (byte)Extrusion.Straight)
+                if (Shape.PathCurve == (byte) Extrusion.Straight)
                     return PrimType.CYLINDER;
-                // ProfileCurve seems to combine hole shape and profile curve so we need to only compare against the lower 3 bits
-                else if (Shape.PathCurve == (byte)Extrusion.Curve1)
+                    // ProfileCurve seems to combine hole shape and profile curve so we need to only compare against the lower 3 bits
+                else if (Shape.PathCurve == (byte) Extrusion.Curve1)
                     return PrimType.TORUS;
             }
-            else if ((Shape.ProfileCurve & 0x07) == (byte)ProfileShape.HalfCircle)
+            else if ((Shape.ProfileCurve & 0x07) == (byte) ProfileShape.HalfCircle)
             {
-                if (Shape.PathCurve == (byte)Extrusion.Curve1 || Shape.PathCurve == (byte)Extrusion.Curve2)
+                if (Shape.PathCurve == (byte) Extrusion.Curve1 || Shape.PathCurve == (byte) Extrusion.Curve2)
                     return PrimType.SPHERE;
             }
-            else if ((Shape.ProfileCurve & 0x07) == (byte)ProfileShape.EquilateralTriangle)
+            else if ((Shape.ProfileCurve & 0x07) == (byte) ProfileShape.EquilateralTriangle)
             {
-                if (Shape.PathCurve == (byte)Extrusion.Straight)
+                if (Shape.PathCurve == (byte) Extrusion.Straight)
                     return PrimType.PRISM;
-                else if (Shape.PathCurve == (byte)Extrusion.Curve1)
+                else if (Shape.PathCurve == (byte) Extrusion.Curve1)
                     return PrimType.RING;
             }
 
@@ -2591,7 +2550,7 @@ namespace Universe.Region
         /// </summary>
         public void SetParent(ISceneEntity parent)
         {
-            m_parentGroup = (SceneObjectGroup)parent;
+            m_parentGroup = (SceneObjectGroup) parent;
         }
 
         // Use this for attachments!  LocalID should be avatar's localid
@@ -2617,11 +2576,11 @@ namespace Universe.Region
                     // remove values from aggregated script events
                     //if (m_scriptEvents[scriptid] == (scriptEvents) events)
                     //    return;
-                    m_scriptEvents[scriptid] = (scriptEvents)events;
+                    m_scriptEvents[scriptid] = (scriptEvents) events;
                 }
                 else
                 {
-                    m_scriptEvents.Add(scriptid, (scriptEvents)events);
+                    m_scriptEvents.Add(scriptid, (scriptEvents) events);
                 }
             }
             aggregateScriptEvents();
@@ -2643,10 +2602,10 @@ namespace Universe.Region
         {
             //No triggering Changed_Color, so not using Color
             //Color = ...
-            UpdateColor(Color.FromArgb((int)(alpha * 0xff),
-                (int)(color.X * 0xff),
-                (int)(color.Y * 0xff),
-                (int)(color.Z * 0xff)), false);
+            UpdateColor(Color.FromArgb((int) (alpha*0xff),
+                                       (int) (color.X*0xff),
+                                       (int) (color.Y*0xff),
+                                       (int) (color.Z*0xff)), false);
             Text = text;
 
             ScheduleUpdate(PrimUpdateFlags.Text);
@@ -2668,12 +2627,12 @@ namespace Universe.Region
                 {
                     IBackupModule backup = null;
                     if (ParentGroup != null &&
-                                       ParentGroup.Scene != null)
+                        ParentGroup.Scene != null)
                         backup = ParentGroup.Scene.RequestModuleInterface<IBackupModule>();
 
                     if (m_parentGroup != null &&
-                                       ParentGroup.Scene != null &&
-                                       (backup == null || (backup != null && !backup.LoadingPrims)))
+                        ParentGroup.Scene != null &&
+                        (backup == null || (backup != null && !backup.LoadingPrims)))
                     {
                         lock (_undoLock)
                         {
@@ -2696,7 +2655,7 @@ namespace Universe.Region
         }
 
         public EntityIntersection TestIntersectionOBB(Ray iray, Quaternion parentrot, bool frontFacesOnly,
-                                                            bool faceCenters)
+                                                      bool faceCenters)
         {
             // In this case we're using a rectangular prism, which has 6 faces and therefore 6 planes
             // This breaks down into the ray---> plane equation.
@@ -2739,7 +2698,7 @@ namespace Universe.Region
 
             Vector3 tScale = Vector3.Zero;
 
-            Vector3 AXscale = new Vector3(m_shape.Scale.X * 0.5f, m_shape.Scale.Y * 0.5f, m_shape.Scale.Z * 0.5f);
+            Vector3 AXscale = new Vector3(m_shape.Scale.X*0.5f, m_shape.Scale.Y*0.5f, m_shape.Scale.Z*0.5f);
 
             //Vector3 pScale = (AXscale) - (AXrot.Inverse() * (AXscale));
             //Vector3 nScale = (AXscale * -1) - (AXrot.Inverse() * (AXscale * -1));
@@ -2787,7 +2746,7 @@ namespace Universe.Region
             #region Plane Decomposition of Oriented Bounding Box
 
             tScale = new Vector3(AXscale.X, -AXscale.Y, AXscale.Z);
-            rScale = tScale * AXrot;
+            rScale = tScale*AXrot;
             vertexes[0] = (new Vector3((pos.X + rScale.X), (pos.Y + rScale.Y), (pos.Z + rScale.Z)));
             // vertexes[0].X = pos.X + vertexes[0].X;
             //vertexes[0].Y = pos.Y + vertexes[0].Y;
@@ -2798,7 +2757,7 @@ namespace Universe.Region
             FaceA[4] = vertexes[0];
 
             tScale = AXscale;
-            rScale = tScale * AXrot;
+            rScale = tScale*AXrot;
             vertexes[1] = (new Vector3((pos.X + rScale.X), (pos.Y + rScale.Y), (pos.Z + rScale.Z)));
 
             // vertexes[1].X = pos.X + vertexes[1].X;
@@ -2810,7 +2769,7 @@ namespace Universe.Region
             FaceC[4] = vertexes[1];
 
             tScale = new Vector3(AXscale.X, -AXscale.Y, -AXscale.Z);
-            rScale = tScale * AXrot;
+            rScale = tScale*AXrot;
 
             vertexes[2] = (new Vector3((pos.X + rScale.X), (pos.Y + rScale.Y), (pos.Z + rScale.Z)));
 
@@ -2823,7 +2782,7 @@ namespace Universe.Region
             FaceC[5] = vertexes[2];
 
             tScale = new Vector3(AXscale.X, AXscale.Y, -AXscale.Z);
-            rScale = tScale * AXrot;
+            rScale = tScale*AXrot;
             vertexes[3] = (new Vector3((pos.X + rScale.X), (pos.Y + rScale.Y), (pos.Z + rScale.Z)));
 
             //vertexes[3].X = pos.X + vertexes[3].X;
@@ -2835,7 +2794,7 @@ namespace Universe.Region
             FaceA[5] = vertexes[3];
 
             tScale = new Vector3(-AXscale.X, AXscale.Y, AXscale.Z);
-            rScale = tScale * AXrot;
+            rScale = tScale*AXrot;
             vertexes[4] = (new Vector3((pos.X + rScale.X), (pos.Y + rScale.Y), (pos.Z + rScale.Z)));
 
             // vertexes[4].X = pos.X + vertexes[4].X;
@@ -2847,7 +2806,7 @@ namespace Universe.Region
             FaceD[4] = vertexes[4];
 
             tScale = new Vector3(-AXscale.X, AXscale.Y, -AXscale.Z);
-            rScale = tScale * AXrot;
+            rScale = tScale*AXrot;
             vertexes[5] = (new Vector3((pos.X + rScale.X), (pos.Y + rScale.Y), (pos.Z + rScale.Z)));
 
             // vertexes[5].X = pos.X + vertexes[5].X;
@@ -2859,7 +2818,7 @@ namespace Universe.Region
             FaceB[5] = vertexes[5];
 
             tScale = new Vector3(-AXscale.X, -AXscale.Y, AXscale.Z);
-            rScale = tScale * AXrot;
+            rScale = tScale*AXrot;
             vertexes[6] = (new Vector3((pos.X + rScale.X), (pos.Y + rScale.Y), (pos.Z + rScale.Z)));
 
             // vertexes[6].X = pos.X + vertexes[6].X;
@@ -2871,7 +2830,7 @@ namespace Universe.Region
             FaceB[4] = vertexes[6];
 
             tScale = new Vector3(-AXscale.X, -AXscale.Y, -AXscale.Z);
-            rScale = tScale * AXrot;
+            rScale = tScale*AXrot;
             vertexes[7] = (new Vector3((pos.X + rScale.X), (pos.Y + rScale.Y), (pos.Z + rScale.Z)));
 
             // vertexes[7].X = pos.X + vertexes[7].X;
@@ -2896,13 +2855,13 @@ namespace Universe.Region
                 cross = Vector3.Cross(AmBb, AmBa);
 
                 // normalize the cross product to get the normal.
-                normals[i] = cross / cross.Length();
+                normals[i] = cross/cross.Length();
 
                 //MainConsole.Instance.Info("[NORMALS]: normals[ " + i + "]" + normals[i].ToString());
                 //distance[i] = (normals[i].X * AmBa.X + normals[i].Y * AmBa.Y + normals[i].Z * AmBa.Z) * -1;
             }
 
-            EntityIntersection result = new EntityIntersection { distance = 1024 };
+            EntityIntersection result = new EntityIntersection {distance = 1024};
 
             float c = 0;
             float a = 0;
@@ -2983,7 +2942,7 @@ namespace Universe.Region
                 if (c == 0)
                     continue;
 
-                a = (d - Vector3.Dot(iray.Origin, normals[i])) / c;
+                a = (d - Vector3.Dot(iray.Origin, normals[i]))/c;
 
                 if (a < 0)
                     continue;
@@ -2997,10 +2956,10 @@ namespace Universe.Region
                     //}
                     //else
                     //{
-                    q = iray.Origin + iray.Direction * a;
+                    q = iray.Origin + iray.Direction*a;
                     //}
 
-                    float distance2 = (float)GetDistanceTo(q, AXpos);
+                    float distance2 = (float) GetDistanceTo(q, AXpos);
                     // Is this the closest hit to the object's origin?
                     //if (faceCenters)
                     //{
@@ -3017,18 +2976,15 @@ namespace Universe.Region
                         //MainConsole.Instance.Info("[DIST]: " + distance2.ToString());
                         if (faceCenters)
                         {
-                            result.normal = AAfacenormals[i] * AXrot;
+                            result.normal = AAfacenormals[i]*AXrot;
 
                             Vector3 scaleComponent = AAfacenormals[i];
                             float ScaleOffset = 0.5f;
-                            if (scaleComponent.X != 0)
-                                ScaleOffset = AXscale.X;
-                            if (scaleComponent.Y != 0)
-                                ScaleOffset = AXscale.Y;
-                            if (scaleComponent.Z != 0)
-                                ScaleOffset = AXscale.Z;
+                            if (scaleComponent.X != 0) ScaleOffset = AXscale.X;
+                            if (scaleComponent.Y != 0) ScaleOffset = AXscale.Y;
+                            if (scaleComponent.Z != 0) ScaleOffset = AXscale.Z;
                             ScaleOffset = Math.Abs(ScaleOffset);
-                            Vector3 offset = result.normal * ScaleOffset;
+                            Vector3 offset = result.normal*ScaleOffset;
                             result.ipoint = AXpos + offset;
 
                             //pos = (intersectionpoint + offset);
@@ -3047,16 +3003,16 @@ namespace Universe.Region
         public void TriggerScriptChangedEvent(Changed val)
         {
             if (m_parentGroup != null && m_parentGroup.Scene != null)
-                m_parentGroup.Scene.EventManager.TriggerOnScriptChangedEvent(this, (uint)val);
+                m_parentGroup.Scene.EventManager.TriggerOnScriptChangedEvent(this, (uint) val);
         }
 
         public void TrimPermissions()
         {
-            _baseMask &= (uint)PermissionMask.All;
-            _ownerMask &= (uint)PermissionMask.All;
-            _groupMask &= (uint)PermissionMask.All;
-            _everyoneMask &= (uint)PermissionMask.All;
-            _nextOwnerMask &= (uint)PermissionMask.All;
+            _baseMask &= (uint) PermissionMask.All;
+            _ownerMask &= (uint) PermissionMask.All;
+            _groupMask &= (uint) PermissionMask.All;
+            _everyoneMask &= (uint) PermissionMask.All;
+            _nextOwnerMask &= (uint) PermissionMask.All;
         }
 
         public void Undo()
@@ -3064,18 +3020,17 @@ namespace Universe.Region
             var undoCount = 0;
             lock (_undoLock)
                 undoCount = m_undo.Count;
-
+            
             if (undoCount > 0)
             {
-                lock (_redoLock)
+                lock(_redoLock)
                     m_redo.Push(new UndoState(this));
 
                 UndoState goback = null;
-                lock (_undoLock)
+                lock(_undoLock)
                     goback = m_undo.Pop();
 
-                if (goback != null)
-                {
+                if (goback != null) {
                     goback.PlaybackState(this);
                 }
             }
@@ -3087,18 +3042,16 @@ namespace Universe.Region
             lock (_redoLock)
                 redoCount = m_redo.Count;
 
-            if (redoCount > 0)
-            {
-                lock (_undoLock)
-                {
-                    UndoState nUndo = new UndoState(this);
-                    m_undo.Push(nUndo);
+            if (redoCount > 0) {
+                lock(_undoLock) {
+                    UndoState nUndo = new UndoState (this);
+                    m_undo.Push (nUndo);
                 }
 
                 UndoState gofwd = null;
-                lock (_redoLock)
+                lock(_redoLock)
                     gofwd = m_redo.Pop();
-
+                
                 if (gofwd != null)
                     gofwd.PlayfwdState(this);
             }
@@ -3110,8 +3063,8 @@ namespace Universe.Region
         public void UpdateOffSet(Vector3 pos)
         {
             if ((pos.X != OffsetPosition.X) ||
-                         (pos.Y != OffsetPosition.Y) ||
-                         (pos.Z != OffsetPosition.Z))
+                (pos.Y != OffsetPosition.Y) ||
+                (pos.Z != OffsetPosition.Z))
             {
                 Vector3 newPos = new Vector3(pos.X, pos.Y, pos.Z);
 
@@ -3124,8 +3077,8 @@ namespace Universe.Region
                         IChatModule chatModule = ParentGroup.Scene.RequestModuleInterface<IChatModule>();
                         if (chatModule != null)
                             chatModule.SimChat("Hit Sandbox Limit", ChatTypeEnum.DebugChannel, 0x7FFFFFFF,
-                                ParentGroup.RootPart.AbsolutePosition, Name, UUID, false,
-                                ParentGroup.Scene);
+                                               ParentGroup.RootPart.AbsolutePosition, Name, UUID, false,
+                                               ParentGroup.Scene);
                     }
                 }
                 ValidpartOOB = false;
@@ -3135,7 +3088,7 @@ namespace Universe.Region
         }
 
         public bool UpdatePrimFlags(bool UsePhysics, bool IsTemporary, bool IsPhantom, bool IsVD,
-                                          ObjectFlagUpdatePacket.ExtraPhysicsBlock[] blocks)
+                                    ObjectFlagUpdatePacket.ExtraPhysicsBlock[] blocks)
         {
             bool wasUsingPhysics = ((Flags & PrimFlags.Physics) != 0);
             bool wasTemporary = ((Flags & PrimFlags.TemporaryOnRez) != 0);
@@ -3165,7 +3118,7 @@ namespace Universe.Region
             }
 
             if ((UsePhysics == wasUsingPhysics) && (wasTemporary == IsTemporary) && (wasPhantom == IsPhantom) &&
-                         (IsVD == wasVD))
+                (IsVD == wasVD))
                 return needsPhysicalRebuild;
 
             // Special cases for VD. VD can only be called from a script 
@@ -3173,14 +3126,14 @@ namespace Universe.Region
             // that...
             // ... if VD is changed, all others are not.
             // ... if one of the others is changed, VD is not.
-            if (IsVD)
-            { // VD is active, special logic applies
-              // State machine logic for VolumeDetect
-              // More logic below
+            if (IsVD) // VD is active, special logic applies
+            {
+                // State machine logic for VolumeDetect
+                // More logic below
                 bool phanReset = (IsPhantom != wasPhantom) && !IsPhantom;
 
-                if (phanReset)
-                { // Phantom changes from on to off switch VD off too
+                if (phanReset) // Phantom changes from on to off switch VD off too
+                {
                     IsVD = false; // Switch it of for the course of this routine
                     VolumeDetectActive = false; // and also permanently
                     if (PhysActor != null)
@@ -3217,13 +3170,14 @@ namespace Universe.Region
             }
 
 
-            if (IsPhantom || IsAttachment || (Shape.PathCurve == (byte)Extrusion.Flexible))
-            {                // note: this may have been changed above in the case of joints
+            if (IsPhantom || IsAttachment || (Shape.PathCurve == (byte) Extrusion.Flexible))
+                // note: this may have been changed above in the case of joints
+            {
                 AddFlag(PrimFlags.Phantom);
                 needsPhysicalRebuild = true; //Gotta rebuild now
             }
-            else
-            { // Not phantom
+            else // Not phantom
+            {
                 if (wasPhantom)
                 {
                     RemFlag(PrimFlags.Phantom);
@@ -3277,9 +3231,9 @@ namespace Universe.Region
         public void UpdateRotation(Quaternion rot)
         {
             if ((rot.X != GetRotationOffset().X) ||
-                         (rot.Y != GetRotationOffset().Y) ||
-                         (rot.Z != GetRotationOffset().Z) ||
-                         (rot.W != GetRotationOffset().W))
+                (rot.Y != GetRotationOffset().Y) ||
+                (rot.Z != GetRotationOffset().Z) ||
+                (rot.W != GetRotationOffset().W))
             {
                 SetRotationOffset(true, rot, true);
                 ValidpartOOB = false;
@@ -3309,15 +3263,17 @@ namespace Universe.Region
             IOpenRegionSettingsModule module = ParentGroup.Scene.RequestModuleInterface<IOpenRegionSettingsModule>();
             if (module != null)
             {
-                if (shapeBlock.ProfileHollow > (module.MaximumHollowSize * 500) &&
-                                module.MaximumHollowSize != -1)
-                {                    //This is so that it works correctly, since the packet sends (N * 500)
-                    shapeBlock.ProfileHollow = (ushort)(module.MaximumHollowSize * 500);
+                if (shapeBlock.ProfileHollow > (module.MaximumHollowSize*500) &&
+                    module.MaximumHollowSize != -1)
+                    //This is so that it works correctly, since the packet sends (N * 500)
+                {
+                    shapeBlock.ProfileHollow = (ushort) (module.MaximumHollowSize*500);
                 }
-                if (shapeBlock.PathScaleY > (200 - (module.MinimumHoleSize * 100)) &&
-                                module.MinimumHoleSize != -1 && shapeBlock.PathCurve == 32)
-                {                    //This is how the packet is set up... so this is how we check for it...
-                    shapeBlock.PathScaleY = Convert.ToByte((200 - (module.MinimumHoleSize * 100)));
+                if (shapeBlock.PathScaleY > (200 - (module.MinimumHoleSize*100)) &&
+                    module.MinimumHoleSize != -1 && shapeBlock.PathCurve == 32)
+                    //This is how the packet is set up... so this is how we check for it...
+                {
+                    shapeBlock.PathScaleY = Convert.ToByte((200 - (module.MinimumHoleSize*100)));
                 }
             }
 
@@ -3413,30 +3369,31 @@ namespace Universe.Region
             if (
                 ((AggregateScriptEvents & scriptEvents.touch) != 0) ||
                 ((AggregateScriptEvents & scriptEvents.touch_end) != 0) ||
-                ((AggregateScriptEvents & scriptEvents.touch_start) != 0))
+                ((AggregateScriptEvents & scriptEvents.touch_start) != 0)
+                )
             {
-                objectflagupdate |= (uint)PrimFlags.Touch;
+                objectflagupdate |= (uint) PrimFlags.Touch;
             }
 
             if ((AggregateScriptEvents & scriptEvents.money) != 0)
             {
-                objectflagupdate |= (uint)PrimFlags.Money;
+                objectflagupdate |= (uint) PrimFlags.Money;
             }
 
             if (AllowedDrop)
             {
-                objectflagupdate |= (uint)PrimFlags.AllowInventoryDrop;
+                objectflagupdate |= (uint) PrimFlags.AllowInventoryDrop;
             }
 
             // subscribe to physics updates.
             //We subscribe by default now... so 'shouldn't' need this
             if ((((AggregateScriptEvents & scriptEvents.collision) != 0) ||
-                         ((AggregateScriptEvents & scriptEvents.collision_end) != 0) ||
-                         ((AggregateScriptEvents & scriptEvents.collision_start) != 0) ||
-                         ((AggregateScriptEvents & scriptEvents.land_collision) != 0) ||
-                         ((AggregateScriptEvents & scriptEvents.land_collision_end) != 0) ||
-                         ((AggregateScriptEvents & scriptEvents.land_collision_start) != 0)
-                         ) && PhysActor != null)
+                 ((AggregateScriptEvents & scriptEvents.collision_end) != 0) ||
+                 ((AggregateScriptEvents & scriptEvents.collision_start) != 0) ||
+                 ((AggregateScriptEvents & scriptEvents.land_collision) != 0) ||
+                 ((AggregateScriptEvents & scriptEvents.land_collision_end) != 0) ||
+                 ((AggregateScriptEvents & scriptEvents.land_collision_start) != 0)
+                ) && PhysActor != null)
             {
                 if (!m_hasSubscribedToCollisionEvent)
                 {
@@ -3454,7 +3411,7 @@ namespace Universe.Region
                 }
             }
 
-            LocalFlags = (PrimFlags)objectflagupdate;
+            LocalFlags = (PrimFlags) objectflagupdate;
 
             if (m_parentGroup != null && m_parentGroup.RootPart == this)
             {
@@ -3462,8 +3419,8 @@ namespace Universe.Region
             }
             else
             {
-                //                MainConsole.Instance.DebugFormat(
-                //                    "[SCENE OBJECT PART]: Scheduling part {0} {1} for full update in aggregateScriptEvents()", Name, LocalId);
+//                MainConsole.Instance.DebugFormat(
+//                    "[SCENE OBJECT PART]: Scheduling part {0} {1} for full update in aggregateScriptEvents()", Name, LocalId);
                 ScheduleUpdate(PrimUpdateFlags.PrimFlags);
             }
         }
@@ -3514,28 +3471,24 @@ namespace Universe.Region
         [ProtoMember(111)]
         string _vehicleFlags
         {
-            get
-            {
+            get {
                 return m_VehicleFlags == null ? "" : OSDParser.SerializeLLSDXmlString(m_VehicleFlags);
             }
-            set
-            {
+            set {
                 if (value != null)
-                    m_VehicleFlags = value == "" ? null : (OSDArray)OSDParser.DeserializeLLSDXml(value);
+                    m_VehicleFlags =  value == "" ? null : (OSDArray)OSDParser.DeserializeLLSDXml(value);
             }
         }
 
         [ProtoMember(112)]
         string _vehicleParams
         {
-            get
-            {
+            get { 
                 return m_VehicleParams == null ? "" : OSDParser.SerializeJsonString(m_VehicleParams, true);
             }
-            set
-            {
+            set {
                 if (value != null)
-                    m_VehicleParams = value == "" ? null : (OSDMap)OSDParser.DeserializeJson(value);
+                    m_VehicleParams = value == "" ? null : (OSDMap) OSDParser.DeserializeJson(value);
             }
         }
 
@@ -3546,8 +3499,8 @@ namespace Universe.Region
             {
                 if (m_VehicleFlags == null)
                 {
-                    m_VehicleFlags = new OSDArray();
-                    m_VehicleFlags.Add(0);
+                    m_VehicleFlags = new OSDArray ();
+                    m_VehicleFlags.Add (0);                 
                 }
                 return m_VehicleFlags;
             }
@@ -3560,7 +3513,7 @@ namespace Universe.Region
             {
                 if (m_VehicleParams == null)
                 {
-                    m_VehicleParams = new OSDMap();
+                    m_VehicleParams = new OSDMap ();
                     //m_VehicleParams ["99"] = 0;
                 }
                 return m_VehicleParams;
@@ -3568,7 +3521,7 @@ namespace Universe.Region
             set { m_VehicleParams = value; }
         }
 
-
+           
 
         #endregion
 
@@ -3585,8 +3538,8 @@ namespace Universe.Region
             {
                 if (value.W == 0) //We have an issue here... try to normalize it
                     value.Normalize();
-                if (actor.PhysicsActorType != (int)ActorTypes.Prim)
-                { // for now let other times get updates
+                if (actor.PhysicsActorType != (int) ActorTypes.Prim) // for now let other times get updates
+                {
                     UpdatePrimActor = true;
                     single = false;
                 }
@@ -3650,8 +3603,8 @@ namespace Universe.Region
 
             if (actor != null)
             {
-                if (actor.PhysicsActorType != (int)ActorTypes.Prim)
-                { // for now let other times get updates
+                if (actor.PhysicsActorType != (int) ActorTypes.Prim) // for now let other times get updates
+                {
                     updatePrimActor = true;
                     single = false;
                 }
@@ -3703,8 +3656,8 @@ namespace Universe.Region
             Expires = DateTime.Now + new TimeSpan(TimeSpan.TicksPerMinute);
 
             // set prim counts as tainted so they get recalculated
-            var pcount = m_parentGroup.Scene.RequestModuleInterface<IPrimCountModule>();
-            pcount.TaintPrimCount();
+            var pcount = m_parentGroup.Scene.RequestModuleInterface<IPrimCountModule> ();
+            pcount.TaintPrimCount ();
         }
 
         public event AddPhysics OnAddPhysics;
@@ -3734,21 +3687,14 @@ namespace Universe.Region
 
         public byte ConvertScriptUintToByte(uint indata)
         {
-            byte outdata = (byte)TextureAnimFlags.NONE;
-            if ((indata & 1) != 0)
-                outdata |= (byte)TextureAnimFlags.ANIM_ON;
-            if ((indata & 2) != 0)
-                outdata |= (byte)TextureAnimFlags.LOOP;
-            if ((indata & 4) != 0)
-                outdata |= (byte)TextureAnimFlags.REVERSE;
-            if ((indata & 8) != 0)
-                outdata |= (byte)TextureAnimFlags.PING_PONG;
-            if ((indata & 16) != 0)
-                outdata |= (byte)TextureAnimFlags.SMOOTH;
-            if ((indata & 32) != 0)
-                outdata |= (byte)TextureAnimFlags.ROTATE;
-            if ((indata & 64) != 0)
-                outdata |= (byte)TextureAnimFlags.SCALE;
+            byte outdata = (byte) TextureAnimFlags.NONE;
+            if ((indata & 1) != 0) outdata |= (byte) TextureAnimFlags.ANIM_ON;
+            if ((indata & 2) != 0) outdata |= (byte) TextureAnimFlags.LOOP;
+            if ((indata & 4) != 0) outdata |= (byte) TextureAnimFlags.REVERSE;
+            if ((indata & 8) != 0) outdata |= (byte) TextureAnimFlags.PING_PONG;
+            if ((indata & 16) != 0) outdata |= (byte) TextureAnimFlags.SMOOTH;
+            if ((indata & 32) != 0) outdata |= (byte) TextureAnimFlags.ROTATE;
+            if ((indata & 64) != 0) outdata |= (byte) TextureAnimFlags.SCALE;
             return outdata;
         }
 
@@ -3760,7 +3706,7 @@ namespace Universe.Region
         /// <returns></returns>
         public SceneObjectPart Copy(SceneObjectGroup parent, bool clonePhys)
         {
-            SceneObjectPart dupe = (SceneObjectPart)MemberwiseClone();
+            SceneObjectPart dupe = (SceneObjectPart) MemberwiseClone();
             dupe.m_parentGroup = parent;
             dupe.m_shape = m_shape.Copy();
             dupe.m_partOOBsize = m_partOOBsize;
@@ -3794,10 +3740,10 @@ namespace Universe.Region
             dupe.Rezzed = Rezzed;
 
             dupe.m_inventory = new SceneObjectPartInventory(dupe)
-            {
-                Items = (TaskInventoryDictionary)m_inventory.Items.Clone(),
-                HasInventoryChanged = m_inventory.HasInventoryChanged
-            };
+                                   {
+                                       Items = (TaskInventoryDictionary) m_inventory.Items.Clone(),
+                                       HasInventoryChanged = m_inventory.HasInventoryChanged
+                                   };
 
             byte[] extraP = new byte[Shape.ExtraParams.Length];
             Array.Copy(Shape.ExtraParams, extraP, extraP.Length);
@@ -3818,14 +3764,15 @@ namespace Universe.Region
                 Shape.SculptData = asset.Data; //Set the asset data
             }
 
-            bool isMesh = asset == null ? false : (asset.Type == (int)AssetType.Mesh);
+            bool isMesh = asset == null ? false : (asset.Type == (int) AssetType.Mesh);
             if (isMesh)
-                Shape.SculptType = (byte)SculptType.Mesh;
+                Shape.SculptType = (byte) SculptType.Mesh;
             PrimitiveBaseShape shape = Shape.Copy();
-            if ((bool)sender && PhysActor != null &&
-                         (asset != null || (Shape.SculptData != null && Shape.SculptData.Length != 0)))
-            {                //Update physics
-                             //Get physics to update in a hackish way
+            if ((bool) sender && PhysActor != null &&
+                (asset != null || (Shape.SculptData != null && Shape.SculptData.Length != 0)))
+                //Update physics
+            {
+                //Get physics to update in a hackish way
                 PhysActor.Shape = shape;
             }
             Shape = shape;
@@ -3836,7 +3783,7 @@ namespace Universe.Region
             float dx = a.X - b.X;
             float dy = a.Y - b.Y;
             float dz = a.Z - b.Z;
-            return Math.Sqrt(dx * dx + dy * dy + dz * dz);
+            return Math.Sqrt(dx*dx + dy*dy + dz*dz);
         }
 
         public UUID GetRootPartUUID()
@@ -3879,7 +3826,7 @@ namespace Universe.Region
             if (e == null)
                 return;
 
-            CollisionEventUpdate a = (CollisionEventUpdate)e;
+            CollisionEventUpdate a = (CollisionEventUpdate) e;
             Dictionary<uint, ContactPoint> collissionswith = a.GetCollisionEvents();
             List<uint> thisHitColliders = new List<uint>();
             List<uint> startedColliders = new List<uint>();
@@ -3939,25 +3886,25 @@ namespace Universe.Region
                     case ActorTypes.Prim:
                         switch (Material)
                         {
-                            case (int)OpenMetaverse.Material.Flesh:
+                            case (int) OpenMetaverse.Material.Flesh:
                                 SendSound(SoundFleshCollision, 1, true, 0, 0);
                                 break;
-                            case (int)OpenMetaverse.Material.Glass:
+                            case (int) OpenMetaverse.Material.Glass:
                                 SendSound(SoundGlassCollision, 1, true, 0, 0);
                                 break;
-                            case (int)OpenMetaverse.Material.Metal:
+                            case (int) OpenMetaverse.Material.Metal:
                                 SendSound(SoundMetalCollision, 1, true, 0, 0);
                                 break;
-                            case (int)OpenMetaverse.Material.Plastic:
+                            case (int) OpenMetaverse.Material.Plastic:
                                 SendSound(SoundPlasticCollision, 1, true, 0, 0);
                                 break;
-                            case (int)OpenMetaverse.Material.Rubber:
+                            case (int) OpenMetaverse.Material.Rubber:
                                 SendSound(SoundRubberCollision, 1, true, 0, 0);
                                 break;
-                            case (int)OpenMetaverse.Material.Stone:
+                            case (int) OpenMetaverse.Material.Stone:
                                 SendSound(SoundStoneCollision, 1, true, 0, 0);
                                 break;
-                            case (int)OpenMetaverse.Material.Wood:
+                            case (int) OpenMetaverse.Material.Wood:
                                 SendSound(SoundWoodCollision, 1, true, 0, 0);
                                 break;
                         }
@@ -3968,20 +3915,21 @@ namespace Universe.Region
                 }
             }
             if (CollisionSprite != UUID.Zero && CollisionSoundVolume > 0.0f)
-            {                // The collision volume isn't a mistake, its an SL feature/bug
-                             // TODO: make a sprite!
+                // The collision volume isn't a mistake, its an SL feature/bug
+            {
+                // TODO: make a sprite!
             }
             if (((AggregateScriptEvents & scriptEvents.collision) != 0) ||
-                         ((AggregateScriptEvents & scriptEvents.collision_end) != 0) ||
-                         ((AggregateScriptEvents & scriptEvents.collision_start) != 0) ||
-                         ((AggregateScriptEvents & scriptEvents.land_collision_start) != 0) ||
-                         ((AggregateScriptEvents & scriptEvents.land_collision) != 0) ||
-                         ((AggregateScriptEvents & scriptEvents.land_collision_end) != 0) ||
-                         (CollisionSound != UUID.Zero) ||
-                         PassCollisions != 2)
+                ((AggregateScriptEvents & scriptEvents.collision_end) != 0) ||
+                ((AggregateScriptEvents & scriptEvents.collision_start) != 0) ||
+                ((AggregateScriptEvents & scriptEvents.land_collision_start) != 0) ||
+                ((AggregateScriptEvents & scriptEvents.land_collision) != 0) ||
+                ((AggregateScriptEvents & scriptEvents.land_collision_end) != 0) ||
+                (CollisionSound != UUID.Zero) ||
+                PassCollisions != 2)
             {
                 if ((AggregateScriptEvents & scriptEvents.collision_start) != 0 ||
-                                (AggregateScriptEvents & scriptEvents.collision) != 0)
+                    (AggregateScriptEvents & scriptEvents.collision) != 0)
                 {
                     // do event notification
                     if (startedColliders.Count > 0)
@@ -4004,26 +3952,26 @@ namespace Universe.Region
                                 if (obj != null)
                                 {
                                     if (m_parentGroup.RootPart.CollisionFilter.ContainsValue(obj.UUID.ToString()) ||
-                                                                   m_parentGroup.RootPart.CollisionFilter.ContainsValue(obj.Name))
+                                        m_parentGroup.RootPart.CollisionFilter.ContainsValue(obj.Name))
                                     {
                                         bool found = m_parentGroup.RootPart.CollisionFilter.TryGetValue(1, out data);
                                         //If it is 1, it is to accept ONLY collisions from this object
                                         if (found)
                                         {
                                             DetectedObject detobj = new DetectedObject
-                                            {
-                                                keyUUID = obj.UUID,
-                                                nameStr = obj.Name,
-                                                ownerUUID = obj.OwnerID,
-                                                posVector = obj.AbsolutePosition,
-                                                rotQuat = obj.GetWorldRotation(),
-                                                velVector = obj.Velocity,
-                                                colliderType = 0,
-                                                groupUUID = obj.GroupID
-                                            };
+                                                                        {
+                                                                            keyUUID = obj.UUID,
+                                                                            nameStr = obj.Name,
+                                                                            ownerUUID = obj.OwnerID,
+                                                                            posVector = obj.AbsolutePosition,
+                                                                            rotQuat = obj.GetWorldRotation(),
+                                                                            velVector = obj.Velocity,
+                                                                            colliderType = 0,
+                                                                            groupUUID = obj.GroupID
+                                                                        };
                                             colliding.Add(detobj);
                                         }
-                                        //If it is 0, it is to not accept collisions from this object
+                                            //If it is 0, it is to not accept collisions from this object
                                         else
                                         {
                                         }
@@ -4035,16 +3983,16 @@ namespace Universe.Region
                                         if (!found)
                                         {
                                             DetectedObject detobj = new DetectedObject
-                                            {
-                                                keyUUID = obj.UUID,
-                                                nameStr = obj.Name,
-                                                ownerUUID = obj.OwnerID,
-                                                posVector = obj.AbsolutePosition,
-                                                rotQuat = obj.GetWorldRotation(),
-                                                velVector = obj.Velocity,
-                                                colliderType = 0,
-                                                groupUUID = obj.GroupID
-                                            };
+                                                                        {
+                                                                            keyUUID = obj.UUID,
+                                                                            nameStr = obj.Name,
+                                                                            ownerUUID = obj.OwnerID,
+                                                                            posVector = obj.AbsolutePosition,
+                                                                            rotQuat = obj.GetWorldRotation(),
+                                                                            velVector = obj.Velocity,
+                                                                            colliderType = 0,
+                                                                            groupUUID = obj.GroupID
+                                                                        };
                                             colliding.Add(detobj);
                                         }
                                     }
@@ -4061,26 +4009,26 @@ namespace Universe.Region
                                                 m_parentGroup.RootPart.CollisionFilter.ContainsValue(av.Name))
                                             {
                                                 bool found = m_parentGroup.RootPart.CollisionFilter.TryGetValue(1,
-                                                                                                     out data);
+                                                                                                                out data);
                                                 //If it is 1, it is to accept ONLY collisions from this avatar
                                                 if (found)
                                                 {
                                                     DetectedObject detobj = new DetectedObject
-                                                    {
-                                                        keyUUID = av.UUID,
-                                                        nameStr = av.ControllingClient.Name,
-                                                        ownerUUID = av.UUID,
-                                                        posVector = av.AbsolutePosition,
-                                                        rotQuat = av.Rotation,
-                                                        velVector = av.Velocity,
-                                                        colliderType = 0,
-                                                        groupUUID =
+                                                                                {
+                                                                                    keyUUID = av.UUID,
+                                                                                    nameStr = av.ControllingClient.Name,
+                                                                                    ownerUUID = av.UUID,
+                                                                                    posVector = av.AbsolutePosition,
+                                                                                    rotQuat = av.Rotation,
+                                                                                    velVector = av.Velocity,
+                                                                                    colliderType = 0,
+                                                                                    groupUUID =
                                                                                         av.ControllingClient
                                                                                           .ActiveGroupId
-                                                    };
+                                                                                };
                                                     colliding.Add(detobj);
                                                 }
-                                                //If it is 0, it is to not accept collisions from this avatar
+                                                    //If it is 0, it is to not accept collisions from this avatar
                                                 else
                                                 {
                                                 }
@@ -4088,23 +4036,23 @@ namespace Universe.Region
                                             else
                                             {
                                                 bool found = m_parentGroup.RootPart.CollisionFilter.TryGetValue(1,
-                                                                                                     out data);
+                                                                                                                out data);
                                                 //If it is 1, it is to accept ONLY collisions from this avatar, so this other avatar will not work
                                                 if (!found)
                                                 {
                                                     DetectedObject detobj = new DetectedObject
-                                                    {
-                                                        keyUUID = av.UUID,
-                                                        nameStr = av.ControllingClient.Name,
-                                                        ownerUUID = av.UUID,
-                                                        posVector = av.AbsolutePosition,
-                                                        rotQuat = av.Rotation,
-                                                        velVector = av.Velocity,
-                                                        colliderType = 0,
-                                                        groupUUID =
+                                                                                {
+                                                                                    keyUUID = av.UUID,
+                                                                                    nameStr = av.ControllingClient.Name,
+                                                                                    ownerUUID = av.UUID,
+                                                                                    posVector = av.AbsolutePosition,
+                                                                                    rotQuat = av.Rotation,
+                                                                                    velVector = av.Velocity,
+                                                                                    colliderType = 0,
+                                                                                    groupUUID =
                                                                                         av.ControllingClient
                                                                                           .ActiveGroupId
-                                                    };
+                                                                                };
                                                     colliding.Add(detobj);
                                                 }
                                             }
@@ -4138,8 +4086,9 @@ namespace Universe.Region
                                         ParentGroup.RootPart, StartCollidingMessage);
                                 }
                                 else if (((ScriptEvents & scriptEvents.collision_start) == 0) &&
-                                                               PassCollisions == PASS_IF_NOT_HANDLED)
-                                {                                    //If no event in this prim, pass to parent
+                                         PassCollisions == PASS_IF_NOT_HANDLED)
+                                    //If no event in this prim, pass to parent
+                                {
                                     m_parentGroup.Scene.EventManager.TriggerScriptCollidingStart(
                                         ParentGroup.RootPart, StartCollidingMessage);
                                 }
@@ -4169,26 +4118,26 @@ namespace Universe.Region
                                 if (obj != null)
                                 {
                                     if (m_parentGroup.RootPart.CollisionFilter.ContainsValue(obj.UUID.ToString()) ||
-                                                                   m_parentGroup.RootPart.CollisionFilter.ContainsValue(obj.Name))
+                                        m_parentGroup.RootPart.CollisionFilter.ContainsValue(obj.Name))
                                     {
                                         bool found = m_parentGroup.RootPart.CollisionFilter.TryGetValue(1, out data);
                                         //If it is 1, it is to accept ONLY collisions from this object
                                         if (found)
                                         {
                                             DetectedObject detobj = new DetectedObject
-                                            {
-                                                keyUUID = obj.UUID,
-                                                nameStr = obj.Name,
-                                                ownerUUID = obj.OwnerID,
-                                                posVector = obj.AbsolutePosition,
-                                                rotQuat = obj.GetWorldRotation(),
-                                                velVector = obj.Velocity,
-                                                colliderType = 0,
-                                                groupUUID = obj.GroupID
-                                            };
+                                                                        {
+                                                                            keyUUID = obj.UUID,
+                                                                            nameStr = obj.Name,
+                                                                            ownerUUID = obj.OwnerID,
+                                                                            posVector = obj.AbsolutePosition,
+                                                                            rotQuat = obj.GetWorldRotation(),
+                                                                            velVector = obj.Velocity,
+                                                                            colliderType = 0,
+                                                                            groupUUID = obj.GroupID
+                                                                        };
                                             colliding.Add(detobj);
                                         }
-                                        //If it is 0, it is to not accept collisions from this object
+                                            //If it is 0, it is to not accept collisions from this object
                                         else
                                         {
                                         }
@@ -4200,16 +4149,16 @@ namespace Universe.Region
                                         if (!found)
                                         {
                                             DetectedObject detobj = new DetectedObject
-                                            {
-                                                keyUUID = obj.UUID,
-                                                nameStr = obj.Name,
-                                                ownerUUID = obj.OwnerID,
-                                                posVector = obj.AbsolutePosition,
-                                                rotQuat = obj.GetWorldRotation(),
-                                                velVector = obj.Velocity,
-                                                colliderType = 0,
-                                                groupUUID = obj.GroupID
-                                            };
+                                                                        {
+                                                                            keyUUID = obj.UUID,
+                                                                            nameStr = obj.Name,
+                                                                            ownerUUID = obj.OwnerID,
+                                                                            posVector = obj.AbsolutePosition,
+                                                                            rotQuat = obj.GetWorldRotation(),
+                                                                            velVector = obj.Velocity,
+                                                                            colliderType = 0,
+                                                                            groupUUID = obj.GroupID
+                                                                        };
                                             colliding.Add(detobj);
                                         }
                                     }
@@ -4220,27 +4169,27 @@ namespace Universe.Region
                                     if (av != null)
                                     {
                                         if (m_parentGroup.RootPart.CollisionFilter.ContainsValue(av.UUID.ToString()) ||
-                                                                          m_parentGroup.RootPart.CollisionFilter.ContainsValue(av.Name))
+                                            m_parentGroup.RootPart.CollisionFilter.ContainsValue(av.Name))
                                         {
                                             bool found = m_parentGroup.RootPart.CollisionFilter.TryGetValue(1, out data);
                                             //If it is 1, it is to accept ONLY collisions from this avatar
                                             if (found)
                                             {
                                                 DetectedObject detobj = new DetectedObject
-                                                {
-                                                    keyUUID = av.UUID,
-                                                    nameStr = av.ControllingClient.Name,
-                                                    ownerUUID = av.UUID,
-                                                    posVector = av.AbsolutePosition,
-                                                    rotQuat = av.Rotation,
-                                                    velVector = av.Velocity,
-                                                    colliderType = 0,
-                                                    groupUUID =
+                                                                            {
+                                                                                keyUUID = av.UUID,
+                                                                                nameStr = av.ControllingClient.Name,
+                                                                                ownerUUID = av.UUID,
+                                                                                posVector = av.AbsolutePosition,
+                                                                                rotQuat = av.Rotation,
+                                                                                velVector = av.Velocity,
+                                                                                colliderType = 0,
+                                                                                groupUUID =
                                                                                     av.ControllingClient.ActiveGroupId
-                                                };
+                                                                            };
                                                 colliding.Add(detobj);
                                             }
-                                            //If it is 0, it is to not accept collisions from this avatar
+                                                //If it is 0, it is to not accept collisions from this avatar
                                         }
                                         else
                                         {
@@ -4249,17 +4198,17 @@ namespace Universe.Region
                                             if (!found)
                                             {
                                                 DetectedObject detobj = new DetectedObject
-                                                {
-                                                    keyUUID = av.UUID,
-                                                    nameStr = av.ControllingClient.Name,
-                                                    ownerUUID = av.UUID,
-                                                    posVector = av.AbsolutePosition,
-                                                    rotQuat = av.Rotation,
-                                                    velVector = av.Velocity,
-                                                    colliderType = 0,
-                                                    groupUUID =
+                                                                            {
+                                                                                keyUUID = av.UUID,
+                                                                                nameStr = av.ControllingClient.Name,
+                                                                                ownerUUID = av.UUID,
+                                                                                posVector = av.AbsolutePosition,
+                                                                                rotQuat = av.Rotation,
+                                                                                velVector = av.Velocity,
+                                                                                colliderType = 0,
+                                                                                groupUUID =
                                                                                     av.ControllingClient.ActiveGroupId
-                                                };
+                                                                            };
                                                 colliding.Add(detobj);
                                             }
                                         }
@@ -4290,11 +4239,12 @@ namespace Universe.Region
                                 if (PassCollisions == PASS_ALWAYS)
                                 {
                                     m_parentGroup.Scene.EventManager.TriggerScriptColliding(ParentGroup.RootPart,
-                                        CollidingMessage);
+                                                                                            CollidingMessage);
                                 }
                                 else if (((ScriptEvents & scriptEvents.collision) == 0) &&
-                                                               PassCollisions == PASS_IF_NOT_HANDLED)
-                                {                                    //If no event in this prim, pass to parent
+                                         PassCollisions == PASS_IF_NOT_HANDLED)
+                                    //If no event in this prim, pass to parent
+                                {
                                     m_parentGroup.Scene.EventManager.TriggerScriptColliding(
                                         ParentGroup.RootPart, CollidingMessage);
                                 }
@@ -4323,26 +4273,26 @@ namespace Universe.Region
                                 if (obj != null)
                                 {
                                     if (m_parentGroup.RootPart.CollisionFilter.ContainsValue(obj.UUID.ToString()) ||
-                                                                   m_parentGroup.RootPart.CollisionFilter.ContainsValue(obj.Name))
+                                        m_parentGroup.RootPart.CollisionFilter.ContainsValue(obj.Name))
                                     {
                                         bool found = m_parentGroup.RootPart.CollisionFilter.TryGetValue(1, out data);
                                         //If it is 1, it is to accept ONLY collisions from this object
                                         if (found)
                                         {
                                             DetectedObject detobj = new DetectedObject
-                                            {
-                                                keyUUID = obj.UUID,
-                                                nameStr = obj.Name,
-                                                ownerUUID = obj.OwnerID,
-                                                posVector = obj.AbsolutePosition,
-                                                rotQuat = obj.GetWorldRotation(),
-                                                velVector = obj.Velocity,
-                                                colliderType = 0,
-                                                groupUUID = obj.GroupID
-                                            };
+                                                                        {
+                                                                            keyUUID = obj.UUID,
+                                                                            nameStr = obj.Name,
+                                                                            ownerUUID = obj.OwnerID,
+                                                                            posVector = obj.AbsolutePosition,
+                                                                            rotQuat = obj.GetWorldRotation(),
+                                                                            velVector = obj.Velocity,
+                                                                            colliderType = 0,
+                                                                            groupUUID = obj.GroupID
+                                                                        };
                                             colliding.Add(detobj);
                                         }
-                                        //If it is 0, it is to not accept collisions from this object
+                                            //If it is 0, it is to not accept collisions from this object
                                         else
                                         {
                                         }
@@ -4354,16 +4304,16 @@ namespace Universe.Region
                                         if (!found)
                                         {
                                             DetectedObject detobj = new DetectedObject
-                                            {
-                                                keyUUID = obj.UUID,
-                                                nameStr = obj.Name,
-                                                ownerUUID = obj.OwnerID,
-                                                posVector = obj.AbsolutePosition,
-                                                rotQuat = obj.GetWorldRotation(),
-                                                velVector = obj.Velocity,
-                                                colliderType = 0,
-                                                groupUUID = obj.GroupID
-                                            };
+                                                                        {
+                                                                            keyUUID = obj.UUID,
+                                                                            nameStr = obj.Name,
+                                                                            ownerUUID = obj.OwnerID,
+                                                                            posVector = obj.AbsolutePosition,
+                                                                            rotQuat = obj.GetWorldRotation(),
+                                                                            velVector = obj.Velocity,
+                                                                            colliderType = 0,
+                                                                            groupUUID = obj.GroupID
+                                                                        };
                                             colliding.Add(detobj);
                                         }
                                     }
@@ -4380,26 +4330,26 @@ namespace Universe.Region
                                                 m_parentGroup.RootPart.CollisionFilter.ContainsValue(av.Name))
                                             {
                                                 bool found = m_parentGroup.RootPart.CollisionFilter.TryGetValue(1,
-                                                                                                     out data);
+                                                                                                                out data);
                                                 //If it is 1, it is to accept ONLY collisions from this avatar
                                                 if (found)
                                                 {
                                                     DetectedObject detobj = new DetectedObject
-                                                    {
-                                                        keyUUID = av.UUID,
-                                                        nameStr = av.ControllingClient.Name,
-                                                        ownerUUID = av.UUID,
-                                                        posVector = av.AbsolutePosition,
-                                                        rotQuat = av.Rotation,
-                                                        velVector = av.Velocity,
-                                                        colliderType = 0,
-                                                        groupUUID =
+                                                                                {
+                                                                                    keyUUID = av.UUID,
+                                                                                    nameStr = av.ControllingClient.Name,
+                                                                                    ownerUUID = av.UUID,
+                                                                                    posVector = av.AbsolutePosition,
+                                                                                    rotQuat = av.Rotation,
+                                                                                    velVector = av.Velocity,
+                                                                                    colliderType = 0,
+                                                                                    groupUUID =
                                                                                         av.ControllingClient
                                                                                           .ActiveGroupId
-                                                    };
+                                                                                };
                                                     colliding.Add(detobj);
                                                 }
-                                                //If it is 0, it is to not accept collisions from this avatar
+                                                    //If it is 0, it is to not accept collisions from this avatar
                                                 else
                                                 {
                                                 }
@@ -4407,23 +4357,23 @@ namespace Universe.Region
                                             else
                                             {
                                                 bool found = m_parentGroup.RootPart.CollisionFilter.TryGetValue(1,
-                                                                                                     out data);
+                                                                                                                out data);
                                                 //If it is 1, it is to accept ONLY collisions from this avatar, so this other avatar will not work
                                                 if (!found)
                                                 {
                                                     DetectedObject detobj = new DetectedObject
-                                                    {
-                                                        keyUUID = av.UUID,
-                                                        nameStr = av.ControllingClient.Name,
-                                                        ownerUUID = av.UUID,
-                                                        posVector = av.AbsolutePosition,
-                                                        rotQuat = av.Rotation,
-                                                        velVector = av.Velocity,
-                                                        colliderType = 0,
-                                                        groupUUID =
+                                                                                {
+                                                                                    keyUUID = av.UUID,
+                                                                                    nameStr = av.ControllingClient.Name,
+                                                                                    ownerUUID = av.UUID,
+                                                                                    posVector = av.AbsolutePosition,
+                                                                                    rotQuat = av.Rotation,
+                                                                                    velVector = av.Velocity,
+                                                                                    colliderType = 0,
+                                                                                    groupUUID =
                                                                                         av.ControllingClient
                                                                                           .ActiveGroupId
-                                                    };
+                                                                                };
                                                     colliding.Add(detobj);
                                                 }
                                             }
@@ -4459,8 +4409,9 @@ namespace Universe.Region
                                         ParentGroup.RootPart, EndCollidingMessage);
                                 }
                                 else if (((ScriptEvents & scriptEvents.collision_end) == 0) &&
-                                                               PassCollisions == PASS_IF_NOT_HANDLED)
-                                {                                    //If no event in this prim, pass to parent
+                                         PassCollisions == PASS_IF_NOT_HANDLED)
+                                    //If no event in this prim, pass to parent
+                                {
                                     m_parentGroup.Scene.EventManager.TriggerScriptCollidingEnd(
                                         ParentGroup.RootPart, EndCollidingMessage);
                                 }
@@ -4469,7 +4420,7 @@ namespace Universe.Region
                     }
                 }
                 if ((AggregateScriptEvents & scriptEvents.land_collision_start) != 0 ||
-                                (AggregateScriptEvents & scriptEvents.land_collision) != 0)
+                    (AggregateScriptEvents & scriptEvents.land_collision) != 0)
                 {
                     if (startedColliders.Count > 0)
                     {
@@ -4477,17 +4428,17 @@ namespace Universe.Region
                         List<DetectedObject> colliding = (from localId in startedColliders
                                                           where localId == 0
                                                           select new DetectedObject
-                                                          {
-                                                              keyUUID = UUID.Zero,
-                                                              nameStr = "",
-                                                              ownerUUID = UUID.Zero,
-                                                              posVector =
-                                                           m_parentGroup.RootPart.AbsolutePosition,
-                                                              rotQuat = Quaternion.Identity,
-                                                              velVector = Vector3.Zero,
-                                                              colliderType = 0,
-                                                              groupUUID = UUID.Zero
-                                                          }).ToList();
+                                                                     {
+                                                                         keyUUID = UUID.Zero,
+                                                                         nameStr = "",
+                                                                         ownerUUID = UUID.Zero,
+                                                                         posVector =
+                                                                             m_parentGroup.RootPart.AbsolutePosition,
+                                                                         rotQuat = Quaternion.Identity,
+                                                                         velVector = Vector3.Zero,
+                                                                         colliderType = 0,
+                                                                         groupUUID = UUID.Zero
+                                                                     }).ToList();
 
                         if (colliding.Count > 0)
                         {
@@ -4515,8 +4466,9 @@ namespace Universe.Region
                                         ParentGroup.RootPart, LandStartCollidingMessage);
                                 }
                                 else if (((ScriptEvents & scriptEvents.land_collision_start) == 0) &&
-                                                               PassCollisions == PASS_IF_NOT_HANDLED)
-                                {                                    //If no event in this prim, pass to parent
+                                         PassCollisions == PASS_IF_NOT_HANDLED)
+                                    //If no event in this prim, pass to parent
+                                {
                                     m_parentGroup.Scene.EventManager.TriggerScriptLandCollidingStart(
                                         ParentGroup.RootPart, LandStartCollidingMessage);
                                 }
@@ -4536,16 +4488,16 @@ namespace Universe.Region
                             {
                                 //Hope that all is left is ground!
                                 DetectedObject detobj = new DetectedObject
-                                {
-                                    keyUUID = UUID.Zero,
-                                    nameStr = "",
-                                    ownerUUID = UUID.Zero,
-                                    posVector = m_parentGroup.RootPart.AbsolutePosition,
-                                    rotQuat = Quaternion.Identity,
-                                    velVector = Vector3.Zero,
-                                    colliderType = 0,
-                                    groupUUID = UUID.Zero
-                                };
+                                                            {
+                                                                keyUUID = UUID.Zero,
+                                                                nameStr = "",
+                                                                ownerUUID = UUID.Zero,
+                                                                posVector = m_parentGroup.RootPart.AbsolutePosition,
+                                                                rotQuat = Quaternion.Identity,
+                                                                velVector = Vector3.Zero,
+                                                                colliderType = 0,
+                                                                groupUUID = UUID.Zero
+                                                            };
                                 colliding.Add(detobj);
                             }
                         }
@@ -4577,8 +4529,9 @@ namespace Universe.Region
                                         LandCollidingMessage);
                                 }
                                 else if (((ScriptEvents & scriptEvents.land_collision) == 0) &&
-                                                               PassCollisions == PASS_IF_NOT_HANDLED)
-                                {                                    //If no event in this prim, pass to parent
+                                         PassCollisions == PASS_IF_NOT_HANDLED)
+                                    //If no event in this prim, pass to parent
+                                {
                                     m_parentGroup.Scene.EventManager.TriggerScriptLandColliding(
                                         ParentGroup.RootPart, LandCollidingMessage);
                                 }
@@ -4594,17 +4547,17 @@ namespace Universe.Region
                         List<DetectedObject> colliding = (from localId in startedColliders
                                                           where localId == 0
                                                           select new DetectedObject
-                                                          {
-                                                              keyUUID = UUID.Zero,
-                                                              nameStr = "",
-                                                              ownerUUID = UUID.Zero,
-                                                              posVector =
-                                                           m_parentGroup.RootPart.AbsolutePosition,
-                                                              rotQuat = Quaternion.Identity,
-                                                              velVector = Vector3.Zero,
-                                                              colliderType = 0,
-                                                              groupUUID = UUID.Zero
-                                                          }).ToList();
+                                                                     {
+                                                                         keyUUID = UUID.Zero,
+                                                                         nameStr = "",
+                                                                         ownerUUID = UUID.Zero,
+                                                                         posVector =
+                                                                             m_parentGroup.RootPart.AbsolutePosition,
+                                                                         rotQuat = Quaternion.Identity,
+                                                                         velVector = Vector3.Zero,
+                                                                         colliderType = 0,
+                                                                         groupUUID = UUID.Zero
+                                                                     }).ToList();
 
                         if (colliding.Count > 0)
                         {
@@ -4632,8 +4585,9 @@ namespace Universe.Region
                                         ParentGroup.RootPart, LandEndCollidingMessage);
                                 }
                                 else if (((ScriptEvents & scriptEvents.land_collision_end) == 0) &&
-                                                               PassCollisions == PASS_IF_NOT_HANDLED)
-                                {                                    //If no event in this prim, pass to parent
+                                         PassCollisions == PASS_IF_NOT_HANDLED)
+                                    //If no event in this prim, pass to parent
+                                {
                                     m_parentGroup.Scene.EventManager.TriggerScriptLandCollidingEnd(
                                         ParentGroup.RootPart, LandEndCollidingMessage);
                                 }
@@ -4647,8 +4601,8 @@ namespace Universe.Region
         public void PhysicsOutOfBounds(Vector3 pos)
         {
             MainConsole.Instance.Error("[Physics]: Physical object " + Name + ", localID " + LocalId +
-            " went out of bounds at " + pos + ".  Stopping at " + AbsolutePosition +
-            " and making non-physical.");
+                                       " went out of bounds at " + pos + ".  Stopping at " + AbsolutePosition +
+                                       " and making non-physical.");
             lock (ParentGroup.Scene.PhysicsReturns)
             {
                 if (!ParentGroup.Scene.PhysicsReturns.Contains(ParentGroup))
@@ -4660,7 +4614,7 @@ namespace Universe.Region
         {
             if (PhysActor != null)
             {
-                //                Vector3 newpos = new Vector3(PhysActor.Position.GetBytes(), 0);
+//                Vector3 newpos = new Vector3(PhysActor.Position.GetBytes(), 0);
                 m_parentGroup.SetAbsolutePosition(false, PhysActor.Position);
                 //m_parentGroup.RootPart.m_groupPosition = newpos;
             }
@@ -4709,17 +4663,17 @@ namespace Universe.Region
         bool IsTerse(PrimUpdateFlags flags)
         {
             return flags.HasFlag((PrimUpdateFlags.TerseUpdate))
-            && !flags.HasFlag((PrimUpdateFlags.AttachmentPoint | PrimUpdateFlags.ClickAction |
-            PrimUpdateFlags.CollisionPlane | PrimUpdateFlags.ExtraData |
-            PrimUpdateFlags.FindBest | PrimUpdateFlags.FullUpdate |
-            PrimUpdateFlags.Joint | PrimUpdateFlags.Material | PrimUpdateFlags.MediaURL |
-            PrimUpdateFlags.NameValue |
-            PrimUpdateFlags.ParentID | PrimUpdateFlags.Particles | PrimUpdateFlags.PrimData |
-            PrimUpdateFlags.PrimFlags |
-            PrimUpdateFlags.ScratchPad | PrimUpdateFlags.Shape | PrimUpdateFlags.Sound |
-            PrimUpdateFlags.Text |
-            PrimUpdateFlags.TextureAnim | PrimUpdateFlags.Textures)) &&
-            !flags.HasFlag(PrimUpdateFlags.ForcedFullUpdate);
+                   && !flags.HasFlag((PrimUpdateFlags.AttachmentPoint | PrimUpdateFlags.ClickAction |
+                                      PrimUpdateFlags.CollisionPlane | PrimUpdateFlags.ExtraData |
+                                      PrimUpdateFlags.FindBest | PrimUpdateFlags.FullUpdate |
+                                      PrimUpdateFlags.Joint | PrimUpdateFlags.Material | PrimUpdateFlags.MediaURL |
+                                      PrimUpdateFlags.NameValue |
+                                      PrimUpdateFlags.ParentID | PrimUpdateFlags.Particles | PrimUpdateFlags.PrimData |
+                                      PrimUpdateFlags.PrimFlags |
+                                      PrimUpdateFlags.ScratchPad | PrimUpdateFlags.Shape | PrimUpdateFlags.Sound |
+                                      PrimUpdateFlags.Text |
+                                      PrimUpdateFlags.TextureAnim | PrimUpdateFlags.Textures)) &&
+                   !flags.HasFlag(PrimUpdateFlags.ForcedFullUpdate);
         }
 
         public void SetAttachmentPoint(int attachmentPoint)
@@ -4738,7 +4692,7 @@ namespace Universe.Region
             // save the attachment point.
             //if (AttachmentPoint != 0)
             //{
-            m_shape.State = (byte)attachmentPoint;
+            m_shape.State = (byte) attachmentPoint;
             //}
         }
 
@@ -4760,14 +4714,15 @@ namespace Universe.Region
         /// <param name="hasDimple"></param>
         /// <param name="hasProfileCut"></param>
         protected static void HasCutHollowDimpleProfileCut(PrimType primType, PrimitiveBaseShape shape, out bool hasCut,
-                                                                 out bool hasHollow,
-                                                                 out bool hasDimple, out bool hasProfileCut)
+                                                           out bool hasHollow,
+                                                           out bool hasDimple, out bool hasProfileCut)
         {
             if (primType == PrimType.BOX
-                         ||
-                         primType == PrimType.CYLINDER
-                         ||
-                         primType == PrimType.PRISM)
+                ||
+                primType == PrimType.CYLINDER
+                ||
+                primType == PrimType.PRISM)
+
                 hasCut = (shape.ProfileBegin > 0) || (shape.ProfileEnd > 0);
             else
                 hasCut = (shape.PathBegin > 0) || (shape.PathEnd > 0);
@@ -4814,10 +4769,10 @@ namespace Universe.Region
         public void UpdateGroupPosition(Vector3 pos)
         {
             if ((pos.X != GroupPosition.X) ||
-                         (pos.Y != GroupPosition.Y) ||
-                         (pos.Z != GroupPosition.Z))
+                (pos.Y != GroupPosition.Y) ||
+                (pos.Z != GroupPosition.Z))
             {
-                //                Vector3 newPos = new Vector3(pos.X, pos.Y, pos.Z);
+//                Vector3 newPos = new Vector3(pos.X, pos.Y, pos.Z);
                 FixGroupPosition(pos, false);
                 ScheduleTerseUpdate();
             }
@@ -4855,25 +4810,25 @@ namespace Universe.Region
                         break;
                     case 2:
                         _ownerMask = ApplyMask(_ownerMask, set, mask) &
-                        baseMask;
+                                     baseMask;
                         break;
                     case 4:
                         _groupMask = ApplyMask(_groupMask, set, mask) &
-                        baseMask;
+                                     baseMask;
                         break;
                     case 8:
                         _everyoneMask = ApplyMask(_everyoneMask, set, mask) &
-                        baseMask;
+                                        baseMask;
                         break;
                     case 16:
                         _nextOwnerMask = ApplyMask(_nextOwnerMask, set, mask) &
-                        baseMask;
+                                         baseMask;
                         // Prevent the client from creating no mod, no copy
                         // objects
-                        if ((_nextOwnerMask & (uint)PermissionMask.Copy) == 0)
-                            _nextOwnerMask |= (uint)PermissionMask.Transfer;
+                        if ((_nextOwnerMask & (uint) PermissionMask.Copy) == 0)
+                            _nextOwnerMask |= (uint) PermissionMask.Transfer;
 
-                        _nextOwnerMask |= (uint)PermissionMask.Move;
+                        _nextOwnerMask |= (uint) PermissionMask.Move;
 
                         break;
                 }
@@ -4928,9 +4883,9 @@ namespace Universe.Region
                 Color4 newRGBA = newFace.RGBA;
 
                 if (oldRGBA.R != newRGBA.R ||
-                                oldRGBA.G != newRGBA.G ||
-                                oldRGBA.B != newRGBA.B ||
-                                oldRGBA.A != newRGBA.A)
+                    oldRGBA.G != newRGBA.G ||
+                    oldRGBA.B != newRGBA.B ||
+                    oldRGBA.A != newRGBA.A)
                     changeFlags |= Changed.COLOR;
 
                 if (oldFace.TextureID != newFace.TextureID)
@@ -4942,28 +4897,17 @@ namespace Universe.Region
 
                 if (!otherFieldsChanged)
                 {
-                    if (oldFace.Bump != newFace.Bump)
-                        otherFieldsChanged = true;
-                    if (oldFace.Fullbright != newFace.Fullbright)
-                        otherFieldsChanged = true;
-                    if (oldFace.Glow != newFace.Glow)
-                        otherFieldsChanged = true;
-                    if (oldFace.MediaFlags != newFace.MediaFlags)
-                        otherFieldsChanged = true;
-                    if (oldFace.OffsetU != newFace.OffsetU)
-                        otherFieldsChanged = true;
-                    if (oldFace.OffsetV != newFace.OffsetV)
-                        otherFieldsChanged = true;
-                    if (oldFace.RepeatU != newFace.RepeatU)
-                        otherFieldsChanged = true;
-                    if (oldFace.RepeatV != newFace.RepeatV)
-                        otherFieldsChanged = true;
-                    if (oldFace.Rotation != newFace.Rotation)
-                        otherFieldsChanged = true;
-                    if (oldFace.Shiny != newFace.Shiny)
-                        otherFieldsChanged = true;
-                    if (oldFace.TexMapType != newFace.TexMapType)
-                        otherFieldsChanged = true;
+                    if (oldFace.Bump != newFace.Bump) otherFieldsChanged = true;
+                    if (oldFace.Fullbright != newFace.Fullbright) otherFieldsChanged = true;
+                    if (oldFace.Glow != newFace.Glow) otherFieldsChanged = true;
+                    if (oldFace.MediaFlags != newFace.MediaFlags) otherFieldsChanged = true;
+                    if (oldFace.OffsetU != newFace.OffsetU) otherFieldsChanged = true;
+                    if (oldFace.OffsetV != newFace.OffsetV) otherFieldsChanged = true;
+                    if (oldFace.RepeatU != newFace.RepeatU) otherFieldsChanged = true;
+                    if (oldFace.RepeatV != newFace.RepeatV) otherFieldsChanged = true;
+                    if (oldFace.Rotation != newFace.Rotation) otherFieldsChanged = true;
+                    if (oldFace.Shiny != newFace.Shiny) otherFieldsChanged = true;
+                    if (oldFace.TexMapType != newFace.TexMapType) otherFieldsChanged = true;
                 }
             }
             if (changeFlags == 0 && !otherFieldsChanged)
@@ -4971,7 +4915,7 @@ namespace Universe.Region
 
             Shape.TextureEntry = textureEntry;
 
-            if ((changeFlags & Changed.COLOR) == Changed.COLOR && sendChangedEvent)
+            if ((changeFlags & Changed.COLOR) == Changed.COLOR && sendChangedEvent) 
                 TriggerScriptChangedEvent(Changed.COLOR);
             if ((changeFlags & Changed.TEXTURE) == Changed.TEXTURE && sendChangedEvent)
                 TriggerScriptChangedEvent(Changed.TEXTURE);
@@ -5004,7 +4948,7 @@ namespace Universe.Region
                             (PIDTarget.X - AbsolutePosition.X) * (1f / PIDTau),
                             (PIDTarget.Y - AbsolutePosition.Y) * (1f / PIDTau),
                             (PIDTarget.Z - AbsolutePosition.Z) * (1f / PIDTau)
-                        );
+                            );
                     if (PIDTarget.ApproxEquals(AbsolutePosition, 0.1f))
                     {
                         ParentGroup.Velocity = Vector3.Zero;
@@ -5028,22 +4972,22 @@ namespace Universe.Region
                     if (terrain == null)
                         return;
                     float groundHeight =
-                        terrain[(int)ParentGroup.AbsolutePosition.X, (int)ParentGroup.AbsolutePosition.Y];
+                        terrain[(int) ParentGroup.AbsolutePosition.X, (int) ParentGroup.AbsolutePosition.Y];
                     switch (PIDHoverType)
                     {
                         case PIDHoverType.Ground:
                             _target_velocity =
-                                    new Vector3(
-                                0, 0, ((groundHeight + PIDHoverHeight) - m_initialPIDLocation.Z) * (PIDTau)
-                            );
+                                new Vector3(
+                                    0, 0, ((groundHeight + PIDHoverHeight) - m_initialPIDLocation.Z)*(PIDTau)
+                                    );
                             break;
                         case PIDHoverType.GroundAndWater:
                             if (ParentGroup.Scene.RegionInfo.RegionSettings.WaterHeight < groundHeight)
-                                groundHeight = (float)ParentGroup.Scene.RegionInfo.RegionSettings.WaterHeight;
+                                groundHeight = (float) ParentGroup.Scene.RegionInfo.RegionSettings.WaterHeight;
                             _target_velocity =
-                                    new Vector3(
-                                0, 0, ((groundHeight + PIDHoverHeight) - m_initialPIDLocation.Z) * (PIDTau)
-                            );
+                                new Vector3(
+                                    0, 0, ((groundHeight + PIDHoverHeight) - m_initialPIDLocation.Z)*(PIDTau)
+                                    );
                             break;
                         default:
                             return;
@@ -5067,15 +5011,14 @@ namespace Universe.Region
 
                     // find axis and angle of rotation to rotate to desired orientation
                     Vector3 axis = Vector3.UnitX;
-
+                    
                     float angle;
                     dR.GetAxisAngle(out axis, out angle);
                     axis = axis * currRot;
 
                     // clamp strength to avoid overshoot
                     float strength = 1.0f / APIDStrength;
-                    if (strength > 1.0)
-                        strength = 1.0f;
+                    if (strength > 1.0) strength = 1.0f;
 
                     // set angular velocity to rotate to desired orientation
                     // with velocity proportional to strength and angle

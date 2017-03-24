@@ -118,6 +118,7 @@ namespace Universe.Modules.Web
                             { "Description", transaction.Description },
                             { "Amount",transaction.Amount },
                             { "ToBalance",transaction.ToBalance }
+
                         });
                         }
                     }
@@ -131,6 +132,7 @@ namespace Universe.Modules.Web
                     {"Description", translator.GetTranslatedString ("NoTransactionsText")},
                     {"Amount",""},
                     {"ToBalance",""}
+
                 });
                 }
             } 

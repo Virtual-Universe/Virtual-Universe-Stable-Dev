@@ -116,7 +116,7 @@ namespace Universe.Modules.Web
             string picUrl = "../images/icons/no_avatar.jpg";
             if (profile != null)
             {
-                vars.Add ("UserType", profile.MembershipGroup == "" ? "Citizen" : profile.MembershipGroup);
+                vars.Add ("UserType", profile.MembershipGroup == "" ? "Resident" : profile.MembershipGroup);
 
                 if (profile.Partner != UUID.Zero)
                 {
@@ -133,11 +133,11 @@ namespace Universe.Modules.Web
             } else
             {
                 // no profile yet
-                vars.Add ("UserType", "Citizen");
+                vars.Add ("UserType", "Guest");
                 vars.Add ("UserPartner", "Not specified yet");
                 vars.Add ("UserAboutMe", "Nothing here yet");
-            }
 
+            }
             vars.Add ("UserPictureURL", picUrl);
 
             // TODO:  This is only showing online status if you are logged in ??
@@ -209,11 +209,9 @@ namespace Universe.Modules.Web
             vars.Add("en", translator.GetTranslatedString("en"));
             vars.Add("fr", translator.GetTranslatedString("fr"));
             vars.Add("de", translator.GetTranslatedString("de"));
-            vars.Add("ga", translator.GetTranslatedString("ga"));
             vars.Add("it", translator.GetTranslatedString("it"));
             vars.Add("es", translator.GetTranslatedString("es"));
             vars.Add("nl", translator.GetTranslatedString("nl"));
-            vars.Add("ru", translator.GetTranslatedString("ru"));
 
             var settings = webInterface.GetWebUISettings ();
             vars.Add("ShowLanguageTranslatorBar", !settings.HideLanguageTranslatorBar);
