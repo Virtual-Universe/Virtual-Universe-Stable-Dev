@@ -4,7 +4,6 @@
 # Irishwolf Starfinder <irishwolf@secondgalaxy.com>, 2016.
 #
 
-
 msgid ""
 msgstr ""
 
@@ -21,6 +20,24 @@ msgstr ""
 "Language: nl\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Virtual Universe V1.0.3 Dev\n"
+
+msgid "Assistant Developer"
+msgstr "Assistent Ontwikkelaar"
+
+msgid "Staff"
+msgstr "Personeel"
+
+msgid "Mentor"
+msgstr "Mentor"
+
+msgid "Core Developer"
+msgstr "Kern Ontwikkelaar"
+
+msgid "Citizen"
+msgstr "Inwoner"
+
+msgid "CitizenSince"
+msgstr "Burger sinds"
 
 msgid "30daysPastText"
 msgstr "Vorige 30 dagen"
@@ -246,9 +263,6 @@ msgstr "Wijzigingen succesvol opgeslagen"
 
 msgid "ChangeUserInformationText"
 msgstr "Change User Information"
-
-msgid "Charter_Member"
-msgstr "Mede-oprichter"
 
 msgid "ChatText"
 msgstr "Chat Support"
@@ -498,9 +512,6 @@ msgstr "Grid Status"
 
 msgid "GroupNameText"
 msgstr "Groep"
-
-msgid "Guest"
-msgstr "Gast"
 
 msgid "HelpText"
 msgstr "Help"
@@ -1542,4 +1553,3 @@ msgstr "Full Screen"
 
 msgid "Yes"
 msgstr "Yes"
-

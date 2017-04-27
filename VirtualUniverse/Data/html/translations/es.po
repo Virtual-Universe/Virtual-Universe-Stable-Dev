@@ -4,7 +4,6 @@
 # Irishwolf Starfinder <irishwolf@secondgalaxy.com>, 2016.
 #
 
-
 msgid ""
 msgstr ""
 
@@ -21,6 +20,24 @@ msgstr ""
 "Language: es\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Virtual Universe V1.0.3 Dev\n"
+
+msgid "Assistant Developer"
+msgstr "Desarrollador Asistente"
+
+msgid "Staff"
+msgstr "Personal"
+
+msgid "Mentor"
+msgstr "Mentor"
+
+msgid "Core Developer"
+msgstr "Desarrollador Principal"
+
+msgid "Citizen"
+msgstr "Ciudadano"
+
+msgid "CitizenSince"
+msgstr "Ciudadano desde"
 
 msgid "30daysPastText"
 msgstr "Últimos 30 días"
@@ -246,9 +263,6 @@ msgstr "Changes Saved Successfully"
 
 msgid "ChangeUserInformationText"
 msgstr "Información de cambio de usuario"
-
-msgid "Charter_Member"
-msgstr "Miembro fundador"
 
 msgid "ChatText"
 msgstr "Chat de soporte"
@@ -498,9 +512,6 @@ msgstr "Estato de la Grid"
 
 msgid "GroupNameText"
 msgstr "Grupo"
-
-msgid "Guest"
-msgstr "Invitado"
 
 msgid "HelpText"
 msgstr "Ayudar"
@@ -1126,12 +1137,6 @@ msgstr "Resets the Web Interface settings back to the most updated defaults"
 msgid "ResetSettingsText"
 msgstr "Restablecer configuración Web (página Administrador de configuración) Para los valores de fábrica"
 
-msgid "Resident"
-msgstr "Residente"
-
-msgid "ResidentSince"
-msgstr "Resident Since"
-
 msgid "ru"
 msgstr "Русский"
 
@@ -1542,4 +1547,3 @@ msgstr "Pantalla completa"
 
 msgid "Yes"
 msgstr "Sí"
-

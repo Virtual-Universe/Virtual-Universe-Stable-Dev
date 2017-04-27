@@ -4,7 +4,6 @@
 # Irishwolf Starfinder <irishwolf@secondgalaxy.com>, 2016.
 #
 
-
 msgid ""
 msgstr ""
 
@@ -127,6 +126,9 @@ msgstr "Aug"
 msgid "August"
 msgstr "August"
 
+msgid "Assistant Developer"
+msgstr "Assistent ontwikkelaar"
+
 msgid "AvatarEmailError"
 msgstr "Eine E-Mail Adresse ist für die Passwort Wiederherstellung erforderlich! ('none', wenn unbekannt)"
 
@@ -247,8 +249,8 @@ msgstr "Änderungen erfolgreich gespeichert"
 msgid "ChangeUserInformationText"
 msgstr "Ändere Benutzer Informationen"
 
-msgid "Charter_Member"
-msgstr "Charter-Mitglied"
+msgid "Core_Developer"
+msgstr "Kernontwikkelaar"
 
 msgid "ChatText"
 msgstr "Chat"
@@ -499,9 +501,6 @@ msgstr "Grid Status"
 msgid "GroupNameText"
 msgstr "Gruppe"
 
-msgid "Guest"
-msgstr "Gast"
-
 msgid "HelpText"
 msgstr "Hilfe"
 
@@ -657,6 +656,9 @@ msgstr "Mitglied"
 
 msgid "MemoryUseageText"
 msgstr "Speichernutzung"
+
+msgid "Mentor"
+msgstr "raadgever"
 
 msgid "MenuAbuse"
 msgstr "Missbrauch Berichte"
@@ -1212,6 +1214,9 @@ msgstr "Spezieller Text des Info Fensters"
 
 msgid "SpecialWindowTitleText"
 msgstr "Spezieller Title des Info Fensters"
+
+msgid "Staff"
+msgstr "Personeel"
 
 msgid "StatisticsText"
 msgstr "Viewer-Statistiken"

@@ -4,7 +4,6 @@
 # IrishwolfStarfinder <irishwolf@secondgalaxy.com>, 2017.
 #
 
-
 msgid ""
 msgstr ""
 
@@ -21,6 +20,24 @@ msgstr ""
 "Language: ga\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Virtual Universe V1.0.3 Dev\n"
+
+msgid "Assistant Developer"
+msgstr "Forbróir Cúnta"
+
+msgid "Staff"
+msgstr "Foireann"
+
+msgid "Mentor"
+msgstr "Mentor"
+
+msgid "Core Developer"
+msgstr "Forbróir Core"
+
+msgid "Citizen"
+msgstr "Saoránach"
+
+msgid "CitizenSince"
+msgstr "Saoránach Ós rud é"
 
 msgid "30daysPastText"
 msgstr "Roimhe Seo 30 Laethanta"
@@ -246,9 +263,6 @@ msgstr "Athruithe Sábháilte éirigh"
 
 msgid "ChangeUserInformationText"
 msgstr "Faisnéis Athraigh Úsáideoir"
-
-msgid "Charter_Member"
-msgstr "Ball Cairte"
 
 msgid "ChatText"
 msgstr "Tacaíocht comhrá"
@@ -501,9 +515,6 @@ msgstr "Stádas greille"
 
 msgid "GroupNameText"
 msgstr "Grúpa"
-
-msgid "Guest"
-msgstr "Guest"
 
 msgid "HelpText"
 msgstr "Cabhrú"
@@ -1129,12 +1140,6 @@ msgstr "Resets an suímh Chomhéadain Gréasáin ar ais go dtí na mainneachtain
 msgid "ResetSettingsText"
 msgstr "Athshocraigh Socruithe Web (Socruithe Bainisteoir leathanach) Chun Réamhshocruithe Monarcha"
 
-msgid "Resident"
-msgstr "Cónaitheach"
-
-msgid "ResidentSince"
-msgstr "Cónaitheach Ós"
-
 msgid "ru"
 msgstr "Русский"
 
@@ -1545,4 +1550,3 @@ msgstr "Scáileán iomlán"
 
 msgid "Yes"
 msgstr "Is ea"
-
