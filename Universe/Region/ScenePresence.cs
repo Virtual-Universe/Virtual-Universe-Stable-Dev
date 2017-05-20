@@ -2822,7 +2822,7 @@ namespace Universe.Region
 
                 m_physicsActor.OnOutOfBounds += OutOfBoundsCall; // Called for PhysicsActors when there's something wrong
                 m_physicsActor.Orientation = Rotation;
-
+                m_physicsActor.SetAlwaysRun = m_setAlwaysRun;
                 m_physicsActor.Flying = isFlying;
 
                 //Tell any events about it
