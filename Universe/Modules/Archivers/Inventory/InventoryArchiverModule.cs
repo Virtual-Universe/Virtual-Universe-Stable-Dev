@@ -317,7 +317,7 @@ namespace Universe.Modules.Archivers
         {
             try
             {
-                string iarPath = "IAR Import";             // default path to load IAR
+                string iarPath = Constants.IAR_IMPORT_PATH;             // default path to load IAR
 
                 Dictionary<string, object> options = new Dictionary<string, object>();
                 List<string> newParams = new List<string>(cmdparams);
@@ -404,7 +404,7 @@ namespace Universe.Modules.Archivers
                 {
                     // not provided. Check for merge
                     string mergeIar = MainConsole.Instance.Prompt(
-                        "Do you want to 'merge' this archive or 'create' a new folder 'IAR Import'? (merge/create)", "create");
+                        "Do you want to 'merge' this archive or 'create' a new folder 'Imports/IAR'? (merge/create)", "create");
                     if (mergeIar.ToLower().StartsWith("m"))
                         iarPath = "/";
                 }

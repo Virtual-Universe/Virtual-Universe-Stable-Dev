@@ -52,6 +52,8 @@ namespace Universe.Framework.Utilities
         public const string DEFAULT_USERHTML_DIR = "html";
         public const string DEFAULT_LOG_DIR = "logs";
 
+        // Inworld defaults
+        public const string IAR_IMPORT_PATH = "Imports/IAR";
         public const int DEFAULT_REGIONSTART_X = 1000;
         public const int DEFAULT_REGIONSTART_Y = 1000;
         public const int RegionSize = 256;
