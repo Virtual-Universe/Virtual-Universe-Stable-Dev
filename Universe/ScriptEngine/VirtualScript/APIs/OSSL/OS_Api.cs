@@ -39,7 +39,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Nini.Config;
 using OpenMetaverse;
-using OpenMetverse.StructuredData;
+using OpenMetaverse.StructuredData;
 using Universe.Framework.ClientInterfaces;
 using Universe.Framework.ConsoleFramework;
 using Universe.Framework.DatabaseInterfaces;
