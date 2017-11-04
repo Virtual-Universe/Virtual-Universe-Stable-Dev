@@ -96,3 +96,6 @@ VirtualUniverse/Data/UserArchives/*
 # Documentation
 
 UniverseDocs/
+
+# Visual Studio files
+.vs/*
