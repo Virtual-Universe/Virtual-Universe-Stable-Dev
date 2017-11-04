@@ -1544,7 +1544,8 @@ namespace Universe.Services.SQLServices.UserAccountService
             string passSalt;
             UUID userUUID;
 
-            fileName = PathHelpers.VerifyReadFile(fileName, "csv", m_defaultDataPath + "/Updates");
+            fileName = PathHelpers.VerifyReadFile(fileName, "csv", m_defaultDataPath + "/Imports");
+
             if (fileName == "")
             {
                 MainConsole.Instance.Error("[User Account Service]: The file " + fileName + " does not exist. Please check and retry");
@@ -1648,7 +1649,8 @@ namespace Universe.Services.SQLServices.UserAccountService
 
             int userNo = 0;
 
-            fileName = PathHelpers.VerifyWriteFile(fileName, "csv", m_defaultDataPath + "/Updates", true);
+            fileName = PathHelpers.VerifyWriteFile(fileName, "csv", m_defaultDataPath + "/Exports", true);
+
             if (fileName == "")
                 return;
 
