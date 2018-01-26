@@ -1,33 +1,31 @@
-/*
- * Copyright (c) Contributors, http://virtual-planets.org/
- * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the Virtual Universe Project nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE CONTRIBUTORS BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
-//#define BlockUnsupportedVersions
+/// <license>
+///     Copyright (c) Contributors, http://virtual-planets.org/
+///     See CONTRIBUTORS.TXT for a full list of copyright holders.
+///     For an explanation of the license of each contributor and the content it 
+///     covers please see the Licenses directory.
+/// 
+///     Redistribution and use in source and binary forms, with or without
+///     modification, are permitted provided that the following conditions are met:
+///         * Redistributions of source code must retain the above copyright
+///         notice, this list of conditions and the following disclaimer.
+///         * Redistributions in binary form must reproduce the above copyright
+///         notice, this list of conditions and the following disclaimer in the
+///         documentation and/or other materials provided with the distribution.
+///         * Neither the name of the Virtual Universe Project nor the
+///         names of its contributors may be used to endorse or promote products
+///         derived from this software without specific prior written permission.
+/// 
+///     THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY
+///     EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+///     WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+///     DISCLAIMED. IN NO EVENT SHALL THE CONTRIBUTORS BE LIABLE FOR ANY
+///     DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+///     (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+///     LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+///     ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+///     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+///     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+/// </license>
 
 using System;
 using System.Diagnostics;
@@ -50,7 +48,7 @@ namespace Universe.Simulation.Base
     public static class BaseApplication
     {
         /// <summary>
-        ///     Save Crashes in the Data/crashes folder.  Configurable with m_crashDir
+        ///     Save Crashes in the Data/crashes folder.  Configurable with crashDir
         /// </summary>
         public static bool m_saveCrashDumps;
 
@@ -62,7 +60,7 @@ namespace Universe.Simulation.Base
         /// <summary>
         ///     Directory to save crash reports to.  Relative to bin/
         /// </summary>
-        public static string m_crashDir = Constants.DEFAULT_CRASH_DIR;
+        public static string crashDir = Constants.DEFAULT_CRASH_DIR;
 
         static bool _IsHandlingException; // Make sure we don't go recursive on ourselves
 
@@ -75,21 +73,26 @@ namespace Universe.Simulation.Base
             ArgvConfigSource configSource = new ArgvConfigSource (args);
 
             // check configurtation unless specifically requested not to
-            if (!args.Contains ("-skipconfig"))
-                Configure (false);
+            if (!args.Contains("-skipconfig"))
+            {
+                Configure(false);
+            }
 
             // provide a startup configuration generation override option
-            if (args.Contains ("-config"))
-                Configure (true);
+            if (args.Contains("-config"))
+            {
+                Configure(true);
+            }
 
             // Increase the number of IOCP threads available. Mono defaults to a tragically low number
             int workerThreads, iocpThreads;
             ThreadPool.GetMaxThreads (out workerThreads, out iocpThreads);
-            //MainConsole.Instance.InfoFormat("[Virtual Universe Main]: Runtime gave us {0} worker threads and {1} IOCP threads", workerThreads, iocpThreads);
-            if (workerThreads < 500 || iocpThreads < 1000) {
+            
+            if (workerThreads < 500 || iocpThreads < 1000)
+            {
                 workerThreads = 500;
                 iocpThreads = 1000;
-                //MainConsole.Instance.Info("[Virtual Universe Main]: Bumping up to 500 worker threads and 1000 IOCP threads");
+
                 ThreadPool.SetMaxThreads (workerThreads, iocpThreads);
             }
 
@@ -104,7 +107,7 @@ namespace Universe.Simulation.Base
             configSource.Alias.AddAlias ("True", true);
             configSource.Alias.AddAlias ("False", false);
 
-            //Command line switches
+            // Command line switches
             configSource.AddSwitch ("Startup", "inifile");
             configSource.AddSwitch ("Startup", "inimaster");
             configSource.AddSwitch ("Startup", "inigrid");
@@ -122,14 +125,18 @@ namespace Universe.Simulation.Base
             configSource.AddSwitch ("Network", "http_listener_port");
 
             IConfigSource m_configSource = Configuration (configSource, defaultIniFile);
+
             if (m_configSource == null)
-                Environment.Exit (0);            // No configuration.. exit
+            {
+                // No configuration so we exit
+                Environment.Exit(0);
+            }
 
             // Check if we're saving crashes
             m_saveCrashDumps = m_configSource.Configs ["Startup"].GetBoolean ("save_crashes", m_saveCrashDumps);
 
             // load Crash directory config
-            m_crashDir = m_configSource.Configs ["Startup"].GetString ("crash_dir", m_crashDir);
+            crashDir = m_configSource.Configs ["Startup"].GetString ("crash_dir", crashDir);
 
             //Initialize the sim base now
             Startup (configSource, m_configSource, simBase.Copy (), args);
@@ -147,9 +154,12 @@ namespace Universe.Simulation.Base
                File.Exists (Path.Combine (Universe_ConfigDir, "Universe.Server.ini"))
                );
 
-            if (requested || !existingConfig) {
+            if (requested || !existingConfig)
+            {
                 string resp = "no";
-                if (!requested) {
+
+                if (!requested)
+                {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine ("\n\n************* Virtual Universe initial run. *************");
                     Console.ForegroundColor = ConsoleColor.Yellow;
@@ -172,7 +182,7 @@ namespace Universe.Simulation.Base
                         "Enter 'yes' and Virtual Universe will guide you through the configuration process.");
                 }
 
-                // Make sure...
+                // Make sure
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine ("");
                 Console.WriteLine (" ## WARNING - WARNING - WARNING - WARNING - WARNING ##\n");
@@ -183,11 +193,13 @@ namespace Universe.Simulation.Base
                 Console.WriteLine ("");
                 resp = ReadLine ("Do you want to configure Virtual Universe now?  (yes/no)", resp);
 
-                if (resp == "yes") {
+                if (resp == "yes")
+                {
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine ("\n     Just a moment... getting some details...\n");
 
-                    string cfgFolder = Universe_ConfigDir + "/";           // Main Config folder >> "../Config" (default)
+                    // Main Config folder >> "../Config" (default)
+                    string cfgFolder = Universe_ConfigDir + "/";
 
                     string dbSource = "localhost";
                     string dbPasswd = "universe";
@@ -211,7 +223,8 @@ namespace Universe.Simulation.Base
                     Console.WriteLine ("====================================================================");
                     Console.ResetColor ();
 
-                    if (isUniverseExe) {
+                    if (isUniverseExe)
+                    {
                         Console.WriteLine ("This installation is going to run in");
                         Console.ForegroundColor = ConsoleColor.Cyan;
                         Console.WriteLine ("[1] Standalone Mode \n[2] Grid Mode");
@@ -230,13 +243,16 @@ namespace Universe.Simulation.Base
                         port = uint.Parse (ReadLine ("Choose the port", "9000"));
                     }
 
-                    if (isStandalone) {
+                    if (isStandalone)
+                    {
                         Console.WriteLine ("Which database do you want to use?");
                         Console.ForegroundColor = ConsoleColor.Cyan;
                         Console.WriteLine ("[1] SQLite \n[2] MySQL");
                         Console.ResetColor ();
                         dbType = ReadLine ("Choose 1 or 2", dbType);
-                        if (dbType == "2") {
+
+                        if (dbType == "2")
+                        {
                             Console.ForegroundColor = ConsoleColor.White;
                             Console.WriteLine (
                                 "\nNote: this setup does not automatically create a MySQL installation for you.\n" +
@@ -255,7 +271,8 @@ namespace Universe.Simulation.Base
                         }
                     }
 
-                    if (isStandalone) {
+                    if (isStandalone)
+                    {
                         gridName = ReadLine ("Name of your Virtual Universe server", gridName);
 
                         welcomeMessage = "Welcome to " + gridName + ", <USERNAME>!";
@@ -274,28 +291,34 @@ namespace Universe.Simulation.Base
                     }
 
                     if (!isStandalone)
-                        gridIPAddress =
-                            ReadLine ("The domain name or IP address of the grid server you wish to connect to", gridIPAddress);
+                    {
+                        gridIPAddress = ReadLine("The domain name or IP address of the grid server you wish to connect to", gridIPAddress);
+                    }
 
                     //Data.ini setup
-                    if (isStandalone) {
+                    if (isStandalone)
+                    {
                         string cfgDataFolder = isUniverseExe ? "Sim/" : "Grid/ServerConfiguration/";
 
                         MakeSureExists (cfgFolder + cfgDataFolder + "Data/Data.ini");
-                        var data_ini = new IniConfigSource (
-                            cfgFolder + cfgDataFolder + "Data/Data.ini",
-                            Nini.Ini.IniFileType.AuroraStyle);
+                        var data_ini = new IniConfigSource (cfgFolder + cfgDataFolder + "Data/Data.ini", Nini.Ini.IniFileType.AuroraStyle);
 
                         IConfig conf = data_ini.AddConfig ("DataFile");
 
                         // DB include
                         if (dbType == "1")
-                            conf.Set ("Include-SQLite", cfgDataFolder + "Data/SQLite.ini");
+                        {
+                            conf.Set("Include-SQLite", cfgDataFolder + "Data/SQLite.ini");
+                        }
                         else
-                            conf.Set ("Include-MySQL", cfgDataFolder + "Data/MySQL.ini");
+                        {
+                            conf.Set("Include-MySQL", cfgDataFolder + "Data/MySQL.ini");
+                        }
 
                         if (isUniverseExe)
-                            conf.Set ("Include-FileBased", "Sim/Data/FileBased.ini");
+                        {
+                            conf.Set("Include-FileBased", "Sim/Data/FileBased.ini");
+                        }
 
                         // Asset services
                         conf = data_ini.AddConfig ("Handlers");
@@ -305,10 +328,16 @@ namespace Universe.Simulation.Base
                         Console.WriteLine ("[1] File based\n[2] SQL");
                         Console.ResetColor ();
                         assetType = ReadLine ("Choose 1 or 2", assetType);
+
                         if (assetType == "2")
-                            conf.Set ("AssetHandler", "AssetService");
+                        {
+                            conf.Set("AssetHandler", "AssetService");
+                        }
                         else
-                            conf.Set ("AssetHandler", "FileBasedAssetService");
+                        {
+                            conf.Set("AssetHandler", "FileBasedAssetService");
+                        }
+
                         conf.Set ("AssetHandlerUseCache", false);
 
                         conf = data_ini.AddConfig ("UniverseConnectors");
@@ -320,25 +349,26 @@ namespace Universe.Simulation.Base
                         Console.ResetColor ();
 
                         // MySql setup 
-                        if (dbType == "2") {
+                        if (dbType == "2")
+                        {
                             MakeSureExists (cfgFolder + cfgDataFolder + "Data/MySQL.ini");
-                            var mysql_ini = new IniConfigSource (
-                                cfgFolder + cfgDataFolder + "Data/MySQL.ini",
-                                Nini.Ini.IniFileType.AuroraStyle);
-                            var mysql_ini_example = new IniConfigSource (
-                                cfgFolder + cfgDataFolder + "Data/MySQL.ini.example",
-                                Nini.Ini.IniFileType.AuroraStyle);
+                            var mysql_ini = new IniConfigSource (cfgFolder + cfgDataFolder + "Data/MySQL.ini", Nini.Ini.IniFileType.AuroraStyle);
+                            var mysql_ini_example = new IniConfigSource (cfgFolder + cfgDataFolder + "Data/MySQL.ini.example", Nini.Ini.IniFileType.AuroraStyle);
 
-                            foreach (IConfig config in mysql_ini_example.Configs) {
+                            foreach (IConfig config in mysql_ini_example.Configs)
+                            {
                                 IConfig newConfig = mysql_ini.AddConfig (config.Name);
-                                foreach (string key in config.GetKeys ()) {
+
+                                foreach (string key in config.GetKeys ())
+                                {
                                     if (key == "ConnectionString")
-                                        newConfig.Set (key,
-                                                      string.Format (
-                                                "\"Data Source={0};Port={1};Database={2};User ID={3};Password={4};Charset=utf8;\"",
-                                                dbSource, dbPort, dbSchema, dbUser, dbPasswd));
+                                    {
+                                        newConfig.Set(key, string.Format("\"Data Source={0};Port={1};Database={2};User ID={3};Password={4};Charset=utf8;\"", dbSource, dbPort, dbSchema, dbUser, dbPasswd));
+                                    }
                                     else
-                                        newConfig.Set (key, config.Get (key));
+                                    {
+                                        newConfig.Set(key, config.Get(key));
+                                    }
                                 }
                             }
 
@@ -350,30 +380,37 @@ namespace Universe.Simulation.Base
                     }
 
                     // Region server
-                    if (isUniverseExe) {
+                    if (isUniverseExe)
+                    {
                         MakeSureExists (cfgFolder + "Universe.ini");
-                        var universe_ini = new IniConfigSource (
-                            cfgFolder + "Universe.ini",
-                            Nini.Ini.IniFileType.AuroraStyle);
-                        var universe_ini_example = new IniConfigSource (
-                            cfgFolder + "Universe.ini.example",
-                            Nini.Ini.IniFileType.AuroraStyle);
+                        var universe_ini = new IniConfigSource (cfgFolder + "Universe.ini", Nini.Ini.IniFileType.AuroraStyle);
+                        var universe_ini_example = new IniConfigSource (cfgFolder + "Universe.ini.example", Nini.Ini.IniFileType.AuroraStyle);
 
                         bool setIp = false;
 
-                        foreach (IConfig config in universe_ini_example.Configs) {
+                        foreach (IConfig config in universe_ini_example.Configs)
+                        {
                             IConfig newConfig = universe_ini.AddConfig (config.Name);
-                            foreach (string key in config.GetKeys ()) {
+
+                            foreach (string key in config.GetKeys())
+                            {
                                 if (key == "http_listener_port")
-                                    newConfig.Set (key, port);
-                                else if (key == "HostName") {
+                                {
+                                    newConfig.Set(key, port);
+                                }
+                                else if (key == "HostName")
+                                {
                                     setIp = true;
-                                    newConfig.Set (key, regionIPAddress);
-                                } else
-                                    newConfig.Set (key, config.Get (key));
+                                    newConfig.Set(key, regionIPAddress);
+                                }
+                                else
+                                {
+                                    newConfig.Set(key, config.Get(key));
+                                }
                             }
 
-                            if ((config.Name == "Network") & !setIp) {
+                            if ((config.Name == "Network") & !setIp)
+                            {
                                 setIp = true;
                                 newConfig.Set ("HostName", regionIPAddress);
                             }
@@ -385,15 +422,19 @@ namespace Universe.Simulation.Base
                         Console.ResetColor ();
 
                         MakeSureExists (cfgFolder + "Sim/Main.ini");
-                        var main_ini = new IniConfigSource (
-                            cfgFolder + "Sim/Main.ini",
-                            Nini.Ini.IniFileType.AuroraStyle);
+                        var main_ini = new IniConfigSource (cfgFolder + "Sim/Main.ini", Nini.Ini.IniFileType.AuroraStyle);
 
                         IConfig conf = main_ini.AddConfig ("Architecture");
+
                         if (isStandalone)
-                            conf.Set ("Include-Standalone", "Sim/Standalone/StandaloneCommon.ini");
+                        {
+                            conf.Set("Include-Standalone", "Sim/Standalone/StandaloneCommon.ini");
+                        }
                         else
-                            conf.Set ("Include-Grid", "Sim/Grid/GridCommon.ini");
+                        {
+                            conf.Set("Include-Grid", "Sim/Grid/GridCommon.ini");
+                        }
+
                         conf.Set ("Include-Includes", "Sim/Includes.ini");
 
                         main_ini.Save ();
@@ -401,30 +442,39 @@ namespace Universe.Simulation.Base
                         Console.WriteLine ("Your Main.ini has been successfully configured");
                         Console.ResetColor ();
 
-                        if (isStandalone) {
+                        if (isStandalone)
+                        {
                             MakeSureExists (cfgFolder + "Sim/Standalone/StandaloneCommon.ini");
-                            var standalone_ini = new IniConfigSource (
-                                cfgFolder + "Sim/Standalone/StandaloneCommon.ini",
-                                Nini.Ini.IniFileType.AuroraStyle);
-                            var standalone_ini_example = new IniConfigSource (
-                                cfgFolder + "Sim/Standalone/StandaloneCommon.ini.example",
-                                Nini.Ini.IniFileType.AuroraStyle);
+                            var standalone_ini = new IniConfigSource (cfgFolder + "Sim/Standalone/StandaloneCommon.ini", Nini.Ini.IniFileType.AuroraStyle);
+                            var standalone_ini_example = new IniConfigSource (cfgFolder + "Sim/Standalone/StandaloneCommon.ini.example", Nini.Ini.IniFileType.AuroraStyle);
 
-                            foreach (IConfig config in standalone_ini_example.Configs) {
+                            foreach (IConfig config in standalone_ini_example.Configs)
+                            {
                                 IConfig newConfig = standalone_ini.AddConfig (config.Name);
-                                if (newConfig.Name == "GridInfoService") {
+
+                                if (newConfig.Name == "GridInfoService")
+                                {
                                     newConfig.Set ("GridInfoInHandlerPort", 0);
                                     newConfig.Set ("login", "http://" + gridIPAddress + ":" + port + "/");
                                     newConfig.Set ("gridname", gridName);
                                     newConfig.Set ("gridnick", gridName);
-                                } else {
-                                    foreach (string key in config.GetKeys ()) {
+                                }
+                                else
+                                {
+                                    foreach (string key in config.GetKeys ())
+                                    {
                                         if (key == "WelcomeMessage")
-                                            newConfig.Set (key, welcomeMessage);
+                                        {
+                                            newConfig.Set(key, welcomeMessage);
+                                        }
                                         else if (key == "AllowAnonymousLogin")
-                                            newConfig.Set (key, allowAnonLogin);
+                                        {
+                                            newConfig.Set(key, allowAnonLogin);
+                                        }
                                         else
-                                            newConfig.Set (key, config.Get (key));
+                                        {
+                                            newConfig.Set(key, config.Get(key));
+                                        }
                                     }
                                 }
                             }
@@ -433,17 +483,18 @@ namespace Universe.Simulation.Base
                             Console.ForegroundColor = ConsoleColor.Green;
                             Console.WriteLine ("Your StandaloneCommon.ini has been successfully configured");
                             Console.ResetColor ();
-                        } else {
+                        }
+                        else
+                        {
                             MakeSureExists (cfgFolder + "Sim/Grid/GridCommon.ini");
-                            var grid_ini = new IniConfigSource (
-                                cfgFolder + "Sim/Grid/GridCommon.ini",
-                                Nini.Ini.IniFileType.AuroraStyle);
+                            var grid_ini = new IniConfigSource (cfgFolder + "Sim/Grid/GridCommon.ini", Nini.Ini.IniFileType.AuroraStyle);
 
                             conf = grid_ini.AddConfig ("Includes");
                             conf.Set ("Include-Grid", "Sim/Grid/Grid.ini");
                             conf = grid_ini.AddConfig ("Configuration");
                             conf.Set ("GridServerURI", "http://" + gridIPAddress + ":8012/grid/");
-                            //Lets tell the Configurator to create the missing .ini entrys from the .example file
+
+                            // Lets tell the Configurator to create the missing .ini entrys from the .example file
                             conf.Set("SendGridInfoToViewerOnLogin", "true");
                             conf.Set("CurrencySymbol", "\"WC$\"");
                             conf.Set(";;DISABLED BY DEFAULT GENERATED BY CONFIGURATOR", "");
@@ -472,30 +523,34 @@ namespace Universe.Simulation.Base
                     }
 
                     // Grid server
-                    if (!isUniverseExe) {
+                    if (!isUniverseExe)
+                    {
                         MakeSureExists (cfgFolder + "Universe.Server.ini");
-                        var universe_ini = new IniConfigSource (
-                            cfgFolder + "Universe.Server.ini",
-                            Nini.Ini.IniFileType.AuroraStyle);
-                        var universe_ini_example = new IniConfigSource (
-                            cfgFolder + "Universe.Server.ini.example",
-                            Nini.Ini.IniFileType.AuroraStyle);
+                        var universe_ini = new IniConfigSource (cfgFolder + "Universe.Server.ini", Nini.Ini.IniFileType.AuroraStyle);
+                        var universe_ini_example = new IniConfigSource (cfgFolder + "Universe.Server.ini.example", Nini.Ini.IniFileType.AuroraStyle);
 
-                        gridIPAddress =
-                            ReadLine ("\nThe domain name or IP address of the grid server", gridIPAddress);
+                        gridIPAddress = ReadLine ("\nThe domain name or IP address of the grid server", gridIPAddress);
                         bool ipSet = false;
 
-                        foreach (IConfig config in universe_ini_example.Configs) {
+                        foreach (IConfig config in universe_ini_example.Configs)
+                        {
                             IConfig newConfig = universe_ini.AddConfig (config.Name);
-                            foreach (string key in config.GetKeys ()) {
-                                if (key == "HostName") {
+
+                            foreach (string key in config.GetKeys ())
+                            {
+                                if (key == "HostName")
+                                {
                                     ipSet = true;
-                                    newConfig.Set (key, gridIPAddress);
-                                } else
-                                    newConfig.Set (key, config.Get (key));
+                                    newConfig.Set(key, gridIPAddress);
+                                }
+                                else
+                                {
+                                    newConfig.Set(key, config.Get(key));
+                                }
                             }
 
-                            if ((config.Name == "Network") & !ipSet) {
+                            if ((config.Name == "Network") & !ipSet)
+                            {
                                 ipSet = true;
                                 newConfig.Set ("HostName", gridIPAddress);
                             }
@@ -507,12 +562,8 @@ namespace Universe.Simulation.Base
                         Console.ResetColor ();
 
                         MakeSureExists (cfgFolder + "Grid/ServerConfiguration/Login.ini");
-                        var login_ini = new IniConfigSource (
-                            cfgFolder + "Grid/ServerConfiguration/Login.ini",
-                            Nini.Ini.IniFileType.AuroraStyle);
-                        var login_ini_example = new IniConfigSource (
-                            cfgFolder + "Grid/ServerConfiguration/Login.ini.example",
-                            Nini.Ini.IniFileType.AuroraStyle);
+                        var login_ini = new IniConfigSource (cfgFolder + "Grid/ServerConfiguration/Login.ini", Nini.Ini.IniFileType.AuroraStyle);
+                        var login_ini_example = new IniConfigSource (cfgFolder + "Grid/ServerConfiguration/Login.ini.example", Nini.Ini.IniFileType.AuroraStyle);
 
                         Console.WriteLine ("\nHttp Port for the grid server");
                         Console.ForegroundColor = ConsoleColor.Cyan;
@@ -520,15 +571,24 @@ namespace Universe.Simulation.Base
                         Console.ResetColor ();
                         gridPort = uint.Parse (ReadLine ("Choose the port", "8002"));
 
-                        foreach (IConfig config in login_ini_example.Configs) {
+                        foreach (IConfig config in login_ini_example.Configs)
+                        {
                             IConfig newConfig = login_ini.AddConfig (config.Name);
-                            foreach (string key in config.GetKeys ()) {
+
+                            foreach (string key in config.GetKeys ())
+                            {
                                 if (key == "WelcomeMessage")
-                                    newConfig.Set (key, welcomeMessage);
+                                {
+                                    newConfig.Set(key, welcomeMessage);
+                                }
                                 else if (key == "AllowAnonymousLogin")
-                                    newConfig.Set (key, allowAnonLogin);
+                                {
+                                    newConfig.Set(key, allowAnonLogin);
+                                }
                                 else
-                                    newConfig.Set (key, config.Get (key));
+                                {
+                                    newConfig.Set(key, config.Get(key));
+                                }
                             }
                         }
 
@@ -538,9 +598,7 @@ namespace Universe.Simulation.Base
                         Console.ResetColor ();
 
                         MakeSureExists (cfgFolder + "Grid/ServerConfiguration/GridInfoService.ini");
-                        var grid_info_ini = new IniConfigSource (
-                            cfgFolder + "Grid/ServerConfiguration/GridInfoService.ini",
-                            Nini.Ini.IniFileType.AuroraStyle);
+                        var grid_info_ini = new IniConfigSource (cfgFolder + "Grid/ServerConfiguration/GridInfoService.ini", Nini.Ini.IniFileType.AuroraStyle);
 
                         IConfig conf = grid_info_ini.AddConfig ("GridInfoService");
                         conf.Set ("GridInfoInHandlerPort", gridPort);
@@ -561,12 +619,16 @@ namespace Universe.Simulation.Base
                     Console.ForegroundColor = ConsoleColor.Cyan;
                     Console.WriteLine (gridName);
                     Console.ResetColor ();
-                    if (isStandalone) {
+
+                    if (isStandalone)
+                    {
                         Console.WriteLine ("\nYour loginuri is ");
                         Console.ForegroundColor = ConsoleColor.Cyan;
                         Console.WriteLine ("http://" + (isUniverseExe ? regionIPAddress : gridIPAddress) + ":" + (isUniverseExe ? port : gridPort) + "/");
                         Console.ResetColor ();
-                    } else {
+                    }
+                    else
+                    {
                         Console.WriteLine ("\nConnected Grid URL: ");
                         Console.ForegroundColor = ConsoleColor.Cyan;
                         Console.WriteLine ("http://" + gridIPAddress + ":" + gridPort + "/");
@@ -585,8 +647,11 @@ namespace Universe.Simulation.Base
 
         static void MakeSureExists (string file)
         {
-            if (File.Exists (file))
-                File.Delete (file);
+            if (File.Exists(file))
+            {
+                File.Delete(file);
+            }
+
             File.Create (file).Close ();
         }
 
@@ -594,24 +659,36 @@ namespace Universe.Simulation.Base
         {
             Console.WriteLine (log + ": [" + defaultReturn + "]");
             string mode = Console.ReadLine ();
+
             if (mode == string.Empty)
+            {
                 mode = defaultReturn;
+            }
+
             if (mode != null)
-                mode = mode.Trim ();
+            {
+                mode = mode.Trim();
+            }
+
             return mode;
         }
 
         public static void Startup (IConfigSource originalConfigSource, IConfigSource configSource, ISimulationBase simBase, string [] cmdParameters)
         {
-            //Get it ready to run
+            // Get it ready to run
             simBase.Initialize (originalConfigSource, configSource, cmdParameters, m_configLoader);
-            try {
+            try
+            {
                 //Start it. This starts ALL modules and completes the startup of the application
                 simBase.Startup ();
+            
                 //Run the console now that we are done
                 simBase.Run ();
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 UnhandledException (false, ex);
+            
                 //Just clean it out as good as we can
                 simBase.Shutdown (false);
             }
@@ -626,7 +703,10 @@ namespace Universe.Simulation.Base
         static IConfigSource Configuration (IConfigSource configSource, string defaultIniFile)
         {
             if (defaultIniFile != "")
+            {
                 m_configLoader.defaultIniFile = defaultIniFile;
+            }
+
             return m_configLoader.LoadConfigSettings (configSource);
         }
 
@@ -638,7 +718,9 @@ namespace Universe.Simulation.Base
         static void CurrentDomain_UnhandledException (object sender, UnhandledExceptionEventArgs e)
         {
             if (_IsHandlingException)
+            {
                 return;
+            }
 
             _IsHandlingException = true;
             Exception ex = (Exception)e.ExceptionObject;
@@ -656,7 +738,9 @@ namespace Universe.Simulation.Base
             msg += "\r\n";
 
             msg += "Exception: " + ex + "\r\n";
-            if (ex.InnerException != null) {
+
+            if (ex.InnerException != null)
+            {
                 msg += "InnerException: " + ex.InnerException + "\r\n";
             }
 
@@ -664,8 +748,11 @@ namespace Universe.Simulation.Base
             msg += "Application is terminating: " + isTerminating.ToString (CultureInfo.InvariantCulture) + "\r\n";
 
             MainConsole.Instance.ErrorFormat ("[Application]: {0}", msg);
-            if (Util.IsWindows ())
-                HandleCrashException (msg, ex);
+
+            if (Util.IsWindows())
+            {
+                HandleCrashException(msg, ex);
+            }
         }
 
         /// <summary>
@@ -675,28 +762,33 @@ namespace Universe.Simulation.Base
         /// <param name="ex"></param>
         public static void HandleCrashException (string msg, Exception ex)
         {
-            //if (m_saveCrashDumps && Environment.OSVersion.Platform == PlatformID.Win32NT)
             // 20160323 -greythane - not sure why this will not work on *nix as well?
             // 20160408 -EmperorStarfinder - This appears to not work on either Windows or Nix.
             // Maybe consider removing the saveCrashDumps as it appears it is writing it to the
             // logs for Universe.Server and Universe consoles already?
-            if (m_saveCrashDumps) {
+            if (m_saveCrashDumps)
+            {
                 // Log exception to disk
-                try {
-                    if (!Directory.Exists (m_crashDir))
-                        Directory.CreateDirectory (m_crashDir);
-
-                    string log = Path.Combine (m_crashDir, Util.GetUniqueFilename ("CrashDump" +
-                                                                                 DateTime.Now.Day + DateTime.Now.Month +
-                                                                                 DateTime.Now.Year + ".mdmp"));
-                    using (FileStream fs = new FileStream (log, FileMode.Create, FileAccess.ReadWrite, FileShare.Write)) {
-                        MiniDump.Write (fs.SafeFileHandle,
-                                       MiniDump.Option.WithThreadInfo | MiniDump.Option.WithProcessThreadData |
-                                       MiniDump.Option.WithUnloadedModules | MiniDump.Option.WithHandleData |
-                                       MiniDump.Option.WithDataSegs | MiniDump.Option.WithCodeSegs,
-                                       MiniDump.ExceptionInfo.Present);
+                try
+                {
+                    if (!Directory.Exists(crashDir))
+                    {
+                        Directory.CreateDirectory(crashDir);
                     }
-                } catch (Exception e2) {
+
+                    string log = Path.Combine (crashDir, Util.GetUniqueFilename ("CrashDump" + DateTime.Now.Day + DateTime.Now.Month + DateTime.Now.Year + ".mdmp"));
+                    using (FileStream fs = new FileStream(log, FileMode.Create, FileAccess.ReadWrite, FileShare.Write))
+                    {
+                        MiniDump.Write(fs.SafeFileHandle,
+                            MiniDump.Option.WithThreadInfo | MiniDump.Option.WithProcessThreadData |
+                            MiniDump.Option.WithUnloadedModules | MiniDump.Option.WithHandleData |
+                            MiniDump.Option.WithDataSegs | MiniDump.Option.WithCodeSegs,
+                            MiniDump.ExceptionInfo.Present);
+                    }
+                }
+
+                catch (Exception e2)
+                {
                     MainConsole.Instance.ErrorFormat ("[Crash logger crashed]: {0}", e2);
                 }
             }
@@ -747,27 +839,10 @@ namespace Universe.Simulation.Base
 
         #endregion
 
-        //typedef struct _MINIDUMP_EXCEPTION_INFORMATION { 
-        //    DWORD ThreadId; 
-        //    PEXCEPTION_POINTERS ExceptionPointers; 
-        //    BOOL ClientPointers; 
-        //} MINIDUMP_EXCEPTION_INFORMATION, *PMINIDUMP_EXCEPTION_INFORMATION; 
-
-        //BOOL 
-        //WINAPI 
-        //MiniDumpWriteDump( 
-        //    __in HANDLE hProcess, 
-        //    __in DWORD ProcessId, 
-        //    __in HANDLE hFile, 
-        //    __in MINIDUMP_TYPE DumpType, 
-        //    __in_opt PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, 
-        //    __in_opt PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam, 
-        //    __in_opt PMINIDUMP_CALLBACK_INFORMATION CallbackParam 
-        //    ); 
-
         // Overload requiring MiniDumpExceptionInformation 
         [DllImport ("dbghelp.dll", EntryPoint = "MiniDumpWriteDump", CallingConvention = CallingConvention.StdCall,
             CharSet = CharSet.Unicode, ExactSpelling = true, SetLastError = true)]
+
         static extern bool MiniDumpWriteDump (IntPtr hProcess, uint processId, SafeHandle hFile, uint dumpType,
                                                      ref MiniDumpExceptionInformation expParam, IntPtr userStreamParam,
                                                      IntPtr callbackParam);
@@ -775,6 +850,7 @@ namespace Universe.Simulation.Base
         // Overload supporting MiniDumpExceptionInformation == NULL 
         [DllImport ("dbghelp.dll", EntryPoint = "MiniDumpWriteDump", CallingConvention = CallingConvention.StdCall,
             CharSet = CharSet.Unicode, ExactSpelling = true, SetLastError = true)]
+
         static extern bool MiniDumpWriteDump (IntPtr hProcess, uint processId, SafeHandle hFile, uint dumpType,
                                                      IntPtr expParam, IntPtr userStreamParam, IntPtr callbackParam);
 
@@ -790,18 +866,25 @@ namespace Universe.Simulation.Base
             exp.ThreadId = GetCurrentThreadId ();
             exp.ClientPointers = false;
             exp.ExceptionPointers = IntPtr.Zero;
-            if (exceptionInfo == ExceptionInfo.Present) {
+
+            if (exceptionInfo == ExceptionInfo.Present)
+            {
                 exp.ExceptionPointers = Marshal.GetExceptionPointers ();
             }
 
             bool bRet;
-            if (exp.ExceptionPointers == IntPtr.Zero) {
+
+            if (exp.ExceptionPointers == IntPtr.Zero)
+            {
                 bRet = MiniDumpWriteDump (currentProcessHandle, currentProcessId, fileHandle, (uint)options, IntPtr.Zero,
                                          IntPtr.Zero, IntPtr.Zero);
-            } else {
+            }
+            else
+            {
                 bRet = MiniDumpWriteDump (currentProcessHandle, currentProcessId, fileHandle, (uint)options, ref exp,
                                          IntPtr.Zero, IntPtr.Zero);
             }
+
             return bRet;
         }
 
