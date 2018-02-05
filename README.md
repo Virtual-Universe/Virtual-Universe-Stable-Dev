@@ -27,6 +27,9 @@ The Virtual Universe Development Team
 The Virtual Universe project is owned by the Second Galaxy Development Team.  A group dedicated to the development of virtual world grid architecture that promotes the future of virtual worlds.
 
 
+Codacy Security Scan: [![Codacy Badge](https://api.codacy.com/project/badge/Grade/46f7059885564eadaa638c20c4a93768)](https://www.codacy.com/app/Virtual-Universe/Virtual-Dev?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Virtual-Universe/Virtual-Dev&amp;utm_campaign=Badge_Grade)
+
+
 *NOTES:*
 
 *- As of March 22, 2017, the LibOMV libraries are included as a submodule of the Virtual Universe repositories. When cloning, ensure that the submodules are included.*
