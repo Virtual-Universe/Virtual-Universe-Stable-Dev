@@ -68,6 +68,7 @@ Assigned to NoahStarfinder
 * Upgrades to currency service (Almost complete)
 * Upgrades to Estates (Solar Systems for planets)
 * Upgrades to modules
+* Rendering upgrades for objects and textures including graphics.  This will require changes in viewers to for point cloud rendering.
 
 Viewer Support:
 -----------------
