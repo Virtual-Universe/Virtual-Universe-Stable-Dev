@@ -567,8 +567,10 @@ namespace Universe.DataManager.MySQL
 
         public override bool DeleteByTime(string table, string key)
         {
+            // The only call here is to delete any "tokens.validity" < now.  i.e. expired tokens
+            // validty is a UNIX_TIMESTAMP saved as an int.
             QueryFilter filter = new QueryFilter();
-            filter.andLessThanEqFilters["(UNIX_TIMESTAMP(`" + key.Replace("`", "") + "`) - UNIX_TIMESTAMP())"] = 0;
+            filter.andLessThanEqFilters["(`" + key.Replace("`", "") + "` - UNIX_TIMESTAMP())"] = 0;
 
             return Delete(table, filter);
         }

@@ -719,7 +719,7 @@ namespace Universe.DataManager.SQLite
         {
             QueryFilter filter = new QueryFilter();
             filter.andLessThanEqFilters[
-                "(datetime(" + key.Replace("`", "") + ", 'localtime') - datetime('now', 'localtime'))"] = 0;
+                "(datetime(" + key.Replace("`", "") + ", 'unixepoch') - datetime(strftime('%s','now', 'unixepoch'))"] = 0;
 
             return Delete(table, filter);
         }
