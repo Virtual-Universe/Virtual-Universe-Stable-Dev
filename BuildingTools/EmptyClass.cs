@@ -1,9 +1,9 @@
 ﻿/// <license>
 ///     Copyright (c) Contributors, http://virtual-planets.org/
 ///     See CONTRIBUTORS.TXT for a full list of copyright holders.
-///     For an explanation of the license of each contributor and the content it 
+///     For an explanation of the license of each contributor and the content it
 ///     covers please see the Licenses directory.
-/// 
+///
 ///     Redistribution and use in source and binary forms, with or without
 ///     modification, are permitted provided that the following conditions are met:
 ///         * Redistributions of source code must retain the above copyright
@@ -14,7 +14,7 @@
 ///         * Neither the name of the Virtual Universe Project nor the
 ///         names of its contributors may be used to endorse or promote products
 ///         derived from this software without specific prior written permission.
-/// 
+///
 ///     THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY
 ///     EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 ///     WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
