@@ -62,7 +62,7 @@
 
     <!-- Libraries -->
 
-    <Project name="CSJ2K" path="Virtual-LibOMV/CSJ2K" type="Library" frameworkVersion="v4_5">
+    <Project name="CSJ2K" path="Virtual-LibOMV/CSJ2K" type="Library" frameworkVersion="v4_6">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../VirtualUniverse/bin/</OutputPath>
@@ -94,7 +94,7 @@
       </Files>
     </Project>
 
-    <Project name="OpenMetaverseTypes" path="Virtual-LibOMV/OpenMetaverseTypes" type="Library" rootNamespace="OpenMetaverse" frameworkVersion="v4_5">
+    <Project name="OpenMetaverseTypes" path="Virtual-LibOMV/OpenMetaverseTypes" type="Library" rootNamespace="OpenMetaverse" frameworkVersion="v4_6">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../VirtualUniverse/bin/</OutputPath>
@@ -126,7 +126,7 @@
       </Files>
     </Project>
 
-    <Project name="OpenMetaverse.StructuredData" path="Virtual-LibOMV/OpenMetaverse.StructuredData" type="Library" rootNamespace="OpenMetaverse.StructuredData" frameworkVersion="v4_5">
+    <Project name="OpenMetaverse.StructuredData" path="Virtual-LibOMV/OpenMetaverse.StructuredData" type="Library" rootNamespace="OpenMetaverse.StructuredData" frameworkVersion="v4_6">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../VirtualUniverse/bin/</OutputPath>
@@ -159,7 +159,7 @@
       </Files>
     </Project>
 
-    <Project name="OpenMetaverse" path="Virtual-LibOMV/OpenMetaverse" type="Library" rootNamespace="OpenMetaverse" frameworkVersion="v4_5">
+    <Project name="OpenMetaverse" path="Virtual-LibOMV/OpenMetaverse" type="Library" rootNamespace="OpenMetaverse" frameworkVersion="v4_6">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../VirtualUniverse/bin/</OutputPath>
@@ -199,8 +199,64 @@
       </Files>
     </Project>
 
+    <Project name="OpenMetaverse.Rendering.Meshmerizer" path="Whitecore-LibOMV/OpenMetaverse.Rendering.Meshmerizer" type="Library" frameworkVersion="v4_5">
+      <Configuration name="Debug" platform="x86">
+        <Options>
+          <OutputPath>../../VirtualUniverse/bin/</OutputPath>
+        </Options>
+      </Configuration>
+      <Configuration name="Release" platform="x86">
+        <Options>
+          <OutputPath>../../VirtualUniverse/bin/</OutputPath>
+        </Options>
+      </Configuration>
+      <Configuration name="Debug" platform="x64">
+        <Options>
+          <OutputPath>../../VirtualUniverse/bin/</OutputPath>
+        </Options>
+      </Configuration>
+      <Configuration name="Release" platform="x64">
+        <Options>
+          <OutputPath>../../VirtualUniverse/bin/</OutputPath>
+        </Options>
+      </Configuration>
+
+      <Configuration name="Debug" platform="x86">
+        <Options>
+          <OutputPath>../../VirtualUniverse/bin/</OutputPath>
+        </Options>
+      </Configuration>
+      <Configuration name="Release" platform="x86">
+        <Options>
+          <OutputPath>../../VirtualUniverse/bin/</OutputPath>
+        </Options>
+      </Configuration>
+      <Configuration name="Debug" platform="x64">
+        <Options>
+          <OutputPath>../../VirtualUniverse/bin/</OutputPath>
+        </Options>
+      </Configuration>
+      <Configuration name="Release" platform="x64">
+        <Options>
+          <OutputPath>../../VirtualUniverse/bin/</OutputPath>
+        </Options>
+      </Configuration>
+
+      <ReferencePath>../../VirtualUniverse/bin/</ReferencePath>
+      <Reference name="System"/>
+      <Reference name="System.Drawing"/>
+      <Reference name="OpenMetaverse"/>
+      <Reference name="OpenMetaverseTypes"/>
+      <Reference name="PrimMesher"/>
+      <Files>
+        <Match pattern="*.cs" recurse="true">
+          <Exclude name="obj" pattern="obj"/>
+        </Match>
+      </Files>
+    </Project>
+    
     <!-- Universe Libraries -->
-    <Project frameworkVersion="v4_5" name="Universe.Framework" path="Universe/Framework" type="Library">
+    <Project frameworkVersion="v4_6" name="Universe.Framework" path="Universe/Framework" type="Library">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../VirtualUniverse/bin/</OutputPath>
@@ -248,7 +304,7 @@
     </Project>
 
     <!-- Physics Plug-ins -->
-    <Project frameworkVersion="v4_5" name="Universe.Physics.BasicPhysicsPlugin" path="Universe/Physics/BasicPhysicsPlugin" type="Library">
+    <Project frameworkVersion="v4_6" name="Universe.Physics.BasicPhysicsPlugin" path="Universe/Physics/BasicPhysicsPlugin" type="Library">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../../VirtualUniverse/bin/Physics/</OutputPath>
@@ -285,7 +341,7 @@
       </Files>
     </Project>
 
-    <Project frameworkVersion="v4_5" name="Universe.Physics.Meshing" path="Universe/Physics/Meshing" type="Library">
+    <Project frameworkVersion="v4_6" name="Universe.Physics.Meshing" path="Universe/Physics/Meshing" type="Library">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../../VirtualUniverse/bin/Physics/</OutputPath>
@@ -328,7 +384,7 @@
       </Files>
     </Project>
 
-    <Project frameworkVersion="v4_5" name="Universe.Physics.BulletSPlugin" path="Universe/Physics/BulletSPlugin" type="Library">
+    <Project frameworkVersion="v4_6" name="Universe.Physics.BulletSPlugin" path="Universe/Physics/BulletSPlugin" type="Library">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../../VirtualUniverse/bin/Physics/</OutputPath>
@@ -373,7 +429,7 @@
       </Files>
     </Project>
 
-    <Project frameworkVersion="v4_5" name="Universe.Physics.ConvexDecompositionDotNet" path="Universe/Physics/ConvexDecompositionDotNet" type="Library">
+    <Project frameworkVersion="v4_6" name="Universe.Physics.ConvexDecompositionDotNet" path="Universe/Physics/ConvexDecompositionDotNet" type="Library">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../../VirtualUniverse/bin/Physics/</OutputPath>
@@ -408,7 +464,7 @@
       </Files>
     </Project>
 
-    <Project frameworkVersion="v4_5" name="Universe.Region" path="Universe/Region" type="Library">
+    <Project frameworkVersion="v4_6" name="Universe.Region" path="Universe/Region" type="Library">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../VirtualUniverse/bin/</OutputPath>
@@ -455,7 +511,7 @@
       </Files>
     </Project>
 
-    <Project frameworkVersion="v4_5" name="Universe.Services.NoSQLServices" path="Universe/Services/NoSQLServices" type="Library">
+    <Project frameworkVersion="v4_6" name="Universe.Services.NoSQLServices" path="Universe/Services/NoSQLServices" type="Library">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../../VirtualUniverse/bin/</OutputPath>
@@ -505,7 +561,7 @@
       </Files>
     </Project>
 
-    <Project frameworkVersion="v4_5" name="Universe.Services.SQLServices" path="Universe/Services/SQLServices" type="Library">
+    <Project frameworkVersion="v4_6" name="Universe.Services.SQLServices" path="Universe/Services/SQLServices" type="Library">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../../VirtualUniverse/bin/</OutputPath>
@@ -554,7 +610,7 @@
       </Files>
     </Project>
 
-    <Project frameworkVersion="v4_5" name="Universe.Services.GenericServices" path="Universe/Services/GenericServices" type="Library">
+    <Project frameworkVersion="v4_6" name="Universe.Services.GenericServices" path="Universe/Services/GenericServices" type="Library">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../../VirtualUniverse/bin/</OutputPath>
@@ -605,7 +661,7 @@
       </Files>
     </Project>
 
-    <Project frameworkVersion="v4_5" name="Universe.DataManager" path="Universe/DataManager" type="Library">
+    <Project frameworkVersion="v4_6" name="Universe.DataManager" path="Universe/DataManager" type="Library">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../VirtualUniverse/bin/</OutputPath>
@@ -647,7 +703,7 @@
       </Files>
     </Project>
 
-    <Project frameworkVersion="v4_5" name="Universe.DataManager.MySQL" path="Universe/DataManagerPlugins/MySQL" type="Library">
+    <Project frameworkVersion="v4_6" name="Universe.DataManager.MySQL" path="Universe/DataManagerPlugins/MySQL" type="Library">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../../VirtualUniverse/bin/</OutputPath>
@@ -692,7 +748,7 @@
       </Files>
     </Project>
 
-    <Project frameworkVersion="v4_5" name="Universe.DataManager.SQLite" path="Universe/DataManagerPlugins/SQLite" type="Library">
+    <Project frameworkVersion="v4_6" name="Universe.DataManager.SQLite" path="Universe/DataManagerPlugins/SQLite" type="Library">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../../VirtualUniverse/bin/</OutputPath>
@@ -738,7 +794,7 @@
       </Files>
     </Project>
 
-    <Project frameworkVersion="v4_5" name="Universe.Services.DataService" path="Universe/Services/DataService" type="Library">
+    <Project frameworkVersion="v4_6" name="Universe.Services.DataService" path="Universe/Services/DataService" type="Library">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../../VirtualUniverse/bin/</OutputPath>
@@ -786,7 +842,7 @@
       </Files>
     </Project>
 
-    <Project frameworkVersion="v4_5" name="Universe.ClientStack" path="Universe/ClientStack" type="Library">
+    <Project frameworkVersion="v4_6" name="Universe.ClientStack" path="Universe/ClientStack" type="Library">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../VirtualUniverse/bin/</OutputPath>
@@ -830,7 +886,7 @@
     </Project>
 
     <!-- Universe app -->
-    <Project frameworkVersion="v4_5" name="Universe" path="Universe/Application" type="Exe" appmanifest="app.manifest" icon="Universe.ico">
+    <Project frameworkVersion="v4_6" name="Universe" path="Universe/Application" type="Exe" appmanifest="app.manifest" icon="Universe.ico">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../VirtualUniverse/bin/</OutputPath>
@@ -866,7 +922,7 @@
       </Files>
     </Project>
 
-    <Project frameworkVersion="v4_5" name="Universe.Server" path="Universe/Server" type="Exe" appmanifest="app.manifest" icon="Universe.Server.ico">
+    <Project frameworkVersion="v4_6" name="Universe.Server" path="Universe/Server" type="Exe" appmanifest="app.manifest" icon="Universe.Server.ico">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../VirtualUniverse/bin/</OutputPath>
@@ -907,7 +963,7 @@
       </Files>
     </Project>
 
-    <Project frameworkVersion="v4_5" name="Universe.Server.AssetServer" path="Universe/Servers/AssetServer" type="Exe" appmanifest="app.manifest" icon="Universe.Standalone.ico">
+    <Project frameworkVersion="v4_6" name="Universe.Server.AssetServer" path="Universe/Servers/AssetServer" type="Exe" appmanifest="app.manifest" icon="Universe.Standalone.ico">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../../VirtualUniverse/bin/</OutputPath>
@@ -948,7 +1004,7 @@
       </Files>
     </Project>
 
-    <Project frameworkVersion="v4_5" name="Universe.Server.AvatarServer" path="Universe/Servers/AvatarServer" type="Exe" appmanifest="app.manifest" icon="Universe.Standalone.ico">
+    <Project frameworkVersion="v4_6" name="Universe.Server.AvatarServer" path="Universe/Servers/AvatarServer" type="Exe" appmanifest="app.manifest" icon="Universe.Standalone.ico">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../../VirtualUniverse/bin/</OutputPath>
@@ -989,7 +1045,7 @@
       </Files>
     </Project>
 
-    <Project frameworkVersion="v4_5" name="Universe.Server.GridServer" path="Universe/Servers/GridServer" type="Exe" appmanifest="app.manifest" icon="Universe.Standalone.ico">
+    <Project frameworkVersion="v4_6" name="Universe.Server.GridServer" path="Universe/Servers/GridServer" type="Exe" appmanifest="app.manifest" icon="Universe.Standalone.ico">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../../VirtualUniverse/bin/</OutputPath>
@@ -1030,7 +1086,7 @@
       </Files>
     </Project>
 
-    <Project frameworkVersion="v4_5" name="Universe.Server.InventoryServer" path="Universe/Servers/InventoryServer" type="Exe" appmanifest="app.manifest" icon="Universe.Standalone.ico">
+    <Project frameworkVersion="v4_6" name="Universe.Server.InventoryServer" path="Universe/Servers/InventoryServer" type="Exe" appmanifest="app.manifest" icon="Universe.Standalone.ico">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../../VirtualUniverse/bin/</OutputPath>
@@ -1071,7 +1127,7 @@
       </Files>
     </Project>
 
-    <Project frameworkVersion="v4_5" name="Universe.Server.WebServer" path="Universe/Servers/WebServer" type="Exe" appmanifest="app.manifest" icon="Universe.WebServer.ico">
+    <Project frameworkVersion="v4_6" name="Universe.Server.WebServer" path="Universe/Servers/WebServer" type="Exe" appmanifest="app.manifest" icon="Universe.WebServer.ico">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../../VirtualUniverse/bin/</OutputPath>
@@ -1112,7 +1168,7 @@
       </Files>
     </Project>
 
-    <Project frameworkVersion="v4_5" name="Universe.Simulation.Base" path="Universe/Simulation/Base" type="Library">
+    <Project frameworkVersion="v4_6" name="Universe.Simulation.Base" path="Universe/Simulation/Base" type="Library">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../../VirtualUniverse/bin/</OutputPath>
@@ -1158,7 +1214,7 @@
       </Files>
     </Project>
 
-    <Project frameworkVersion="v4_5" name="Universe.CoreApplicationPlugins" path="Universe/CoreApplicationPlugins" type="Library">
+    <Project frameworkVersion="v4_6" name="Universe.CoreApplicationPlugins" path="Universe/CoreApplicationPlugins" type="Library">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../VirtualUniverse/bin/</OutputPath>
@@ -1205,7 +1261,7 @@
       </Files>
     </Project>
 
-    <Project frameworkVersion="v4_5" name="Universe.Modules" path="Universe/Modules" type="Library">
+    <Project frameworkVersion="v4_6" name="Universe.Modules" path="Universe/Modules" type="Library">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../VirtualUniverse/bin/</OutputPath>
@@ -1257,7 +1313,7 @@
       </Files>
     </Project>
 
-    <Project frameworkVersion="v4_5" name="Universe.Physics.OpenDynamicsEngine" path="Universe/Physics/OpenDynamicsEngine" type="Library">
+    <Project frameworkVersion="v4_6" name="Universe.Physics.OpenDynamicsEngine" path="Universe/Physics/OpenDynamicsEngine" type="Library">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../../VirtualUniverse/bin/Physics/</OutputPath>
@@ -1295,7 +1351,7 @@
       </Files>
     </Project>
 
-    <Project frameworkVersion="v4_5" name="Universe.ScriptEngine.VirtualScript" path="Universe/ScriptEngine/VirtualScript" type="Library">
+    <Project frameworkVersion="v4_6" name="Universe.ScriptEngine.VirtualScript" path="Universe/ScriptEngine/VirtualScript" type="Library">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../../VirtualUniverse/bin/</OutputPath>
@@ -1344,7 +1400,7 @@
       </Files>
     </Project>
 
-    <Project frameworkVersion="v4_5" name="Universe.BotManager" path="Universe/BotManager" type="Library">
+    <Project frameworkVersion="v4_6" name="Universe.BotManager" path="Universe/BotManager" type="Library">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../VirtualUniverse/bin/</OutputPath>
@@ -1390,7 +1446,7 @@
       </Files>
     </Project>
 
-    <Project frameworkVersion="v4_5" name="Universe.Services.API" path="Universe/Services/API" type="Library">
+    <Project frameworkVersion="v4_6" name="Universe.Services.API" path="Universe/Services/API" type="Library">
       <Configuration name="Debug" platform="x86">
         <Options>
           <OutputPath>../../../VirtualUniverse/bin/</OutputPath>

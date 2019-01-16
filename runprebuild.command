@@ -93,7 +93,7 @@ fi
 # Configuring Virtual Universe
 if ! ${VERSIONONLY:=true}; then
   echo "Configuring Virtual Universe $ARCH $CONFIG build"
-  mono ./Prebuild.exe /target vs2010 /targetframework v4_5 /conditionals "LINUX;NET_4_5"
+  mono ./Prebuild.exe /target vs2015 /targetframework v4_6 /conditionals "LINUX;NET_4_7"
 fi
 
 # Update version info
