@@ -1,31 +1,31 @@
-/*
- * Copyright (c) Contributors, http://virtual-planets.org/
- * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the Virtual Universe Project nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE CONTRIBUTORS BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+/// <license>
+///     Copyright (c) Contributors, http://virtual-planets.org/
+///     See CONTRIBUTORS.TXT for a full list of copyright holders.
+///     For an explanation of the license of each contributor and the content it
+///     covers please see the Licenses directory.
+///
+///     Redistribution and use in source and binary forms, with or without
+///     modification, are permitted provided that the following conditions are met:
+///         * Redistributions of source code must retain the above copyright
+///         notice, this list of conditions and the following disclaimer.
+///         * Redistributions in binary form must reproduce the above copyright
+///         notice, this list of conditions and the following disclaimer in the
+///         documentation and/or other materials provided with the distribution.
+///         * Neither the name of the Virtual Universe Project nor the
+///         names of its contributors may be used to endorse or promote products
+///         derived from this software without specific prior written permission.
+///
+///     THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY
+///     EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+///     WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+///     DISCLAIMED. IN NO EVENT SHALL THE CONTRIBUTORS BE LIABLE FOR ANY
+///     DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+///     (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+///     LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+///     ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+///     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+///     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+/// </license>
 
 using System;
 using System.Collections;
@@ -4174,12 +4174,10 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
 
         public void llPointAt(LSL_Vector pos)
         {
-            Deprecated("The function llPointAt, has been depreciated!");
         }
 
         public void llStopPointAt()
         {
-            Deprecated("The function llStopPointAt, has been depreciated!");
         }
 
         public void llTargetOmega(LSL_Vector axis, LSL_Float spinrate, LSL_Float gain)
@@ -5060,15 +5058,18 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
                     World.AssetService.Get(item.AssetID.ToString(), this,
                                            delegate(string i, object sender, AssetBase a)
                                            {
-                                               AssetLandmark lm = new AssetLandmark(a);
+                                               if (a != null)
+                                               {
+                                                   AssetLandmark lm = new AssetLandmark(a);
 
-                                               float rx = (uint)(lm.RegionHandle >> 32);
-                                               float ry = (uint)lm.RegionHandle;
-                                               region = lm.Position + new Vector3(rx, ry, 0) - region;
+                                                   float rx = (uint)(lm.RegionHandle >> 32);
+                                                   float ry = (uint)lm.RegionHandle;
+                                                   region = lm.Position + new Vector3(rx, ry, 0) - region;
 
-                                               string reply = region.ToString();
-                                               dataserverPlugin.AddReply(rq.ToString(),
-                                                                         reply, 1000);
+                                                   string reply = region.ToString();
+                                                   dataserverPlugin.AddReply(rq.ToString(),
+                                                                             reply, 1000);
+                                               }
                                            });
 
                     PScriptSleep(m_sleepMsOnRequestInventoryData);
@@ -6758,32 +6759,38 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
             UUID key = new UUID();
             if (UUID.TryParse(id, out key))
             {
-                IScenePresence presence = World.GetScenePresence(key);
-                IParcelManagementModule parcelManagement = World.RequestModuleInterface<IParcelManagementModule>();
-                if (presence != null) // object is an avatar
+                try
                 {
-                    if (parcelManagement != null)
+                    IScenePresence presence = World.GetScenePresence(key);
+                    IParcelManagementModule parcelManagement = World.RequestModuleInterface<IParcelManagementModule>();
+                    if (presence != null) // object is an avatar
                     {
-                        if (m_host.OwnerID
-                            == parcelManagement.GetLandObject(
-                                presence.AbsolutePosition.X, presence.AbsolutePosition.Y).LandData.OwnerID)
-                            return 1;
-                    }
-                }
-                else // object is not an avatar
-                {
-                    ISceneChildEntity obj = World.GetSceneObjectPart(key);
-                    if (obj != null)
                         if (parcelManagement != null)
                         {
                             if (m_host.OwnerID
                                 == parcelManagement.GetLandObject(
-                                    obj.AbsolutePosition.X, obj.AbsolutePosition.Y).LandData.OwnerID)
+                                presence.AbsolutePosition.X, presence.AbsolutePosition.Y).LandData.OwnerID)
                                 return 1;
                         }
+                        else // object is not an avatar
+                        {
+                            ISceneChildEntity obj = World.GetSceneObjectPart(key);
+                            if (obj != null)
+                                if (parcelManagement != null)
+                                {
+                                    if (m_host.OwnerID == parcelManagement.GetLandObject(obj.AbsolutePosition.X, obj.AbsolutePosition.Y).LandData.OwnerID)
+                                        return 1;
+                                }
+                        }
+                    }
+                }
+                catch (NullReferenceException)
+                {
+                    // lots of places to get nulls
+                    // eg, presence.AbsolutePosition
+                    return 0;
                 }
             }
-
             return 0;
         }
 
@@ -8276,17 +8283,29 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
             }
             tempFloat = 66.66667f * (revolutions - 1.0f);
             shapeBlock.PathRevolutions = (byte)tempFloat;
-            // limits on radiusoffset depend on revolutions and hole size (how?) seems like the maximum range is 0 to 1
-            if (radiusoffset < 0f)
+            // limits on radiusoffset depend on revolutions and hole size
+            float taper_y_magnitude = (float)Math.Abs(taper_a.y);
+            if (radiusoffset * taper_a.y < 0)
             {
-                radiusoffset = 0f;
+                taper_y_magnitude = 0;
             }
-            if (radiusoffset > 1f)
+            float holesize_y_mag = (float)Math.Abs(holesize.y);
+            float max_radius_mag = 1f - holesize_y_mag * (1f - taper_y_magnitude) / (1f - holesize_y_mag);
+            if (Math.Abs(radiusoffset) > max_radius_mag)
             {
-                radiusoffset = 1f;
+                radiusoffset = Math.Sign(radiusoffset) * max_radius_mag;
             }
             tempFloat = 100.0f * radiusoffset;
             shapeBlock.PathRadiusOffset = (sbyte)tempFloat;
+            float min_skew_mag = (float)(1f - 1f / (revolutions * holesize.x + 1f));
+            if (Math.Abs(revolutions - 1.0) < 0.001)
+            {
+                min_skew_mag = 0f;
+            }
+            if (Math.Abs(skew) < min_skew_mag)
+            {
+                skew = min_skew_mag * Math.Sign(skew);
+            }
             if (skew < -0.95f)
             {
                 skew = -0.95f;
@@ -9685,7 +9704,14 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
 
         public LSL_List llGetPhysicsMaterial()
         {
-            return new LSL_List(m_host.GravityMultiplier, m_host.Restitution, m_host.Friction, m_host.Density);
+            var result = new LSL_List();
+
+            result.Add(new LSL_Float(m_host.GravityMultiplier));
+            result.Add(new LSL_Float(m_host.Restitution));
+            result.Add(new LSL_Float(m_host.Friction));
+            result.Add(new LSL_Float(m_host.Density));
+
+            return result;
         }
 
         public void llSetPhysicsMaterial(LSL_Integer bits, LSL_Float density, LSL_Float friction, LSL_Float restitution,
@@ -10394,7 +10420,7 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
                 return "";
 
             if (name == "sim_channel")
-                return "Virtual Universe Server";
+                return "Universe-Sim Server";
             if (name == "sim_version")
                 return World.RequestModuleInterface<ISimulationBase>().Version;
             if (name == "frame_number")
@@ -12060,7 +12086,12 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
             if (!ScriptProtection.CheckThreatLevel(ThreatLevel.None, "LSL", m_host, "LSL", m_itemID)) 
                 return 0;
 
-            ISceneChildEntity part = World.GetSceneObjectPart(new UUID(object_id));
+            UUID id;
+            if (!UUID.TryParse(object_id, out id))
+            {
+                return 0;
+            }
+            ISceneChildEntity part = World.GetSceneObjectPart(id);
             if (part == null)
             {
                 return 0;
@@ -12307,6 +12338,25 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
                         	ret.Add(new LSL_Integer(0));
                         	break;
                         }                        
+                        // Added Sep 2017 from Constants
+                        else if ((LSL_Integer)o == ScriptBaseClass.OBJECT_CREATION_TIME)
+                        {
+                            // Return 0 for now, needs a proper check    
+                        	ret.Add(new LSL_Integer(0));
+                        	break;
+                        }
+                        else if ((LSL_Integer)o == ScriptBaseClass.OBJECT_SELECT_COUNT)
+                        {
+                            // Return 0 for now, needs a proper check    
+                        	ret.Add(new LSL_Integer(0));
+                        	break;
+                        }
+                        else if ((LSL_Integer)o == ScriptBaseClass.OBJECT_SIT_COUNT)
+                        {
+                            // Return 0 for now, needs a proper check    
+                        	ret.Add(new LSL_Integer(0));
+                        	break;
+                        }
                         else
                         {
                             ret.Add(ScriptBaseClass.OBJECT_UNKNOWN_DETAIL);
@@ -12450,6 +12500,25 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
                         else if ((LSL_Integer)o == ScriptBaseClass.OBJECT_TEMP_ATTACHED)
                         {
                         	// Return 0 for now, needs a proper check
+                        	ret.Add(new LSL_Integer(0));
+                        	break;
+                        }
+                        // Added Sep 2017 from Constants
+                        else if ((LSL_Integer)o == ScriptBaseClass.OBJECT_CREATION_TIME)
+                        {
+                            // Return 0 for now, needs a proper check    
+                        	ret.Add(new LSL_Integer(0));
+                        	break;
+                        }
+                        else if ((LSL_Integer)o == ScriptBaseClass.OBJECT_SELECT_COUNT)
+                        {
+                            // Return 0 for now, needs a proper check    
+                        	ret.Add(new LSL_Integer(0));
+                        	break;
+                        }
+                        else if ((LSL_Integer)o == ScriptBaseClass.OBJECT_SIT_COUNT)
+                        {
+                            // Return 0 for now, needs a proper check    
                         	ret.Add(new LSL_Integer(0));
                         	break;
                         }
@@ -13645,11 +13714,16 @@ namespace Universe.ScriptEngine.VirtualScript.APIs
 
         public LSL_String llJsonGetValue(LSL_String json, LSL_List specifiers)
         {
-            OSD o = OSDParser.DeserializeJson(json);
-            OSD specVal = JsonGetSpecific(o, specifiers, 0);
-            if (specVal != null)
+            try
+            {
+                OSD o = OSDParser.DeserializeJson(json);
+                OSD specVal = JsonGetSpecific(o, specifiers, 0);
                 return specVal.AsString();
-            return string.Empty;
+            }
+            catch (Exception)
+            {
+                return ScriptBaseClass.JSON_INVALID;
+            }
         }
 
         public LSL_List llJson2List(LSL_String json)
