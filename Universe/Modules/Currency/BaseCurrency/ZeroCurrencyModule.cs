@@ -1,31 +1,31 @@
-/*
- * Copyright (c) Contributors, http://virtual-planets.org/
- * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the Virtual Universe Project nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE CONTRIBUTORS BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+/// <license>
+///     Copyright (c) Contributors, http://virtual-planets.org/
+///     See CONTRIBUTORS.TXT for a full list of copyright holders.
+///     For an explanation of the license of each contributor and the content it
+///     covers please see the Licenses directory.
+///
+///     Redistribution and use in source and binary forms, with or without
+///     modification, are permitted provided that the following conditions are met:
+///         * Redistributions of source code must retain the above copyright
+///         notice, this list of conditions and the following disclaimer.
+///         * Redistributions in binary form must reproduce the above copyright
+///         notice, this list of conditions and the following disclaimer in the
+///         documentation and/or other materials provided with the distribution.
+///         * Neither the name of the Virtual Universe Project nor the
+///         names of its contributors may be used to endorse or promote products
+///         derived from this software without specific prior written permission.
+///
+///     THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY
+///     EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+///     WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+///     DISCLAIMED. IN NO EVENT SHALL THE CONTRIBUTORS BE LIABLE FOR ANY
+///     DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+///     (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+///     LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+///     ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+///     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+///     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+/// </license>
 
 using System;
 using System.Collections;
@@ -39,11 +39,13 @@ using Universe.Framework.PresenceInfo;
 using Universe.Framework.SceneInfo;
 using Universe.Framework.Servers;
 
-namespace Universe.Modules.Currency
+namespace Universe.Modules.Currency.BaseCurrency
 {
-    /* This module provides the necessary economy functionality for the viewer
-       but with all values being $0
-    */
+    /// <summary>
+    ///     This module provides the necessary economy 
+    ///     functionality for the viewer but with all 
+    ///     values being $0
+    /// </summary>
     public class CurrencyModule : IMoneyModule, INonSharedRegionModule
     {
         bool m_enabled;
@@ -51,14 +53,14 @@ namespace Universe.Modules.Currency
 
         #region IMoneyModule Members
 
-		public string InWorldCurrencySymbol
+        public string InWorldCurrencySymbol
         {
             get { return "$"; }
         }
 
         public bool IsLocal
         {
-            get { return !m_config.Configs ["UniverseConnectors"].GetBoolean("DoRemoteCalls", false); }
+            get { return !m_config.Configs["UniverseConnectors"].GetBoolean("DoRemoteCalls", false); }
         }
 
         public int UploadCharge
@@ -78,7 +80,7 @@ namespace Universe.Modules.Currency
 
         public int ClientPort
         {
-            get { return m_config.Configs["Handlers"].GetInt("LLLoginHandlerPort", (int) MainServer.Instance.Port); }
+            get { return m_config.Configs["Handlers"].GetInt("LLLoginHandlerPort", (int)MainServer.Instance.Port); }
         }
 
 #pragma warning disable 67
@@ -91,11 +93,13 @@ namespace Universe.Modules.Currency
         }
 
         public bool Transfer(UUID toID, UUID fromID, UUID toObjectID, string toObjectName, UUID fromObjectID,
-                             string fromObjectName, int amount, string description,
-                             TransactionType type)
+                             string fromObjectName, int amount, string description, TransactionType type)
         {
             if ((type == TransactionType.PayObject) && (OnObjectPaid != null))
+            {
                 OnObjectPaid((fromObjectID == UUID.Zero) ? toObjectID : fromObjectID, fromID, amount);
+            }
+
             return true;
         }
 
@@ -115,6 +119,7 @@ namespace Universe.Modules.Currency
         {
             m_config = config;
             IConfig currencyConfig = config.Configs["Currency"];
+
             if (currencyConfig != null)
             {
                 m_enabled = currencyConfig.GetString("Module", "") == Name;
@@ -124,15 +129,22 @@ namespace Universe.Modules.Currency
         public void AddRegion(IScene scene)
         {
             if (!m_enabled)
+            {
                 return;
-            // Send ObjectCapacity to Scene..  Which sends it to the SimStatsReporter.
+            }
+
+            /// <summary>
+            ///     Send ObjectCapacity to Scene
+            ///     WHich sends it to SImStatsReporter.
+            /// </summary>
             scene.RegisterModuleInterface<IMoneyModule>(this);
 
-            // XMLRPCHandler = scene;
-            // To use the following you need to add:
-            // -helperuri <ADDRESS TO HERE OR grid MONEY SERVER>
-            // to the command line parameters you use to start up your client
-            // This commonly looks like -helperuri http://127.0.0.1:9000/
+            /// <summary>
+            ///     To use the following you need to add
+            ///     -helperuri = address to here or grid money server
+            ///     to the command line parameters you use to start up
+            ///     your clent.  This commonly looks like -helperuri http://127.0.0.1:8002/
+            /// </summary>
             MainServer.Instance.AddXmlRPCHandler("getCurrencyQuote", quote_func);
             MainServer.Instance.AddXmlRPCHandler("buyCurrency", buy_func);
             MainServer.Instance.AddXmlRPCHandler("preflightBuyLandPrep", preflightBuyLandPrep_func);
@@ -181,8 +193,7 @@ namespace Universe.Modules.Currency
             return true;
         }
 
-        public void ProcessMoneyTransferRequest(UUID source, UUID destination, int amount,
-                                                int transactiontype, string description)
+        public void ProcessMoneyTransferRequest(UUID source, UUID destination, int amount, int transactiontype, string description)
         {
         }
 
@@ -224,7 +235,7 @@ namespace Universe.Modules.Currency
 
         protected XmlRpcResponse quote_func(XmlRpcRequest request, IPEndPoint ep)
         {
-            Hashtable requestData = (Hashtable) request.Params[0];
+            Hashtable requestData = (Hashtable)request.Params[0];
             UUID agentId = UUID.Zero;
             int amount = 0;
             Hashtable quoteResponse = new Hashtable();
@@ -232,15 +243,17 @@ namespace Universe.Modules.Currency
 
             if (requestData.ContainsKey("agentId") && requestData.ContainsKey("currencyBuy"))
             {
-                UUID.TryParse((string) requestData["agentId"], out agentId);
+                UUID.TryParse((string)requestData["agentId"], out agentId);
+
                 try
                 {
-                    amount = (int) requestData["currencyBuy"];
+                    amount = (int)requestData["currencyBuy"];
                 }
                 catch (InvalidCastException)
                 {
                 }
-                Hashtable currencyResponse = new Hashtable {{"estimatedCost", 0}, {"currencyBuy", amount}};
+
+                Hashtable currencyResponse = new Hashtable { { "estimatedCost", 0 }, { "currencyBuy", amount } };
 
                 quoteResponse.Add("success", true);
                 quoteResponse.Add("currency", currencyResponse);
@@ -252,41 +265,15 @@ namespace Universe.Modules.Currency
 
             quoteResponse.Add("success", false);
             quoteResponse.Add("errorMessage", "Invalid parameters passed to the quote box");
-			quoteResponse.Add("errorURI", "http://virtual-planets.org/wiki");
+            quoteResponse.Add("errorURI", "http://wiki.virtual-planets.org");
             returnval.Value = quoteResponse;
             return returnval;
         }
 
         protected XmlRpcResponse buy_func(XmlRpcRequest request, IPEndPoint ep)
         {
-            /*Hashtable requestData = (Hashtable)request.Params[0];
-            UUID agentId = UUID.Zero;
-            int amount = 0;
-            if (requestData.ContainsKey("agentId") && requestData.ContainsKey("currencyBuy"))
-            {
-                UUID.TryParse((string)requestData["agentId"], out agentId);
-                try
-                {
-                    amount = (Int32)requestData["currencyBuy"];
-                }
-                catch (InvalidCastException)
-                {
-                }
-                if (agentId != UUID.Zero)
-                {
-                    uint buyer = CheckExistAndRefreshFunds(agentId);
-                    buyer += (uint)amount;
-                    UpdateBalance(agentId,buyer);
-					
-                    IClientAPI client = LocateClientObject(agentId);
-                    if (client != null)
-                    {
-                        SendMoneyBalance(client, agentId, client.SessionId, UUID.Zero);
-                    }
-                }
-            }*/
             XmlRpcResponse returnval = new XmlRpcResponse();
-            Hashtable returnresp = new Hashtable {{"success", true}};
+            Hashtable returnresp = new Hashtable { { "success", true } };
             returnval.Value = returnresp;
             return returnval;
         }
@@ -301,9 +288,9 @@ namespace Universe.Modules.Currency
 
             Hashtable landuse = new Hashtable();
 
-            Hashtable level = new Hashtable {{"id", "00000000-0000-0000-0000-000000000000"}, {"", "Premium Membership"}};
+            Hashtable level = new Hashtable { { "id", "00000000-0000-0000-0000-000000000000" }, { "", "Premium Membership" } };
 
-            Hashtable currencytable = new Hashtable {{"estimatedCost", 0}};
+            Hashtable currencytable = new Hashtable { { "estimatedCost", 0 } };
 
             retparam.Add("success", true);
             retparam.Add("currency", currencytable);
@@ -317,7 +304,7 @@ namespace Universe.Modules.Currency
         protected XmlRpcResponse landBuy_func(XmlRpcRequest request, IPEndPoint ep)
         {
             XmlRpcResponse ret = new XmlRpcResponse();
-            Hashtable retparam = new Hashtable {{"success", true}};
+            Hashtable retparam = new Hashtable { { "success", true } };
             ret.Value = retparam;
             return ret;
         }
@@ -347,27 +334,27 @@ namespace Universe.Modules.Currency
 
         public List<AgentTransfer> GetTransactionHistory(UUID UserID, UUID fromAgentID, DateTime dateStart, DateTime dateEnd, uint? start, uint? count)
         {
-            return new List<AgentTransfer> ();
+            return new List<AgentTransfer>();
         }
 
         public List<AgentTransfer> GetTransactionHistory(UUID toAgentID, UUID fromAgentID, int period, string periodType)
         {
-            return new List<AgentTransfer> ();
+            return new List<AgentTransfer>();
         }
 
         public List<AgentTransfer> GetTransactionHistory(UUID toAgentID, int period, string periodType)
         {
-            return new List<AgentTransfer> ();
+            return new List<AgentTransfer>();
         }
-            
+
         public List<AgentTransfer> GetTransactionHistory(DateTime dateStart, DateTime dateEnd, uint? start, uint? count)
         {
-            return new List<AgentTransfer> ();
+            return new List<AgentTransfer>();
         }
 
         public List<AgentTransfer> GetTransactionHistory(int period, string periodType, uint? start, uint? count)
         {
-            return new List<AgentTransfer> ();
+            return new List<AgentTransfer>();
         }
 
         public uint NumberOfPurchases(UUID UserID)
@@ -377,22 +364,22 @@ namespace Universe.Modules.Currency
 
         public List<AgentPurchase> GetPurchaseHistory(UUID UserID, DateTime dateStart, DateTime dateEnd, uint? start, uint? count)
         {
-            return new List<AgentPurchase> ();
+            return new List<AgentPurchase>();
         }
 
-        public List<AgentPurchase> GetPurchaseHistory (UUID toAgentID, int period, string periodType)
+        public List<AgentPurchase> GetPurchaseHistory(UUID toAgentID, int period, string periodType)
         {
-            return new List<AgentPurchase> ();
+            return new List<AgentPurchase>();
         }
 
         public List<AgentPurchase> GetPurchaseHistory(DateTime dateStart, DateTime dateEnd, uint? start, uint? count)
         {
-            return new List<AgentPurchase> ();
+            return new List<AgentPurchase>();
         }
 
-        public List<AgentPurchase> GetPurchaseHistory (int period, string periodType, uint? start, uint? count)
+        public List<AgentPurchase> GetPurchaseHistory(int period, string periodType, uint? start, uint? count)
         {
-            return new List<AgentPurchase> ();
+            return new List<AgentPurchase>();
         }
 
         public List<GroupAccountHistory> GetGroupTransactions(UUID groupID, UUID agentID, int currentInterval,
@@ -403,7 +390,7 @@ namespace Universe.Modules.Currency
 
         public GroupBalance GetGroupBalance(UUID groupID)
         {
-            return new GroupBalance {StartingDate = DateTime.Now.AddDays(-4)};
+            return new GroupBalance { StartingDate = DateTime.Now.AddDays(-4) };
         }
 
         public bool GroupCurrencyTransfer(UUID groupID, UUID fromID, bool payUser, string toObjectName, UUID fromObjectID,

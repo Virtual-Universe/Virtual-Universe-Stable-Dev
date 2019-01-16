@@ -1,31 +1,31 @@
-﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
- * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the Virtual Universe Project nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE CONTRIBUTORS BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+﻿/// <license>
+///     Copyright (c) Contributors, http://virtual-planets.org/
+///     See CONTRIBUTORS.TXT for a full list of copyright holders.
+///     For an explanation of the license of each contributor and the content it
+///     covers please see the Licenses directory.
+///
+///     Redistribution and use in source and binary forms, with or without
+///     modification, are permitted provided that the following conditions are met:
+///         * Redistributions of source code must retain the above copyright
+///         notice, this list of conditions and the following disclaimer.
+///         * Redistributions in binary form must reproduce the above copyright
+///         notice, this list of conditions and the following disclaimer in the
+///         documentation and/or other materials provided with the distribution.
+///         * Neither the name of the Virtual Universe Project nor the
+///         names of its contributors may be used to endorse or promote products
+///         derived from this software without specific prior written permission.
+///
+///     THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY
+///     EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+///     WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+///     DISCLAIMED. IN NO EVENT SHALL THE CONTRIBUTORS BE LIABLE FOR ANY
+///     DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+///     (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+///     LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+///     ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+///     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+///     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+/// </license>
 
 using System;
 using System.Collections;
@@ -43,7 +43,7 @@ using Universe.Framework.Servers.HttpServer.Interfaces;
 using Universe.Framework.Services;
 using Universe.Framework.Services.ClassHelpers.Profile;
 
-namespace Universe.Modules.Currency
+namespace Universe.Modules.Currency.BaseCurrency
 {
     public class RPCHandler : IService
     {
@@ -57,44 +57,53 @@ namespace Universe.Modules.Currency
 
         #region IService Members
 
-        public void Initialize (IConfigSource config, IRegistryCore registry)
+        public void Initialize(IConfigSource config, IRegistryCore registry)
         {
         }
 
-        public void Start (IConfigSource config, IRegistryCore registry)
+        public void Start(IConfigSource config, IRegistryCore registry)
         {
-            if (config.Configs ["Currency"] == null ||
-                config.Configs ["Currency"].GetString ("Module", "") != "BaseCurrency")
+            if (config.Configs["Currency"] == null || config.Configs["Currency"].GetString("Module", "") != "BaseCurrency")
+            {
                 return;
+            }
 
             // we only want this if we are local..
             bool remoteCalls = false;
-            IConfig connectorConfig = config.Configs ["UniverseConnectors"];
-            if ((connectorConfig != null) && connectorConfig.Contains ("DoRemoteCalls"))
-                remoteCalls = connectorConfig.GetBoolean ("DoRemoteCalls", false);
+            IConfig connectorConfig = config.Configs["UniverseConnectors"];
+
+            if ((connectorConfig != null) && connectorConfig.Contains("DoRemoteCalls"))
+            {
+                remoteCalls = connectorConfig.GetBoolean("DoRemoteCalls", false);
+            }
 
             if (remoteCalls)
+            {
                 return;
+            }
 
-            m_connector = Framework.Utilities.DataManager.RequestPlugin<IBaseCurrencyConnector> () as BaseCurrencyConnector;
-            var curPort = m_connector.GetConfig ().ClientPort;
+            m_connector = Framework.Utilities.DataManager.RequestPlugin<IBaseCurrencyConnector>() as BaseCurrencyConnector;
+            var curPort = m_connector.GetConfig().ClientPort;
+
             if (curPort == 0 && MainServer.Instance == null)
+            {
                 return;
+            }
 
-            IHttpServer server = registry.RequestModuleInterface<ISimulationBase> ().GetHttpServer ((uint)curPort);
-            server.AddXmlRPCHandler ("getCurrencyQuote", QuoteFunc);
-            server.AddXmlRPCHandler ("buyCurrency", BuyFunc);
-            server.AddXmlRPCHandler ("preflightBuyLandPrep", PreflightBuyLandPrepFunc);
-            server.AddXmlRPCHandler ("buyLandPrep", LandBuyFunc);
-            server.AddXmlRPCHandler ("getBalance", GetbalanceFunc);
-            server.AddXmlRPCHandler ("/currency.php", GetbalanceFunc);
-            server.AddXmlRPCHandler ("/landtool.php", GetbalanceFunc);
+            IHttpServer server = registry.RequestModuleInterface<ISimulationBase>().GetHttpServer((uint)curPort);
+            server.AddXmlRPCHandler("getCurrencyQuote", QuoteFunc);
+            server.AddXmlRPCHandler("buyCurrency", BuyFunc);
+            server.AddXmlRPCHandler("preflightBuyLandPrep", PreflightBuyLandPrepFunc);
+            server.AddXmlRPCHandler("buyLandPrep", LandBuyFunc);
+            server.AddXmlRPCHandler("getBalance", GetbalanceFunc);
+            server.AddXmlRPCHandler("/currency.php", GetbalanceFunc);
+            server.AddXmlRPCHandler("/landtool.php", GetbalanceFunc);
 
-            m_syncMessagePoster = registry.RequestModuleInterface<ISyncMessagePosterService> ();
-            m_agentInfoService = registry.RequestModuleInterface<IAgentInfoService> ();
+            m_syncMessagePoster = registry.RequestModuleInterface<ISyncMessagePosterService>();
+            m_agentInfoService = registry.RequestModuleInterface<IAgentInfoService>();
         }
 
-        public void FinishedStartup ()
+        public void FinishedStartup()
         {
         }
 
@@ -102,44 +111,49 @@ namespace Universe.Modules.Currency
 
         #region RPC Calls
 
-        public XmlRpcResponse GetbalanceFunc (XmlRpcRequest request, IPEndPoint ep)
+        public XmlRpcResponse GetbalanceFunc(XmlRpcRequest request, IPEndPoint ep)
         {
-            MainConsole.Instance.Error ("Remote procedure calls GetbalanceFunc was called.");
-            throw new NotImplementedException ();
+            MainConsole.Instance.Error("Remote procedure calls GetbalanceFunc was called.");
+            throw new NotImplementedException();
         }
 
-        public XmlRpcResponse LandBuyFunc (XmlRpcRequest request, IPEndPoint ep)
+        public XmlRpcResponse LandBuyFunc(XmlRpcRequest request, IPEndPoint ep)
         {
-            Hashtable requestData = (Hashtable)request.Params [0];
+            Hashtable requestData = (Hashtable)request.Params[0];
 
             bool success = false;
-            if (requestData.ContainsKey ("agentId") && requestData.ContainsKey ("currencyBuy") &&
-                m_connector.GetConfig ().CanBuyCurrencyInworld) {
+
+            if (requestData.ContainsKey("agentId") && requestData.ContainsKey("currencyBuy") && m_connector.GetConfig().CanBuyCurrencyInworld)
+            {
                 UUID agentId;
-                if (UUID.TryParse ((string)requestData ["agentId"], out agentId)) {
-                    uint amountBuying = uint.Parse (requestData ["currencyBuy"].ToString ());
-                    m_connector.UserCurrencyTransfer (agentId, UUID.Zero, amountBuying,
-                                                     "Inworld purchase", TransactionType.SystemGenerated, UUID.Zero);
+
+                if (UUID.TryParse((string)requestData["agentId"], out agentId))
+                {
+                    uint amountBuying = uint.Parse(requestData["currencyBuy"].ToString());
+                    m_connector.UserCurrencyTransfer(agentId, UUID.Zero, amountBuying, "Inworld purchase", TransactionType.SystemGenerated, UUID.Zero);
                     success = true;
                 }
             }
-            XmlRpcResponse returnval = new XmlRpcResponse ();
+
+            XmlRpcResponse returnval = new XmlRpcResponse();
             Hashtable returnresp = new Hashtable { { "success", success } };
             returnval.Value = returnresp;
 
             return returnval;
         }
 
-        public XmlRpcResponse QuoteFunc (XmlRpcRequest request, IPEndPoint ep)
+        public XmlRpcResponse QuoteFunc(XmlRpcRequest request, IPEndPoint ep)
         {
-            Hashtable requestData = (Hashtable)request.Params [0];
+            Hashtable requestData = (Hashtable)request.Params[0];
 
-            XmlRpcResponse returnval = new XmlRpcResponse ();
+            XmlRpcResponse returnval = new XmlRpcResponse();
 
-            if (requestData.ContainsKey ("agentId") && requestData.ContainsKey ("currencyBuy")) {
-                if (m_connector.GetConfig ().CanBuyCurrencyInworld) {
-                    uint amount = uint.Parse (requestData ["currencyBuy"].ToString ());
-                    amount = (uint)m_connector.CheckMinMaxTransferSettings (UUID.Parse (requestData ["agentId"].ToString ()), amount);
+            if (requestData.ContainsKey("agentId") && requestData.ContainsKey("currencyBuy"))
+            {
+                if (m_connector.GetConfig().CanBuyCurrencyInworld)
+                {
+                    uint amount = uint.Parse(requestData["currencyBuy"].ToString());
+                    amount = (uint)m_connector.CheckMinMaxTransferSettings(UUID.Parse(requestData["agentId"].ToString()), amount);
                     returnval.Value = new Hashtable {
                         {"success", true},
                         {"currency",new Hashtable {
@@ -149,7 +163,9 @@ namespace Universe.Modules.Currency
                         },
                         {"confirm", "asdfad9fj39ma9fj"}
                     };
-                } else {
+                }
+                else
+                {
                     returnval.Value = new Hashtable {
                         {"success", false},
                         {"currency", new Hashtable {
@@ -163,6 +179,7 @@ namespace Universe.Modules.Currency
 
                 return returnval;
             }
+
             returnval.Value = new Hashtable {
                 {"success", false},
                 {"errorMessage", "Invalid parameters passed to the quote box"},
@@ -172,96 +189,116 @@ namespace Universe.Modules.Currency
             return returnval;
         }
 
-        public XmlRpcResponse BuyFunc (XmlRpcRequest request, IPEndPoint ep)
+        public XmlRpcResponse BuyFunc(XmlRpcRequest request, IPEndPoint ep)
         {
-            Hashtable requestData = (Hashtable)request.Params [0];
+            Hashtable requestData = (Hashtable)request.Params[0];
             bool success = false;
-            if (requestData.ContainsKey ("agentId") && requestData.ContainsKey ("currencyBuy") &&
-                m_connector.GetConfig ().CanBuyCurrencyInworld) {
+
+            if (requestData.ContainsKey("agentId") && requestData.ContainsKey("currencyBuy") && m_connector.GetConfig().CanBuyCurrencyInworld)
+            {
                 UUID agentId;
-                if (UUID.TryParse ((string)requestData ["agentId"], out agentId)) {
-                    uint amountBuying = uint.Parse (requestData ["currencyBuy"].ToString ());
-                    success = m_connector.InworldCurrencyBuyTransaction (agentId, amountBuying, ep);
+
+                if (UUID.TryParse((string)requestData["agentId"], out agentId))
+                {
+                    uint amountBuying = uint.Parse(requestData["currencyBuy"].ToString());
+                    success = m_connector.InworldCurrencyBuyTransaction(agentId, amountBuying, ep);
                 }
             }
-            XmlRpcResponse returnval = new XmlRpcResponse ();
+
+            XmlRpcResponse returnval = new XmlRpcResponse();
             Hashtable returnresp = new Hashtable { { "success", success } };
             returnval.Value = returnresp;
             return returnval;
         }
 
-        public XmlRpcResponse PreflightBuyLandPrepFunc (XmlRpcRequest request, IPEndPoint ep)
+        public XmlRpcResponse PreflightBuyLandPrepFunc(XmlRpcRequest request, IPEndPoint ep)
         {
-            Hashtable requestData = (Hashtable)request.Params [0];
-            XmlRpcResponse ret = new XmlRpcResponse ();
-            Hashtable retparam = new Hashtable ();
+            Hashtable requestData = (Hashtable)request.Params[0];
+            XmlRpcResponse ret = new XmlRpcResponse();
+            Hashtable retparam = new Hashtable();
 
-            Hashtable membershiplevels = new Hashtable ();
-            membershiplevels.Add ("levels", membershiplevels);
+            Hashtable membershiplevels = new Hashtable();
+            membershiplevels.Add("levels", membershiplevels);
 
-            Hashtable landuse = new Hashtable ();
+            Hashtable landuse = new Hashtable();
 
             Hashtable level = new Hashtable {
                 {"id", "00000000-0000-0000-0000-000000000000"},
                 {m_connector.GetConfig().UpgradeMembershipUri, "Premium Membership"}
             };
 
-            if (requestData.ContainsKey ("agentId") && requestData.ContainsKey ("currencyBuy")) {
+            if (requestData.ContainsKey("agentId") && requestData.ContainsKey("currencyBuy"))
+            {
                 UUID agentId;
-                UUID.TryParse ((string)requestData ["agentId"], out agentId);
-                UserCurrency currency = m_connector.GetUserCurrency (agentId);
-                IUserProfileInfo profile =
-                    Framework.Utilities.DataManager.RequestPlugin<IProfileConnector> ("IProfileConnector").GetUserProfile (agentId);
+                UUID.TryParse((string)requestData["agentId"], out agentId);
+                UserCurrency currency = m_connector.GetUserCurrency(agentId);
+                IUserProfileInfo profile = Framework.Utilities.DataManager.RequestPlugin<IProfileConnector>("IProfileConnector").GetUserProfile(agentId);
                 OSDMap replyData = null;
                 bool response = false;
-                UserInfo user = m_agentInfoService.GetUserInfo (agentId.ToString ());
-                if (user == null) {
-                    landuse.Add ("action", false);
+                UserInfo user = m_agentInfoService.GetUserInfo(agentId.ToString());
 
-                    retparam.Add ("success", false);
-                    retparam.Add ("currency", currency);
-                    retparam.Add ("membership", level);
-                    retparam.Add ("landuse", landuse);
-                    retparam.Add ("confirm", "asdfajsdkfjasdkfjalsdfjasdf");
+                if (user == null)
+                {
+                    landuse.Add("action", false);
+
+                    retparam.Add("success", false);
+                    retparam.Add("currency", currency);
+                    retparam.Add("membership", level);
+                    retparam.Add("landuse", landuse);
+                    retparam.Add("confirm", "asdfajsdkfjasdkfjalsdfjasdf");
                     ret.Value = retparam;
-                } else {
-                    OSDMap map = new OSDMap ();
-                    map ["Method"] = "GetLandData";
-                    map ["AgentID"] = agentId;
-                    m_syncMessagePoster.Get (user.CurrentRegionURI, map, (o) => {
+                }
+                else
+                {
+                    OSDMap map = new OSDMap();
+                    map["Method"] = "GetLandData";
+                    map["AgentID"] = agentId;
+                    m_syncMessagePoster.Get(user.CurrentRegionURI, map, (o) =>
+                    {
                         replyData = o;
                         response = true;
                     });
-                    while (!response)
-                        Thread.Sleep (10);
-                    if (replyData == null || replyData ["Success"] == false) {
-                        landuse.Add ("action", false);
 
-                        retparam.Add ("success", false);
-                        retparam.Add ("currency", currency);
-                        retparam.Add ("membership", level);
-                        retparam.Add ("landuse", landuse);
-                        retparam.Add ("confirm", "asdfajsdkfjasdkfjalsdfjasdf");
+                    while (!response)
+                    {
+                        Thread.Sleep(10);
+                    }
+
+                    if (replyData == null || replyData["Success"] == false)
+                    {
+                        landuse.Add("action", false);
+
+                        retparam.Add("success", false);
+                        retparam.Add("currency", currency);
+                        retparam.Add("membership", level);
+                        retparam.Add("landuse", landuse);
+                        retparam.Add("confirm", "asdfajsdkfjasdkfjalsdfjasdf");
                         ret.Value = retparam;
-                    } else {
-                        if (replyData.ContainsKey ("SalePrice")) {
-                            int landTierNeeded = (int)(currency.LandInUse + replyData ["Area"].AsInteger ());
+                    }
+                    else
+                    {
+                        if (replyData.ContainsKey("SalePrice"))
+                        {
+                            int landTierNeeded = (int)(currency.LandInUse + replyData["Area"].AsInteger());
                             bool needsUpgrade = false;
-                            switch (profile.MembershipGroup) {
-                            case "Premium":
-                            case "":
-                                needsUpgrade = landTierNeeded >= currency.Tier;
-                                break;
-                            case "Banned":
-                                needsUpgrade = true;
-                                break;
+
+                            switch (profile.MembershipGroup)
+                            {
+                                case "Premium":
+                                case "":
+                                    needsUpgrade = landTierNeeded >= currency.Tier;
+                                    break;
+                                case "Banned":
+                                    needsUpgrade = true;
+                                    break;
                             }
-                            landuse.Add ("action", needsUpgrade);
-                            retparam.Add ("success", true);
-                            retparam.Add ("currency", currency);
-                            retparam.Add ("membership", level);
-                            retparam.Add ("landuse", landuse);
-                            retparam.Add ("confirm", "asdfajsdkfjasdkfjalsdfjasdf");
+
+                            landuse.Add("action", needsUpgrade);
+                            retparam.Add("success", true);
+                            retparam.Add("currency", currency);
+                            retparam.Add("membership", level);
+                            retparam.Add("landuse", landuse);
+                            retparam.Add("confirm", "asdfajsdkfjasdkfjalsdfjasdf");
                             ret.Value = retparam;
                         }
                     }
@@ -270,6 +307,7 @@ namespace Universe.Modules.Currency
 
             return ret;
         }
+
         #endregion
     }
 }

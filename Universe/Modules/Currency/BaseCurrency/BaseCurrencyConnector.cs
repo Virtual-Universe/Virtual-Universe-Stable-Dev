@@ -1,31 +1,31 @@
-﻿/*
- * Copyright (c) Contributors, http://virtual-planets.org/
- * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the Virtual Universe Project nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE CONTRIBUTORS BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+﻿/// <license>
+///     Copyright (c) Contributors, http://virtual-planets.org/
+///     See CONTRIBUTORS.TXT for a full list of copyright holders.
+///     For an explanation of the license of each contributor and the content it
+///     covers please see the Licenses directory.
+///
+///     Redistribution and use in source and binary forms, with or without
+///     modification, are permitted provided that the following conditions are met:
+///         * Redistributions of source code must retain the above copyright
+///         notice, this list of conditions and the following disclaimer.
+///         * Redistributions in binary form must reproduce the above copyright
+///         notice, this list of conditions and the following disclaimer in the
+///         documentation and/or other materials provided with the distribution.
+///         * Neither the name of the Virtual Universe Project nor the
+///         names of its contributors may be used to endorse or promote products
+///         derived from this software without specific prior written permission.
+///
+///     THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY
+///     EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+///     WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+///     DISCLAIMED. IN NO EVENT SHALL THE CONTRIBUTORS BE LIABLE FOR ANY
+///     DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+///     (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+///     LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+///     ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+///     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+///     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+/// </license>
 
 using System;
 using System.Collections.Generic;
@@ -34,18 +34,19 @@ using System.Net;
 using Nini.Config;
 using OpenMetaverse;
 using OpenMetaverse.StructuredData;
+using Universe.Framework.DatabaseInterfaces;
 using Universe.Framework.Modules;
+using Universe.Framework.PresenceInfo;
 using Universe.Framework.Services;
 using Universe.Framework.Utilities;
-using Universe.Framework.PresenceInfo;
-using Universe.Framework.DatabaseInterfaces;
 
-namespace Universe.Modules.Currency
+namespace Universe.Modules.Currency.BaseCurrency
 {
-    
+
     public class BaseCurrencyConnector : ConnectorBase, IBaseCurrencyConnector
     {
         #region Declares
+
         const string _REALM = "user_currency";
         const string _REALMHISTORY = "user_currency_history";
         const string _REALMPURCHASE = "user_purchased";
@@ -60,7 +61,7 @@ namespace Universe.Modules.Currency
 
         public string InWorldCurrency = "";
         public string RealCurrency = "";
-        
+
         #endregion
 
         #region IUniverseDataPlugin Members
@@ -70,34 +71,43 @@ namespace Universe.Modules.Currency
             get { return "IBaseCurrencyConnector"; }
         }
 
-        public void Initialize(IGenericData GenericData, IConfigSource source, IRegistryCore registry,
-                               string defaultConnectionString)
+        public void Initialize(IGenericData GenericData, IConfigSource source, IRegistryCore registry, string defaultConnectionString)
         {
             GD = GenericData;
             m_registry = registry;
 
             IConfig config = source.Configs["Currency"];
+
             if (config == null || source.Configs["Currency"].GetString("Module", "") != "BaseCurrency")
+            {
                 return;
+            }
 
             IConfig gridInfo = source.Configs["GridInfoService"];
+
             if (gridInfo != null)
             {
-                InWorldCurrency = gridInfo.GetString ("CurrencySymbol", string.Empty) + " ";
-                RealCurrency = gridInfo.GetString ("RealCurrencySymbol", string.Empty) + " ";
+                InWorldCurrency = gridInfo.GetString("CurrencySymbol", string.Empty) + " ";
+                RealCurrency = gridInfo.GetString("RealCurrencySymbol", string.Empty) + " ";
             }
 
             if (source.Configs[Name] != null)
+            {
                 defaultConnectionString = source.Configs[Name].GetString("ConnectionString", defaultConnectionString);
+            }
 
             if (GenericData != null)
+            {
                 GenericData.ConnectToDatabase(defaultConnectionString, "BaseCurrency", true);
+            }
+
             Framework.Utilities.DataManager.RegisterPlugin(Name, this);
 
             m_config = new BaseCurrencyConfig(config);
+            m_userInfoService = m_registry.RequestModuleInterface<IAgentInfoService>();
+            m_userAccountService = m_registry.RequestModuleInterface<IUserAccountService>();
 
             Init(m_registry, Name, "", "/currency/", "CurrencyServerURI");
-
         }
 
         #endregion
@@ -108,8 +118,11 @@ namespace Universe.Modules.Currency
         public BaseCurrencyConfig GetConfig()
         {
             object remoteValue = DoRemoteByURL("CurrencyServerURI");
+
             if (remoteValue != null || m_doRemoteOnly)
-                return (BaseCurrencyConfig) remoteValue;
+            {
+                return (BaseCurrencyConfig)remoteValue;
+            }
 
             return m_config;
         }
@@ -120,24 +133,28 @@ namespace Universe.Modules.Currency
         public GroupBalance GetGroupBalance(UUID groupID)
         {
             object remoteValue = DoRemoteByURL("CurrencyServerURI", groupID);
-            if (remoteValue != null || m_doRemoteOnly)
-                return (GroupBalance) remoteValue;
 
-            GroupBalance gb = new GroupBalance {
+            if (remoteValue != null || m_doRemoteOnly)
+            {
+                return (GroupBalance)remoteValue;
+            }
+
+            GroupBalance gb = new GroupBalance
+            {
                 GroupFee = 0,
                 LandFee = 0,
                 ObjectFee = 0,
                 ParcelDirectoryFee = 0,
                 TotalTierCredits = 0,
-                TotalTierDebit = 0,
+                TotalTierDebits = 0,
                 Balance = 0,
                 StartingDate = DateTime.UtcNow
             };
-            Dictionary<string, object> where = new Dictionary<string, object> (1);
-            where ["GroupID"] = groupID;
 
-            List<string> queryResults = GD.Query (new [] { "*" }, _GROUPREALM,
-                new QueryFilter { andFilters = where }, null, null, null);
+            Dictionary<string, object> where = new Dictionary<string, object>(1);
+            where["GroupID"] = groupID;
+
+            List<string> queryResults = GD.Query(new[] { "*" }, _GROUPREALM, new QueryFilter { andFilters = where }, null, null, null);
 
             if (queryResults.Count == 0)
             {
@@ -149,28 +166,34 @@ namespace Universe.Modules.Currency
         }
 
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
-        public List<GroupAccountHistory> GetGroupTransactions(UUID groupID, UUID fromAgentID,
-            int currentInterval, int intervalDays)
+        public List<GroupAccountHistory> GetGroupTransactions(UUID groupID, UUID fromAgentID, int currentInterval, int intervalDays)
         {
-            //return new List<GroupAccountHistory>();
             object remoteValue = DoRemoteByURL("CurrencyServerURI", groupID, fromAgentID, currentInterval, intervalDays);
+
             if (remoteValue != null || m_doRemoteOnly)
-                return (List<GroupAccountHistory>) remoteValue;
+            {
+                return (List<GroupAccountHistory>)remoteValue;
+            }
 
             QueryFilter filter = new QueryFilter();
 
             if (groupID != UUID.Zero)
+            {
                 filter.andFilters["GroupID"] = groupID;
+            }
+
             if (fromAgentID != UUID.Zero)
+            {
                 filter.andFilters["AgentID"] = fromAgentID;
+            }
 
             // calculate interval dates
-            var dStart = DateTime.Now.AddDays(-currentInterval*intervalDays);
-            var dEnd = dStart.AddDays (intervalDays);
+            var dStart = DateTime.Now.AddDays(-currentInterval * intervalDays);
+            var dEnd = dStart.AddDays(intervalDays);
 
             // back to UTC please...
-            var dateStart = dStart.ToUniversalTime ();
-            var dateEnd = dEnd.ToUniversalTime ();
+            var dateStart = dStart.ToUniversalTime();
+            var dateEnd = dEnd.ToUniversalTime();
 
             filter.andGreaterThanEqFilters["Created"] = Utils.DateTimeToUnixTime(dateStart);    // from...
             filter.andLessThanEqFilters["Created"] = Utils.DateTimeToUnixTime(dateEnd);         //...to
@@ -178,107 +201,136 @@ namespace Universe.Modules.Currency
             Dictionary<string, bool> sort = new Dictionary<string, bool>(1);
             sort["Created"] = false;        // descending order
 
-            List<string> query = GD.Query (new string[] { "*" }, _GROUPREALMHISTORY, filter, sort, null, null);
+            List<string> query = GD.Query(new string[] { "*" }, _GROUPREALMHISTORY, filter, sort, null, null);
 
             return ParseGroupTransferQuery(query);
         }
 
         public bool GroupCurrencyTransfer(UUID groupID, UUID userId, bool payUser, string toObjectName, UUID fromObjectID,
-            string fromObjectName, int amount, string description, TransactionType type, UUID transactionID)
+                                          string fromObjectName, int amount, string description, TransactionType transType, UUID transactionID)
         {
-            GroupBalance gb = new GroupBalance {
+            // Groups (legacy) should not receive stipends
+            if (transType == TransactionType.StipendPayment)
+            {
+                return false;
+            }
+
+            GroupBalance gb = new GroupBalance
+            {
                 StartingDate = DateTime.UtcNow
             };
 
-            // Not sure if a group will receive a system payment but..
-            UserCurrency fromCurrency = userId == UUID.Zero ? null : GetUserCurrency(userId);
+            // Not sure if a group will receive a system payment (UUID = Zero) but..
+            UserCurrency fromuserCurrency = userId == UUID.Zero ? null : GetUserCurrency(userId);
 
-            // Groups (legacy) should not receive stipends
-            if (type == TransactionType.StipendPayment) 
-                return false;
-
-            if (fromCurrency != null)
+            if (fromuserCurrency != null)
             {
                 // Normal users cannot have a credit balance.. check to see whether they have enough money
-                if ((int)fromCurrency.Amount - amount < 0)
+                if ((int)fromuserCurrency.Amount - amount < 0)
+                {
                     return false; // Not enough money
+                }
             }
 
-            // is thiis a payment to the group or to the user?
+            // is this a payment from a user to the group or from the group to the user?
             if (payUser)
+            {
+                gb.TotalTierDebits += amount;          // not sure if this the correct place yet? Total of group payments
                 amount = -1 * amount;
+            }
+            else
+            {
+                gb.TotalTierCredits += amount;        // .. total of group receipts
+            }
 
-            uint fromBalance = 0;
-            if (fromCurrency != null) {
+            uint userBalance = 0;
+
+            if (fromuserCurrency != null)
+            {
                 // user payment
-                fromCurrency.Amount -= (uint)amount;
-                UserCurrencyUpdate (fromCurrency, true);
-                fromBalance = fromCurrency.Amount;
+                fromuserCurrency.Amount -= (uint)amount;
+                UserCurrencyUpdate(fromuserCurrency, true);
+                userBalance = fromuserCurrency.Amount;
             }
 
             // track specific group fees
-            switch (type)
+            switch (transType)
             {
-            case TransactionType.GroupJoin:
-                gb.GroupFee += amount;
-                break;
-            case TransactionType.LandAuction:
-                gb.LandFee += amount;
-                break;
-            case TransactionType.ParcelDirFee:
-                gb.ParcelDirectoryFee += amount;
-                break;
+                case TransactionType.GroupJoin:
+                    gb.GroupFee += amount;
+                    break;
+                case TransactionType.LandAuction:
+                    gb.LandFee += amount;
+                    break;
+                case TransactionType.ParcelDirFee:
+                    gb.ParcelDirectoryFee += amount;
+                    break;
             }
-
-            if (payUser)
-                gb.TotalTierDebit -= amount;          // not sure if this the correct place yet? Are these currency or land credits?
-            else
-                gb.TotalTierCredits += amount;        // .. or this?
 
             // update the group balance
-            gb.Balance += amount;                
+            gb.Balance += amount;
             GroupCurrencyUpdate(groupID, gb, true);
 
-            //Must send out notifications to the users involved so that they get the updates
-            if (m_userInfoService == null)
-            {
-                m_userInfoService = m_registry.RequestModuleInterface<IAgentInfoService>();
-                m_userAccountService = m_registry.RequestModuleInterface<IUserAccountService> ();
-            }
+            // Must send out notifications to the users involved so that they get the updates
             if (m_userInfoService != null)
             {
                 UserInfo agentInfo = userId == UUID.Zero ? null : m_userInfoService.GetUserInfo(userId.ToString());
                 UserAccount agentAccount = m_userAccountService.GetUserAccount(null, userId);
-                var groupService = Framework.Utilities.DataManager.RequestPlugin<IGroupsServiceConnector> ();
-                var groupInfo = groupService.GetGroupRecord (userId, groupID, null);
+                var groupService = Framework.Utilities.DataManager.RequestPlugin<IGroupsServiceConnector>();
+                var groupInfo = groupService.GetGroupRecord(userId, groupID, null);
                 var groupName = "Unknown";
 
                 if (groupInfo != null)
+                {
                     groupName = groupInfo.GroupName;
+                }
 
+                // record the group transaction
                 if (m_config.SaveTransactionLogs)
+                {
                     AddGroupTransactionRecord(
-                        (transactionID == UUID.Zero ? UUID.Random() : transactionID), 
+                        (transactionID == UUID.Zero ? UUID.Random() : transactionID),
                         description,
                         groupID,
-                        groupName, 
+                        groupName,
                         userId,
                         (agentAccount == null ? "System" : agentAccount.Name),
                         amount,
-                        type,
+                        transType,
                         gb.TotalTierCredits,        // assume this it the 'total credit for the group but it may be land tier credit??
-                        (int) fromBalance,          // this will be zero if this isa system <> group transaction
+                        (int)userBalance,          // this will be zero if this isa system <> group transaction
                         toObjectName,
                         fromObjectName,
                         (agentInfo == null ? UUID.Zero : agentInfo.CurrentRegionID)
                     );
+                }
 
-                if (agentInfo != null && agentInfo.IsOnline)
+                var paidToMsg = "";
+                var paidFromMsg = "";
+                var paidDesc = (description == "" ? "" : " for " + description);
+
+                if (amount > 0)
                 {
-                    SendUpdateMoneyBalanceToClient(userId, transactionID, agentInfo.CurrentRegionURI, fromBalance,
-                    "You paid " + groupName + " " +InWorldCurrency + amount);
+                    paidToMsg = (groupInfo == null ? " received " : groupName + " paid you ") + InWorldCurrency + amount + paidDesc;
+                    paidFromMsg = "You paid " + (groupInfo == null ? "" : groupName + " ") + InWorldCurrency + amount + paidDesc;
+                }
+
+                if (payUser)
+                {
+                    if (agentInfo != null && agentInfo.IsOnline)
+                    {
+                        SendUpdateMoneyBalanceToClient(userId, transactionID, agentInfo.CurrentRegionURI, userBalance, paidToMsg);
+                    }
+                }
+                else
+                {
+                    if (fromObjectID != UUID.Zero)
+                    {
+                        SendUpdateMoneyBalanceToClient(fromObjectID, transactionID, agentInfo.CurrentRegionURI, (uint)amount, paidFromMsg);
+                    }
                 }
             }
+
             return true;
         }
 
@@ -289,27 +341,31 @@ namespace Universe.Modules.Currency
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
         public UserCurrency GetUserCurrency(UUID agentId)
         {
-            if (m_doRemoteOnly) {
-                object remoteValue = DoRemoteByURL ("CurrencyServerURI", agentId);
-                return remoteValue != null ? (UserCurrency)remoteValue : new UserCurrency ();
+            if (m_doRemoteOnly)
+            {
+                object remoteValue = DoRemoteByURL("CurrencyServerURI", agentId);
+                return remoteValue != null ? (UserCurrency)remoteValue : new UserCurrency();
             }
 
-            Dictionary<string, object> where = new Dictionary<string, object> (1);
-            where ["PrincipalID"] = agentId;
-            List<string> query = GD.Query (new [] { "*" }, _REALM, new QueryFilter {
+            Dictionary<string, object> where = new Dictionary<string, object>(1);
+            where["PrincipalID"] = agentId;
+
+            List<string> query = GD.Query(new[] { "*" }, _REALM, new QueryFilter
+            {
                 andFilters = where
             }, null, null, null);
+
             UserCurrency currency;
+
             if ((query == null) || (query.Count == 0))
             {
                 currency = new UserCurrency(agentId, 0, 0, 0, false, 0);
                 UserCurrencyCreate(agentId);
                 return currency;
             }
-            
+
             return new UserCurrency(query);
         }
-
 
         public int CalculateEstimatedCost(uint amount)
         {
@@ -335,9 +391,12 @@ namespace Universe.Modules.Currency
         public bool InworldCurrencyBuyTransaction(UUID agentID, uint amount, IPEndPoint ep)
         {
             amount = (uint)CheckMinMaxTransferSettings(agentID, amount);
+
             if (amount == 0)
+            {
                 return false;
-            
+            }
+
             UserCurrencyTransfer(
                 agentID,
                 UUID.Zero,
@@ -368,6 +427,7 @@ namespace Universe.Modules.Currency
             filter.andFilters["PrincipalID"] = agentID;
             DateTime now = DateTime.Now;
             RepeatType runevertype = (RepeatType)Enum.Parse(typeof(RepeatType), m_config.MaxAmountPurchasableEveryType);
+
             switch (runevertype)
             {
                 case RepeatType.second:
@@ -392,12 +452,17 @@ namespace Universe.Modules.Currency
                     now = now.AddYears(-m_config.MaxAmountPurchasableEveryAmount);
                     break;
             }
+
             filter.andGreaterThanEqFilters["Created"] = Utils.DateTimeToUnixTime(now);//Greater than the time that we are checking against
             filter.andLessThanEqFilters["Created"] = Utils.GetUnixTime();//Less than now
             List<string> query = GD.Query(new string[] { "Amount" }, _REALMPURCHASE, filter, null, null, null);
+
             if (query == null)
-                return new List<uint> ();
-            return query.ConvertAll<uint> (s => uint.Parse (s));
+            {
+                return new List<uint>();
+            }
+
+            return query.ConvertAll<uint>(s => uint.Parse(s));
         }
 
         // transactions...
@@ -405,46 +470,59 @@ namespace Universe.Modules.Currency
         public uint NumberOfTransactions(UUID toAgentID, UUID fromAgentID)
         {
             QueryFilter filter = new QueryFilter();
-            if (toAgentID != UUID.Zero)
-                filter.andFilters["ToPrincipalID"] = toAgentID;
-            if (fromAgentID != UUID.Zero)
-                filter.andFilters["FromPrincipalID"] = fromAgentID;
 
-   
-            var transactions = GD.Query (new string[] {"count(*)"}, _REALMHISTORY, filter, null, null, null);
+            if (toAgentID != UUID.Zero)
+            {
+                filter.andFilters["ToPrincipalID"] = toAgentID;
+            }
+
+            if (fromAgentID != UUID.Zero)
+            {
+                filter.andFilters["FromPrincipalID"] = fromAgentID;
+            }
+
+            var transactions = GD.Query(new string[] { "count(*)" }, _REALMHISTORY, filter, null, null, null);
+
             if ((transactions == null) || (transactions.Count == 0))
+            {
                 return 0;
-           
-            return (uint)int.Parse (transactions[0]);
+            }
+
+            return (uint)int.Parse(transactions[0]);
         }
 
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
         public List<AgentTransfer> GetTransactionHistory(UUID toAgentID, UUID fromAgentID, DateTime dateStart, DateTime dateEnd, uint? start, uint? count)
         {
-            if (m_doRemoteOnly) {
-                object remoteValue = DoRemoteByURL ("CurrencyServerURI", toAgentID, fromAgentID, dateStart, dateEnd, start, count);
-                return remoteValue != null ? (List<AgentTransfer>)remoteValue : new List<AgentTransfer> ();
+            if (m_doRemoteOnly)
+            {
+                object remoteValue = DoRemoteByURL("CurrencyServerURI", toAgentID, fromAgentID, dateStart, dateEnd, start, count);
+                return remoteValue != null ? (List<AgentTransfer>)remoteValue : new List<AgentTransfer>();
             }
 
             QueryFilter filter = new QueryFilter();
 
             if (toAgentID != UUID.Zero)
+            {
                 filter.andFilters["ToPrincipalID"] = toAgentID;
+            }
+
             if (fromAgentID != UUID.Zero)
+            {
                 filter.andFilters["FromPrincipalID"] = fromAgentID;
+            }
 
             // back to UTC please...
-            dateStart = dateStart.ToUniversalTime ();
-            dateEnd = dateEnd.ToUniversalTime ();
+            dateStart = dateStart.ToUniversalTime();
+            dateEnd = dateEnd.ToUniversalTime();
 
             filter.andGreaterThanEqFilters["Created"] = Utils.DateTimeToUnixTime(dateStart);    // from...
             filter.andLessThanEqFilters["Created"] = Utils.DateTimeToUnixTime(dateEnd);         //...to
 
             Dictionary<string, bool> sort = new Dictionary<string, bool>(1);
             sort["Created"] = false;        // descending order
-            //sort["FromName"] = true;
 
-            List<string> query = GD.Query (new string[] { "*" }, _REALMHISTORY, filter, sort, start, count);
+            List<string> query = GD.Query(new string[] { "*" }, _REALMHISTORY, filter, sort, start, count);
 
             return ParseTransferQuery(query);
         }
@@ -455,19 +533,19 @@ namespace Universe.Modules.Currency
             var dateStart = StartTransactionPeriod(period, periodType);
             var dateEnd = DateTime.Now;
 
-            return GetTransactionHistory (toAgentID, fromAgentID, dateStart, dateEnd, null, null);
+            return GetTransactionHistory(toAgentID, fromAgentID, dateStart, dateEnd, null, null);
         }
 
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
         public List<AgentTransfer> GetTransactionHistory(UUID toAgentID, int period, string periodType)
         {
-            return GetTransactionHistory (toAgentID, UUID.Zero, period, periodType);
+            return GetTransactionHistory(toAgentID, UUID.Zero, period, periodType);
         }
 
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
         public List<AgentTransfer> GetTransactionHistory(DateTime dateStart, DateTime dateEnd, uint? start, uint? count)
         {
-            return GetTransactionHistory (UUID.Zero, UUID.Zero, dateStart, dateEnd, start, count);
+            return GetTransactionHistory(UUID.Zero, UUID.Zero, dateStart, dateEnd, start, count);
         }
 
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
@@ -476,7 +554,7 @@ namespace Universe.Modules.Currency
             var dateStart = StartTransactionPeriod(period, periodType);
             var dateEnd = DateTime.Now;
 
-            return GetTransactionHistory (dateStart, dateEnd, start, count);
+            return GetTransactionHistory(dateStart, dateEnd, start, count);
         }
 
         // Purchases...
@@ -484,42 +562,49 @@ namespace Universe.Modules.Currency
         public uint NumberOfPurchases(UUID UserID)
         {
             QueryFilter filter = new QueryFilter();
-            if (UserID != UUID.Zero)
-                filter.andFilters["PrincipalID"] = UserID;
 
-            var purchases = GD.Query (new string[] { "count(*)" }, _REALMPURCHASE, filter, null, null, null);
+            if (UserID != UUID.Zero)
+            {
+                filter.andFilters["PrincipalID"] = UserID;
+            }
+
+            var purchases = GD.Query(new string[] { "count(*)" }, _REALMPURCHASE, filter, null, null, null);
+
             if ((purchases == null) || (purchases.Count == 0))
+            {
                 return 0;
-            
-            return (uint)int.Parse (purchases [0]);
+            }
+
+            return (uint)int.Parse(purchases[0]);
         }
 
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
         public List<AgentPurchase> GetPurchaseHistory(UUID UserID, DateTime dateStart, DateTime dateEnd, uint? start, uint? count)
         {
-            if (m_doRemoteOnly) {
-                object remoteValue = DoRemoteByURL ("CurrencyServerURI", UserID, dateStart, dateEnd, start, count);
-                return remoteValue != null ? (List<AgentPurchase>)remoteValue : new List<AgentPurchase> ();
+            if (m_doRemoteOnly)
+            {
+                object remoteValue = DoRemoteByURL("CurrencyServerURI", UserID, dateStart, dateEnd, start, count);
+                return remoteValue != null ? (List<AgentPurchase>)remoteValue : new List<AgentPurchase>();
             }
 
             QueryFilter filter = new QueryFilter();
 
             if (UserID != UUID.Zero)
+            {
                 filter.andFilters["PrincipalID"] = UserID;
+            }
 
             // back to UTC please...
-            dateStart = dateStart.ToUniversalTime ();
-            dateEnd = dateEnd.ToUniversalTime ();
+            dateStart = dateStart.ToUniversalTime();
+            dateEnd = dateEnd.ToUniversalTime();
 
             filter.andGreaterThanEqFilters["Created"] = Utils.DateTimeToUnixTime(dateStart);    // from...
             filter.andLessThanEqFilters["Created"] = Utils.DateTimeToUnixTime(dateEnd);         //...to
 
-
             Dictionary<string, bool> sort = new Dictionary<string, bool>(1);
-            //sort["PrincipalID"] = true;
             sort["Created"] = false;        // descending order
 
-            List<string> query = GD.Query (new string[] { "*" }, _REALMPURCHASE, filter, sort, start, count);
+            List<string> query = GD.Query(new string[] { "*" }, _REALMPURCHASE, filter, sort, start, count);
 
             return ParsePurchaseQuery(query);
         }
@@ -530,13 +615,13 @@ namespace Universe.Modules.Currency
             var dateStart = StartTransactionPeriod(period, periodType);
             var dateEnd = DateTime.Now;
 
-            return GetPurchaseHistory (toAgentID, dateStart, dateEnd, null, null);
+            return GetPurchaseHistory(toAgentID, dateStart, dateEnd, null, null);
         }
 
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
         public List<AgentPurchase> GetPurchaseHistory(DateTime dateStart, DateTime dateEnd, uint? start, uint? count)
         {
-            return GetPurchaseHistory (UUID.Zero, dateStart, dateEnd, start, count);
+            return GetPurchaseHistory(UUID.Zero, dateStart, dateEnd, start, count);
         }
 
         [CanBeReflected(ThreatLevel = ThreatLevel.Low)]
@@ -545,13 +630,10 @@ namespace Universe.Modules.Currency
             var dateStart = StartTransactionPeriod(period, periodType);
             var dateEnd = DateTime.Now;
 
-            return GetPurchaseHistory (UUID.Zero, dateStart, dateEnd, start, count);
+            return GetPurchaseHistory(UUID.Zero, dateStart, dateEnd, start, count);
         }
 
-
-            
-        public bool UserCurrencyTransfer(UUID toID, UUID fromID, uint amount,
-                                         string description, TransactionType type, UUID transactionID)
+        public bool UserCurrencyTransfer(UUID toID, UUID fromID, uint amount, string description, TransactionType type, UUID transactionID)
         {
             return UserCurrencyTransfer(toID, fromID, UUID.Zero, "", UUID.Zero, "", amount, description, type, transactionID);
         }
@@ -561,29 +643,36 @@ namespace Universe.Modules.Currency
         public bool UserCurrencyTransfer(UUID toID, UUID fromID, UUID toObjectID, string toObjectName, UUID fromObjectID,
             string fromObjectName, uint amount, string description, TransactionType type, UUID transactionID)
         {
-            if (m_doRemoteOnly) {
-                object remoteValue = DoRemoteByURL ("CurrencyServerURI", toID, fromID, toObjectID, toObjectName, fromObjectID,
+            if (m_doRemoteOnly)
+            {
+                object remoteValue = DoRemoteByURL("CurrencyServerURI", toID, fromID, toObjectID, toObjectName, fromObjectID,
                                                     fromObjectName, amount, description, type, transactionID);
                 return remoteValue != null && (bool)remoteValue;
             }
 
             // check if the 'toID' is a group
-            var groupService = Framework.Utilities.DataManager.RequestPlugin<IGroupsServiceConnector> ();
+            var groupService = Framework.Utilities.DataManager.RequestPlugin<IGroupsServiceConnector>();
+
             if (groupService.IsGroup(toID))
-                return GroupCurrencyTransfer(toID, fromID, false, toObjectName, fromObjectID,
-                    fromObjectName, (int) amount, description, type, transactionID);
-                
+            {
+                return GroupCurrencyTransfer(toID, fromID, false, toObjectName, fromObjectID, fromObjectName, (int)amount, description, type, transactionID);
+            }
+
             // use transfer
             UserCurrency toCurrency = GetUserCurrency(toID);
             UserCurrency fromCurrency = fromID == UUID.Zero ? null : GetUserCurrency(fromID);
 
             if (toCurrency == null)
+            {
                 return false;
+            }
 
             // Groups (legacy) should not receive stipends
             if ((type == TransactionType.StipendPayment) && toCurrency.IsGroup)
+            {
                 return false;
-            
+            }
+
             if (fromCurrency != null)
             {
                 if (fromID == (UUID)Constants.BankerUUID)
@@ -591,31 +680,31 @@ namespace Universe.Modules.Currency
                     // payment from the Banker
                     // 20150730 - greythane - need to fiddle 'the books' as -ve balances are not currently available
                     fromCurrency.Amount += amount;
-                } else
+                }
+                else
                 {
                     // Normal users cannot have a credit balance.. check to see whether they have enough money
                     if ((int)fromCurrency.Amount - (int)amount < 0)
+                    {
                         return false; // Not enough money
+                    }
                 }
 
                 // subtract this payment
                 fromCurrency.Amount -= amount;
-                UserCurrencyUpdate (fromCurrency, true);
+                UserCurrencyUpdate(fromCurrency, true);
             }
 
             if (fromID == toID)
-                toCurrency = GetUserCurrency (toID);
+            {
+                toCurrency = GetUserCurrency(toID);
+            }
 
-            //Update the user who is getting paid
+            // Update the user who is getting paid
             toCurrency.Amount += amount;
             UserCurrencyUpdate(toCurrency, true);
 
-            //Must send out notifications to the users involved so that they get the updates
-            if (m_userInfoService == null)
-            {
-                m_userInfoService = m_registry.RequestModuleInterface<IAgentInfoService>();
-                m_userAccountService = m_registry.RequestModuleInterface<IUserAccountService> ();
-            }
+            // Must send out notifications to the users involved so that they get the updates
             if (m_userInfoService != null)
             {
                 UserInfo toUserInfo = m_userInfoService.GetUserInfo(toID.ToString());
@@ -624,28 +713,31 @@ namespace Universe.Modules.Currency
                 UserAccount fromAccount = m_userAccountService.GetUserAccount(null, fromID);
 
                 if (m_config.SaveTransactionLogs)
+                {
                     AddTransactionRecord(
-                        (transactionID == UUID.Zero ? UUID.Random() : transactionID), 
+                        (transactionID == UUID.Zero ? UUID.Random() : transactionID),
                         description,
                         toID,
                         fromID,
                         amount,
                         type,
-                        toCurrency.Amount, 
+                        toCurrency.Amount,
                         (fromCurrency == null ? 0 : fromCurrency.Amount),
-                        (toAccount == null ? "System" : toAccount.Name), 
+                        (toAccount == null ? "System" : toAccount.Name),
                         (fromAccount == null ? "System" : fromAccount.Name),
                         toObjectName,
                         fromObjectName,
                         (fromUserInfo == null ? UUID.Zero : fromUserInfo.CurrentRegionID)
                     );
+                }
 
                 var paidToMsg = "";
                 var paidFromMsg = "";
                 var paidDesc = (description == "" ? "" : " for " + description);
 
-                if (amount > 0) {
-                    paidFromMsg = 
+                if (amount > 0)
+                {
+                    paidFromMsg =
                         (fromAccount == null ? " received " : fromAccount.Name + " paid you ") +
                         InWorldCurrency + amount + paidDesc;
                     paidToMsg = "You paid " +
@@ -656,21 +748,26 @@ namespace Universe.Modules.Currency
                 if (fromID == toID)
                 {
                     if (toUserInfo != null && toUserInfo.IsOnline)
-                        SendUpdateMoneyBalanceToClient(toID, transactionID, toUserInfo.CurrentRegionURI, toCurrency.Amount, 
+                    {
+                        SendUpdateMoneyBalanceToClient(toID, transactionID, toUserInfo.CurrentRegionURI, toCurrency.Amount,
                                                        toAccount == null ? "" : (toAccount.Name + " paid you ") +
                                                        InWorldCurrency + amount + paidDesc);
-                } else
+                    }
+                }
+                else
                 {
                     if (toUserInfo != null && toUserInfo.IsOnline)
                     {
-                        SendUpdateMoneyBalanceToClient (toID, transactionID, toUserInfo.CurrentRegionURI, toCurrency.Amount, paidFromMsg);
+                        SendUpdateMoneyBalanceToClient(toID, transactionID, toUserInfo.CurrentRegionURI, toCurrency.Amount, paidFromMsg);
                     }
+
                     if (fromUserInfo != null && fromUserInfo.IsOnline)
                     {
-                        SendUpdateMoneyBalanceToClient (fromID, transactionID, fromUserInfo.CurrentRegionURI, fromCurrency.Amount, paidToMsg);
+                        SendUpdateMoneyBalanceToClient(fromID, transactionID, fromUserInfo.CurrentRegionURI, fromCurrency.Amount, paidToMsg);
                     }
                 }
             }
+
             return true;
         }
 
@@ -683,16 +780,18 @@ namespace Universe.Modules.Currency
 
             if (m_syncMessagePoster != null)
             {
-                OSDMap map = new OSDMap ();
-                map ["Method"] = "UpdateMoneyBalance";
-                map ["AgentID"] = toID;
-                map ["Amount"] = balance;
-                map ["Message"] = message;
-                map ["TransactionID"] = transactionID;
-                m_syncMessagePoster.Post (serverURI, map);
+                OSDMap map = new OSDMap();
+                map["Method"] = "UpdateMoneyBalance";
+                map["AgentID"] = toID;
+                map["Amount"] = balance;
+                map["Message"] = message;
+                map["TransactionID"] = transactionID;
+                m_syncMessagePoster.Post(serverURI, map);
             }
         }
+
         #endregion  // user currnency
+
         #endregion  // Service Members
 
         #region Helper Methods
@@ -701,7 +800,8 @@ namespace Universe.Modules.Currency
         void AddTransactionRecord(UUID transID, string description, UUID toID, UUID fromID, uint amount,
             TransactionType transType, uint toBalance, uint fromBalance, string toName, string fromName, string toObjectName, string fromObjectName, UUID regionID)
         {
-            if(amount > m_config.MaxAmountBeforeLogging)
+            if (amount > m_config.MaxAmountBeforeLogging)
+            {
                 GD.Insert(_REALMHISTORY, new object[] {
                     transID,
                     description ?? "",
@@ -716,14 +816,16 @@ namespace Universe.Modules.Currency
                     fromBalance,
                     toObjectName ?? "",
                     fromObjectName ?? "",
-                    regionID 
+                    regionID
                 });
+            }
         }
 
         void AddGroupTransactionRecord(UUID transID, string description, UUID groupID, string groupName, UUID userID, string userName, int amount,
             TransactionType transType, int groupBalance, int userBalance, string toObjectName, string fromObjectName, UUID regionID)
         {
-            if(amount > m_config.MaxAmountBeforeLogging)
+            if (amount > m_config.MaxAmountBeforeLogging)
+            {
                 GD.Insert(_GROUPREALMHISTORY, new object[] {
                     transID,
                     description ?? "",
@@ -738,14 +840,16 @@ namespace Universe.Modules.Currency
                     userBalance,
                     toObjectName ?? "",             // not used?
                     fromObjectName ?? "",           // not used?
-                    regionID 
+                    regionID
                 });
+            }
         }
 
-        void UserCurrencyUpdate (UserCurrency agent, bool full)
+        void UserCurrencyUpdate(UserCurrency agent, bool full)
         {
             if (full)
-                GD.Update (_REALM,
+            {
+                GD.Update(_REALM,
                     new Dictionary<string, object> {
                         { "LandInUse", agent.LandInUse },
                         { "Tier", agent.Tier },
@@ -754,7 +858,8 @@ namespace Universe.Modules.Currency
                         { "StipendsBalance", agent.StipendsBalance }
                     },
                     null,
-                    new QueryFilter {
+                    new QueryFilter
+                    {
                         andFilters = new Dictionary<string, object> {
                             { "PrincipalID", agent.PrincipalID }
                         }
@@ -762,62 +867,60 @@ namespace Universe.Modules.Currency
                     null,
                     null
                 );
+            }
             else
-                GD.Update (_REALM,
+            {
+                GD.Update(_REALM,
                     new Dictionary<string, object> {
                         { "LandInUse", agent.LandInUse },
                         { "Tier", agent.Tier },
                         { "IsGroup", agent.IsGroup }
                     },
                     null,
-                    new QueryFilter {
+                    new QueryFilter
+                    {
                         andFilters = new Dictionary<string, object> {
                             { "PrincipalID", agent.PrincipalID }
                         }
                     },
                     null,
                     null);
+            }
         }
 
         void UserCurrencyCreate(UUID agentId)
         {
-			// Check if this agent has a user account, if not assume its a bot and exit
-			UserAccount account = m_registry.RequestModuleInterface<IUserAccountService>().GetUserAccount(new List<UUID> { UUID.Zero }, agentId);
+            // Check if this agent has a user account, if not assume its a bot and exit
+            UserAccount account = m_registry.RequestModuleInterface<IUserAccountService>().GetUserAccount(new List<UUID> { UUID.Zero }, agentId);
+
             if (account != null)
             {
-                GD.Insert(_REALM, new object[] {agentId.ToString(), 0, 0, 0, 0, 0});
+                GD.Insert(_REALM, new object[] { agentId.ToString(), 0, 0, 0, 0, 0 });
             }
         }
 
         void GroupCurrencyCreate(UUID groupID)
         {
-            var qryResults = GD.Query (new [] { "*" }, _GROUPREALM,
-                new QueryFilter { andFilters = new Dictionary<string, object>{{"GroupID", groupID}}}, null, null, null);
-            
+            var qryResults = GD.Query(new[] { "*" }, _GROUPREALM,
+                new QueryFilter { andFilters = new Dictionary<string, object> { { "GroupID", groupID } } }, null, null, null);
+
             if (qryResults.Count == 0)
-                GD.Insert(_GROUPREALM, new object[] {groupID.ToString(), 0, 0, 0, 0, 0, 0, 0});
+            {
+                GD.Insert(_GROUPREALM, new object[] { groupID.ToString(), 0, 0, 0, 0, 0, 0, 0 });
+            }
         }
 
         static GroupBalance ParseGroupBalance(List<string> queryResults)
         {
-            GroupBalance gb = new GroupBalance ();
-           /* ColDef("GroupID", ColumnTypes.String36),
-            ColDef("Balance", ColumnTypes.Integer30),
-            ColDef("GroupFee", ColumnTypes.Integer30),
-            ColDef("LandFee", ColumnTypes.Integer30),
-            ColDef("ObjectFee", ColumnTypes.Integer30),
-            ColDef("ParcelDirectoryFee", ColumnTypes.Integer30),
-            ColDef("TierCredits", ColumnTypes.Integer30),
-            ColDef("TierDebits", ColumnTypes.Integer30),
-            */
+            GroupBalance gb = new GroupBalance();
 
-            int.TryParse (queryResults [1], out gb.Balance);
-            int.TryParse (queryResults [2], out gb.GroupFee);
-            int.TryParse (queryResults [3], out gb.LandFee);
-            int.TryParse (queryResults [4], out gb.ObjectFee);
-            int.TryParse (queryResults [5], out gb.ParcelDirectoryFee);
-            int.TryParse (queryResults [6], out gb.TotalTierCredits);
-            int.TryParse (queryResults [7], out gb.TotalTierDebit);
+            int.TryParse(queryResults[1], out gb.Balance);
+            int.TryParse(queryResults[2], out gb.GroupFee);
+            int.TryParse(queryResults[3], out gb.LandFee);
+            int.TryParse(queryResults[4], out gb.ObjectFee);
+            int.TryParse(queryResults[5], out gb.ParcelDirectoryFee);
+            int.TryParse(queryResults[6], out gb.TotalTierCredits);
+            int.TryParse(queryResults[7], out gb.TotalTierDebits);
 
             gb.StartingDate = DateTime.UtcNow;
 
@@ -827,39 +930,16 @@ namespace Universe.Modules.Currency
         static List<GroupAccountHistory> ParseGroupTransferQuery(List<string> query)
         {
             var transferList = new List<GroupAccountHistory>();
-/*
-        int Amount;
-        string Description;
-        string TimeString;
-        string UserCausingCharge;
-        bool Payment
-*/
+
             for (int i = 0; i < query.Count; i += 14)
             {
-                GroupAccountHistory transfer = new GroupAccountHistory ();
-
-                /* actual saved details but not all needed for group history
-                transfer.ID = UUID.Parse(query[i + 0]);
-                transfer.Description = query[i + 1];
-                transfer.GroupID = UUID.Parse(query[i + 2]);
-                transfer.GroupName = query[i + 3];
-                transfer.AgentID = UUID.Parse(query[i + 4]);
-                transfer.AgentName = query[i + 5];
-                transfer.Amount = Int32.Parse(query[i + 6]);
-                transfer.TransferType = (TransactionType) Int32.Parse(query[i + 7]);
-                transfer.TransferDate = Utils.UnixTimeToDateTime((uint) Int32.Parse(query[i + 8]));
-                transfer.ToBalance = Int32.Parse(query[i + 9]);
-                transfer.FromBalance = Int32.Parse(query[i + 10]);
-                transfer.FromObjectName = query[i + 11];
-                transfer.ToObjectName = query[i + 12];
-                transfer.RegionName = query[i + 13];
-                */
+                GroupAccountHistory transfer = new GroupAccountHistory();
 
                 transfer.Amount = int.Parse(query[i + 6]);
                 transfer.Description = query[i + 1];
-                transfer.TimeString = Utils.UnixTimeToDateTime((uint) int.Parse(query[i + 8])).ToString();
+                transfer.TimeString = Utils.UnixTimeToDateTime((uint)int.Parse(query[i + 8])).ToString();
                 transfer.UserCausingCharge = query[i + 5];
-                transfer.Payment = (TransactionType)int.Parse (query [i + 7]) != TransactionType.StipendPayment; // This might need work
+                transfer.Payment = (TransactionType)int.Parse(query[i + 7]) != TransactionType.StipendPayment; // This might need work
 
                 transferList.Add(transfer);
             }
@@ -867,71 +947,77 @@ namespace Universe.Modules.Currency
             return transferList;
         }
 
-        void GroupCurrencyUpdate (UUID groupID, GroupBalance gb, bool full)
+        void GroupCurrencyUpdate(UUID groupID, GroupBalance gb, bool full)
         {
             if (full)
-                GD.Update (_GROUPREALM,
+            {
+                GD.Update(_GROUPREALM,
                     new Dictionary<string, object> {
                     { "GroupFee", gb.GroupFee },
                     { "LandFee", gb.LandFee },
                     { "ObjectFee", gb.ObjectFee },
                     { "ParcelDirectoryFee", gb.ParcelDirectoryFee },
                     { "TotalTierCredits", gb.TotalTierCredits },
-                    { "TotalTierDebit", gb.TotalTierDebit },
+                    { "TotalTierDebits", gb.TotalTierDebits },
                     { "Balance", gb.Balance }
                 },
                     null,
-                    new QueryFilter {
-                    andFilters = new Dictionary<string, object> {
+                    new QueryFilter
+                    {
+                        andFilters = new Dictionary<string, object> {
                         { "GroupID", groupID }
                     }
-                },
+                    },
                     null,
                     null
                 );
+            }
             else
-                GD.Update (_GROUPREALM,
+            {
+                GD.Update(_GROUPREALM,
                     new Dictionary<string, object> {
                     { "TotalTierCredits", gb.TotalTierCredits },
-                    { "TotalTierDebit", gb.TotalTierDebit }
+                    { "TotalTierDebits", gb.TotalTierDebits }
                 },
                     null,
-                    new QueryFilter {
-                    andFilters = new Dictionary<string, object> {
+                    new QueryFilter
+                    {
+                        andFilters = new Dictionary<string, object> {
                         { "GroupID", groupID }
                     }
-                },
+                    },
                     null,
                     null);
+            }
         }
 
-
-        DateTime StartTransactionPeriod (int period, string periodType)
+        DateTime StartTransactionPeriod(int period, string periodType)
         {
             DateTime then = DateTime.Now;
+
             switch (periodType)
             {
-            case "sec":
-                then = then.AddSeconds(-period);
-                break;
-            case "min":
-                then = then.AddMinutes(-period);
-                break;
-            case "hour":
-                then = then.AddHours(-period);
-                break;
-            case "day":
-                then = then.AddDays(-period);
-                break;
-            case "week":
-                then = then.AddDays(-period * 7);
-                break;
-            case "month":
-                then = then.AddMonths(-period);
-                break;
-            case "year":
-                then = then.AddYears(-period);
-                break;
+                case "sec":
+                    then = then.AddSeconds(-period);
+                    break;
+                case "min":
+                    then = then.AddMinutes(-period);
+                    break;
+                case "hour":
+                    then = then.AddHours(-period);
+                    break;
+                case "day":
+                    then = then.AddDays(-period);
+                    break;
+                case "week":
+                    then = then.AddDays(-period * 7);
+                    break;
+                case "month":
+                    then = then.AddMonths(-period);
+                    break;
+                case "year":
+                    then = then.AddYears(-period);
+                    break;
             }
 
             return then;
@@ -939,11 +1025,11 @@ namespace Universe.Modules.Currency
 
         static List<AgentTransfer> ParseTransferQuery(List<string> query)
         {
-           var transferList = new List<AgentTransfer>();
+            var transferList = new List<AgentTransfer>();
 
             for (int i = 0; i < query.Count; i += 14)
             {
-                AgentTransfer transfer = new AgentTransfer ();
+                AgentTransfer transfer = new AgentTransfer();
 
                 transfer.ID = UUID.Parse(query[i + 0]);
                 transfer.Description = query[i + 1];
@@ -952,8 +1038,8 @@ namespace Universe.Modules.Currency
                 transfer.ToAgent = UUID.Parse(query[i + 4]);
                 transfer.ToAgentName = query[i + 5];
                 transfer.Amount = int.Parse(query[i + 6]);
-                transfer.TransferType = (TransactionType) int.Parse(query[i + 7]);
-                transfer.TransferDate = Utils.UnixTimeToDateTime((uint) int.Parse(query[i + 8]));
+                transfer.TransferType = (TransactionType)int.Parse(query[i + 7]);
+                transfer.TransferDate = Utils.UnixTimeToDateTime((uint)int.Parse(query[i + 8]));
                 transfer.ToBalance = int.Parse(query[i + 9]);
                 transfer.FromBalance = int.Parse(query[i + 10]);
                 transfer.FromObjectName = query[i + 11];
@@ -966,30 +1052,28 @@ namespace Universe.Modules.Currency
             return transferList;
         }
 
-
         static List<AgentPurchase> ParsePurchaseQuery(List<string> query)
         {
             var purchaseList = new List<AgentPurchase>();
 
             for (int i = 0; i < query.Count; i += 14)
             {
-                AgentPurchase purchase = new AgentPurchase ();
+                AgentPurchase purchase = new AgentPurchase();
 
                 purchase.ID = UUID.Parse(query[i + 0]);
                 purchase.AgentID = UUID.Parse(query[i + 1]);
                 purchase.IP = query[i + 2];
                 purchase.Amount = int.Parse(query[i + 3]);
                 purchase.RealAmount = int.Parse(query[i + 4]);
-                purchase.PurchaseDate = Utils.UnixTimeToDateTime((uint) int.Parse(query[i + 5]));
-                purchase.UpdateDate = Utils.UnixTimeToDateTime((uint) int.Parse(query[i + 6]));
+                purchase.PurchaseDate = Utils.UnixTimeToDateTime((uint)int.Parse(query[i + 5]));
+                purchase.UpdateDate = Utils.UnixTimeToDateTime((uint)int.Parse(query[i + 6]));
 
                 purchaseList.Add(purchase);
             }
 
             return purchaseList;
         }
-            
-        #endregion
 
+        #endregion
     }
 }
