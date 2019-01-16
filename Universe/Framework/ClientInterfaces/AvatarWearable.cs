@@ -1,31 +1,31 @@
-/*
- * Copyright (c) Contributors, http://virtual-planets.org/
- * See CONTRIBUTORS.TXT for a full list of copyright holders.
- * For an explanation of the license of each contributor and the content it 
- * covers please see the Licenses directory.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the Virtual Universe Project nor the
- *       names of its contributors may be used to endorse or promote products
- *       derived from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY
- * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE CONTRIBUTORS BE LIABLE FOR ANY
- * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+/// <license>
+///     Copyright (c) Contributors, http://virtual-planets.org/
+///     See CONTRIBUTORS.TXT for a full list of copyright holders.
+///     For an explanation of the license of each contributor and the content it
+///     covers please see the Licenses directory.
+///
+///     Redistribution and use in source and binary forms, with or without
+///     modification, are permitted provided that the following conditions are met:
+///         * Redistributions of source code must retain the above copyright
+///         notice, this list of conditions and the following disclaimer.
+///         * Redistributions in binary form must reproduce the above copyright
+///         notice, this list of conditions and the following disclaimer in the
+///         documentation and/or other materials provided with the distribution.
+///         * Neither the name of the Virtual Universe Project nor the
+///         names of its contributors may be used to endorse or promote products
+///         derived from this software without specific prior written permission.
+///
+///     THIS SOFTWARE IS PROVIDED BY THE DEVELOPERS ``AS IS'' AND ANY
+///     EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+///     WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+///     DISCLAIMED. IN NO EVENT SHALL THE CONTRIBUTORS BE LIABLE FOR ANY
+///     DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+///     (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+///     LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+///     ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+///     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+///     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+/// </license>
 
 using System.Collections.Generic;
 using System.Linq;
@@ -89,11 +89,11 @@ namespace Universe.Framework.ClientInterfaces
         public static readonly UUID DEFAULT_PANTS_ITEM = new UUID("77c41e39-38f9-f75a-0000-5859892f1111");
         public static readonly UUID DEFAULT_PANTS_ASSET = new UUID("00000000-38f9-1111-024e-222222111120");
 
-        //        public static readonly UUID DEFAULT_ALPHA_ITEM = new UUID("bfb9923c-4838-4d2d-bf07-608c5b1165c8");
-        //        public static readonly UUID DEFAULT_ALPHA_ASSET = new UUID("1578a2b1-5179-4b53-b618-fe00ca5a5594");
+        public static readonly UUID DEFAULT_ALPHA_ITEM = new UUID("bfb9923c-4838-4d2d-bf07-608c5b1165c8");
+        public static readonly UUID DEFAULT_ALPHA_ASSET = new UUID("1578a2b1-5179-4b53-b618-fe00ca5a5594");
 
-        //        public static readonly UUID DEFAULT_TATTOO_ITEM = new UUID("c47e22bd-3021-4ba4-82aa-2b5cb34d35e1");
-        //        public static readonly UUID DEFAULT_TATTOO_ASSET = new UUID("00000000-0000-2222-3333-100000001007");
+        public static readonly UUID DEFAULT_TATTOO_ITEM = new UUID("c47e22bd-3021-4ba4-82aa-2b5cb34d35e1");
+        public static readonly UUID DEFAULT_TATTOO_ASSET = new UUID("00000000-0000-2222-3333-100000001007");
 
         public int MaxItems = 5;
         protected List<UUID> m_ids = new List<UUID>();
@@ -123,7 +123,9 @@ namespace Universe.Framework.ClientInterfaces
             get
             {
                 if (idx >= m_ids.Count || idx < 0)
+                {
                     return new WearableItem(UUID.Zero, UUID.Zero);
+                }
 
                 return new WearableItem(m_ids[idx], m_items[m_ids[idx]]);
             }
@@ -134,6 +136,7 @@ namespace Universe.Framework.ClientInterfaces
             get
             {
                 AvatarWearable[] defaultWearables = new AvatarWearable[MAX_WEARABLES]; //should be 16 of these
+
                 for (int i = 0; i < MAX_WEARABLES; i++)
                 {
                     defaultWearables[i] = new AvatarWearable();
@@ -160,11 +163,11 @@ namespace Universe.Framework.ClientInterfaces
                 // Eyes
                 defaultWearables[EYES].Add(DEFAULT_EYES_ITEM, DEFAULT_EYES_ASSET);
 
-                //                // Alpha
-                //                defaultWearables[ALPHA].Add(DEFAULT_ALPHA_ITEM, DEFAULT_ALPHA_ASSET);
+                // Alpha
+                defaultWearables[ALPHA].Add(DEFAULT_ALPHA_ITEM, DEFAULT_ALPHA_ASSET);
 
-                //                // Tattoo
-                //                defaultWearables[TATTOO].Add(DEFAULT_TATTOO_ITEM, DEFAULT_TATTOO_ASSET);
+                // Tattoo
+                defaultWearables[TATTOO].Add(DEFAULT_TATTOO_ITEM, DEFAULT_TATTOO_ASSET);
 
                 return defaultWearables;
             }
@@ -203,14 +206,20 @@ namespace Universe.Framework.ClientInterfaces
         public void Add(UUID itemID, UUID assetID)
         {
             if (itemID == UUID.Zero)
+            {
                 return;
+            }
+
             if (m_items.ContainsKey(itemID))
             {
                 m_items[itemID] = assetID;
                 return;
             }
+
             if (MaxItems != 0 && m_ids.Count >= MaxItems)
+            {
                 return;
+            }
 
             m_ids.Add(itemID);
             m_items[itemID] = assetID;
@@ -262,14 +271,19 @@ namespace Universe.Framework.ClientInterfaces
         public UUID GetAsset(UUID itemID)
         {
             if (!m_items.ContainsKey(itemID))
+            {
                 return UUID.Zero;
+            }
+
             return m_items[itemID];
         }
 
         public UUID GetItem(UUID assetID)
         {
             if (!m_items.ContainsValue(assetID))
+            {
                 return UUID.Zero;
+            }
 
             foreach (KeyValuePair<UUID, UUID> kvp in m_items.Where(kvp => kvp.Value == assetID))
             {
