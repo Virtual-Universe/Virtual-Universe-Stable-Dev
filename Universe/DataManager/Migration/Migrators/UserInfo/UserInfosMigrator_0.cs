@@ -42,13 +42,11 @@ namespace Universe.DataManager.Migration.Migrators.UserInfo
             MigrationName = "UserInfo";
 
             Schema = new List<SchemaDefinition>();
-
-            // Change summery:
-            //   Add the new UserInfo table that replaces the GridUser and Presence tables    
+   
             AddSchema("user_info", ColDefs(
                 ColDef("UserID", ColumnTypes.String50),
                 ColDef("RegionID", ColumnTypes.String50),
-                ColDef("LastSeen", ColumnTypes.Integer30),
+                ColDef("LastSeen", ColumnTypes.Integer11),
                 ColDef("IsOnline", ColumnTypes.String36),
                 ColDef("LastLogin", ColumnTypes.String50),
                 ColDef("LastLogout", ColumnTypes.String50),
