@@ -1,48 +1,30 @@
-# Attention all users
-If you are using Virtual Universe to run a production level grid open to the public, please use the official stable code in the Virtual-Universe Repository.
+# Virtual-Universe-Stable-Dev
+Virtual-Universe-Stable-Dev is the stable development stage repository of Virtual Universe Open Source Project Arm.  Code arrives in this repository for final testing and debugging prior to it moving to the stable release repository.  When something is committed to this repository it does not mean it is final and there is no guarantee it will make it to a stable release right away if at all.  Likewise the code in this repository is not considered stable yet and only the faint of heart should use this code for testing purposes only.  Please do not use this repository to run a production level grid.  
 
-The repository is at: https://github.com/Virtual-Universe/Virtual-Universe
+# Virtual Universe Open Source Project Arm Ownership
+The owner of the Virtual Universe Open Source Project Arm is Virtual World Research Inc.
 
-Never use the code in the Virtual-Dev repository for your production level grids.  The code in the Development Repository is for development of Virtual Universe and is not considered stable.
+Ownership of code contributed to the Virtual Universe Open Source Project Arm by contributers is owned by it's author.  Contributors provide code to the Virtual Universe Open Source Project Arm under the license designated in this project and do so knowing it may be used by the project arm to further enhance and improve the project.  All code is provided AS IS.
 
-# Virtual-Dev
-The development repository for the Virtual Universe Simulator
+# Virtual Universe Open Source Project Arm Support
+While you should not run a production grid using the code in the Virtual-Universe-Dev repository, we understand there are those who want to get on the cutting edge of what is coming in Virtual Universe.  To get help with an issue or to chat with others who use Virtual Universe you can join the following Virtual Universe Open Source Project Arm communities:
 
-- Development Version: 1.0.4
-- Version Code Name: Vulcan
-- Version Release Schedule
-  - Release Candidate 1: February 11, 2018
-  - Release Candidate 2: April 15, 2018
-  - Release: June 17, 2018
+* IRC channel #galaxyfutures on freenode (http://webchat.freenode.net?channels=%23galaxyfutures)
 
+* Website: Check out https://virtual-planets.org for the latest developments, downloads and forum
 
-This repository is the development repository and should not be considered in any means stable.  If you are using our architecture as the base for a production level grid please use the Virtual-Universe/Virtual-Universe repository.
+* MeWe Community: Virtual Universe MeWe community is for Virtual Universe with a friendly bunch that is happy to answer questions. Find it at https://mewe.com/join/virtualuniverse
 
-If you would like to help by contributing code please see our How to contribute document.
+* Our Discord Server: https://discord.gg/JQb5gEC
 
-Thank you
+## Security Scans
 
-The Virtual Universe Development Team
+Codacy: [![Codacy Badge](https://api.codacy.com/project/badge/Grade/0c681d60a77b41eab3efdf1c784dcf78)](https://www.codacy.com/app/Virtual-World-Research-Inc/Virtual-Dev?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Virtual-Universe/Virtual-Dev&amp;utm_campaign=Badge_Grade)
 
-The Virtual Universe project is owned by the Second Galaxy Development Team.  A group dedicated to the development of virtual world grid architecture that promotes the future of virtual worlds.
+## Build Tools Status
 
+AppVeyor:
 
-Codacy Security Scan: [![Codacy Badge](https://api.codacy.com/project/badge/Grade/46f7059885564eadaa638c20c4a93768)](https://www.codacy.com/app/Virtual-Universe/Virtual-Dev?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Virtual-Universe/Virtual-Dev&amp;utm_campaign=Badge_Grade)
+Travis CI:
 
-
-*NOTES:*
-
-*- As of March 22, 2017, the LibOMV libraries are included as a submodule of the Virtual Universe repositories. When cloning, ensure that the submodules are included.*
-
-`git clone --recursive https://github.com/Virtual-Universe/Virtual-LibOMV.git`
-
-To update an existing repository that does not have the LibOMV submodule
-
-	cd <your Virtual Universe repository>
-	git submodule init
-	git submodule update
-
-*If you do not know what submodules are, or you are not using git from the command line, PLEASE make sure to fetch the submodules too.*
-
-**If you download the repo using the zip file option, you will also need to download the Virtual-LibOMV submodule and extract it in your local Virtual Universe repo.**
 `https://github.com/Virtual-Universe/Virtual-LibOMV`
