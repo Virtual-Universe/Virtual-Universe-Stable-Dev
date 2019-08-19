@@ -19,7 +19,7 @@ While you should not run a production grid using the code in the Virtual-Univers
 
 ## Security Scans
 
-Codacy: [![Codacy Badge](https://api.codacy.com/project/badge/Grade/0c681d60a77b41eab3efdf1c784dcf78)](https://www.codacy.com/app/Virtual-World-Research-Inc/Virtual-Dev?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Virtual-Universe/Virtual-Dev&amp;utm_campaign=Badge_Grade)
+Codacy: [![Codacy Badge](https://api.codacy.com/project/badge/Grade/0c681d60a77b41eab3efdf1c784dcf78)](https://www.codacy.com/app/Virtual-World-Research-Inc/Virtual-Universe-Stable-Dev?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Virtual-Universe/Virtual-Universe-Stable-Dev&amp;utm_campaign=Badge_Grade)
 
 ## Build Tools Status
 
