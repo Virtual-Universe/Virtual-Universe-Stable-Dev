@@ -1,3 +1,6 @@
+# NOTICE
+As of May 1, 2021 the Virtual Universe Open Source Project Arm of Virtual World Research Inc. has been moved over to the Hyperion Virtual Worlds Open Source Project Arm.  You can find all the latest developments and join our open source project community at: https://github.com/Hyperion-Virtual-Worlds
+
 # Virtual-Universe-Stable-Dev
 Virtual-Universe-Stable-Dev is the stable development stage repository of Virtual Universe Open Source Project Arm.  Code arrives in this repository for final testing and debugging prior to it moving to the stable release repository.  When something is committed to this repository it does not mean it is final and there is no guarantee it will make it to a stable release right away if at all.  Likewise the code in this repository is not considered stable yet and only the faint of heart should use this code for testing purposes only.  Please do not use this repository to run a production level grid.  
 
@@ -15,7 +18,7 @@ While you should not run a production grid using the code in the Virtual-Univers
 
 * MeWe Community: Virtual Universe MeWe community is for Virtual Universe with a friendly bunch that is happy to answer questions. Find it at https://mewe.com/join/virtualuniverse
 
-* Our Discord Server: https://discord.gg/JQb5gEC
+* Our Discord Server: https://discord.gg/KB9Nca3MhZ
 
 ## Security Scans
 
